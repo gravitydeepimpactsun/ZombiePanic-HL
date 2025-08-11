@@ -4,6 +4,27 @@
 #define SHARED_ZOMBIEPANIC_ACHIEVEMENTS
 #pragma once
 
+enum EStats
+{
+	INVALID_STAT = -1,
+	ZP_KILLS_CROWBAR = 0,
+	ZP_KILLS_PISTOL,
+	ZP_KILLS_REVOLVER,
+	ZP_KILLS_RIFLE,
+	ZP_KILLS_SHOTGUN,
+	ZP_KILLS_SATCHEL,
+	ZP_KILLS_TNT,
+	ZP_KILLS_ZOMBIE,
+	ZP_FLEEESH,
+	ZP_ITS_A_MASSACRE,
+	ZP_PANIC_100,
+	ZP_PUMPUPSHOTGUN,
+	ZP_CHILDOFGRAVE,
+	ZP_KILLS_MP5,
+
+	STAT_MAX
+};
+
 enum EAchievements
 {
 	ONE_OF_US = 0,
@@ -48,6 +69,13 @@ enum EAchievements
 	PARTOFHORDE,
 
 	ACHV_MAX
+};
+
+struct StatData_t
+{
+	EStats ID;
+	const char *Name;
+	int32 Value;
 };
 
 #endif

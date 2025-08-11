@@ -27,89 +27,6 @@ enum
 	MAX_CATEGORIES
 };
 
-enum EStats
-{
-	INVALID_STAT = -1,
-	ZP_KILLS_CROWBAR = 0,
-	ZP_KILLS_PISTOL,
-	ZP_KILLS_REVOLVER,
-	ZP_KILLS_RIFLE,
-	ZP_KILLS_SHOTGUN,
-	ZP_KILLS_SATCHEL,
-	ZP_KILLS_TNT,
-	ZP_KILLS_ZOMBIE,
-	ZP_FLEEESH,
-	ZP_ITS_A_MASSACRE,
-	ZP_PANIC_100,
-	ZP_PUMPUPSHOTGUN,
-	ZP_CHILDOFGRAVE,
-	ZP_KILLS_MP5,
-
-	STAT_MAX
-};
-
-struct StatData_t
-{
-	EStats ID;
-	const char *Name;
-	int32 Value;
-};
-
-#define _STAT_ID(id) { id, #id, 0 }
-StatData_t g_SteamStats[] =
-{
-	// INVALID STAT, MUST BE INDEX 0
-	_STAT_ID(INVALID_STAT),
-
-	_STAT_ID(ZP_KILLS_CROWBAR),
-	_STAT_ID(ZP_KILLS_PISTOL),
-	_STAT_ID(ZP_KILLS_REVOLVER),
-	_STAT_ID(ZP_KILLS_RIFLE),
-	_STAT_ID(ZP_KILLS_SHOTGUN),
-	_STAT_ID(ZP_KILLS_SATCHEL),
-	_STAT_ID(ZP_KILLS_TNT),
-	_STAT_ID(ZP_KILLS_ZOMBIE),
-	_STAT_ID(ZP_KILLS_MP5),
-	_STAT_ID(ZP_FLEEESH),
-	_STAT_ID(ZP_ITS_A_MASSACRE),
-	_STAT_ID(ZP_PANIC_100),
-	_STAT_ID(ZP_PUMPUPSHOTGUN),
-	_STAT_ID(ZP_CHILDOFGRAVE),
-};
-
-StatData_t GrabStat( EStats nID )
-{
-	for ( int i = 0; i < ARRAYSIZE(g_SteamStats); i++ )
-	{
-		StatData_t stat = g_SteamStats[i];
-		if ( stat.ID == nID ) return stat;
-	}
-	return g_SteamStats[0];
-}
-
-void SetStat( EStats nID, int32 value )
-{
-	for ( int i = 0; i < ARRAYSIZE(g_SteamStats); i++ )
-	{
-		StatData_t &stat = g_SteamStats[i];
-		if ( stat.ID == nID )
-			stat.Value = value;
-	}
-}
-
-StatData_t GrabStat( const char *szName )
-{
-	if ( szName && szName[0] )
-	{
-		for ( int i = 0; i < ARRAYSIZE(g_SteamStats); i++ )
-		{
-			StatData_t stat = g_SteamStats[i];
-			if ( FStrEq( stat.Name, szName ) ) return stat;
-		}
-	}
-	return g_SteamStats[0];
-}
-
 DialogAchievement_t g_DAchievements[] =
 {
 	_ACH_ID(KILLS_CROWBAR,					CATEGORY_KILLS,			ZP_KILLS_CROWBAR, 10),
@@ -156,16 +73,16 @@ DialogAchievement_t g_DAchievements[] =
 	_ACH_ID(CHILDOFGRAVE,			CATEGORY_GENERAL, ZP_CHILDOFGRAVE, 666),
 };
 
+extern StatData_t GrabStat( EStats nID );
+extern StatData_t GrabStat( const char *szName );
+extern void SetStat( EStats nID, int32 value );
+
 // ===================================
 // Achievements
 // ===================================
 
 class CSteamAchievementsDialog
 {
-private:
-	int64 m_iAppID;						// Our current AppID
-	bool m_bInitialized;				// Have we called Request stats and received the callback?
-
 public:
 	CSteamAchievementsDialog(DialogAchievement_t *Achievements, int NumAchievements);
 	~CSteamAchievementsDialog();
@@ -181,11 +98,8 @@ public:
 };
 
 CSteamAchievementsDialog::CSteamAchievementsDialog(DialogAchievement_t *Achievements, int NumAchievements) :
-	m_iAppID(0),
-	m_bInitialized(false),
 	m_CallbackUserStatsReceived(this, &CSteamAchievementsDialog::OnUserStatsReceived)
 {
-	m_iAppID = GetSteamAPI()->SteamUtils()->GetAppID();
 	m_pAchievements = Achievements;
 	m_iNumAchievements = NumAchievements;
 	RequestStats();
@@ -210,15 +124,10 @@ void CSteamAchievementsDialog::OnUserStatsReceived(UserStatsReceived_t *pCallbac
 	// we may get callbacks for other games' stats arriving, ignore them
 	if (GetSteamAPI()->SteamUtils()->GetAppID() == pCallback->m_nGameID)
 	{
-		if (k_EResultOK == pCallback->m_eResult)
-			m_bInitialized = true;
-
+		if (k_EResultOK != pCallback->m_eResult) return;
 		// Go through our stats
-		for ( int i = 0; i < ARRAYSIZE(g_SteamStats); i++ )
-		{
-			StatData_t stat = g_SteamStats[i];
-			GetStat( pCallback, stat.ID );
-		}
+		for ( int i = 0; i < STAT_MAX; i++ )
+			GetStat( pCallback, (EStats)i );
 	}
 }
 

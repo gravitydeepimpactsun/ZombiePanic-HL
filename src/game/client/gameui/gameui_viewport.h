@@ -108,6 +108,10 @@ private:
 		return handle;
 	}
 
+	// Grab our stats on creation.
+	STEAM_CALLBACK( CGameUIViewport, OnUserStatsReceived, UserStatsReceived_t, m_CallbackUserStatsReceived );
+	bool RequestStats();
+
 	static inline CGameUIViewport *m_sInstance = nullptr;
 };
 

@@ -24,8 +24,64 @@ CON_COMMAND(gameui_cl_open_test_panel, "Opens a test panel for client GameUI")
 }
 #endif
 
+#define _STAT_ID(id) { id, #id, 0 }
+StatData_t g_SteamStats[] =
+{
+	// INVALID STAT, MUST BE INDEX 0
+	_STAT_ID(INVALID_STAT),
+
+	_STAT_ID(ZP_KILLS_CROWBAR),
+	_STAT_ID(ZP_KILLS_PISTOL),
+	_STAT_ID(ZP_KILLS_REVOLVER),
+	_STAT_ID(ZP_KILLS_RIFLE),
+	_STAT_ID(ZP_KILLS_SHOTGUN),
+	_STAT_ID(ZP_KILLS_SATCHEL),
+	_STAT_ID(ZP_KILLS_TNT),
+	_STAT_ID(ZP_KILLS_ZOMBIE),
+	_STAT_ID(ZP_KILLS_MP5),
+	_STAT_ID(ZP_FLEEESH),
+	_STAT_ID(ZP_ITS_A_MASSACRE),
+	_STAT_ID(ZP_PANIC_100),
+	_STAT_ID(ZP_PUMPUPSHOTGUN),
+	_STAT_ID(ZP_CHILDOFGRAVE),
+};
+
+StatData_t GrabStat( EStats nID )
+{
+	for ( int i = 0; i < ARRAYSIZE(g_SteamStats); i++ )
+	{
+		StatData_t stat = g_SteamStats[i];
+		if ( stat.ID == nID ) return stat;
+	}
+	return g_SteamStats[0];
+}
+
+void SetStat( EStats nID, int32 value )
+{
+	for ( int i = 0; i < ARRAYSIZE(g_SteamStats); i++ )
+	{
+		StatData_t &stat = g_SteamStats[i];
+		if ( stat.ID == nID )
+			stat.Value = value;
+	}
+}
+
+StatData_t GrabStat( const char *szName )
+{
+	if ( szName && szName[0] )
+	{
+		for ( int i = 0; i < ARRAYSIZE(g_SteamStats); i++ )
+		{
+			StatData_t stat = g_SteamStats[i];
+			if ( vgui2::FStrEq( stat.Name, szName ) ) return stat;
+		}
+	}
+	return g_SteamStats[0];
+}
+
 CGameUIViewport::CGameUIViewport()
-    : BaseClass(nullptr, "ClientGameUIViewport")
+    : BaseClass(nullptr, "ClientGameUIViewport"),
+	m_CallbackUserStatsReceived( this, &CGameUIViewport::OnUserStatsReceived )
 {
 	Assert(!m_sInstance);
 	m_sInstance = this;
@@ -41,12 +97,32 @@ CGameUIViewport::CGameUIViewport()
 
 	LoadWorkshopItems( false );
 	LoadWorkshop();
+
+	RequestStats();
 }
 
 CGameUIViewport::~CGameUIViewport()
 {
 	Assert(m_sInstance);
 	m_sInstance = nullptr;
+}
+
+void CGameUIViewport::OnUserStatsReceived( UserStatsReceived_t *pCallback )
+{
+	// we may get callbacks for other games' stats arriving, ignore them
+	if (GetSteamAPI()->SteamUtils()->GetAppID() == pCallback->m_nGameID)
+	{
+		if (k_EResultOK != pCallback->m_eResult) return;
+
+		// Go through our stats
+		for ( int i = 0; i < ARRAYSIZE(g_SteamStats); i++ )
+		{
+			StatData_t stat = g_SteamStats[i];
+			int32 iData = 0;
+			GetSteamAPI()->SteamUserStats()->GetUserStat( pCallback->m_steamIDUser, stat.Name, &iData );
+			SetStat( stat.ID, iData );
+		}
+	}
 }
 
 void CGameUIViewport::PreventEscapeToShow(bool state)
@@ -653,4 +729,18 @@ bool CGameUIViewport::PrepareForQueryDownload()
 		}
 	}
 	return false;
+}
+
+bool CGameUIViewport::RequestStats()
+{
+	// Is Steam loaded? If not we can't get stats.
+	if (NULL == GetSteamAPI()->SteamUserStats() || NULL == GetSteamAPI()->SteamUser())
+		return false;
+
+	// Is the user logged on?  If not we can't get stats.
+	if (!GetSteamAPI()->SteamUser()->BLoggedOn())
+		return false;
+
+	// Request user stats.
+	return GetSteamAPI()->SteamUserStats()->RequestCurrentStats();
 }

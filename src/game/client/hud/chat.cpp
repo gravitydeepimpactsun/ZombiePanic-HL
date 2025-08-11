@@ -157,8 +157,8 @@ void CLIENT_UTIL_GiveAchievement( int iAchievement )
 			bool bShouldDraw = false;
 			// 25%, 50% or 90% of the way?
 			if ( value == int32(dValue * 0.25) ) bShouldDraw = true;
-			else if ( !bShouldDraw && int32(dValue * 0.5) ) bShouldDraw = true;
-			else if ( !bShouldDraw && int32(dValue * 0.9) ) bShouldDraw = true;
+			else if ( !bShouldDraw && value == int32(dValue * 0.5) ) bShouldDraw = true;
+			else if ( !bShouldDraw && value == int32(dValue * 0.9) ) bShouldDraw = true;
 			if ( bShouldDraw )
 				GetSteamAPI()->SteamUserStats()->IndicateAchievementProgress(
 					GetAchievementByID( iAchievement ).GetAchievementName(),

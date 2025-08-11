@@ -18,8 +18,11 @@
 #include "CWorkshopSubUploaded.h"
 #include "CWorkshopSubUpload.h"
 
-// DevIL stuff
-//#include <IL/devil_cpp_wrapper.hpp>
+#include <iostream>
+
+// Spectra, PNG > TGA
+#include "stb_image.h"			// Loading File
+#include "stb_image_write.h"	// Writing TGA
 
 CWorkshopSubUploaded::CWorkshopSubUploaded(vgui2::Panel *parent)
     : BaseClass(parent, "WorkshopSubUploaded")
@@ -49,6 +52,7 @@ CWorkshopSubUploaded::CWorkshopSubUploaded(vgui2::Panel *parent)
 			k_EUserUGCListSortOrder_LastUpdatedDesc,
 		    (AppId_t)3825360, (AppId_t)3825360, 1
 		);
+		//GetSteamAPI()->SteamUGC()->SetReturnAdditionalPreviews( handle, true );
 		GetSteamAPI()->SteamUGC()->SetReturnChildren( handle, true );
 		SteamAPICall_t apiCall = GetSteamAPI()->SteamUGC()->SendQueryUGCRequest( handle );
 		m_SteamCallResultOnSendQueryUGCRequest.Set( apiCall, this, &CWorkshopSubUploaded::OnSendQueryUGCRequest );
@@ -97,6 +101,7 @@ void CWorkshopSubUploaded::AddItem( vgui2::WorkshopItem item )
 	pIcon->SetImage( vgui2::scheme()->GetImage( buffer, false ) );
 	pIcon->SetSize( 56, 56 );
 	pIcon->SetPos( 4, 4 );
+	pIcon->SetFillColor( Color( 25, 25, 25, 150 ) );
 
 	// Font Text
 	vgui2::Label *pTitle = new vgui2::Label( this, "Title", "" );
@@ -214,7 +219,7 @@ void CWorkshopSubUploaded::OnSendQueryUGCRequest( SteamUGCQueryCompleted_t *pCal
 
 void CWorkshopSubUploaded::UpdateHTTPCallback( HTTPRequestCompleted_t *arg, bool bFailed )
 {
-	ConPrintf( "void CAdminSystem::UpdateCallback()\n" );
+	ConPrintf( "void CWorkshopSubUploaded::UpdateCallback()\n" );
 	ConPrintf( "STATUS CODE [%i]\n", arg->m_eStatusCode );
 	uint64 context = arg->m_ulContextValue;
 	if ( bFailed || arg->m_eStatusCode < 200 || arg->m_eStatusCode > 299 )

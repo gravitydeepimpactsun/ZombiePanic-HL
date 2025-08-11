@@ -132,6 +132,10 @@ void CWorkshopSubUploaded::AddItem( vgui2::WorkshopItem item )
 	    nullptr, nullptr,
 	    item.uWorkshopID, true
 	);
+
+	// Same fix from CWorkshopSubList, this got the same problem.
+	pList->InvalidateLayout(true);
+	pList->Repaint();
 }
 
 void CWorkshopSubUploaded::OnSendQueryUGCRequest( SteamUGCQueryCompleted_t *pCallback, bool bIOFailure )

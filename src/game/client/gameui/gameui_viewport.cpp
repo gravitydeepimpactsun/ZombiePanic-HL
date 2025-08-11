@@ -28,7 +28,7 @@ CON_COMMAND(gameui_cl_open_test_panel, "Opens a test panel for client GameUI")
 StatData_t g_SteamStats[] =
 {
 	// INVALID STAT, MUST BE INDEX 0
-	_STAT_ID(INVALID_STAT),
+	_STAT_ID(INVALID_STAT, 0),
 
 	_STAT_ID(ZP_KILLS_CROWBAR, 10),
 	_STAT_ID(ZP_KILLS_PISTOL, 40),

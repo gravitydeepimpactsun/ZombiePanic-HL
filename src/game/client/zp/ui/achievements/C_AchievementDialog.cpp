@@ -1,6 +1,7 @@
 //========= Copyright (c) 2022 Zombie Panic! Team, All rights reserved. ============//
 
 #include "C_AchievementDialog.h"
+#include "CAchievementRequirements.h"
 
 #include "steam/steam_api.h"
 #include "client_vgui.h"
@@ -27,50 +28,57 @@ enum
 	MAX_CATEGORIES
 };
 
-DialogAchievement_t g_DAchievements[] =
+// TODO: Add the actual steps once all the maps are done.
+std::vector<EStats> m_MarathonSteps = {
+	ZP_KILLS_CROWBAR,
+	ZP_KILLS_SHOTGUN
+};
+
+DialogAchievementData g_DAchievements[] =
 {
-	_ACH_ID(KILLS_CROWBAR,					CATEGORY_KILLS,			ZP_KILLS_CROWBAR, 10),
-	_ACH_ID(KILLS_PISTOL,					CATEGORY_KILLS,			ZP_KILLS_PISTOL, 40),
-	_ACH_ID(KILLS_REVOLVER,					CATEGORY_KILLS,			ZP_KILLS_REVOLVER, 25),
-	_ACH_ID(KILLS_RIFLE,					CATEGORY_KILLS,			ZP_KILLS_RIFLE, 30),
-	_ACH_ID(KILLS_MP5,						CATEGORY_KILLS,			ZP_KILLS_MP5, 25),
-	_ACH_ID(KILLS_SHOTGUN,					CATEGORY_KILLS,			ZP_KILLS_SHOTGUN, 35),
-	_ACH_ID(KILLS_SATCHEL,					CATEGORY_KILLS,			ZP_KILLS_SATCHEL, 5),
-	_ACH_ID(KILLS_TNT,						CATEGORY_KILLS,			ZP_KILLS_TNT, 10),
-	_ACH_ID(KILLS_ZOMBIE,					CATEGORY_KILLS,			ZP_KILLS_ZOMBIE, 20),
-	_ACH_ID(YOU_WILL_DIE_WITH_ME,			CATEGORY_KILLS,			NULL, 0),
-	_ACH_ID(UNSAFE_HANDLING,				CATEGORY_KILLS,			NULL, 0),
-	_ACH_ID(JACKOFTRADES,					CATEGORY_KILLS,			NULL, 0),
-	_ACH_ID(PANICRUSH,						CATEGORY_KILLS,			NULL, 0),
-	_ACH_ID(FLEEESH,						CATEGORY_KILLS,			ZP_FLEEESH, 50),
-	_ACH_ID(ZOMBIEDESSERT,					CATEGORY_KILLS,			NULL, 0),
-	_ACH_ID(SCREAM4ME,						CATEGORY_KILLS,			NULL, 0),
-	_ACH_ID(INLINEP2,						CATEGORY_KILLS,			NULL, 0),
-	_ACH_ID(CUTYOUDOWN,						CATEGORY_KILLS,			NULL, 0),
-	_ACH_ID(RABBITBEAST,					CATEGORY_KILLS,			NULL, 0),
-	_ACH_ID(ITS_A_MASSACRE,					CATEGORY_KILLS,			ZP_ITS_A_MASSACRE, 25),
+	_ACH_ID(KILLS_CROWBAR,					CATEGORY_KILLS,			ZP_KILLS_CROWBAR),
+	_ACH_ID(KILLS_PISTOL,					CATEGORY_KILLS,			ZP_KILLS_PISTOL),
+	_ACH_ID(KILLS_REVOLVER,					CATEGORY_KILLS,			ZP_KILLS_REVOLVER),
+	_ACH_ID(KILLS_RIFLE,					CATEGORY_KILLS,			ZP_KILLS_RIFLE),
+	_ACH_ID(KILLS_MP5,						CATEGORY_KILLS,			ZP_KILLS_MP5),
+	_ACH_ID(KILLS_SHOTGUN,					CATEGORY_KILLS,			ZP_KILLS_SHOTGUN),
+	_ACH_ID(KILLS_SATCHEL,					CATEGORY_KILLS,			ZP_KILLS_SATCHEL),
+	_ACH_ID(KILLS_TNT,						CATEGORY_KILLS,			ZP_KILLS_TNT),
+	_ACH_ID(KILLS_ZOMBIE,					CATEGORY_KILLS,			ZP_KILLS_ZOMBIE),
+	_ACH_ID(YOU_WILL_DIE_WITH_ME,			CATEGORY_KILLS,			INVALID_STAT),
+	_ACH_ID(UNSAFE_HANDLING,				CATEGORY_KILLS,			INVALID_STAT),
+	_ACH_ID(JACKOFTRADES,					CATEGORY_KILLS,			INVALID_STAT),
+	_ACH_ID(PANICRUSH,						CATEGORY_KILLS,			INVALID_STAT),
+	_ACH_ID(FLEEESH,						CATEGORY_KILLS,			ZP_FLEEESH),
+	_ACH_ID(ZOMBIEDESSERT,					CATEGORY_KILLS,			INVALID_STAT),
+	_ACH_ID(SCREAM4ME,						CATEGORY_KILLS,			INVALID_STAT),
+	_ACH_ID(INLINEP2,						CATEGORY_KILLS,			INVALID_STAT),
+	_ACH_ID(CUTYOUDOWN,						CATEGORY_KILLS,			INVALID_STAT),
+	_ACH_ID(RABBITBEAST,					CATEGORY_KILLS,			INVALID_STAT),
+	_ACH_ID(ITS_A_MASSACRE,					CATEGORY_KILLS,			ZP_ITS_A_MASSACRE),
 
-	_ACH_ID(FIRST_SURVIVAL,			CATEGORY_MAPS, NULL, 0),
-	_ACH_ID(FIRST_OBJECTIVE,		CATEGORY_MAPS, NULL, 0),
-	_ACH_ID(PARTOFHORDE,			CATEGORY_MAPS, NULL, 0),
-	_ACH_ID(CLOCKOUT,				CATEGORY_MAPS, NULL, 0),
-	_ACH_ID(THE_ATEAM,				CATEGORY_MAPS, NULL, 0),
-	_ACH_ID(PARTNERINCRIME,			CATEGORY_MAPS, NULL, 0),
-	_ACH_ID(LASTMANSTAND,			CATEGORY_MAPS, NULL, 0),
-	_ACH_ID(MARATHON,				CATEGORY_MAPS, NULL, 0),
-	_ACH_ID(PLAY_ALL_SURVIVAL,		CATEGORY_MAPS, NULL, 0),
-	_ACH_ID(PLAY_ALL_OBJECTIVE,		CATEGORY_MAPS, NULL, 0),
+	_ACH_ID(FIRST_SURVIVAL,			CATEGORY_MAPS, INVALID_STAT),
+	_ACH_ID(FIRST_OBJECTIVE,		CATEGORY_MAPS, INVALID_STAT),
+	_ACH_ID(PARTOFHORDE,			CATEGORY_MAPS, INVALID_STAT),
+	_ACH_ID(CLOCKOUT,				CATEGORY_MAPS, INVALID_STAT),
+	_ACH_ID(THE_ATEAM,				CATEGORY_MAPS, INVALID_STAT),
+	_ACH_ID(PARTNERINCRIME,			CATEGORY_MAPS, INVALID_STAT),
+	_ACH_ID(LASTMANSTAND,			CATEGORY_MAPS, INVALID_STAT),
 
-	_ACH_ID(PANIC_ATTACK,			CATEGORY_GENERAL, NULL, 0),
-	_ACH_ID(PANIC_100,				CATEGORY_GENERAL, ZP_PANIC_100, 100),
-	_ACH_ID(I_FELL,					CATEGORY_GENERAL, NULL, 0),
-	_ACH_ID(ONE_OF_US,				CATEGORY_GENERAL, NULL, 0),
-	_ACH_ID(FIRST_TO_DIE,			CATEGORY_GENERAL, NULL, 0),
-	_ACH_ID(TABLE_FLIP,				CATEGORY_GENERAL, NULL, 0),
-	_ACH_ID(ZMASH,					CATEGORY_GENERAL, NULL, 0),
-	_ACH_ID(DIE_BY_DOOR,			CATEGORY_GENERAL, NULL, 0),
-	_ACH_ID(PUMPUPSHOTGUN,			CATEGORY_GENERAL, ZP_PUMPUPSHOTGUN, 777),
-	_ACH_ID(CHILDOFGRAVE,			CATEGORY_GENERAL, ZP_CHILDOFGRAVE, 666),
+	_ACH_ID_LIST(MARATHON,			CATEGORY_MAPS, INVALID_STAT, m_MarathonSteps ),
+	_ACH_ID(PLAY_ALL_SURVIVAL,		CATEGORY_MAPS, INVALID_STAT),
+	_ACH_ID(PLAY_ALL_OBJECTIVE,		CATEGORY_MAPS, INVALID_STAT),
+
+	_ACH_ID(PANIC_ATTACK,			CATEGORY_GENERAL, INVALID_STAT),
+	_ACH_ID(PANIC_100,				CATEGORY_GENERAL, ZP_PANIC_100),
+	_ACH_ID(I_FELL,					CATEGORY_GENERAL, INVALID_STAT),
+	_ACH_ID(ONE_OF_US,				CATEGORY_GENERAL, INVALID_STAT),
+	_ACH_ID(FIRST_TO_DIE,			CATEGORY_GENERAL, INVALID_STAT),
+	_ACH_ID(TABLE_FLIP,				CATEGORY_GENERAL, INVALID_STAT),
+	_ACH_ID(ZMASH,					CATEGORY_GENERAL, INVALID_STAT),
+	_ACH_ID(DIE_BY_DOOR,			CATEGORY_GENERAL, INVALID_STAT),
+	_ACH_ID(PUMPUPSHOTGUN,			CATEGORY_GENERAL, ZP_PUMPUPSHOTGUN),
+	_ACH_ID(CHILDOFGRAVE,			CATEGORY_GENERAL, ZP_CHILDOFGRAVE),
 };
 
 extern StatData_t GrabStat( EStats nID );
@@ -84,20 +92,18 @@ extern void SetStat( EStats nID, int32 value );
 class CSteamAchievementsDialog
 {
 public:
-	CSteamAchievementsDialog(DialogAchievement_t *Achievements, int NumAchievements);
-	~CSteamAchievementsDialog();
+	CSteamAchievementsDialog(DialogAchievementData *Achievements, int NumAchievements);
 
-	DialogAchievement_t *m_pAchievements;		// Achievements data
+	DialogAchievementData *m_pAchievements;		// Achievements data
 	int m_iNumAchievements;				// The number of Achievements
 	bool RequestStats();
-	int RequestValue( const char *ID );
 	void GetStat( UserStatsReceived_t *pCallback, EStats id );
 
 	STEAM_CALLBACK(CSteamAchievementsDialog, OnUserStatsReceived, UserStatsReceived_t,
 		m_CallbackUserStatsReceived);
 };
 
-CSteamAchievementsDialog::CSteamAchievementsDialog(DialogAchievement_t *Achievements, int NumAchievements) :
+CSteamAchievementsDialog::CSteamAchievementsDialog(DialogAchievementData *Achievements, int NumAchievements) :
 	m_CallbackUserStatsReceived(this, &CSteamAchievementsDialog::OnUserStatsReceived)
 {
 	m_pAchievements = Achievements;
@@ -129,19 +135,6 @@ void CSteamAchievementsDialog::OnUserStatsReceived(UserStatsReceived_t *pCallbac
 		for ( int i = 0; i < STAT_MAX; i++ )
 			GetStat( pCallback, (EStats)i );
 	}
-}
-
-int CSteamAchievementsDialog::RequestValue( const char *ID )
-{
-	int returnvalue = 0;
-	StatData_t stat = GrabStat( ID );
-	returnvalue = stat.Value;
-
-	// Don't return negative values
-	if ( returnvalue < 0 )
-		returnvalue = 0;
-
-	return returnvalue;
 }
 
 void CSteamAchievementsDialog::GetStat( UserStatsReceived_t *pCallback, EStats id )
@@ -246,16 +239,14 @@ void C_AchievementDialog::OnTick()
 
 	for (int iAch = 0; iAch < g_DSteamAchievements->m_iNumAchievements; ++iAch)
 	{
-		DialogAchievement_t &ach = g_DSteamAchievements->m_pAchievements[iAch];
+		DialogAchievementData &ach = g_DSteamAchievements->m_pAchievements[iAch];
 
 		// Total achievements
 		miTotalAchievements++;
 
 		// Completed achievements
-		if (ach.m_bAchieved)
+		if ( ach.IsAchieved() )
 			miCompletedAchievements++;
-		else
-			ach.tmp_ivalue = g_DSteamAchievements->RequestValue(ach.m_cStatName);
 	}
 
 	// Get propper ratio of the bar
@@ -298,43 +289,46 @@ ReadAchievement:
 	if ( iAchievement == 0 )
 		ui_AchvPList->DeleteAllItems();
 
-	DialogAchievement_t &ach = g_DSteamAchievements->m_pAchievements[ iAchievement ];
+	DialogAchievementData &ach = g_DSteamAchievements->m_pAchievements[ iAchievement ];
 
 	// Increase
 	iAchievement++;
 
-	// Graba achievement
-	GetSteamAPI()->SteamUserStats()->GetAchievement( ach.m_pchAchievementID, &ach.m_bAchieved );
+	// Grab achievement
+	bool bIsAchieved = ach.IsAchieved();
+	GetSteamAPI()->SteamUserStats()->GetAchievement( ach.GetAchievementName(), &bIsAchieved );
+	ach.SetAchieved( bIsAchieved );
 
 	// Wrong category!
 	// If its not on (Show All)
 	if ( CATEGORY_SHOWALL != ui_AchvList->GetActiveItem() )
 	{
-		if ( ach.m_eCategory != ui_AchvList->GetActiveItem() )
+		if ( ach.GetCategoryID() != ui_AchvList->GetActiveItem() )
 			goto ReadAchievement;
 	}
 
 	// We won't show hidden achievements
 	// Unless we have achieved em
-	if ( !Q_stricmp(GetSteamAPI()->SteamUserStats()->GetAchievementDisplayAttribute(ach.m_pchAchievementID, "hidden"), "1") && !ach.m_bAchieved )
+	if ( !Q_stricmp( GetSteamAPI()->SteamUserStats()->GetAchievementDisplayAttribute( ach.GetAchievementName(), "hidden" ), "1")
+		&& !ach.IsAchieved() )
 		goto ReadAchievement;
 
 	// hide achievements we already got
-	if ( HideAchieved && HideAchieved == ach.m_bAchieved )
+	if ( HideAchieved && HideAchieved == ach.IsAchieved() )
 		goto ReadAchievement;
 
 	// Create Image
 	vgui2::ImagePanel *imagePanel = new vgui2::ImagePanel(this, "AchievementIcon");
 
 	char buffer[158];
-	Q_snprintf( buffer, sizeof( buffer ), "ui/achievements/%s%s", ach.m_pchAchievementID, !ach.m_bAchieved ? "_L" : "" );
+	Q_snprintf( buffer, sizeof( buffer ), "ui/achievements/%s%s", ach.GetAchievementName(), !ach.IsAchieved() ? "_L" : "" );
 
 	imagePanel->SetImage( vgui2::scheme()->GetImage(buffer, false) );
 	imagePanel->SetSize(56, 56);
 	imagePanel->SetPos(4, 4);
 
 	// Font Text
-	Q_snprintf( buffer, sizeof( buffer ), "#ZP_ACH_%s_NAME", ach.m_pchAchievementID );
+	Q_snprintf( buffer, sizeof( buffer ), "#ZP_ACH_%s_NAME", ach.GetAchievementName() );
 	vgui2::Label *label_title = new vgui2::Label(this, "AchievementTitle", buffer );
 	label_title->SetSize(400, 20);
 	label_title->SetPos(70, 5);
@@ -343,7 +337,7 @@ ReadAchievement:
 	if ( hTextFont != vgui2::INVALID_FONT )
 		label_title->SetFont(hTextFont);
 
-	Q_snprintf( buffer, sizeof( buffer ), "#ZP_ACH_%s_DESC", ach.m_pchAchievementID );
+	Q_snprintf( buffer, sizeof( buffer ), "#ZP_ACH_%s_DESC", ach.GetAchievementName() );
 	vgui2::Label *label_desc = new vgui2::Label(this, "AchievementDescription", buffer );
 	label_desc->SetSize(490, 40);
 	label_desc->SetPos(71, 22);
@@ -355,16 +349,19 @@ ReadAchievement:
 	vgui2::Label *label_achievement_progress_num = NULL;
 	vgui2::ImagePanel *label_achievement_progress_bg = NULL;
 	vgui2::ImagePanel *label_achievement_progress = NULL;
+	vgui2::CAchievementRequirementsHolder *required_steps = NULL;
 
 	int iValue = 0;
 	int imValue = 0;
 
-	if ( ( ach.m_cStatName && ach.m_cStatName[0] )
-		&& ach.tmp_mvalue > 0
-		&& ach.tmp_ivalue < ach.tmp_mvalue
-		&& !ach.m_bAchieved )
+	StatData_t steamstats = ach.GetData();
+
+	if ( ach.HasStatID()
+		&& steamstats.Value > 0
+	    && steamstats.Value < steamstats.MaxValue
+		&& !ach.IsAchieved() )
 	{
-		Q_snprintf( buffer, sizeof(buffer), "%d / %d", ach.tmp_ivalue, ach.tmp_mvalue );
+		Q_snprintf( buffer, sizeof(buffer), "%d / %d", steamstats.Value, steamstats.MaxValue );
 		label_achievement_progress_num = new vgui2::Label(this, "AchievementProgress", buffer);
 		if ( hTextFont != vgui2::INVALID_FONT )
 			label_achievement_progress_num->SetFont(hTextFont);
@@ -379,8 +376,8 @@ ReadAchievement:
 		label_achievement_progress->SetFillColor(Color(142, 20, 48, 255));
 
 		// Achievement progress
-		iValue = ach.tmp_ivalue;
-		imValue = ach.tmp_mvalue;
+		iValue = steamstats.Value;
+		imValue = steamstats.MaxValue;
 	}
 	else
 	{
@@ -388,9 +385,21 @@ ReadAchievement:
 		imValue = 0;
 	}
 
+	// Has required steps?
+	if ( ach.HasRequiredSteps() )
+	{
+		required_steps = new vgui2::CAchievementRequirementsHolder( this, "RequiredSteps" );
+		for ( size_t i = 0; i < ach.GetRequiredStepCount(); i++ )
+		{
+			EStats SteamStatID = ach.GetRequiredStepID( i );
+			steamstats = GrabStat( SteamStatID );
+			required_steps->AddItem( ( steamstats.Value >= steamstats.MaxValue ) ? true : false, steamstats.Name );
+		}
+	}
+
 	// Setup the obtained achievement bg texture (only shows if achieved)
 	vgui2::ImagePanel *AchievedBG = new vgui2::ImagePanel(this, "AchievementIcon");
-	if ( ach.m_bAchieved )
+	if ( ach.IsAchieved() )
 		AchievedBG->SetImage( vgui2::scheme()->GetImage("ui/gfx/ach_obtained", false) );
 	AchievedBG->SetSize(50, 56);
 	AchievedBG->SetPos(4, 4);
@@ -400,7 +409,7 @@ ReadAchievement:
 		imagePanel, label_title,
 		label_desc, label_achievement_progress_num,
 		label_achievement_progress, label_achievement_progress_bg,
-		iValue, imValue, AchievedBG );
+		iValue, imValue, AchievedBG, required_steps );
 }
 
 
@@ -430,13 +439,39 @@ void C_AchievementDialog::OnCommand(const char* pcCommand)
 	}
 }
 
-DialogAchievement_t GetAchievementByID( int eAchievement )
+DialogAchievementData GetAchievementByID( int eAchievement )
 {
 	for ( int i = 0; i < ARRAYSIZE( g_DAchievements ); i++ )
 	{
-		DialogAchievement_t item = g_DAchievements[ i ];
-		if ( item.m_eAchievementID == eAchievement )
+		DialogAchievementData item = g_DAchievements[ i ];
+		if ( item.GetAchievementID() == eAchievement )
 			return item;
 	}
 	return g_DAchievements[0];
+}
+
+DialogAchievementData::DialogAchievementData( EAchievements nID, const char *szName, int nCategory, EStats nStatID )
+{
+	Q_snprintf( m_pchAchievementID, sizeof(m_pchAchievementID), "%s", szName );
+	m_bAchieved = false;
+	m_iIconImage = 0;
+	m_eCategory = nCategory;
+	m_eAchievementID = nID;
+	m_nStat = nStatID;
+}
+
+DialogAchievementData::DialogAchievementData( EAchievements nID, const char *szName, int nCategory, EStats nStatID, std::vector<EStats> nRequiredSteps )
+{
+	Q_snprintf( m_pchAchievementID, sizeof(m_pchAchievementID), "%s", szName );
+	m_bAchieved = false;
+	m_iIconImage = 0;
+	m_eCategory = nCategory;
+	m_eAchievementID = nID;
+	m_nStat = nStatID;
+	m_RequiredSteps = nRequiredSteps;
+}
+
+StatData_t DialogAchievementData::GetData()
+{
+	return GrabStat( m_nStat );
 }

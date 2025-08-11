@@ -76,6 +76,7 @@ struct StatData_t
 	EStats ID;
 	const char *Name;
 	int32 Value;
+	int32 MaxValue;
 };
 
 #endif

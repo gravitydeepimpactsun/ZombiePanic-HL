@@ -425,7 +425,7 @@ void AchievementList::PerformLayout()
 		if ( item.required_steps )
 		{
 			// TODO: Add the steps, and if expanded, increase the item height.
-			// Convert vgui2::Panel > CAchievementRequirements
+			// Convert vgui2::Panel > CAchievementRequirementsHolder
 			// A list within a fucking list. lmao.
 		}
 

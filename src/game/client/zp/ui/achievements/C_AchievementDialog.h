@@ -51,18 +51,40 @@ private:
 // Setup
 // ===================================
 
-#define _ACH_ID( id, category, type, maxvalue ) { id, #id, 0, 0, category, #type, maxvalue }
-
-struct DialogAchievement_t
+class DialogAchievementData
 {
-	int m_eAchievementID;
-	const char *m_pchAchievementID;
+private:
+	EAchievements m_eAchievementID;
+	char m_pchAchievementID[64];
 	bool m_bAchieved;
 	int m_iIconImage;
 	int m_eCategory;
-	const char *m_cStatName;
-	int tmp_mvalue;
-	int tmp_ivalue;
+	EStats m_nStat;
+	std::vector<EStats> m_RequiredSteps;
+
+public:
+	DialogAchievementData( EAchievements nID, const char *szName, int nCategory, EStats nStatID );
+	DialogAchievementData( EAchievements nID, const char *szName, int nCategory, EStats nStatID, std::vector<EStats> nRequiredSteps );
+
+	StatData_t GetData();
+	const bool HasStatID() { return (m_nStat > INVALID_STAT) ? true : false; }
+	const bool HasRequiredSteps() { return (m_RequiredSteps.size() > 0) ? true : false; }
+
+	size_t GetRequiredStepCount() { return m_RequiredSteps.size(); }
+	EStats GetRequiredStepID( int iIdx ) { return m_RequiredSteps[iIdx]; }
+
+	const bool IsAchieved() { return m_bAchieved; }
+	void SetAchieved( bool bState ) { m_bAchieved = bState; }
+
+	int GetIconImage() { return m_iIconImage; }
+	void SetIconImage( int iImage ) { m_iIconImage = iImage; }
+
+	const EAchievements GetAchievementID() { return m_eAchievementID; }
+	const char *GetAchievementName() { return m_pchAchievementID; }
+	const int GetCategoryID() { return m_eCategory; }
 };
 
-DialogAchievement_t GetAchievementByID( int eAchievement );
+#define _ACH_ID( id, category, steamstat ) DialogAchievementData( id, #id, category, steamstat )
+#define _ACH_ID_LIST( id, category, steamstat, list ) DialogAchievementData( id, #id, category, steamstat, list )
+
+DialogAchievementData GetAchievementByID( int eAchievement );

@@ -48,14 +48,14 @@ bool CLIENT_UTIL_IsSpecialAchievement( int iAchievement )
 bool CLIENT_UTIL_HasEarnedAchievement( int iAchievement )
 {
 	bool bEarned = false;
-	GetSteamAPI()->SteamUserStats()->GetAchievement( GetAchievementByID( iAchievement ).m_pchAchievementID, &bEarned );
+	GetSteamAPI()->SteamUserStats()->GetAchievement( GetAchievementByID( iAchievement ).GetAchievementName(), &bEarned );
 	return bEarned;
 }
 
 int32 CLIENT_UTIL_GetStatAchievement( int iAchievement )
 {
 	int32 value;
-	GetSteamAPI()->SteamUserStats()->GetStat( GetAchievementByID( iAchievement ).m_cStatName, &value );
+	GetSteamAPI()->SteamUserStats()->GetStat( GetAchievementByID( iAchievement ).GetData().Name, &value );
 	return value;
 }
 
@@ -80,7 +80,7 @@ void CLIENT_UTIL_GiveAchievement( int iAchievement )
 	if ( !GetSteamAPI()->SteamUserStats() ) return;
 
 	bool bEarned = false;
-	GetSteamAPI()->SteamUserStats()->GetAchievement( GetAchievementByID( iAchievement ).m_pchAchievementID, &bEarned );
+	GetSteamAPI()->SteamUserStats()->GetAchievement( GetAchievementByID( iAchievement ).GetAchievementName(), &bEarned );
 
 	// Already have it? Skip.
 	if ( bEarned ) return;
@@ -136,21 +136,21 @@ void CLIENT_UTIL_GiveAchievement( int iAchievement )
 	}
 
 	// Do we have a stat value?
-	if ( GetAchievementByID( iAchievement ).m_cStatName )
+	if ( GetAchievementByID( iAchievement ).HasStatID() )
 	{
 		int32 value;
-		GetSteamAPI()->SteamUserStats()->GetStat( GetAchievementByID( iAchievement ).m_cStatName, &value );
+		GetSteamAPI()->SteamUserStats()->GetStat( GetAchievementByID( iAchievement ).GetData().Name, &value );
 
 		// Increase it by one.
 		value++;
-		GetSteamAPI()->SteamUserStats()->SetStat( GetAchievementByID( iAchievement ).m_cStatName, value );
+		GetSteamAPI()->SteamUserStats()->SetStat( GetAchievementByID( iAchievement ).GetData().Name, value );
 
 		// Check if we have enough.
-		if ( value < GetAchievementByID( iAchievement ).tmp_mvalue ) return;
+		if ( value < GetAchievementByID( iAchievement ).GetData().MaxValue ) return;
 	}
 
 	// Give the achievement.
-	GetSteamAPI()->SteamUserStats()->SetAchievement( GetAchievementByID( iAchievement ).m_pchAchievementID );
+	GetSteamAPI()->SteamUserStats()->SetAchievement( GetAchievementByID( iAchievement ).GetAchievementName() );
 
 	// Tell the server, that we earned it!
 	gEngfuncs.pfnServerCmd( vgui2::VarArgs( "achearn %i", iAchievement ) );
@@ -1336,7 +1336,7 @@ int CHudChat::MsgFunc_AchEarn(const char *pszName, int iSize, void *pbuf)
 
 	// What is the achievement we got?
 	char szAchievement[32];
-	Q_snprintf( szAchievement, sizeof( szAchievement ), "#ZP_ACH_%s_NAME", GetAchievementByID( achievement ).m_pchAchievementID );
+	Q_snprintf( szAchievement, sizeof( szAchievement ), "#ZP_ACH_%s_NAME", GetAchievementByID( achievement ).GetAchievementName() );
 
 	// Convert to a string that we can read
 	wchar_t output[128];

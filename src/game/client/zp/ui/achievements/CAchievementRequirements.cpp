@@ -488,7 +488,7 @@ CAchievementRequirementsHolder::CAchievementRequirementsHolder( vgui2::Panel *pa
 
 void CAchievementRequirementsHolder::AddItem(bool obtained, const char *text)
 {
-
+	// TODO: Add the value into CAchievementRequirements
 }
 
 void CAchievementRequirementsHolder::OnCommand(const char *szCommand)

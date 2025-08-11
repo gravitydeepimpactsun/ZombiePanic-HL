@@ -14,6 +14,28 @@ class CWorkshopDialog;
 class CServerBrowser;
 class CImageMenuButton;
 
+// Ported from Contagion
+enum eSupporterExports
+{
+	k_eSupporterNone = 0,
+	k_eSupporterKofi,
+	k_eSupporterPatreon,
+	k_eSupporterDirect,
+};
+
+enum eSupporterTierExport
+{
+	k_eSupporterTier_NONE = 0,
+	k_eSupporterTier_5,
+	k_eSupporterTier_10,
+	k_eSupporterTier_15,
+	k_eSupporterTier_20,
+	k_eSupporterTier_25,
+	k_eSupporterTier_50,
+	k_eSupporterTier_100,
+};
+// End Port
+
 class CGameUIViewport : public vgui2::EditablePanel
 {
 	DECLARE_CLASS_SIMPLE(CGameUIViewport, vgui2::EditablePanel);
@@ -73,6 +95,9 @@ protected:
 	void OnSendQueryUGCRequest( SteamUGCQueryCompleted_t *pCallback, bool bIOFailure );
 	CCallResult<CGameUIViewport, SteamUGCQueryCompleted_t> m_SteamCallResultOnSendQueryUGCRequest;
 	UGCQueryHandle_t	handle;
+
+	CCallResult<CGameUIViewport, HTTPRequestCompleted_t> m_callHTTPResult;
+	void UpdateHTTPCallback( HTTPRequestCompleted_t *arg, bool bFailed );
 
 	struct PrepareForDownload
 	{

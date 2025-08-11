@@ -16,6 +16,7 @@
 #include <filesystem>
 #include <iostream>
 #include <fstream>
+#include "nlohmann/json.hpp"
 
 #if defined(_DEBUG)
 CON_COMMAND(gameui_cl_open_test_panel, "Opens a test panel for client GameUI")
@@ -44,6 +45,11 @@ StatData_t g_SteamStats[] =
 	_STAT_ID(ZP_PANIC_100, 100),
 	_STAT_ID(ZP_PUMPUPSHOTGUN, 777),
 	_STAT_ID(ZP_CHILDOFGRAVE, 666),
+};
+
+enum HttpRequestTypes
+{
+	READ_DONATOR_STATUS = 0
 };
 
 StatData_t GrabStat( EStats nID )
@@ -86,6 +92,20 @@ CGameUIViewport::CGameUIViewport()
 	LoadWorkshop();
 
 	RequestStats();
+
+	// API call to grab our donators dynamically. We only do this on game start.
+	if ( GetSteamAPI()->SteamHTTP() && GetSteamAPI()->SteamUser() )
+	{
+		SteamAPICall_t pCall = k_uAPICallInvalid;
+		HTTPRequestHandle request = GetSteamAPI()->SteamHTTP()->CreateHTTPRequest(
+			k_EHTTPMethodGET,
+			vgui2::VarArgs( "https://api.wuffesan.com/donators/check/?steamid=%llu&v=2", GetSteamAPI()->SteamUser()->GetSteamID().ConvertToUint64() )
+		);
+		GetSteamAPI()->SteamHTTP()->SetHTTPRequestHeaderValue( request, "Cache-Control", "no-cache");
+		GetSteamAPI()->SteamHTTP()->SetHTTPRequestContextValue( request, READ_DONATOR_STATUS );
+		GetSteamAPI()->SteamHTTP()->SendHTTPRequest( request, &pCall );
+		m_callHTTPResult.Set( pCall, this, &CGameUIViewport::UpdateHTTPCallback );
+	}
 }
 
 CGameUIViewport::~CGameUIViewport()
@@ -698,6 +718,67 @@ void CGameUIViewport::OnSendQueryUGCRequest( SteamUGCQueryCompleted_t *pCallback
 
 	m_flQueryWait = 1.15f;
 	m_bPrepareForQueryDownload = true;
+}
+
+void CGameUIViewport::UpdateHTTPCallback( HTTPRequestCompleted_t *arg, bool bFailed )
+{
+	uint64 context = arg->m_ulContextValue;
+	if ( bFailed || arg->m_eStatusCode < 200 || arg->m_eStatusCode > 299 )
+	{
+		uint32 size;
+		GetSteamAPI()->SteamHTTP()->GetHTTPResponseBodySize( arg->m_hRequest, &size );
+
+		if ( size > 0 )
+		{
+			uint8* pResponse = new uint8[size + 1];
+			GetSteamAPI()->SteamHTTP()->GetHTTPResponseBodyData( arg->m_hRequest, pResponse, size );
+			pResponse[size] = '\0';
+
+			ConPrintf( "UpdateHTTPCallback: The data hasn't been received. HTTP error %d. Response: %s\n", arg->m_eStatusCode, pResponse );
+
+			delete[] pResponse;
+		}
+		else if ( !arg->m_bRequestSuccessful )
+		{
+			// Internet is either not working, or the site is down.
+			ConPrintf( "UpdateHTTPCallback: The data hasn't been received. No response from the server.\n");
+		}
+		else
+			ConPrintf( "UpdateHTTPCallback: The data hasn't been received. HTTP error %d\n", arg->m_eStatusCode );
+	}
+	else
+	{
+		uint32 size;
+		GetSteamAPI()->SteamHTTP()->GetHTTPResponseBodySize( arg->m_hRequest, &size );
+		if ( size > 0 )
+		{
+			uint8* pResponse = new uint8[size + 1];
+			GetSteamAPI()->SteamHTTP()->GetHTTPResponseBodyData( arg->m_hRequest, pResponse, size );
+			pResponse[size] = '\0';
+			switch ( context )
+			{
+				// Grab our donator status
+				case READ_DONATOR_STATUS:
+				{
+					std::string strResponse((char *)pResponse);
+					nlohmann::json root;
+					try
+					{
+						root = nlohmann::json::parse(strResponse.data());
+						gEngfuncs.PlayerInfo_SetValueForKey( "donor_type", vgui2::VarArgs( "%i", root.at("type").get<int>() ) );
+						gEngfuncs.PlayerInfo_SetValueForKey( "donor_tier", vgui2::VarArgs( "%i", root.at("tier").get<int>() ) );
+					}
+					catch (const std::exception &e)
+					{
+						ConPrintf( "UpdateHTTPCallback: Failed to parse json: %s\n", e.what() );
+					}
+				}
+				break;
+			}
+		}
+	}
+
+	GetSteamAPI()->SteamHTTP()->ReleaseHTTPRequest( arg->m_hRequest );
 }
 
 bool CGameUIViewport::PrepareForQueryDownload()

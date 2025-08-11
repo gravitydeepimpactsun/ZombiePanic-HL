@@ -19,6 +19,7 @@
 #include "vgui/client_viewport.h"
 #include "vgui/score_panel.h"
 #include "vgui/avatar_image.h"
+#include "gameui/gameui_viewport.h"
 #include "zp/zp_shared.h"
 
 #define STEAM_PROFILE_URL "http://steamcommunity.com/profiles/"
@@ -169,6 +170,16 @@ CScorePanel::CScorePanel()
 		CPlayerImage *pImg = new CPlayerImage();
 		pImg->SetSize(32, 32);
 		m_pImageList->SetImageAtIndex(i, pImg);
+	}
+
+	int iTierIcons = MAX_PLAYERS + 1;
+	int nTier = 0;
+	for (int i = iTierIcons; i <= iTierIcons + eSupporterTierExport::k_eSupporterTier_100; i++)
+	{
+		vgui2::IImage *pImg = vgui2::scheme()->GetImage( vgui2::VarArgs( "ui/icons/scoreboard/icon_dono%i", nTier ), false );
+		pImg->SetSize( 32, 32 );
+		m_pImageList->SetImageAtIndex( i, pImg );
+		nTier++;
 	}
 
 	m_iMutedIconTexture = -1;
@@ -448,6 +459,11 @@ void CScorePanel::CreateSection(int nTeamID)
 		m_pPlayerList->SetSectionDividerColor(nTeamID, Color(0, 0, 0, 0));
 	}
 
+	// Donator Icon
+	m_pPlayerList->AddColumnToSection(nTeamID, "donator", "",
+	    vgui2::SectionedListPanel::COLUMN_IMAGE | vgui2::SectionedListPanel::COLUMN_CENTER,
+	    m_iColumnWidthDonator);
+
 	// Avatar
 	m_pPlayerList->AddColumnToSection(nTeamID, "avatar", "",
 	    vgui2::SectionedListPanel::COLUMN_IMAGE | vgui2::SectionedListPanel::COLUMN_CENTER,
@@ -567,6 +583,12 @@ void CScorePanel::UpdateClientInfo(int client)
 		// Avatar
 		UpdateClientIcon(pi);
 		playerKv->SetInt("avatar", client); // Client index == index into m_pImageList
+
+		//gEngfuncs.PlayerInfo_ValueForKey( client, "donor_type" );
+		//gEngfuncs.PlayerInfo_ValueForKey( client, "donor_tier" );
+
+		int iDonorIcon = MAX_PLAYERS + 1 + atoi( gEngfuncs.PlayerInfo_ValueForKey( client, "donor_tier" ) );
+		playerKv->SetInt("donator", iDonorIcon );
 
 		// Name
 		if (pi->IsSpectator())

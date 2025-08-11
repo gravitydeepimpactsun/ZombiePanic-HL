@@ -142,6 +142,7 @@ private:
 	char m_szSpectatorTag[32] = "(spectator)";
 
 	// Column widths
+	CPanelAnimationVarAliasType(int, m_iColumnWidthDonator, "column_donator", "15", "proportional_int");
 	CPanelAnimationVarAliasType(int, m_iColumnWidthAvatar, "column_avatar", "26", "proportional_int");
 	CPanelAnimationVarAliasType(int, m_iColumnWidthName, "column_name", "170", "proportional_int");
 	CPanelAnimationVarAliasType(int, m_iColumnWidthSteamID, "column_steamid", "148", "proportional_int");

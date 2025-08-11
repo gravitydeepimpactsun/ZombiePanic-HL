@@ -496,7 +496,7 @@ target_include_directories( client PRIVATE
 	${SOURCE_SDK_INCLUDE_PATHS}
 	${UPDATER_INCLUDE_PATHS}
 	# Image converting, used by Workshop
-	#${CMAKE_CURRENT_SOURCE_DIR}/external/DevIL/include
+	${CMAKE_CURRENT_SOURCE_DIR}/external/spectra
 )
 
 target_compile_definitions( client PRIVATE

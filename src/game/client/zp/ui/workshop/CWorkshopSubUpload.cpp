@@ -23,8 +23,14 @@
 #include "gameui/gameui_viewport.h"
 #include "CWorkshopSubUpload.h"
 
-// DevIL stuff
-//#include <IL/il.h>
+#include <iostream>
+
+// Spectra, PNG > TGA
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"			// Loading File
+
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"	// Writing TGA
 
 static CWorkshopSubUpload *pUploader = nullptr;
 
@@ -158,7 +164,7 @@ void CWorkshopSubUpload::OnCommand(const char *pcCommand)
 	if ( !Q_stricmp( pcCommand, "BrowseImage" ) )
 	{
 		CGameUIViewport::Get()->OpenFileExplorer(
-		    OpenFileDialog_e::FILE_PNG | OpenFileDialog_e::FILE_JPG,
+		    OpenFileDialog_e::FILE_PNG,
 			last_folder[0].c_str(),
 			"ROOT",
 			OnFileSelected
@@ -285,30 +291,29 @@ void CWorkshopSubUpload::UpdatePreviewImage( DialogData *pData )
 {
 	last_folder[0] = pData->LocalPath;
 	vgui2::STDReplaceString( last_folder[0], pData->File, "" );
-	std::string szFile = pData->LocalGamePath;
+	std::string szFile = pData->FullPath;
+	std::string szFileLocal = pData->LocalGamePath;
 	const size_t found = pData->FileExtension.size();
 	szFile = szFile.substr(0, szFile.size() - found);
+	szFileLocal = szFileLocal.substr(0, szFileLocal.size() - found);
 
-	/*
 	// -- BEGIN PNG READ
 	if ( pData->FileExtension == ".png" )
 	{
-		ilInit();
+		int width, height, channels;
+		unsigned char *data = stbi_load( pData->FullPath.c_str(), &width, &height, &channels, 4 );
 
-		if ( !ilLoadImage( pData->FullPath.c_str() ) )
+		if ( !data )
 		{
 			CGameUIViewport::Get()->ShowMessageDialog(
 				"#ZP_Workshop",
 				vgui2::VarArgs(
-					"Failed to load the image!\nError Code: %u\n",
-			        ilGetError()
+					"Failed to load the image!\nReason: %s\n",
+			        stbi_failure_reason()
 				)
 			);
 			return;
 		}
-
-		int width = ilGetInteger( IL_IMAGE_WIDTH );
-		int height = ilGetInteger( IL_IMAGE_HEIGHT );
 
 		if ( width > 640 || height > 360 )
 		{
@@ -324,14 +329,25 @@ void CWorkshopSubUpload::UpdatePreviewImage( DialogData *pData )
 			);
 			return;
 		}
-		ilEnable( IL_FILE_OVERWRITE );
-		ilSaveImage( vgui2::VarArgs( "%s.tga", szFile.c_str() ) );
+
+		int success = stbi_write_tga( vgui2::VarArgs( "%s.tga", szFile.c_str() ), width, height, 4, data );
+		if ( !success )
+		{
+			CGameUIViewport::Get()->ShowMessageDialog(
+				"#ZP_Workshop",
+				vgui2::VarArgs(
+					"Failed to write tga\n"
+				)
+			);
+			stbi_image_free( data );
+			return;
+		}
+		stbi_image_free( data );
 	}
 	// -- EDN PNG READ
-	*/
 
 	preview_image = pData->FullPath;
-	pAddonImage->SetImage( szFile.c_str() );
+	pAddonImage->SetImage( szFileLocal.c_str() );
 }
 
 void CWorkshopSubUpload::SetUpdating( PublishedFileId_t nItem )

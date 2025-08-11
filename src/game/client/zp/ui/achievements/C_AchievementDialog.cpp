@@ -82,7 +82,6 @@ DialogAchievementData g_DAchievements[] =
 };
 
 extern StatData_t GrabStat( EStats nID );
-extern StatData_t GrabStat( const char *szName );
 extern void SetStat( EStats nID, int32 value );
 
 // ===================================

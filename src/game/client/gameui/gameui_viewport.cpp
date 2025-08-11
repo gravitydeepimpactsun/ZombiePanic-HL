@@ -66,19 +66,6 @@ void SetStat( EStats nID, int32 value )
 	}
 }
 
-StatData_t GrabStat( const char *szName )
-{
-	if ( szName && szName[0] )
-	{
-		for ( int i = 0; i < ARRAYSIZE(g_SteamStats); i++ )
-		{
-			StatData_t stat = g_SteamStats[i];
-			if ( vgui2::FStrEq( stat.Name, szName ) ) return stat;
-		}
-	}
-	return g_SteamStats[0];
-}
-
 CGameUIViewport::CGameUIViewport()
     : BaseClass(nullptr, "ClientGameUIViewport"),
 	m_CallbackUserStatsReceived( this, &CGameUIViewport::OnUserStatsReceived )

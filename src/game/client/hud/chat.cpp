@@ -35,6 +35,8 @@ ConVar cl_mute_all_comms("cl_mute_all_comms", "1", FCVAR_BHL_ARCHIVE, "If 1, the
 constexpr const char CHAT_SOUND_FILE[] = "misc/talk.wav";
 constexpr const char CHAT_SOUND_FALLBACK[] = "misc/talk_bhl_fallback.wav";
 
+extern void SetStat( EStats nID, int32 value );
+
 bool CLIENT_UTIL_IsSpecialAchievement( int iAchievement )
 {
 	if ( iAchievement == EAchievements::JACKOFTRADES ) return true;
@@ -145,8 +147,36 @@ void CLIENT_UTIL_GiveAchievement( int iAchievement )
 		value++;
 		GetSteamAPI()->SteamUserStats()->SetStat( GetAchievementByID( iAchievement ).GetData().Name, value );
 
+		// Update it.
+		SetStat( GetAchievementByID( iAchievement ).GetData().ID, value );
+
 		// Check if we have enough.
-		if ( value < GetAchievementByID( iAchievement ).GetData().MaxValue ) return;
+		if ( value < GetAchievementByID( iAchievement ).GetData().MaxValue )
+		{
+			double dValue = value;
+			bool bShouldDraw = false;
+			// 25%, 50% or 90% of the way?
+			if ( value == int32(dValue * 0.25) ) bShouldDraw = true;
+			else if ( !bShouldDraw && int32(dValue * 0.5) ) bShouldDraw = true;
+			else if ( !bShouldDraw && int32(dValue * 0.9) ) bShouldDraw = true;
+			if ( bShouldDraw )
+				GetSteamAPI()->SteamUserStats()->IndicateAchievementProgress(
+					GetAchievementByID( iAchievement ).GetAchievementName(),
+					GetAchievementByID( iAchievement ).GetData().Value,
+					GetAchievementByID( iAchievement ).GetData().MaxValue
+				);
+			return;
+		}
+	}
+	
+	// Indicate the progress.
+	if ( GetAchievementByID( iAchievement ).HasStatID() )
+		GetSteamAPI()->SteamUserStats()->IndicateAchievementProgress( GetAchievementByID( iAchievement ).GetAchievementName(), GetAchievementByID( iAchievement ).GetData().Value, GetAchievementByID( iAchievement ).GetData().MaxValue );
+	else
+	{
+		// Because GoldSource don't want us to show our progress ingame, let's do some hacky shit instead.
+		// We can only do this before we execute SetAchievement function.
+		GetSteamAPI()->SteamUserStats()->IndicateAchievementProgress( GetAchievementByID( iAchievement ).GetAchievementName(), 0, 1 );
 	}
 
 	// Give the achievement.

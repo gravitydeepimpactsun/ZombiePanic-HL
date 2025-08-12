@@ -2120,7 +2120,7 @@ void CBasePlayer::SetTheCorrectPlayerModel()
 		if ( RANDOM_LONG( 0, 4 ) == 2 )
 			szModel = "survivor2";
 		else
-			szModel = "survivor";
+			szModel = "survivor1";
 	}
 
 	g_engfuncs.pfnSetClientKeyValue( entindex(), g_engfuncs.pfnGetInfoKeyBuffer( edict() ), "model", szModel );
@@ -5993,8 +5993,8 @@ LINK_ENTITY_TO_CLASS(player_corpse, CPlayerCorpse);
 
 void CPlayerCorpse::Spawn(void)
 {
-	PRECACHE_MODEL("models/player/survivor/survivor.mdl");
-	SET_MODEL(ENT(pev), "models/player/survivor/survivor.mdl");
+	PRECACHE_MODEL("models/player/survivor1/survivor1.mdl");
+	SET_MODEL(ENT(pev), "models/player/survivor1/survivor1.mdl");
 
 	pev->effects = 0;
 	pev->yaw_speed = 8;

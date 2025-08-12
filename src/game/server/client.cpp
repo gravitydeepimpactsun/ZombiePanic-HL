@@ -65,7 +65,7 @@ char g_checkedPlayerModels[MAX_PLAYERS][MAX_TEAM_NAME]; // Used to store checked
  */
 void set_suicide_frame(entvars_t *pev)
 {
-	const char *szModel = ( pev->team == ZP::TEAM_ZOMBIE ) ? "models/player/undead/undead.mdl" : "models/player/survivor/survivor.mdl";
+	const char *szModel = ( pev->team == ZP::TEAM_ZOMBIE ) ? "models/player/undead/undead.mdl" : "models/player/survivor1/survivor1.mdl";
 	if (!FStrEq(STRING(pev->model), szModel))
 		return; // allready gibbed
 
@@ -1013,7 +1013,7 @@ void ClientPrecache(void)
 	PRECACHE_SOUND("player/zombiedeath3.wav");
 
 	PRECACHE_MODEL("models/player/undead/undead.mdl");
-	PRECACHE_MODEL("models/player/survivor/survivor.mdl");
+	PRECACHE_MODEL("models/player/survivor1/survivor1.mdl");
 	PRECACHE_MODEL("models/player/survivor2/survivor2.mdl");
 	// Sticky gibs, used by headshots
 	PRECACHE_MODEL("models/stickygib.mdl");

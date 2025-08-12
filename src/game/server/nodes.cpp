@@ -1492,7 +1492,7 @@ LINK_ENTITY_TO_CLASS(testhull, CTestHull);
 //=========================================================
 void CTestHull ::Spawn(entvars_t *pevMasterNode)
 {
-	SET_MODEL(ENT(pev), "models/player/survivor/survivor.mdl");
+	SET_MODEL(ENT(pev), "models/player/survivor1/survivor1.mdl");
 	UTIL_SetSize(pev, VEC_HUMAN_HULL_MIN, VEC_HUMAN_HULL_MAX);
 
 	pev->solid = SOLID_SLIDEBOX;

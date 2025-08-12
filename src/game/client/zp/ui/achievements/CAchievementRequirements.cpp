@@ -480,7 +480,11 @@ CAchievementRequirementsHolder::CAchievementRequirementsHolder( vgui2::Panel *pa
 
 	m_pButton = new vgui2::ButtonImage(this, "PanelListPanelVScroll", "resource/icon_plus", this, "ToggleOption");
 	m_pLabel = new vgui2::Label(this, "PanelListPanelVScroll", "#ZP_UI_Achievements_ShowDetails");
+	// !!! Change this to be double array!
+	// I need to backport my stat panel from Contagion,
+	// because that was a pain in the ass.
 	m_pList = new CAchievementRequirements(this, "ItemList");
+	m_pList->SetVisible( false );
 	m_pList->SetBounds( 0, 0, 43, 20 );
 	m_bShouldExpand = true;
 }

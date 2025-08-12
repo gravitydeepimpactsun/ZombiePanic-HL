@@ -805,6 +805,7 @@ void CHalfLifeMultiplay::DeathNotice(CBasePlayer *pVictim, entvars_t *pKiller, e
 
 	if (pVictim->pev == pKiller)
 	{
+		if (pVictim->m_bJustKilledWithExplosive) pVictim->GiveAchievement( YOU_WILL_DIE_WITH_ME );
 		// killed self
 		if (!strcmp(killer_weapon_name, "satchel"))
 		{
@@ -817,7 +818,6 @@ void CHalfLifeMultiplay::DeathNotice(CBasePlayer *pVictim, entvars_t *pKiller, e
 			pVictim->m_flResetExplosiveKillNotice = gpGlobals->time + 3.0f;
 			pVictim->GiveAchievement( UNSAFE_HANDLING );
 		}
-		if (pVictim->m_bJustKilledWithExplosive) pVictim->GiveAchievement( YOU_WILL_DIE_WITH_ME );
 
 		// team match?
 		if (g_teamplay)

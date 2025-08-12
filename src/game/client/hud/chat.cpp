@@ -1365,7 +1365,7 @@ int CHudChat::MsgFunc_AchEarn(const char *pszName, int iSize, void *pbuf)
 	g_pVGuiLocalize->ConvertANSIToUnicode( szPlayerName, wszPlayerName, sizeof( wszPlayerName ) );
 
 	// What is the achievement we got?
-	char szAchievement[32];
+	char szAchievement[512];
 	Q_snprintf( szAchievement, sizeof( szAchievement ), "#ZP_ACH_%s_NAME", GetAchievementByID( achievement ).GetAchievementName() );
 
 	// Convert to a string that we can read

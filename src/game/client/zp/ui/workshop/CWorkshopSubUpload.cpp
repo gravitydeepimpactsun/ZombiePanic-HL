@@ -164,7 +164,7 @@ void CWorkshopSubUpload::OnCommand(const char *pcCommand)
 	if ( !Q_stricmp( pcCommand, "BrowseImage" ) )
 	{
 		CGameUIViewport::Get()->OpenFileExplorer(
-		    OpenFileDialog_e::FILE_PNG,
+		    OpenFileDialog_e::FILE_PNG | OpenFileDialog_e::FILE_JPG,
 			last_folder[0].c_str(),
 			"ROOT",
 			OnFileSelected
@@ -297,8 +297,7 @@ void CWorkshopSubUpload::UpdatePreviewImage( DialogData *pData )
 	szFile = szFile.substr(0, szFile.size() - found);
 	szFileLocal = szFileLocal.substr(0, szFileLocal.size() - found);
 
-	// -- BEGIN PNG READ
-	if ( pData->FileExtension == ".png" )
+	// Read and write the file to TGA
 	{
 		int width, height, channels;
 		unsigned char *data = stbi_load( pData->FullPath.c_str(), &width, &height, &channels, 4 );
@@ -344,7 +343,6 @@ void CWorkshopSubUpload::UpdatePreviewImage( DialogData *pData )
 		}
 		stbi_image_free( data );
 	}
-	// -- EDN PNG READ
 
 	preview_image = pData->FullPath;
 	pAddonImage->SetImage( szFileLocal.c_str() );

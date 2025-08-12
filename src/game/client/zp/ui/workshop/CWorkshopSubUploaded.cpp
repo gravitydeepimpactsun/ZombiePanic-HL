@@ -282,9 +282,19 @@ void CWorkshopSubUploaded::UpdateHTTPCallback( HTTPRequestCompleted_t *arg, bool
 			g_pFullFileSystem->Close( file_h );
 
 			// Now convert the fucker to TGA
-			//ilImage Image( vgui2::VarArgs( "zp_workshop/uploads/thumb_%llu.jpg", context ) );
-			//ilEnable( IL_FILE_OVERWRITE );
-			//Image.Save( vgui2::VarArgs( "zp_workshop/uploads/thumb_%llu.tga", context ) );
+			int width, height, channels;
+			// !!! Change this to full path !!!
+			unsigned char *data = stbi_load( vgui2::VarArgs( "uploads/thumb_%llu.jpg", context ), &width, &height, &channels, 4 );
+			if ( data )
+			{
+				// !!! Change this to full path !!!
+				int success = stbi_write_tga( vgui2::VarArgs( "zp_workshop/uploads/thumb_%llu.tga", context ), width, height, 4, data );
+				if ( !success )
+					ConPrintf( "Failed to write tga\n" );
+				stbi_image_free( data );
+			}
+			else
+				ConPrintf( "Failed to load the image!\nReason: %s\n", stbi_failure_reason() );
 
 			delete[] pResponse;
 		}

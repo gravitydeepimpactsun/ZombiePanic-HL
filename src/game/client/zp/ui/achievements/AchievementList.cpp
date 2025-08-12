@@ -100,6 +100,14 @@ int	AchievementList::ComputeVPixelsNeeded()
 		if (iCurrentColumn == 0)
 			pixels += m_iPanelBuffer; // add in buffer. between rows.
 
+		if ( m_DataItems[m_SortedItems[i]].required_steps )
+		{
+			// Make sure this IS CAchievementRequirementsHolder, and not some other bullshit
+			CAchievementRequirementsHolder *pRequiredSteps = dynamic_cast<CAchievementRequirementsHolder *>( m_DataItems[m_SortedItems[i]].required_steps );
+			if ( pRequiredSteps )
+				pixels += pRequiredSteps->GetCurrentHeight() + m_iPanelBuffer;
+		}
+
 		if (iCurrentColumn >= m_iNumColumns - 1)
 		{
 			pixels += iLargestH;
@@ -172,6 +180,14 @@ int AchievementList::AddItem(vgui2::Panel *Texture, vgui2::Panel *Title, vgui2::
 	newitem.texture_obtained = AchievedBG;
 	newitem.required_steps = RequiredSteps;
 	m_SortedItems.AddToTail(itemID);
+
+	if ( RequiredSteps )
+	{
+		// Make sure this IS CAchievementRequirementsHolder, and not some other bullshit
+		CAchievementRequirementsHolder *pRequiredSteps = dynamic_cast<CAchievementRequirementsHolder *>( RequiredSteps );
+		if ( pRequiredSteps )
+			pRequiredSteps->AddActionSignalTarget( this );
+	}
 
 	InvalidateLayout();
 	return itemID;
@@ -355,6 +371,15 @@ void AchievementList::OnSizeChanged(int wide, int tall)
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void AchievementList::OnRequirementStepSizeUpdate()
+{
+	InvalidateLayout(true);
+	Repaint();
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: relayouts out the panel after any internal changes
 //-----------------------------------------------------------------------------
 void AchievementList::PerformLayout()
@@ -422,13 +447,6 @@ void AchievementList::PerformLayout()
 
 		item.texture_obtained->SetBounds(5, y - 2, iColumnWidth + 50, item.texture->GetTall() - 2);
 
-		if ( item.required_steps )
-		{
-			// TODO: Add the steps, and if expanded, increase the item height.
-			// Convert vgui2::Panel > CAchievementRequirementsHolder
-			// A list within a fucking list. lmao.
-		}
-
 		// Lets calculate the achievement bar
 		int barWidth_cur = item.achv_progress;
 		int barWidth_max = item.achv_progress_max;
@@ -452,6 +470,17 @@ void AchievementList::PerformLayout()
 
 		if (item.progress_bg)
 			item.progress_bg->SetBounds(xpos + iCurrentColumn - 25, y + 30, 475, 12);
+
+		if ( item.required_steps )
+		{
+			// Make sure this IS CAchievementRequirementsHolder, and not some other bullshit
+			CAchievementRequirementsHolder *pRequiredSteps = dynamic_cast<CAchievementRequirementsHolder *>( item.required_steps );
+			if ( pRequiredSteps )
+			{
+				pRequiredSteps->SetBounds(5, y + h + 2, 490, pRequiredSteps->GetCurrentHeight());
+				y += pRequiredSteps->GetCurrentHeight() + m_iPanelBuffer;
+			}
+		}
 
 		if (iCurrentColumn >= m_iNumColumns - 1)
 		{

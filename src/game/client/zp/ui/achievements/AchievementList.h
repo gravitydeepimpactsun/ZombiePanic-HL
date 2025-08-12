@@ -83,6 +83,7 @@ namespace vgui2
 		// overrides
 		virtual void OnSizeChanged(int wide, int tall);
 		MESSAGE_FUNC_INT(OnSliderMoved, "ScrollBarSliderMoved", position);
+		MESSAGE_FUNC( OnRequirementStepSizeUpdate, "RequirementStepSizeUpdate" );
 		virtual void PerformLayout();
 		virtual void ApplySchemeSettings(vgui2::IScheme *pScheme);
 		virtual void OnMouseWheeled(int delta);

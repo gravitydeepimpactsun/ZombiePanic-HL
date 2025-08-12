@@ -51,6 +51,22 @@ private:
 // Setup
 // ===================================
 
+struct RequiredStepsTable
+{
+	EStats Stat;
+	int32 MaxValue; // Overrides the required value
+	RequiredStepsTable( EStats nStat )
+	{
+		Stat = nStat;
+		MaxValue = 0;
+	}
+	RequiredStepsTable( EStats nStat, int32 nMax )
+	{
+		Stat = nStat;
+		MaxValue = nMax;
+	}
+};
+
 class DialogAchievementData
 {
 private:
@@ -60,18 +76,18 @@ private:
 	int m_iIconImage;
 	int m_eCategory;
 	EStats m_nStat;
-	std::vector<EStats> m_RequiredSteps;
+	std::vector<RequiredStepsTable> m_RequiredSteps;
 
 public:
 	DialogAchievementData( EAchievements nID, const char *szName, int nCategory, EStats nStatID );
-	DialogAchievementData( EAchievements nID, const char *szName, int nCategory, EStats nStatID, std::vector<EStats> nRequiredSteps );
+	DialogAchievementData( EAchievements nID, const char *szName, int nCategory, EStats nStatID, std::vector<RequiredStepsTable> nRequiredSteps );
 
 	StatData_t GetData();
 	const bool HasStatID() { return (m_nStat > INVALID_STAT) ? true : false; }
 	const bool HasRequiredSteps() { return (m_RequiredSteps.size() > 0) ? true : false; }
 
 	size_t GetRequiredStepCount() { return m_RequiredSteps.size(); }
-	EStats GetRequiredStepID( int iIdx ) { return m_RequiredSteps[iIdx]; }
+	RequiredStepsTable GetRequiredStepID( int iIdx ) { return m_RequiredSteps[iIdx]; }
 
 	const bool IsAchieved() { return m_bAchieved; }
 	void SetAchieved( bool bState ) { m_bAchieved = bState; }

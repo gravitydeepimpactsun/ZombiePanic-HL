@@ -29,9 +29,21 @@ enum
 };
 
 // TODO: Add the actual steps once all the maps are done.
-std::vector<EStats> m_MarathonSteps = {
-	ZP_KILLS_CROWBAR,
-	ZP_KILLS_SHOTGUN
+std::vector<RequiredStepsTable> m_MarathonSteps = {
+	RequiredStepsTable( ZP_KILLS_CROWBAR, 1 ),
+	RequiredStepsTable( ZP_KILLS_SHOTGUN )
+};
+
+// We only need to check for one single kill for each
+std::vector<RequiredStepsTable> m_JackOfTradesSteps = {
+	RequiredStepsTable( ZP_KILLS_CROWBAR, 1 ),
+	RequiredStepsTable( ZP_KILLS_PISTOL, 1 ),
+	RequiredStepsTable( ZP_KILLS_REVOLVER, 1 ),
+	RequiredStepsTable( ZP_KILLS_RIFLE, 1 ),
+	RequiredStepsTable( ZP_KILLS_MP5, 1 ),
+	RequiredStepsTable( ZP_KILLS_SHOTGUN, 1 ),
+	RequiredStepsTable( ZP_KILLS_SATCHEL, 1 ),
+	RequiredStepsTable( ZP_KILLS_TNT, 1 )
 };
 
 DialogAchievementData g_DAchievements[] =
@@ -47,7 +59,7 @@ DialogAchievementData g_DAchievements[] =
 	_ACH_ID(KILLS_ZOMBIE,					CATEGORY_KILLS,			ZP_KILLS_ZOMBIE),
 	_ACH_ID(YOU_WILL_DIE_WITH_ME,			CATEGORY_KILLS,			INVALID_STAT),
 	_ACH_ID(UNSAFE_HANDLING,				CATEGORY_KILLS,			INVALID_STAT),
-	_ACH_ID(JACKOFTRADES,					CATEGORY_KILLS,			INVALID_STAT),
+	_ACH_ID_LIST(JACKOFTRADES,				CATEGORY_KILLS,			INVALID_STAT, m_JackOfTradesSteps),
 	_ACH_ID(PANICRUSH,						CATEGORY_KILLS,			INVALID_STAT),
 	_ACH_ID(FLEEESH,						CATEGORY_KILLS,			ZP_FLEEESH),
 	_ACH_ID(ZOMBIEDESSERT,					CATEGORY_KILLS,			INVALID_STAT),
@@ -354,13 +366,35 @@ ReadAchievement:
 	int imValue = 0;
 
 	StatData_t steamstats = ach.GetData();
+	int32 nStatValue = steamstats.Value;
+	int32 nStatMaxValue = steamstats.MaxValue;
 
-	if ( ach.HasStatID()
-		&& steamstats.Value > 0
-	    && steamstats.Value < steamstats.MaxValue
+	// Has required steps?
+	// If we have steps, it will override the progress bar.
+	if ( ach.HasRequiredSteps() )
+	{
+		nStatValue = 0;
+		required_steps = new vgui2::CAchievementRequirementsHolder( this, "RequiredSteps" );
+		for ( size_t i = 0; i < ach.GetRequiredStepCount(); i++ )
+		{
+			RequiredStepsTable SteamStatID = ach.GetRequiredStepID( i );
+			StatData_t itemStat = GrabStat( SteamStatID.Stat );
+			int32 nItemMax = itemStat.MaxValue;
+			if ( SteamStatID.MaxValue > 0 )
+				nItemMax = SteamStatID.MaxValue;
+			bool bObtained = ( itemStat.Value >= nItemMax ) ? true : false;
+			Q_snprintf( buffer, sizeof( buffer ), "#ZP_STAT_%s", itemStat.Name );
+			required_steps->AddItem( bObtained, buffer );
+			if ( bObtained ) nStatValue++;
+		}
+		nStatMaxValue = ach.GetRequiredStepCount();
+	}
+
+	if ( ( ach.HasStatID() || ach.HasRequiredSteps() )
+	    && nStatValue < nStatMaxValue
 		&& !ach.IsAchieved() )
 	{
-		Q_snprintf( buffer, sizeof(buffer), "%d / %d", steamstats.Value, steamstats.MaxValue );
+		Q_snprintf( buffer, sizeof(buffer), "%d / %d", nStatValue, nStatMaxValue );
 		label_achievement_progress_num = new vgui2::Label(this, "AchievementProgress", buffer);
 		if ( hTextFont != vgui2::INVALID_FONT )
 			label_achievement_progress_num->SetFont(hTextFont);
@@ -375,25 +409,13 @@ ReadAchievement:
 		label_achievement_progress->SetFillColor(Color(142, 20, 48, 255));
 
 		// Achievement progress
-		iValue = steamstats.Value;
-		imValue = steamstats.MaxValue;
+		iValue = nStatValue;
+		imValue = nStatMaxValue;
 	}
 	else
 	{
 		iValue = 0;
 		imValue = 0;
-	}
-
-	// Has required steps?
-	if ( ach.HasRequiredSteps() )
-	{
-		required_steps = new vgui2::CAchievementRequirementsHolder( this, "RequiredSteps" );
-		for ( size_t i = 0; i < ach.GetRequiredStepCount(); i++ )
-		{
-			EStats SteamStatID = ach.GetRequiredStepID( i );
-			steamstats = GrabStat( SteamStatID );
-			required_steps->AddItem( ( steamstats.Value >= steamstats.MaxValue ) ? true : false, steamstats.Name );
-		}
 	}
 
 	// Setup the obtained achievement bg texture (only shows if achieved)
@@ -459,7 +481,7 @@ DialogAchievementData::DialogAchievementData( EAchievements nID, const char *szN
 	m_nStat = nStatID;
 }
 
-DialogAchievementData::DialogAchievementData( EAchievements nID, const char *szName, int nCategory, EStats nStatID, std::vector<EStats> nRequiredSteps )
+DialogAchievementData::DialogAchievementData( EAchievements nID, const char *szName, int nCategory, EStats nStatID, std::vector<RequiredStepsTable> nRequiredSteps )
 {
 	Q_snprintf( m_pchAchievementID, sizeof(m_pchAchievementID), "%s", szName );
 	m_bAchieved = false;

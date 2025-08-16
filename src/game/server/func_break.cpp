@@ -813,6 +813,7 @@ class CPushable : public CBreakable
 {
 public:
 	void Spawn(void);
+	void Restart();
 	void Precache(void);
 	void Touch(CBaseEntity *pOther);
 	void Move(CBaseEntity *pMover, int push);
@@ -836,6 +837,9 @@ public:
 	int m_lastSound; // no need to save/restore, just keeps the same sound from playing twice in a row
 	float m_maxSpeed;
 	float m_soundTime;
+
+	// For Restart function
+	Vector oldPos;
 };
 
 TYPEDESCRIPTION CPushable::m_SaveData[] = {
@@ -869,6 +873,31 @@ void CPushable ::Spawn(void)
 
 	pev->origin.z += 1; // Pick up off of the floor
 	UTIL_SetOrigin(pev, pev->origin);
+
+	oldPos = pev->origin;
+
+	// Multiply by area of the box's cross-section (assume 1000 units^3 standard volume)
+	pev->skin = (pev->skin * (pev->maxs.x - pev->mins.x) * (pev->maxs.y - pev->mins.y)) * 0.0005;
+	m_soundTime = 0;
+}
+
+void CPushable::Restart()
+{
+	if (pev->spawnflags & SF_PUSH_BREAKABLE)
+		CBreakable::Restart();
+
+	pev->movetype = MOVETYPE_PUSHSTEP;
+	pev->solid = SOLID_BBOX;
+	SET_MODEL(ENT(pev), STRING(pev->model));
+
+	if (pev->friction > 399)
+		pev->friction = 399;
+
+	m_maxSpeed = 400 - pev->friction;
+	SetBits(pev->flags, FL_FLOAT);
+	pev->friction = 0;
+
+	UTIL_SetOrigin(pev, oldPos);
 
 	// Multiply by area of the box's cross-section (assume 1000 units^3 standard volume)
 	pev->skin = (pev->skin * (pev->maxs.x - pev->mins.x) * (pev->maxs.y - pev->mins.y)) * 0.0005;

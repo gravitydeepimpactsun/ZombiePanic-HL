@@ -814,7 +814,7 @@ Color CScorePanel::GetPlayerBgColor(CPlayerInfo *pi)
 		{
 			m_iKillerIndex = 0;
 			m_flKillerHighlightStart = 0;
-			return Color(0, 0, 0, 0);
+			return GetPlayerDefaultBgColor(pi);
 		}
 		else
 		{
@@ -823,6 +823,18 @@ Color CScorePanel::GetPlayerBgColor(CPlayerInfo *pi)
 		}
 	}
 
+	return GetPlayerDefaultBgColor(pi);
+}
+
+Color CScorePanel::GetPlayerDefaultBgColor(CPlayerInfo *pi)
+{
+	// TODO: Make default background show the following:
+	// Dev - Dark Red?
+	// Contributor - Dark Green?
+	// Playtester - Dark Gold?
+	//pi->GetSteamID();
+
+	// If we find nothing, just draw nothing.
 	return Color(0, 0, 0, 0);
 }
 

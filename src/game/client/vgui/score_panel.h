@@ -215,6 +215,11 @@ private:
 	Color GetPlayerBgColor(CPlayerInfo *pi);
 
 	/**
+	 * Get our default BG color
+	 */
+	Color GetPlayerDefaultBgColor(CPlayerInfo *pi);
+
+	/**
 	 * Returns client icon size.
 	 */
 	int GetClientIconSize();

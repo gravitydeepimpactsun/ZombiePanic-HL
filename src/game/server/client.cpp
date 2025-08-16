@@ -1013,6 +1013,7 @@ void ClientPrecache(void)
 	PRECACHE_SOUND("player/zombiedeath3.wav");
 
 	PRECACHE_MODEL("models/player/undead/undead.mdl");
+	PRECACHE_MODEL("models/player/undead2/undead2.mdl");
 	PRECACHE_MODEL("models/player/survivor1/survivor1.mdl");
 	PRECACHE_MODEL("models/player/survivor2/survivor2.mdl");
 	// Sticky gibs, used by headshots

@@ -82,6 +82,13 @@ enum sbar_data
 	SBAR_END,
 };
 
+typedef enum
+{
+	ANY = -1,
+	SURVIVOR1 = 0,
+	SURVIVOR2
+} PlayerCharacter;
+
 #define CHAT_FLOOD          3
 #define CHAT_INTERVAL       0.5f
 #define CHAT_PENALTY        2.0f
@@ -443,6 +450,7 @@ public:
 	void SetTheCorrectPlayerModel();
 
 	int m_iWeaponKillCount = 0;
+	PlayerCharacter m_iCharacter = PlayerCharacter::ANY;
 #endif
 
 	//-----------------------------------------------------

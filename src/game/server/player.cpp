@@ -1507,7 +1507,11 @@ void CBasePlayer::StartDeathCam(void)
 		}
 		else
 		{
-			pev->angles = pSpot->v.v_angle;
+			CBaseEntity *pDefaultSpawn = CBaseEntity::Instance(pSpot);
+			if ( pDefaultSpawn )
+				pev->angles = pDefaultSpawn->pev->angles;
+			else
+				pev->angles = pSpot->v.v_angle;
 		}
 	}
 	else
@@ -1567,7 +1571,11 @@ void CBasePlayer::StartWelcomeCam(void)
 		}
 		else
 		{
-			pev->angles = pSpot->v.v_angle;
+			CBaseEntity *pDefaultSpawn = CBaseEntity::Instance(pSpot);
+			if ( pDefaultSpawn )
+				pev->angles = pDefaultSpawn->pev->angles;
+			else
+				pev->angles = pSpot->v.v_angle;
 		}
 	}
 	else
@@ -2112,15 +2120,17 @@ void CBasePlayer::SetTheCorrectPlayerModel()
 {
 	int iTeam = pev->team;
 	const char *szModel = nullptr;
+	bool bIsZombie = (iTeam == ZP::TEAM_ZOMBIE) ? true : false;
 
-	if ( iTeam == ZP::TEAM_ZOMBIE )
-		szModel = "undead";
-	else
+	// TODO: Read the client cvar instead!
+	if ( !bIsZombie )
+		m_iCharacter = ( RANDOM_LONG( 0, 4 ) == 2 ) ? PlayerCharacter::SURVIVOR2 : PlayerCharacter::SURVIVOR1;
+
+	switch ( m_iCharacter )
 	{
-		if ( RANDOM_LONG( 0, 4 ) == 2 )
-			szModel = "survivor2";
-		else
-			szModel = "survivor1";
+		default:
+		case PlayerCharacter::SURVIVOR1: szModel = bIsZombie ? "undead" : "survivor1"; break;
+		case PlayerCharacter::SURVIVOR2: szModel = bIsZombie ? "undead2" : "survivor2"; break;
 	}
 
 	g_engfuncs.pfnSetClientKeyValue( entindex(), g_engfuncs.pfnGetInfoKeyBuffer( edict() ), "model", szModel );

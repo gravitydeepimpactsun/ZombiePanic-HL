@@ -168,16 +168,10 @@ void CLIENT_UTIL_GiveAchievement( int iAchievement )
 			return;
 		}
 	}
-	
-	// Indicate the progress.
-	if ( GetAchievementByID( iAchievement ).HasStatID() )
-		GetSteamAPI()->SteamUserStats()->IndicateAchievementProgress( GetAchievementByID( iAchievement ).GetAchievementName(), GetAchievementByID( iAchievement ).GetData().Value, GetAchievementByID( iAchievement ).GetData().MaxValue );
-	else
-	{
-		// Because GoldSource don't want us to show our progress ingame, let's do some hacky shit instead.
-		// We can only do this before we execute SetAchievement function.
-		GetSteamAPI()->SteamUserStats()->IndicateAchievementProgress( GetAchievementByID( iAchievement ).GetAchievementName(), 0, 1 );
-	}
+
+	// Because GoldSource don't want us to show our progress ingame, let's do some hacky shit instead.
+	// We can only do this before we execute SetAchievement function.
+	GetSteamAPI()->SteamUserStats()->IndicateAchievementProgress( GetAchievementByID( iAchievement ).GetAchievementName(), 0, 1 );
 
 	// Give the achievement.
 	GetSteamAPI()->SteamUserStats()->SetAchievement( GetAchievementByID( iAchievement ).GetAchievementName() );

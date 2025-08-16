@@ -3384,6 +3384,7 @@ static int SortSpots(SpotInfo spotInfos[], int spotsCount)
 
 static void ClearSpawn(CBaseEntity *pSpot, edict_t *player)
 {
+#if 0
 	CBaseEntity *ent = nullptr;
 
 	while ((ent = UTIL_FindEntityInSphere(ent, pSpot->pev->origin, 128)))
@@ -3392,6 +3393,7 @@ static void ClearSpawn(CBaseEntity *pSpot, edict_t *player)
 		if (ent->IsPlayer() && !(ent->edict() == player))
 			ent->TakeDamage(VARS(INDEXENT(0)), VARS(INDEXENT(0)), 300, DMG_GENERIC);
 	}
+#endif
 }
 
 static CBaseEntity *EntSelectSpawnPointZPFallback(CBaseEntity *pPlayer, const char *szSpawnLocation)

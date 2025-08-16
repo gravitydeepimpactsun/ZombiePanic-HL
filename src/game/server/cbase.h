@@ -363,6 +363,12 @@ public:
 	void SetParent( CBaseEntity *pEnt );
 	CBaseEntity *GetParent();
 
+#if defined( SERVER_DLL )
+	// Team Filtering
+	int m_teamfilter = 0;
+	bool IsFilterValid( CBaseEntity *pOther ) const;
+#endif
+
 	// virtual functions used by a few classes
 
 	// used by monsters that are created by the MonsterMaker
@@ -784,7 +790,6 @@ public:
 	BYTE m_bUnlockedSound;
 	BYTE m_bUnlockedSentence;
 	int m_sounds;
-	int m_teamfilter;
 };
 
 //

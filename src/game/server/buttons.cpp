@@ -419,7 +419,8 @@ void CBaseButton::KeyValue(KeyValueData *pkvd)
 		m_sounds = atoi(pkvd->szValue);
 		pkvd->fHandled = TRUE;
 	}
-	else if (FStrEq(pkvd->szKeyName, "users") || FStrEq(pkvd->szKeyName, "filter"))
+	// Older maps only
+	else if (FStrEq(pkvd->szKeyName, "users"))
 	{
 		m_teamfilter = atoi(pkvd->szValue);
 		pkvd->fHandled = TRUE;
@@ -704,32 +705,9 @@ void CBaseButton::ButtonSpark(void)
 //
 void CBaseButton::ButtonUse(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value)
 {
-	bool bFilterOK = true;
-	if ( pActivator )
-	{
-		int iTeam = pActivator->pev->team;
-		switch ( m_teamfilter )
-		{
-			// Human only
-			case 1:
-			{
-				if ( iTeam != ZP::TEAM_SURVIVIOR )
-				    bFilterOK = false;
-			}
-			break;
-			// Zombie only
-			case 2:
-			{
-				if ( iTeam != ZP::TEAM_ZOMBIE )
-				    bFilterOK = false;
-			}
-			break;
-		}
-	}
-
 	// If we did not return true, then refuse the player
 	// to interact with this
-	if ( !bFilterOK ) return;
+	if ( !IsFilterValid( pActivator ) ) return;
 
 	// Ignore touches if button is moving, or pushed-in and waiting to auto-come-out.
 	// UNDONE: Should this use ButtonResponseToTouch() too?

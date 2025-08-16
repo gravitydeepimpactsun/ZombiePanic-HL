@@ -604,6 +604,11 @@ void CBaseEntity::KeyValue(KeyValueData *pkvd)
 		m_szParent = ALLOC_STRING(pkvd->szValue);
 		pkvd->fHandled = TRUE;
 	}
+	else if (FStrEq(pkvd->szKeyName, "filter"))
+	{
+		m_teamfilter = atoi(pkvd->szValue);
+		pkvd->fHandled = TRUE;
+	}
 	else
 		pkvd->fHandled = FALSE;
 }
@@ -779,6 +784,34 @@ CBaseEntity *CBaseEntity::GetParent()
 {
 	if (!m_pParent) return nullptr;
 	return CBaseEntity::Instance(m_pParent);
+}
+
+bool CBaseEntity::IsFilterValid( CBaseEntity *pOther ) const
+{
+	// No filter
+	if ( m_teamfilter == 0 ) return true;
+	if ( pOther )
+	{
+		int iTeam = pOther->pev->team;
+		switch ( m_teamfilter )
+		{
+			// Human only
+			case 1:
+			{
+				if ( iTeam == ZP::TEAM_SURVIVIOR )
+					return true;
+			}
+			break;
+			// Zombie only
+			case 2:
+			{
+				if ( iTeam == ZP::TEAM_ZOMBIE )
+					return true;
+			}
+			break;
+		}
+	}
+	return false;
 }
 
 // NOTE: szName must be a pointer to constant memory, e.g. "monster_class" because the entity

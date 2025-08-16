@@ -1808,6 +1808,8 @@ void CTriggerPush ::Spawn()
 
 void CTriggerPush ::Touch(CBaseEntity *pOther)
 {
+	if ( !IsFilterValid( pOther ) ) return;
+
 	entvars_t *pevToucher = pOther->pev;
 
 	// UNDONE: Is there a better way than health to detect things that have physics? (clients/monsters)

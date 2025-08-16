@@ -869,18 +869,6 @@ int CBaseMonster ::TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, f
 		}
 	}
 
-	// if this is a player, move him around!
-	// ZP Edit: Make sure it's only on the ground!!
-	if ((pev->flags & FL_ONGROUND) || pev->groundentity)
-	{
-		if ((!FNullEnt(pevInflictor)) && (pev->movetype == MOVETYPE_WALK) && (!pevAttacker || pevAttacker->solid != SOLID_TRIGGER))
-		{
-			// Clamp it, for balance reasons.
-			float flDmgClamp = clamp(flDamage, 0, 25);
-			pev->velocity = pev->velocity + vecDir * -DamageForce(flDmgClamp);
-		}
-	}
-
 	// do the damage
 	pev->health -= flTake;
 

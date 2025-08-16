@@ -160,7 +160,11 @@ public:
 	// initialization functions
 	virtual void Spawn(void) { return; }
 	virtual void Precache(void) { return; }
+#if defined( SERVER_DLL )
+	virtual void KeyValue(KeyValueData *pkvd);
+#else
 	virtual void KeyValue(KeyValueData *pkvd) { pkvd->fHandled = FALSE; }
+#endif
 	virtual int Save(CSave &save);
 	virtual int Restore(CRestore &restore);
 	virtual int ObjectCaps(void) { return FCAP_ACROSS_TRANSITION; }
@@ -351,6 +355,13 @@ public:
 	}
 
 #endif
+
+	string_t m_szParent = NULL;
+	edict_t *m_pParent = nullptr;
+
+	void SetupParentFromKV();
+	void SetParent( CBaseEntity *pEnt );
+	CBaseEntity *GetParent();
 
 	// virtual functions used by a few classes
 

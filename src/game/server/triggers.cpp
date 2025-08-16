@@ -558,6 +558,7 @@ class CTriggerHurt : public CBaseTrigger
 {
 public:
 	void Spawn(void);
+	void Restart(void);
 	void EXPORT RadiationThink(void);
 };
 
@@ -798,6 +799,25 @@ void CTriggerHurt ::Spawn(void)
 	UTIL_SetOrigin(pev, pev->origin); // Link into the list
 }
 
+void CTriggerHurt::Restart()
+{
+	SetTouch(&CTriggerHurt::HurtTouch);
+
+	if (!FStringNull(pev->targetname))
+		SetUse(&CTriggerHurt::ToggleUse);
+	else
+		SetUse(NULL);
+
+	if (m_bitsDamageInflict & DMG_RADIATION)
+	{
+		SetThink(&CTriggerHurt::RadiationThink);
+		pev->nextthink = gpGlobals->time + RANDOM_FLOAT(0.0, 0.5);
+	}
+
+	if (FBitSet(pev->spawnflags, SF_TRIGGER_HURT_START_OFF)) // if flagged to Start Turned Off, make trigger nonsolid.
+		pev->solid = SOLID_NOT;
+}
+
 // trigger hurt that causes radiation will do a radius
 // check and set the player's geiger counter level
 // according to distance from center of trigger
@@ -1027,6 +1047,7 @@ class CTriggerMultiple : public CBaseTrigger
 {
 public:
 	void Spawn(void);
+	void Restart(void);
 };
 
 LINK_ENTITY_TO_CLASS(trigger_multiple, CTriggerMultiple);
@@ -1058,6 +1079,13 @@ void CTriggerMultiple ::Spawn(void)
 	}
 }
 
+void CTriggerMultiple::Restart()
+{
+	if (m_flWait == 0)
+		m_flWait = 0.2;
+	SetTouch(&CTriggerMultiple::MultiTouch);
+}
+
 /*QUAKED trigger_once (.5 .5 .5) ? notouch
 Variable sized trigger. Triggers once, then removes itself.  You must set the key "target" to the name of another object in the level that has a matching
 "targetname".  If "health" is set, the trigger must be killed to activate.
@@ -1074,6 +1102,7 @@ class CTriggerOnce : public CTriggerMultiple
 {
 public:
 	void Spawn(void);
+	void Restart(void);
 };
 
 LINK_ENTITY_TO_CLASS(trigger_once, CTriggerOnce);
@@ -1082,6 +1111,12 @@ void CTriggerOnce::Spawn(void)
 	m_flWait = -1;
 
 	CTriggerMultiple ::Spawn();
+}
+
+void CTriggerOnce::Restart()
+{
+	m_flWait = -1;
+	CTriggerMultiple::Restart();
 }
 
 void CBaseTrigger ::MultiTouch(CBaseEntity *pOther)
@@ -1153,8 +1188,10 @@ void CBaseTrigger ::ActivateMultiTrigger(CBaseEntity *pActivator)
 		// we can't just remove (self) here, because this is a touch function
 		// called while C code is looping through area links...
 		SetTouch(NULL);
+#if defined( HALFLIFE )
 		pev->nextthink = gpGlobals->time + 0.1;
 		SetThink(&CBaseTrigger::SUB_Remove);
+#endif
 	}
 }
 

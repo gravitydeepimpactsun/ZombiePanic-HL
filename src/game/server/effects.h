@@ -34,6 +34,7 @@ class CSprite : public CPointEntity
 {
 public:
 	void Spawn(void);
+	void Restart();
 	void Precache(void);
 
 	int ObjectCaps(void)
@@ -96,6 +97,8 @@ public:
 	virtual int Restore(CRestore &restore);
 	static TYPEDESCRIPTION m_SaveData[];
 	static CSprite *SpriteCreate(const char *pSpriteName, const Vector &origin, BOOL animate);
+
+	bool m_bManuallyCreated = false;
 
 private:
 	float m_lastTime;

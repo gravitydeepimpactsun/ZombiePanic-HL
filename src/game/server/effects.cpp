@@ -1214,6 +1214,20 @@ void CSprite::Spawn(void)
 	}
 }
 
+void CSprite::Restart()
+{
+	pev->solid = SOLID_NOT;
+	pev->movetype = MOVETYPE_NONE;
+	pev->effects = 0;
+	pev->frame = 0;
+
+	m_maxFrame = (float)MODEL_FRAMES(pev->modelindex) - 1;
+	if (pev->targetname && !(pev->spawnflags & SF_SPRITE_STARTON))
+		TurnOff();
+	else
+		TurnOn();
+}
+
 void CSprite::Precache(void)
 {
 	PRECACHE_MODEL((char *)STRING(pev->model));
@@ -1243,6 +1257,7 @@ CSprite *CSprite::SpriteCreate(const char *pSpriteName, const Vector &origin, BO
 	pSprite->pev->classname = MAKE_STRING("env_sprite");
 	pSprite->pev->solid = SOLID_NOT;
 	pSprite->pev->movetype = MOVETYPE_NOCLIP;
+	pSprite->m_bManuallyCreated = true;
 	if (animate)
 		pSprite->TurnOn();
 
@@ -1260,7 +1275,12 @@ void CSprite::AnimateThink(void)
 void CSprite::AnimateUntilDead(void)
 {
 	if (gpGlobals->time > pev->dmgtime)
-		UTIL_Remove(this);
+	{
+		if ( m_bManuallyCreated )
+			UTIL_Remove(this);
+		else
+			SetBits(pev->effects, EF_NODRAW);
+	}
 	else
 	{
 		AnimateThink();
@@ -1286,7 +1306,10 @@ void CSprite::ExpandThink(void)
 	if (pev->renderamt <= 0)
 	{
 		pev->renderamt = 0;
-		UTIL_Remove(this);
+		if ( m_bManuallyCreated )
+			UTIL_Remove(this);
+		else
+			SetBits(pev->effects, EF_NODRAW);
 	}
 	else
 	{

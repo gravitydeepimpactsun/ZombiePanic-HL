@@ -597,6 +597,17 @@ TYPEDESCRIPTION CBaseEntity::m_SaveData[] = {
 	DEFINE_FIELD(CBaseEntity, m_pfnBlocked, FIELD_FUNCTION),
 };
 
+void CBaseEntity::KeyValue(KeyValueData *pkvd)
+{
+	if (FStrEq(pkvd->szKeyName, "parent"))
+	{
+		m_szParent = ALLOC_STRING(pkvd->szValue);
+		pkvd->fHandled = TRUE;
+	}
+	else
+		pkvd->fHandled = FALSE;
+}
+
 int CBaseEntity::Save(CSave &save)
 {
 	if (save.WriteEntVars("ENTVARS", pev))
@@ -749,6 +760,25 @@ int CBaseEntity ::DamageDecal(int bitsDamageType)
 		return DECAL_BPROOF1;
 
 	return ZP::GrabCorrectDecal( bitsDamageType );
+}
+
+void CBaseEntity::SetupParentFromKV()
+{
+	if ( FStringNull(m_szParent) ) return;
+	CBaseEntity *pEnt = UTIL_FindEntityByTargetname( nullptr, STRING(m_szParent) );
+	if (pEnt)
+		m_pParent = pEnt->edict();
+}
+
+void CBaseEntity::SetParent( CBaseEntity *pEnt )
+{
+	m_pParent = pEnt->edict();
+}
+
+CBaseEntity *CBaseEntity::GetParent()
+{
+	if (!m_pParent) return nullptr;
+	return CBaseEntity::Instance(m_pParent);
 }
 
 // NOTE: szName must be a pointer to constant memory, e.g. "monster_class" because the entity

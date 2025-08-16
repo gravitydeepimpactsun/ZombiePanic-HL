@@ -116,6 +116,7 @@ public:
 	void KeyValue(KeyValueData *pkvd);
 	void Spawn(void);
 	void Restart(void);
+	void RestartAutoSound(void);
 	void Precache(void);
 	void EXPORT ToggleUse(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
 	void EXPORT RampThink(void);
@@ -249,23 +250,16 @@ void CAmbientGeneric::Restart()
 		return;
 	}
 
+	pev->nextthink = 0;
 	pev->solid = SOLID_NOT;
 	pev->movetype = MOVETYPE_NONE;
-
-	// Set up think function for dynamic modification
-	// of ambient sound's pitch or volume. Don't
-	// start thinking yet.
-	SetThink(&CAmbientGeneric::RampThink);
-	pev->nextthink = 0;
 
 	// allow on/off switching via 'use' function.
 	SetUse(&CAmbientGeneric::ToggleUse);
 
 	m_fActive = FALSE;
 
-	UTIL_EmitAmbientSound(ENT(pev), pev->origin, szSoundFile, 0, 0, SND_STOP, 0);
 	InitModulationParms();
-	pev->nextthink = gpGlobals->time + 0.1f;
 
 	if (FBitSet(pev->spawnflags, AMBIENT_SOUND_NOT_LOOPING))
 		m_fLooping = FALSE;
@@ -279,13 +273,35 @@ void CAmbientGeneric::Restart()
 			m_fActive = TRUE;
 	}
 
-	if (m_fActive)
-	{
-		UTIL_EmitAmbientSound(ENT(pev), pev->origin, szSoundFile,
-		    (m_dpv.vol * 0.01), m_flAttenuation, SND_SPAWNING, m_dpv.pitch);
+	// Make sure the sound is off
+	UTIL_EmitAmbientSound(ENT(pev), pev->origin, szSoundFile, 0, 0, SND_STOP, 0);
 
-		pev->nextthink = gpGlobals->time + 0.1;
+	if (m_fActive)
+		SetThink(&CAmbientGeneric::RestartAutoSound);
+	else
+	{
+		// Set up think function for dynamic modification
+		// of ambient sound's pitch or volume. Don't
+		// start thinking yet.
+		SetThink(&CAmbientGeneric::RampThink);
 	}
+	pev->nextthink = gpGlobals->time + 0.1f;
+}
+
+void CAmbientGeneric::RestartAutoSound(void)
+{
+	// Make sure we are off
+	m_fActive = FALSE;
+
+	// Force on via USE_TOGGLE,
+	// we don't need to copy paste the code in here :V
+	ToggleUse( this, this, USE_TYPE::USE_TOGGLE, 1 );
+
+	// Set up think function for dynamic modification
+	// of ambient sound's pitch or volume. Don't
+	// start thinking yet.
+	SetThink(&CAmbientGeneric::RampThink);
+	pev->nextthink = gpGlobals->time + 0.1f;
 }
 
 void CAmbientGeneric ::Precache(void)

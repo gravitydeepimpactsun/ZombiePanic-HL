@@ -768,6 +768,18 @@ void CWorld::OnWorldCreated()
 #ifdef SCRIPT_SYSTEM
 	ScriptSystem::ScriptFunctionCall( ScriptSystem::ScriptFunctionCall_t::POST_LEVEL_INIT );
 #endif
+
+	// Go through our entities, and check our parents
+	for ( int i = 0; i < gpGlobals->maxEntities; i++ )
+	{
+		edict_t *pEdict = INDEXENT( i );
+		if ( pEdict && !pEdict->free )
+		{
+			CBaseEntity *pEnt = CBaseEntity::Instance( pEdict );
+			if ( pEnt )
+				pEnt->SetupParentFromKV();
+		}
+	}
 }
 
 //

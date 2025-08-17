@@ -1411,7 +1411,7 @@ void CBasePlayer::PlayerDeathThink(void)
 	{
 		if (g_pGameRules->FPlayerCanRespawn(this))
 		{
-			m_fDeadTime = gpGlobals->time;
+			m_fDeadTime = gpGlobals->time + 8;
 			pev->deadflag = DEAD_RESPAWNABLE;
 		}
 		return;
@@ -1420,7 +1420,7 @@ void CBasePlayer::PlayerDeathThink(void)
 	// if the player has been dead for one second longer than allowed by forcerespawn,
 	// forcerespawn isn't on. Send the player off to an intermission camera until they
 	// choose to respawn.
-	if (g_pGameRules->IsMultiplayer() && (gpGlobals->time > (m_fDeadTime + 6)) && !(m_afPhysicsFlags & PFLAG_OBSERVER))
+	if (g_pGameRules->IsMultiplayer() && (gpGlobals->time > m_fDeadTime) && !(m_afPhysicsFlags & PFLAG_OBSERVER))
 	{
 		// go to dead camera.
 		StartDeathCam();
@@ -1431,7 +1431,7 @@ void CBasePlayer::PlayerDeathThink(void)
 		return;
 
 	// wait for the time to be up
-	if ( (gpGlobals->time > (m_fDeadTime + 5)) )
+	if ( (gpGlobals->time > m_fDeadTime) )
 		return;
 
 	pev->button = 0;

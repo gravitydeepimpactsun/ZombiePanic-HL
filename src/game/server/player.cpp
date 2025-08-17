@@ -1411,12 +1411,13 @@ void CBasePlayer::PlayerDeathThink(void)
 	{
 		if (g_pGameRules->FPlayerCanRespawn(this))
 		{
-			m_fDeadTime = gpGlobals->time + 8;
+			m_fDeadTime = gpGlobals->time + 4;
 			pev->deadflag = DEAD_RESPAWNABLE;
 		}
 		return;
 	}
 
+#if 0
 	// if the player has been dead for one second longer than allowed by forcerespawn,
 	// forcerespawn isn't on. Send the player off to an intermission camera until they
 	// choose to respawn.
@@ -1425,13 +1426,14 @@ void CBasePlayer::PlayerDeathThink(void)
 		// go to dead camera.
 		StartDeathCam();
 	}
+#endif
 
 	// return if player is spectating
 	if (pev->iuser1)
 		return;
 
 	// wait for the time to be up
-	if ( (gpGlobals->time > m_fDeadTime) )
+	if ( m_fDeadTime > gpGlobals->time )
 		return;
 
 	pev->button = 0;
@@ -1441,18 +1443,27 @@ void CBasePlayer::PlayerDeathThink(void)
 	//ALERT(at_console, "Respawn\n");
 	if (gpGlobals->coop || gpGlobals->deathmatch)
 	{
-		if (!(m_afPhysicsFlags & PFLAG_OBSERVER)) // don't copy a corpse if we're in deathcam.
+		if ( !m_bCreateBodyState )
 		{
-			// make a copy of the dead body for appearances sake
-			CopyToBodyQue(pev);
+			if (!(m_afPhysicsFlags & PFLAG_OBSERVER)) // don't copy a corpse if we're in deathcam.
+			{
+				// make a copy of the dead body for appearances sake
+				CopyToBodyQue(pev);
+			}
+			m_fDeadTime = gpGlobals->time + 0.1f;
+			m_bCreateBodyState = true;
+			return;
 		}
-		// Change team now.
-		g_pGameRules->ChangePlayerTeam( this, ZP::Teams[ m_bNoLives ? ZP::TEAM_OBSERVER : ZP::TEAM_ZOMBIE], FALSE, FALSE );
-		// respawn player
-		if ( m_bNoLives )
-			StartObserver();
 		else
-			Spawn();
+		{
+			// Change team now.
+			g_pGameRules->ChangePlayerTeam( this, ZP::Teams[ m_bNoLives ? ZP::TEAM_OBSERVER : ZP::TEAM_ZOMBIE], FALSE, FALSE );
+			// respawn player
+			if ( m_bNoLives )
+				StartObserver();
+			else
+				Spawn();
+		}
 	}
 	else
 	{ // restart the entire server
@@ -3599,6 +3610,7 @@ void CBasePlayer::Spawn(void)
 {
 	m_flStartCharge = gpGlobals->time;
 	m_bConnected = TRUE;
+	m_bCreateBodyState = false;
 
 	m_iDeathFlags = 0;
 	char *szKeepZVision = g_engfuncs.pfnInfoKeyValue( g_engfuncs.pfnGetInfoKeyBuffer( edict()), "keep_zvision" );

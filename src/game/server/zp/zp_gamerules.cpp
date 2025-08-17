@@ -355,6 +355,7 @@ void CZombiePanicGameRules::ResetRound()
 			plr->pev->effects |= EF_NODRAW;
 			// Make sure this is off.
 			plr->m_bNoLives = false;
+			SetPlayerModel( plr );
 		}
 	}
 
@@ -496,6 +497,7 @@ void CZombiePanicGameRules::PlayerSpawn(CBasePlayer *pPlayer)
 
 		// We just joined.
 		pPlayer->m_bNoLives = false;
+		SetPlayerModel( pPlayer );
 		return;
 	}
 

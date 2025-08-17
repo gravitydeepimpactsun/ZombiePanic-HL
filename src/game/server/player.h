@@ -451,6 +451,10 @@ public:
 
 	int m_iWeaponKillCount = 0;
 	PlayerCharacter m_iCharacter = PlayerCharacter::ANY;
+
+	// 0 - Can create body
+	// 1 - Can respawn
+	bool m_bCreateBodyState = false;
 #endif
 
 	//-----------------------------------------------------

@@ -280,6 +280,7 @@ public:
 	float m_startTime; // Time we started firing
 	int m_iTargetName[MAX_MULTI_TARGETS]; // list if indexes into global string array
 	float m_flTargetDelay[MAX_MULTI_TARGETS]; // delay (in seconds) from time of manager fire to target fire
+	int m_iTargetType[MAX_MULTI_TARGETS]; // What is our type? OFF, ON or TOGGLE?
 private:
 	inline BOOL IsClone(void) { return (pev->spawnflags & SF_MULTIMAN_CLONE) ? TRUE : FALSE; }
 	inline BOOL ShouldClone(void)
@@ -301,6 +302,7 @@ TYPEDESCRIPTION CMultiManager::m_SaveData[] = {
 	DEFINE_FIELD(CMultiManager, m_startTime, FIELD_TIME),
 	DEFINE_ARRAY(CMultiManager, m_iTargetName, FIELD_STRING, MAX_MULTI_TARGETS),
 	DEFINE_ARRAY(CMultiManager, m_flTargetDelay, FIELD_FLOAT, MAX_MULTI_TARGETS),
+	DEFINE_ARRAY(CMultiManager, m_iTargetType, FIELD_INTEGER, MAX_MULTI_TARGETS),
 };
 
 IMPLEMENT_SAVERESTORE(CMultiManager, CBaseToggle);
@@ -326,7 +328,20 @@ void CMultiManager ::KeyValue(KeyValueData *pkvd)
 
 			UTIL_StripToken(pkvd->szKeyName, tmp, sizeof(tmp));
 			m_iTargetName[m_cTargets] = ALLOC_STRING(tmp);
-			m_flTargetDelay[m_cTargets] = atof(pkvd->szValue);
+
+			// Check we find a comma, make sure we add in the m_flTargetType
+			std::string str( pkvd->szValue );
+			size_t nComma = str.find( ',' );
+			if ( nComma != std::string::npos )
+			{
+				m_flTargetDelay[m_cTargets] = atof( str.substr( 0, nComma ).c_str() );
+				m_iTargetType[m_cTargets] = atoi( str.substr( nComma + 1, str.size() - 1 ).c_str() );
+			}
+			else
+			{
+				m_flTargetDelay[m_cTargets] = atof( pkvd->szValue );
+				m_iTargetType[m_cTargets] = USE_TOGGLE;
+			}
 			m_cTargets++;
 			pkvd->fHandled = TRUE;
 		}
@@ -353,10 +368,13 @@ void CMultiManager ::Spawn(void)
 				// Swap out of order elements
 				int name = m_iTargetName[i];
 				float delay = m_flTargetDelay[i];
+				int type = m_iTargetType[i];
 				m_iTargetName[i] = m_iTargetName[i - 1];
 				m_flTargetDelay[i] = m_flTargetDelay[i - 1];
+				m_iTargetType[i] = m_iTargetType[i - 1];
 				m_iTargetName[i - 1] = name;
 				m_flTargetDelay[i - 1] = delay;
+				m_iTargetType[i - 1] = type;
 				swapped = 1;
 			}
 		}
@@ -388,7 +406,7 @@ void CMultiManager ::ManagerThink(void)
 	time = gpGlobals->time - m_startTime;
 	while (m_index < m_cTargets && m_flTargetDelay[m_index] <= time)
 	{
-		FireTargets(STRING(m_iTargetName[m_index]), m_hActivator, this, USE_TOGGLE, 0);
+		FireTargets(STRING(m_iTargetName[m_index]), m_hActivator, this, (USE_TYPE)m_iTargetType[m_index], 0);
 		m_index++;
 	}
 

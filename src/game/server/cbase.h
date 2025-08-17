@@ -763,6 +763,9 @@ public:
 	virtual int Save(CSave &save);
 	virtual int Restore(CRestore &restore);
 
+	void DoBreakSound(CBaseEntity *pActivator);
+	void OnDestroyed(CBaseEntity *pActivator);
+
 	enum BUTTON_CODE
 	{
 		BUTTON_NOTHING,
@@ -773,7 +776,7 @@ public:
 
 	static TYPEDESCRIPTION m_SaveData[];
 	// Buttons that don't take damage can be IMPULSE used
-	virtual int ObjectCaps(void) { return (CBaseToggle::ObjectCaps() & ~FCAP_ACROSS_TRANSITION) | (pev->takedamage ? 0 : FCAP_IMPULSE_USE); }
+	virtual int ObjectCaps(void) { return (CBaseToggle::ObjectCaps() & ~FCAP_ACROSS_TRANSITION) | (pev->health ? 0 : FCAP_IMPULSE_USE); }
 	virtual BOOL IsAllowedToSpeak() { return TRUE; }
 
 	BOOL m_fStayPushed; // button stays pushed in until touched again?
@@ -790,6 +793,14 @@ public:
 	BYTE m_bUnlockedSound;
 	BYTE m_bUnlockedSentence;
 	int m_sounds;
+	int m_iButtonHealth = 0;
+	int m_iButtonHealthRem = 0;
+	int m_iEffectsRem = 0;
+	int m_Material; // Materials is under func_break.h
+	bool m_bExplode = false;
+	int m_iszGibModel = 0;
+	int m_idShard = 0;
+	string_t m_ibreaktarget;
 };
 
 //

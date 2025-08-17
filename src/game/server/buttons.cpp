@@ -26,6 +26,8 @@
 #include "saverestore.h"
 #include "doors.h"
 #include "zp/zp_shared.h"
+#include "func_break.h"
+#include "explode.h"
 
 #if !defined(_WIN32)
 #include <string.h> // memset())))
@@ -381,6 +383,69 @@ void CBaseButton::Precache(void)
 		m_ls.sUnlockedSentence = 0;
 		break;
 	}
+
+	// For our breakable code
+	const char *pGibName;
+
+	switch (m_Material)
+	{
+	case matWood:
+		pGibName = "models/woodgibs.mdl";
+
+		PRECACHE_SOUND("debris/bustcrate1.wav");
+		PRECACHE_SOUND("debris/bustcrate2.wav");
+		break;
+	case matFlesh:
+		pGibName = "models/fleshgibs.mdl";
+
+		PRECACHE_SOUND("debris/bustflesh1.wav");
+		PRECACHE_SOUND("debris/bustflesh2.wav");
+		break;
+	case matComputer:
+		PRECACHE_SOUND("buttons/spark5.wav");
+		PRECACHE_SOUND("buttons/spark6.wav");
+		pGibName = "models/computergibs.mdl";
+
+		PRECACHE_SOUND("debris/bustmetal1.wav");
+		PRECACHE_SOUND("debris/bustmetal2.wav");
+		break;
+
+	case matUnbreakableGlass:
+	case matGlass:
+		pGibName = "models/glassgibs.mdl";
+
+		PRECACHE_SOUND("debris/bustglass1.wav");
+		PRECACHE_SOUND("debris/bustglass2.wav");
+		break;
+	case matMetal:
+		pGibName = "models/metalplategibs.mdl";
+
+		PRECACHE_SOUND("debris/bustmetal1.wav");
+		PRECACHE_SOUND("debris/bustmetal2.wav");
+		break;
+	case matCinderBlock:
+		pGibName = "models/cindergibs.mdl";
+
+		PRECACHE_SOUND("debris/bustconcrete1.wav");
+		PRECACHE_SOUND("debris/bustconcrete2.wav");
+		break;
+	case matRocks:
+		pGibName = "models/rockgibs.mdl";
+
+		PRECACHE_SOUND("debris/bustconcrete1.wav");
+		PRECACHE_SOUND("debris/bustconcrete2.wav");
+		break;
+	case matCeilingTile:
+		pGibName = "models/ceilinggibs.mdl";
+
+		PRECACHE_SOUND("debris/bustceiling.wav");
+		break;
+	}
+	CBreakable::MaterialSoundPrecache( (Materials)m_Material );
+	if (m_iszGibModel)
+		pGibName = STRING(m_iszGibModel);
+
+	m_idShard = PRECACHE_MODEL((char *)pGibName);
 }
 
 //
@@ -425,6 +490,37 @@ void CBaseButton::KeyValue(KeyValueData *pkvd)
 		m_teamfilter = atoi(pkvd->szValue);
 		pkvd->fHandled = TRUE;
 	}
+	// The entity we want fire on break
+	else if (FStrEq(pkvd->szKeyName, "breaktarget"))
+	{
+		m_ibreaktarget = ALLOC_STRING(pkvd->szValue);
+		pkvd->fHandled = TRUE;
+	}
+	// So we can "destroy" our button
+	else if (FStrEq(pkvd->szKeyName, "break"))
+	{
+		m_iButtonHealth = m_iButtonHealthRem = atoi(pkvd->szValue);
+		pkvd->fHandled = TRUE;
+		pev->takedamage = DAMAGE_YES;
+	}
+	// Our material when it breaks
+	else if (FStrEq(pkvd->szKeyName, "material"))
+	{
+		m_Material = atoi(pkvd->szValue);
+		pkvd->fHandled = TRUE;
+	}
+	// Should we do a mini explosion?
+	else if (FStrEq(pkvd->szKeyName, "explode"))
+	{
+		m_bExplode = atoi(pkvd->szValue);
+		pkvd->fHandled = TRUE;
+	}
+	// Our gib model
+	else if (FStrEq(pkvd->szKeyName, "gibmodel"))
+	{
+		m_iszGibModel = ALLOC_STRING(pkvd->szValue);
+		pkvd->fHandled = TRUE;
+	}
 	else
 		CBaseToggle::KeyValue(pkvd);
 }
@@ -434,6 +530,23 @@ void CBaseButton::KeyValue(KeyValueData *pkvd)
 //
 int CBaseButton::TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int bitsDamageType)
 {
+	if ( m_iButtonHealth > 0 )
+	{
+		// Do the same as CBreakable, where crowbar deal 2 times the damage
+		if (bitsDamageType & DMG_CLUB)
+			flDamage *= 2;
+
+		// Deal our damage
+		m_iButtonHealth -= flDamage;
+
+		// It's broken, oh no :(
+		if ( m_iButtonHealth <= 0 )
+		{
+			OnDestroyed(CBaseEntity::Instance(pevAttacker));
+			return 0;
+		}
+	}
+
 	BUTTON_CODE code = ButtonResponseToTouch();
 
 	if (code == BUTTON_NOTHING)
@@ -458,6 +571,191 @@ int CBaseButton::TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, flo
 		ButtonActivate();
 
 	return 0;
+}
+
+void CBaseButton::OnDestroyed(CBaseEntity *pActivator)
+{
+	// "Softly" remove this entity
+	SoftRemove();
+
+	// Do our sound
+	DoBreakSound(pActivator);
+
+	pev->solid = SOLID_NOT;
+
+	SetThink(NULL);
+	SetTouch(NULL);
+	SetUse(NULL);
+	pev->nextthink = pev->ltime + 0.1;
+
+	// Should we do a mini explosion?
+	if ( !m_bExplode ) return;
+	ExplosionCreate( Center(), pev->angles, edict(), pActivator ? pActivator->edict() : NULL, 40, TRUE );
+}
+
+void CBaseButton::DoBreakSound(CBaseEntity *pActivator)
+{
+	Vector vecSpot; // shard origin
+	Vector vecVelocity; // shard velocity
+	CBaseEntity *pEntity = NULL;
+	char cFlag = 0;
+	int pitch;
+	float fvol;
+
+	pitch = 95 + RANDOM_LONG(0, 29);
+
+	if (pitch > 97 && pitch < 103)
+		pitch = 100;
+
+	// The more negative pev->health, the louder
+	// the sound should be.
+
+	fvol = RANDOM_FLOAT(0.85, 1.0) + (fabs(pev->health) / 100.0);
+
+	if (fvol > 1.0)
+		fvol = 1.0;
+
+	switch (m_Material)
+	{
+	case matGlass:
+		switch (RANDOM_LONG(0, 1))
+		{
+		case 0:
+			EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "debris/bustglass1.wav", fvol, ATTN_NORM, 0, pitch);
+			break;
+		case 1:
+			EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "debris/bustglass2.wav", fvol, ATTN_NORM, 0, pitch);
+			break;
+		}
+		cFlag = BREAK_GLASS;
+		break;
+
+	case matWood:
+		switch (RANDOM_LONG(0, 1))
+		{
+		case 0:
+			EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "debris/bustcrate1.wav", fvol, ATTN_NORM, 0, pitch);
+			break;
+		case 1:
+			EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "debris/bustcrate2.wav", fvol, ATTN_NORM, 0, pitch);
+			break;
+		}
+		cFlag = BREAK_WOOD;
+		break;
+
+	case matComputer:
+	case matMetal:
+		switch (RANDOM_LONG(0, 1))
+		{
+		case 0:
+			EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "debris/bustmetal1.wav", fvol, ATTN_NORM, 0, pitch);
+			break;
+		case 1:
+			EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "debris/bustmetal2.wav", fvol, ATTN_NORM, 0, pitch);
+			break;
+		}
+		cFlag = BREAK_METAL;
+		break;
+
+	case matFlesh:
+		switch (RANDOM_LONG(0, 1))
+		{
+		case 0:
+			EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "debris/bustflesh1.wav", fvol, ATTN_NORM, 0, pitch);
+			break;
+		case 1:
+			EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "debris/bustflesh2.wav", fvol, ATTN_NORM, 0, pitch);
+			break;
+		}
+		cFlag = BREAK_FLESH;
+		break;
+
+	case matRocks:
+	case matCinderBlock:
+		switch (RANDOM_LONG(0, 1))
+		{
+		case 0:
+			EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "debris/bustconcrete1.wav", fvol, ATTN_NORM, 0, pitch);
+			break;
+		case 1:
+			EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "debris/bustconcrete2.wav", fvol, ATTN_NORM, 0, pitch);
+			break;
+		}
+		cFlag = BREAK_CONCRETE;
+		break;
+
+	case matCeilingTile:
+		EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "debris/bustceiling.wav", fvol, ATTN_NORM, 0, pitch);
+		break;
+	}
+
+	vecVelocity.x = 0;
+	vecVelocity.y = 0;
+	vecVelocity.z = 0;
+
+	vecSpot = pev->origin + (pev->mins + pev->maxs) * 0.5;
+	MESSAGE_BEGIN(MSG_PVS, SVC_TEMPENTITY, vecSpot);
+	WRITE_BYTE(TE_BREAKMODEL);
+
+	// position
+	WRITE_COORD(vecSpot.x);
+	WRITE_COORD(vecSpot.y);
+	WRITE_COORD(vecSpot.z);
+
+	// size
+	WRITE_COORD(pev->size.x);
+	WRITE_COORD(pev->size.y);
+	WRITE_COORD(pev->size.z);
+
+	// velocity
+	WRITE_COORD(vecVelocity.x);
+	WRITE_COORD(vecVelocity.y);
+	WRITE_COORD(vecVelocity.z);
+
+	// randomization
+	WRITE_BYTE(10);
+
+	// Model
+	WRITE_SHORT(m_idShard); //model id#
+
+	// # of shards
+	WRITE_BYTE(0); // let client decide
+
+	// duration
+	WRITE_BYTE(25); // 2.5 seconds
+
+	// flags
+	WRITE_BYTE(cFlag);
+	MESSAGE_END();
+
+	float size = pev->size.x;
+	if (size < pev->size.y)
+		size = pev->size.y;
+	if (size < pev->size.z)
+		size = pev->size.z;
+
+	// !!! HACK  This should work!
+	// Build a box above the entity that looks like an 8 pixel high sheet
+	Vector mins = pev->absmin;
+	Vector maxs = pev->absmax;
+	mins.z = pev->absmax.z;
+	maxs.z += 8;
+
+	// BUGBUG -- can only find 256 entities on a breakable -- should be enough
+	CBaseEntity *pList[256];
+	int count = UTIL_EntitiesInBox(pList, 256, mins, maxs, FL_ONGROUND);
+	if (count)
+	{
+		for (int i = 0; i < count; i++)
+		{
+			ClearBits(pList[i]->pev->flags, FL_ONGROUND);
+			pList[i]->pev->groundentity = NULL;
+		}
+	}
+
+	// Fire targets on break
+	if (!FStringNull(m_ibreaktarget))
+		FireTargets(STRING(m_ibreaktarget), pActivator, this, USE_TOGGLE, 1);
 }
 
 /*QUAKED func_button (0 .5 .8) ?
@@ -541,17 +839,22 @@ void CBaseButton::Spawn()
 		SetTouch(NULL);
 		SetUse(&CBaseButton::ButtonUse);
 	}
+
+	m_iEffectsRem = pev->effects;
 }
 
 void CBaseButton::Restart()
 {
+	pev->solid = SOLID_BSP;
+	pev->deadflag = DEAD_NO;
+
 	m_hActivator = nullptr;
 	SetMovedir(pev);
 
 	if (pev->speed == 0)
 		pev->speed = 40;
 
-	if (pev->health > 0)
+	if (m_iButtonHealth > 0)
 		pev->takedamage = DAMAGE_YES;
 
 	if (m_flWait == 0)
@@ -576,6 +879,10 @@ void CBaseButton::Restart()
 	LinearMove(m_vecPosition1, 500);
 	pev->frame = 0; // use normal textures
 	m_toggle_state = TS_AT_BOTTOM;
+
+	// Remember our health!
+	m_iButtonHealth = m_iButtonHealthRem;
+	pev->effects = m_iEffectsRem;
 }
 
 // Button sound table.

@@ -59,21 +59,31 @@ CSteamAPIContext s_ApiContext;
 CSteamAPIContext *s_APIContext = &s_ApiContext;
 CSteamAPIContext *GetSteamAPI() { return s_APIContext; }
 
-static int s_bAutoPickupState = -1;
-ConVar cl_autopickup( "cl_autopickup", "1", FCVAR_BHL_ARCHIVE );
-static void UpdateAutoSwitchState()
-{
-	s_bAutoPickupState = cl_autopickup.GetInt();
-	gEngfuncs.PlayerInfo_SetValueForKey( "auto_switch", cl_autopickup.GetString() );
+#define SET_CLIENT_SERVER_CVAR( _KEY, _VAR, _DEF )										\
+static int s_##_VAR = -99;																\
+ConVar _VAR( #_VAR, #_DEF, FCVAR_BHL_ARCHIVE );											\
+static void ServerClientVar_Reset##_VAR() { s_##_VAR = -99; }							\
+static void ServerClientVar_Update##_VAR()												\
+{																						\
+	if ( s_##_VAR == _VAR.GetInt() ) return;											\
+	s_##_VAR = _VAR.GetInt();															\
+	gEngfuncs.PlayerInfo_SetValueForKey( #_KEY, _VAR.GetString() );						\
 }
 
-static int s_bKeepZVision = -1;
-ConVar cl_keepzombovision( "cl_keepzombovision", "1", FCVAR_BHL_ARCHIVE );
-static void UpdateZomboVision()
-{
-	s_bKeepZVision = cl_keepzombovision.GetInt();
-	gEngfuncs.PlayerInfo_SetValueForKey( "keep_zvision", cl_keepzombovision.GetString() );
+#define SET_CLIENT_SERVER_CVAR_STRING( _KEY, _VAR, _DEF )								\
+static std::string s_##_VAR( #_DEF );													\
+ConVar _VAR( #_VAR, #_DEF, FCVAR_BHL_ARCHIVE );											\
+static void ServerClientVar_Reset##_VAR() { s_##_VAR = -99; }							\
+static void ServerClientVar_Update##_VAR()												\
+{																						\
+	if ( s_##_VAR == _VAR.GetString() ) return;											\
+	s_##_VAR = _VAR.GetString();														\
+	gEngfuncs.PlayerInfo_SetValueForKey( #_KEY, _VAR.GetString() );						\
 }
+
+SET_CLIENT_SERVER_CVAR( auto_switch, cl_autopickup, 1 );
+SET_CLIENT_SERVER_CVAR( keep_zvision, cl_keepzombovision, 1 );
+SET_CLIENT_SERVER_CVAR_STRING( character, cl_character, "random" );
 
 /**
  * Checks that game is launched with working directory set to engine path.
@@ -307,8 +317,9 @@ int CL_DLLEXPORT HUD_VidInit(void)
 	PM_ResetUseSlowDownDetection();
 	CResults::Get().Stop();
 	GetClientVoiceMgr()->VidInit();
-	s_bAutoPickupState = -1;
-	s_bKeepZVision = -1;
+	ServerClientVar_Resetcl_autopickup();
+	ServerClientVar_Resetcl_keepzombovision();
+	ServerClientVar_Resetcl_character();
 
 	return 1;
 }
@@ -336,8 +347,9 @@ void CL_DLLEXPORT HUD_Init(void)
 	CSvcMessages::Get().Init();
 	EngFuncs_UpdateHooks();
 	console::HudPostInit();
-	s_bAutoPickupState = -1;
-	s_bKeepZVision = -1;
+	ServerClientVar_Resetcl_autopickup();
+	ServerClientVar_Resetcl_keepzombovision();
+	ServerClientVar_Resetcl_character();
 }
 
 /*
@@ -393,8 +405,9 @@ void CL_DLLEXPORT HUD_Reset(void)
 	//	RecClHudReset();
 
 	gHUD.VidInit();
-	s_bAutoPickupState = -1;
-	s_bKeepZVision = -1;
+	ServerClientVar_Resetcl_autopickup();
+	ServerClientVar_Resetcl_keepzombovision();
+	ServerClientVar_Resetcl_character();
 }
 
 /*
@@ -414,11 +427,9 @@ void CL_DLLEXPORT HUD_Frame(double time)
 	gHUD.Frame(time);
 	GetClientVoiceMgr()->Frame(time);
 
-	if ( s_bAutoPickupState != cl_autopickup.GetInt() )
-		UpdateAutoSwitchState();
-
-	if ( s_bKeepZVision != cl_keepzombovision.GetInt() )
-		UpdateZomboVision();
+	ServerClientVar_Updatecl_autopickup();
+	ServerClientVar_Updatecl_keepzombovision();
+	ServerClientVar_Updatecl_character();
 }
 
 /*

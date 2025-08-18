@@ -6,6 +6,22 @@
 
 #include "script_interface.h"
 
+class IOScriptFile
+{
+public:
+	IOScriptFile( const std::string &szFile );
+	~IOScriptFile();
+
+	void OnCalled( const std::string &szFunction, KeyValues *pData );
+
+private:
+	void OnOutput( const std::string &szAction, const std::string &szValue, const float &szDelay );
+	void OnInput( const std::string &szAction, const std::string &szValue );
+
+	std::string m_szFileName;
+	// TODO: Add data
+};
+
 class IOSystem : public IBaseScriptClass
 {
 	IOSystem();
@@ -13,11 +29,12 @@ class IOSystem : public IBaseScriptClass
 public:
 	AvailableScripts_t GetScriptType() { return AvailableScripts_t::InputOutput; }
 	void OnInit();
-	void OnCalled(pOnScriptCallbackReturn pfnCallback, KeyValues *pData, std::string szFunctionName);
+	void OnCalled(pOnScriptCallbackReturn pfnCallback, KeyValues *pData, const std::string &szFunctionName);
 	void OnLevelInit(bool bPostLoad);
 	void OnLevelShutdown();
-	void OnRegisterFunction(pOnScriptCallback pCallback, std::string szFunctionName);
-	void OnRegisterFunction(CBaseEntity *pEntity, std::string szFunctionName);
+	void OnRegisterFunction(pOnScriptCallback pCallback, const std::string &szFunctionName);
+	void OnRegisterFunction(CBaseEntity *pEntity, const std::string &szFunctionName);
+	void OnLoadMapScriptFile();
 
 private:
 	inline bool FunctionAlreadyExist(const std::string &szFunctionName)
@@ -32,6 +49,7 @@ private:
 	}
 	std::vector<IScriptFunctions> m_Functions;
 	bool bAvailableToCall = false;
+	IOScriptFile *m_szScript = nullptr;
 };
 
 #endif

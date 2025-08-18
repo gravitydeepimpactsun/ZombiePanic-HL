@@ -883,4 +883,11 @@ public:
 	void KeyValue(KeyValueData *pkvd);
 };
 
+#if defined( SERVER_DLL )
+void FireEntityOutput( CBaseEntity *pEnt, const std::string &szOutput, const std::string &szValue, float flDelay );
+void FireEntityOutput( CBaseEntity *pEnt, const std::string &szOutput, const int &iValue, float flDelay );
+void FireEntityOutput( CBaseEntity *pEnt, const std::string &szOutput, const float &flValue, float flDelay );
+void FireEntityOutput( CBaseEntity *pEnt, const std::string &szOutput, const double &dValue, float flDelay );
+#endif
+
 #endif

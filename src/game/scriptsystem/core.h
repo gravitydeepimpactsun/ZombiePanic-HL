@@ -40,6 +40,11 @@ namespace ScriptSystem
     void OnShutdown();
 
     /// <summary>
+    /// Our simply think system, where we simply check when to call our I/O if we have a delay on them.
+    /// </summary>
+    void OnThink();
+
+    /// <summary>
     /// Our callback enum states, used by pOnScriptCallbackReturn
     /// </summary>
     enum ScriptCallBackEnum
@@ -66,6 +71,18 @@ namespace ScriptSystem
     /// <param name="...">Our functions we want to call in our KeyValue data</param>
     /// <returns>Returns the script callback state</returns>
     ScriptCallBackEnum CallScript(AvailableScripts_t nType, pOnScriptCallbackReturn pCallback, std::string szFunctionName, int iNumArgs, ...);
+
+    /// <summary>
+    /// Calls our script through our script system manager.
+    /// </summary>
+    /// <param name="nType">The specific type of script we want to call</param>
+    /// <param name="pCallback">The callback function from this call</param>
+    /// <param name="szFunctionName">The function we want to call</param>
+    /// <param name="flDelay">The amount of seconds we should wait until we fire this function</param>
+    /// <param name="iNumArgs">The amount of arguments we need to use</param>
+    /// <param name="...">Our functions we want to call in our KeyValue data</param>
+    /// <returns>Returns the script callback state</returns>
+    void CallScriptDelay(AvailableScripts_t nType, pOnScriptCallbackReturn pCallback, std::string szFunctionName, float flDelay, int iNumArgs, ...);
 
     /// <summary>
     /// Register a default callback for our C++ code

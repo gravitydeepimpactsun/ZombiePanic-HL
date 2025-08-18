@@ -36,7 +36,7 @@ public:
 	/// <param name="pfnCallback">Our callback function</param>
 	/// <param name="pData">Our data in keyvalues</param>
 	/// <param name="szFunctionName">Our function we want to call</param>
-	virtual void OnCalled(pOnScriptCallbackReturn pfnCallback, KeyValues *pData, std::string szFunctionName) = 0;
+	virtual void OnCalled(pOnScriptCallbackReturn pfnCallback, KeyValues *pData, const std::string &szFunctionName) = 0;
 
 	/// <summary>
 	/// Fires when our script class is created and added into our ScriptSystem manager.
@@ -60,7 +60,7 @@ public:
 	/// </summary>
 	/// <param name="pfnCallback">Our callback function</param>
 	/// <param name="szFunctionName">The function name that this is tied to</param>
-	virtual void OnRegisterFunction(pOnScriptCallback pfnCallback, std::string szFunctionName) = 0;
+	virtual void OnRegisterFunction(pOnScriptCallback pfnCallback, const std::string &szFunctionName) = 0;
 
 	/// <summary>
 	/// This will trigger when ScriptSystem::RegisterScriptCallback is fired,
@@ -68,7 +68,7 @@ public:
 	/// </summary>
 	/// <param name="pEntity">Our entity we will call</param>
 	/// <param name="szFunctionName">The function name that this is tied to</param>
-	virtual void OnRegisterFunction(CBaseEntity *pEntity, std::string szFunctionName) = 0;
+	virtual void OnRegisterFunction(CBaseEntity *pEntity, const std::string &szFunctionName) = 0;
 };
 
 #endif

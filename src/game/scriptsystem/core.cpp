@@ -27,6 +27,10 @@ void ScriptSystem::OnShutdown()
 	m_Scripts.clear();
 }
 
+void ScriptSystem::OnThink()
+{
+}
+
 bool ScriptSystem::AddToScriptManager(IBaseScriptClass *pScript)
 {
 	for (size_t i = 0; i < m_Scripts.size(); i++)
@@ -63,6 +67,11 @@ ScriptSystem::ScriptCallBackEnum ScriptSystem::CallScript(AvailableScripts_t nTy
 	}
 
 	return nRet;
+}
+
+void ScriptSystem::CallScriptDelay(AvailableScripts_t nType, pOnScriptCallbackReturn pCallback, std::string szFunctionName, float flDelay, int iNumArgs, ...)
+{
+	// TODO
 }
 
 void ScriptSystem::RegisterScriptCallback(AvailableScripts_t nType, pOnScriptCallback pCallback, std::string szFunctionName)

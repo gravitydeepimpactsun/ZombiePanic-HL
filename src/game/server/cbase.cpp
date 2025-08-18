@@ -21,6 +21,9 @@
 #include "decals.h"
 #include "gamerules.h"
 #include "game.h"
+#ifdef SCRIPT_SYSTEM
+#include "core.h"
+#endif
 
 //! How many units away from the center of the map will entities stop working
 constexpr float WORLD_BOUNDARY_DIST = 262144;
@@ -833,4 +836,27 @@ CBaseEntity *CBaseEntity::Create(char *szName, const Vector &vecOrigin, const Ve
 	pEntity->pev->angles = vecAngles;
 	DispatchSpawn(pEntity->edict());
 	return pEntity;
+}
+
+
+void FireEntityOutput( CBaseEntity *pEnt, const std::string &szOutput, const std::string &szValue, float flDelay )
+{
+#ifdef SCRIPT_SYSTEM
+	ScriptSystem::CallScriptDelay( AvailableScripts_t::InputOutput, nullptr, szOutput, 2, pEnt->entindex(), szValue );
+#endif
+}
+
+void FireEntityOutput( CBaseEntity *pEnt, const std::string &szOutput, const int &iValue, float flDelay )
+{
+	::FireEntityOutput( pEnt, szOutput, std::to_string( iValue ), flDelay );
+}
+
+void FireEntityOutput( CBaseEntity *pEnt, const std::string &szOutput, const float &flValue, float flDelay )
+{
+	::FireEntityOutput( pEnt, szOutput, std::to_string( flValue ), flDelay );
+}
+
+void FireEntityOutput( CBaseEntity *pEnt, const std::string &szOutput, const double &dValue, float flDelay )
+{
+	::FireEntityOutput( pEnt, szOutput, std::to_string( dValue ), flDelay );
 }

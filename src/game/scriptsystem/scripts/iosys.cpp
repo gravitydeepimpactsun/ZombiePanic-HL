@@ -6,16 +6,18 @@
 IOSystem::IOSystem()
 {
 	m_Functions.clear();
+	// Make sure this is always a nullptr on creation.
+	m_szScript = nullptr;
 	// Make sure we add I/O system into our manager.
 	ScriptSystem::AddToScriptManager( this );
 }
 
 void IOSystem::OnInit()
 {
-	// TODO: Add something here?
+	// TODO: Add data here?
 }
 
-void IOSystem::OnCalled(pOnScriptCallbackReturn pfnCallback, KeyValues *pData, std::string szFunctionName)
+void IOSystem::OnCalled(pOnScriptCallbackReturn pfnCallback, KeyValues *pData, const std::string &szFunctionName)
 {
 	if ( !bAvailableToCall ) return;
 	for (size_t i = 0; i < m_Functions.size(); i++)
@@ -23,6 +25,7 @@ void IOSystem::OnCalled(pOnScriptCallbackReturn pfnCallback, KeyValues *pData, s
 		IScriptFunctions ScriptFunction = m_Functions[i];
 		if ( ScriptFunction.Function == szFunctionName )
 		{
+			if ( m_szScript ) m_szScript->OnCalled( szFunctionName, pData );
 			if ( ScriptFunction.Callback ) (*ScriptFunction.Callback)(pData);
 			if ( ScriptFunction.Entity )
 			{
@@ -40,17 +43,23 @@ void IOSystem::OnCalled(pOnScriptCallbackReturn pfnCallback, KeyValues *pData, s
 void IOSystem::OnLevelInit(bool bPostLoad)
 {
 	if ( !bPostLoad )
+	{
 		bAvailableToCall = true;
+		OnLoadMapScriptFile();
+	}
 }
 
 void IOSystem::OnLevelShutdown()
 {
+	if ( m_szScript )
+		delete m_szScript;
+	m_szScript = nullptr;
 	bAvailableToCall = false;
 	// Clear our functions on shutdown
 	m_Functions.clear();
 }
 
-void IOSystem::OnRegisterFunction(pOnScriptCallback pCallback, std::string szFunctionName)
+void IOSystem::OnRegisterFunction(pOnScriptCallback pCallback, const std::string &szFunctionName)
 {
 	if ( FunctionAlreadyExist( szFunctionName ) ) return;
 	IScriptFunctions ScriptFunction;
@@ -60,7 +69,7 @@ void IOSystem::OnRegisterFunction(pOnScriptCallback pCallback, std::string szFun
 	m_Functions.push_back( ScriptFunction );
 }
 
-void IOSystem::OnRegisterFunction(CBaseEntity *pEntity, std::string szFunctionName)
+void IOSystem::OnRegisterFunction(CBaseEntity *pEntity, const std::string &szFunctionName)
 {
 	if ( FunctionAlreadyExist( szFunctionName ) ) return;
 	IScriptFunctions ScriptFunction;
@@ -68,4 +77,44 @@ void IOSystem::OnRegisterFunction(CBaseEntity *pEntity, std::string szFunctionNa
 	ScriptFunction.Entity = pEntity->edict();
 	ScriptFunction.Function = szFunctionName;
 	m_Functions.push_back( ScriptFunction );
+}
+
+void IOSystem::OnLoadMapScriptFile()
+{
+	// If we have a script already, get rid of it.
+	if ( m_szScript )
+		delete m_szScript;
+	m_szScript = nullptr;
+	// TODO: Load our map script file with STRING( gpGlobals->mapname )
+}
+
+IOScriptFile::IOScriptFile( const std::string &szFile )
+{
+	m_szFileName = szFile;
+	// TODO: Setup our script file
+}
+
+IOScriptFile::~IOScriptFile()
+{
+	// TODO: Free our memory here
+}
+
+void IOScriptFile::OnCalled( const std::string &szFunction, KeyValues *pData )
+{
+	// Fire an output variable
+	if ( !pData ) return;
+	if ( pData->GetBool( "IsInput" ) )
+		OnInput( pData->GetString( "arg0" ), pData->GetString( "arg1" ) );
+	else
+		OnOutput( pData->GetString( "arg0" ), pData->GetString( "arg1" ), atof( pData->GetString( "arg2" ) ) );
+}
+
+void IOScriptFile::OnOutput( const std::string &szAction, const std::string &szValue, const float &szDelay )
+{
+	// TODO: We called an output
+}
+
+void IOScriptFile::OnInput( const std::string &szAction, const std::string &szValue )
+{
+	// TODO: We called an input
 }

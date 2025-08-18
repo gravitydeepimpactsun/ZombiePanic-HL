@@ -15,8 +15,8 @@ public:
 	void OnCalled( const std::string &szFunction, KeyValues *pData );
 
 private:
-	void OnOutput( const std::string &szAction, const std::string &szValue, const float &szDelay );
-	void OnInput( const std::string &szAction, const std::string &szValue );
+	void OnOutput( CBaseEntity *pEnt, const std::string &szAction, const std::string &szValue, const float &szDelay );
+	void OnInput( CBaseEntity *pEnt, const std::string &szAction, const std::string &szValue );
 
 	std::string m_szFileName;
 	// TODO: Add data

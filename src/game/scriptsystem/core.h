@@ -78,6 +78,16 @@ namespace ScriptSystem
     /// <param name="nType">The specific type of script we want to call</param>
     /// <param name="pCallback">The callback function from this call</param>
     /// <param name="szFunctionName">The function we want to call</param>
+    /// <param name="nArray">The array of our arguments</param>
+    /// <returns>Returns the script callback state</returns>
+    ScriptCallBackEnum CallScriptArray(AvailableScripts_t nType, pOnScriptCallbackReturn pCallback, std::string szFunctionName, std::vector<std::string> nArray);
+
+    /// <summary>
+    /// Calls our script through our script system manager.
+    /// </summary>
+    /// <param name="nType">The specific type of script we want to call</param>
+    /// <param name="pCallback">The callback function from this call</param>
+    /// <param name="szFunctionName">The function we want to call</param>
     /// <param name="flDelay">The amount of seconds we should wait until we fire this function</param>
     /// <param name="iNumArgs">The amount of arguments we need to use</param>
     /// <param name="...">Our functions we want to call in our KeyValue data</param>

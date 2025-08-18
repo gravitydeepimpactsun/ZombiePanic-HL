@@ -103,18 +103,22 @@ void IOScriptFile::OnCalled( const std::string &szFunction, KeyValues *pData )
 {
 	// Fire an output variable
 	if ( !pData ) return;
+	CBaseEntity *pEnt = nullptr;
+	edict_t *pEdict = INDEXENT( atoi( pData->GetString( "arg0" ) ) );
+	if ( pEdict && !pEdict->free )
+		pEnt = CBaseEntity::Instance( pEdict );
 	if ( pData->GetBool( "IsInput" ) )
-		OnInput( pData->GetString( "arg0" ), pData->GetString( "arg1" ) );
+		OnInput( pEnt, szFunction, pData->GetString( "arg1" ) );
 	else
-		OnOutput( pData->GetString( "arg0" ), pData->GetString( "arg1" ), atof( pData->GetString( "arg2" ) ) );
+		OnOutput( pEnt, szFunction, pData->GetString( "arg1" ), atof( pData->GetString( "arg2" ) ) );
 }
 
-void IOScriptFile::OnOutput( const std::string &szAction, const std::string &szValue, const float &szDelay )
+void IOScriptFile::OnOutput( CBaseEntity *pEnt, const std::string &szAction, const std::string &szValue, const float &szDelay )
 {
 	// TODO: We called an output
 }
 
-void IOScriptFile::OnInput( const std::string &szAction, const std::string &szValue )
+void IOScriptFile::OnInput( CBaseEntity *pEnt, const std::string &szAction, const std::string &szValue )
 {
 	// TODO: We called an input
 }

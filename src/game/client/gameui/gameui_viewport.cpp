@@ -10,6 +10,7 @@
 #include "serverbrowser/CServerBrowser.h"
 #include "options/adv_options_dialog.h"
 #include "zp/ui/achievements/C_AchievementDialog.h"
+#include "zp/ui/playerselection/C_PlayerSelection.h"
 #include "zp/ui/workshop/CWorkshopDialog.h"
 #include "CImageMenuButton.h"
 #include <FileSystem.h>
@@ -162,6 +163,11 @@ CAdvOptionsDialog *CGameUIViewport::GetOptionsDialog()
 C_AchievementDialog *CGameUIViewport::GetAchievementDialog()
 {
 	return GetDialog(m_hAchDialog);
+}
+
+C_PlayerSelection *CGameUIViewport::GetPlayerSelection()
+{
+	return GetDialog(m_hPlayerSelection);
 }
 
 CWorkshopDialog *CGameUIViewport::GetWorkshopDialog()

@@ -86,7 +86,8 @@ typedef enum
 {
 	ANY = -1,
 	SURVIVOR1 = 0,
-	SURVIVOR2
+	SURVIVOR2,
+	MAX_SURVIVORS = SURVIVOR2
 } PlayerCharacter;
 
 #define CHAT_FLOOD          3
@@ -448,6 +449,7 @@ public:
 
 	// Apply our correct model!
 	void SetTheCorrectPlayerModel();
+	PlayerCharacter GetCharacter( const char *szType );
 
 	int m_iWeaponKillCount = 0;
 	PlayerCharacter m_iCharacter = PlayerCharacter::ANY;

@@ -57,6 +57,17 @@ extern bool IsBustingGame();
 // the world node graph
 extern CGraph WorldGraph;
 
+struct PlayerCharacterType
+{
+	PlayerCharacter Type;
+	const char *Name;
+};
+
+PlayerCharacterType g_CharacterTypes[] = {
+	{ SURVIVOR1, "eugene" },
+	{ SURVIVOR2, "marcus" },
+};
+
 #define TRAIN_ACTIVE  0x80
 #define TRAIN_NEW     0xc0
 #define TRAIN_OFF     0x00
@@ -2133,9 +2144,15 @@ void CBasePlayer::SetTheCorrectPlayerModel()
 	const char *szModel = nullptr;
 	bool bIsZombie = (iTeam == ZP::TEAM_ZOMBIE) ? true : false;
 
-	// TODO: Read the client cvar instead!
-	if ( !bIsZombie )
-		m_iCharacter = ( RANDOM_LONG( 0, 4 ) == 2 ) ? PlayerCharacter::SURVIVOR2 : PlayerCharacter::SURVIVOR1;
+	PlayerCharacter iPrefferedChar = PlayerCharacter::ANY;
+	char *szPlayerCharacter = g_engfuncs.pfnInfoKeyValue( g_engfuncs.pfnGetInfoKeyBuffer( edict() ), "character" );
+	if ( szPlayerCharacter && szPlayerCharacter[0] )
+		iPrefferedChar = GetCharacter( szPlayerCharacter );
+
+	if ( iPrefferedChar == -1 )
+		m_iCharacter = (PlayerCharacter)RANDOM_LONG( PlayerCharacter::SURVIVOR1, PlayerCharacter::MAX_SURVIVORS );
+	else
+		m_iCharacter = iPrefferedChar;
 
 	switch ( m_iCharacter )
 	{
@@ -2161,6 +2178,16 @@ void CBasePlayer::SetTheCorrectPlayerModel()
 	// Player models can have up to 5 random skins.
 	// Mostly used by the new "undead" model.
 	pev->skin = RANDOM_LONG( 0, 4 );
+}
+
+PlayerCharacter CBasePlayer::GetCharacter( const char *szType )
+{
+	for ( int i = 0; i < ARRAYSIZE( g_CharacterTypes ); i++ )
+	{
+		if (FStrEq(szType, g_CharacterTypes[i].Name))
+			return g_CharacterTypes[i].Type;
+	}
+	return PlayerCharacter::ANY;
 }
 
 #define CLIMB_SHAKE_FREQUENCY 22 // how many frames in between screen shakes when climbing

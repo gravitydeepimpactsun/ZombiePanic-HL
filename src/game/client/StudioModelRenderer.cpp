@@ -1527,6 +1527,9 @@ void CStudioModelRenderer::SetPlayerRemapColors(int playerIndex)
 	IEngineStudio.StudioSetRemapColors(m_nTopColor, m_nBottomColor);
 }
 
+#if defined( _DEBUG )
+static ConVar cl_dbg_drawdeadplayermdl( "cl_dbg_drawdeadplayermdl", "0", 0, "DEBUG: Draw the player model info." );
+#endif
 /*
 ====================
 StudioDrawPlayer
@@ -1564,8 +1567,10 @@ int CStudioModelRenderer::StudioDrawPlayer(int flags, entity_state_t *pplayer, b
 		return 0;
 
 	// DEBUG
-	//if ( bIsDead )
-	//	gEngfuncs.Con_NPrintf( 10, "Drawing Dead Model: %s\n", m_pCurrentEntity->model->name);
+#if defined( _DEBUG )
+	if ( bIsDead && cl_dbg_drawdeadplayermdl.GetBool() )
+		gEngfuncs.Con_NPrintf( 10, "Drawing Dead Model: %s\n", m_pCurrentEntity->model->name );
+#endif
 
 	m_pStudioHeader = (studiohdr_t *)IEngineStudio.Mod_Extradata(m_pRenderModel);
 	IEngineStudio.StudioSetHeader(m_pStudioHeader);

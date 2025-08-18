@@ -1422,7 +1422,12 @@ void CBasePlayer::PlayerDeathThink(void)
 	{
 		if (g_pGameRules->FPlayerCanRespawn(this))
 		{
-			m_fDeadTime = gpGlobals->time + 4;
+			if (!(m_afPhysicsFlags & PFLAG_OBSERVER)) // don't copy a corpse if we're in deathcam.
+			{
+				// make a copy of the dead body for appearances sake
+				CopyToBodyQue(pev);
+			}
+			m_fDeadTime = gpGlobals->time + 2;
 			pev->deadflag = DEAD_RESPAWNABLE;
 		}
 		return;
@@ -1454,27 +1459,13 @@ void CBasePlayer::PlayerDeathThink(void)
 	//ALERT(at_console, "Respawn\n");
 	if (gpGlobals->coop || gpGlobals->deathmatch)
 	{
-		if ( !m_bCreateBodyState )
-		{
-			if (!(m_afPhysicsFlags & PFLAG_OBSERVER)) // don't copy a corpse if we're in deathcam.
-			{
-				// make a copy of the dead body for appearances sake
-				CopyToBodyQue(pev);
-			}
-			m_fDeadTime = gpGlobals->time + 0.1f;
-			m_bCreateBodyState = true;
-			return;
-		}
+		// Change team now.
+		g_pGameRules->ChangePlayerTeam( this, ZP::Teams[ m_bNoLives ? ZP::TEAM_OBSERVER : ZP::TEAM_ZOMBIE], FALSE, FALSE );
+		// respawn player
+		if ( m_bNoLives )
+			StartObserver();
 		else
-		{
-			// Change team now.
-			g_pGameRules->ChangePlayerTeam( this, ZP::Teams[ m_bNoLives ? ZP::TEAM_OBSERVER : ZP::TEAM_ZOMBIE], FALSE, FALSE );
-			// respawn player
-			if ( m_bNoLives )
-				StartObserver();
-			else
-				Spawn();
-		}
+			Spawn();
 	}
 	else
 	{ // restart the entire server
@@ -3637,7 +3628,6 @@ void CBasePlayer::Spawn(void)
 {
 	m_flStartCharge = gpGlobals->time;
 	m_bConnected = TRUE;
-	m_bCreateBodyState = false;
 
 	m_iDeathFlags = 0;
 	char *szKeepZVision = g_engfuncs.pfnInfoKeyValue( g_engfuncs.pfnGetInfoKeyBuffer( edict()), "keep_zvision" );

@@ -3261,6 +3261,32 @@ void ShouldClearSpawnChecks(CBaseEntity* pPlayer, CBaseEntity *pSpot)
 		item->Spawns.clear();
 }
 
+static bool HasSpawnPointTraceFound( CBaseEntity *pSpot, CBaseEntity *pEnt, const Vector &vStart )
+{
+	// Do a simple line tracer, just to make sure we don't find someone looking at us or w/e.
+	TraceResult tr;
+	UTIL_TraceLine( pSpot->Center() + vStart, pEnt->Center(), dont_ignore_monsters, pSpot->edict(), &tr );
+	if ( tr.flFraction != 1.0 && tr.pHit == pEnt->edict() ) return true;
+	return false;
+}
+
+static bool IsSpawnPointTraceValid( CBaseEntity *pSpot, CBaseEntity *pEnt )
+{
+	// Top Left
+	if ( HasSpawnPointTraceFound( pSpot, pEnt, Vector( 16, 0, 16 ) ) ) return false;
+	// Top
+	if ( HasSpawnPointTraceFound( pSpot, pEnt, Vector( 0, 0, 16 ) ) ) return false;
+	// Top Right
+	if ( HasSpawnPointTraceFound( pSpot, pEnt, Vector( -16, 0, 16 ) ) ) return false;
+	// Top Left
+	if ( HasSpawnPointTraceFound( pSpot, pEnt, Vector( 16, 0, 0 ) ) ) return false;
+	// Center
+	if ( HasSpawnPointTraceFound( pSpot, pEnt, Vector( 0, 0, 0 ) ) ) return false;
+	// Top Right
+	if ( HasSpawnPointTraceFound( pSpot, pEnt, Vector( -16, 0, 0 ) ) ) return false;
+	return true;
+}
+
 // checks if the spot is clear of players
 static SpawnPointValidity IsSpawnPointValid(CBaseEntity *pPlayer, CBaseEntity *pSpot, bool bIgnoreTrace)
 {
@@ -3296,10 +3322,7 @@ static SpawnPointValidity IsSpawnPointValid(CBaseEntity *pPlayer, CBaseEntity *p
 			// if ent is a client, don't spawn on 'em (if not on the same team)
 			if (ent->IsPlayer() && ent != pPlayer && ent->pev->team != pPlayer->pev->team)
 			{
-				// Do a simple line tracer, just to make sure we don't find someone looking at us or w/e.
-				TraceResult tr;
-				UTIL_TraceLine( pSpot->Center(), ent->Center(), dont_ignore_monsters, pSpot->edict(), &tr );
-				if ( tr.flFraction != 1.0 && tr.pHit == ent->edict() )
+				if ( !IsSpawnPointTraceValid( pSpot, ent ) )
 					return SpawnPointValidity::NonValid;
 				return SpawnPointValidity::HasPlayers;
 			}

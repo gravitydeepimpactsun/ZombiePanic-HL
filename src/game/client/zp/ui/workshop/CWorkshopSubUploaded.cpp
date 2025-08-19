@@ -35,28 +35,12 @@ CWorkshopSubUploaded::CWorkshopSubUploaded(vgui2::Panel *parent)
 	pList->SetSize( 600, 302 );
 	pList->AddActionSignalTarget( this );
 
-	// TODO: Add a refresh button.
-
 	// Load this last, so we can move our items around.
 	LoadControlSettings( VGUI2_ROOT_DIR "resource/workshop/uploaded.res" );
 
 	vgui2::ivgui()->AddTickSignal( GetVPanel(), 25 );
 
-	if ( !GetSteamAPI() ) return;
-	if ( GetSteamAPI()->SteamUGC() && GetSteamAPI()->SteamUser() )
-	{
-		handle = GetSteamAPI()->SteamUGC()->CreateQueryUserUGCRequest(
-			GetSteamAPI()->SteamUser()->GetSteamID().GetAccountID(),
-		    k_EUserUGCList_Published,
-			k_EUGCMatchingUGCType_Items_ReadyToUse,
-			k_EUserUGCListSortOrder_LastUpdatedDesc,
-		    (AppId_t)3825360, (AppId_t)3825360, 1
-		);
-		//GetSteamAPI()->SteamUGC()->SetReturnAdditionalPreviews( handle, true );
-		GetSteamAPI()->SteamUGC()->SetReturnChildren( handle, true );
-		SteamAPICall_t apiCall = GetSteamAPI()->SteamUGC()->SendQueryUGCRequest( handle );
-		m_SteamCallResultOnSendQueryUGCRequest.Set( apiCall, this, &CWorkshopSubUploaded::OnSendQueryUGCRequest );
-	}
+	RefreshItems();
 }
 
 CWorkshopSubUploaded::~CWorkshopSubUploaded()
@@ -71,6 +55,39 @@ void CWorkshopSubUploaded::ApplySchemeSettings(vgui2::IScheme *pScheme)
 void CWorkshopSubUploaded::PerformLayout()
 {
 	BaseClass::PerformLayout();
+}
+
+void CWorkshopSubUploaded::OnCommand(const char *pcCommand)
+{
+	if ( !Q_stricmp( pcCommand, "Refresh" ) )
+		RefreshItems();
+	else
+		BaseClass::OnCommand( pcCommand );
+}
+
+void CWorkshopSubUploaded::RefreshItems()
+{
+	if ( !GetSteamAPI() ) return;
+
+	Panel *pPanel = FindChildByName( "Refresh" );
+	vgui2::Button *pInfo = (vgui2::Button *)pPanel;
+	if ( pInfo )
+		pInfo->SetEnabled( false );
+
+	if ( GetSteamAPI()->SteamUGC() && GetSteamAPI()->SteamUser() )
+	{
+		handle = GetSteamAPI()->SteamUGC()->CreateQueryUserUGCRequest(
+			GetSteamAPI()->SteamUser()->GetSteamID().GetAccountID(),
+		    k_EUserUGCList_Published,
+			k_EUGCMatchingUGCType_Items_ReadyToUse,
+			k_EUserUGCListSortOrder_LastUpdatedDesc,
+		    (AppId_t)3825360, (AppId_t)3825360, 1
+		);
+		//GetSteamAPI()->SteamUGC()->SetReturnAdditionalPreviews( handle, true );
+		GetSteamAPI()->SteamUGC()->SetReturnChildren( handle, true );
+		SteamAPICall_t apiCall = GetSteamAPI()->SteamUGC()->SendQueryUGCRequest( handle );
+		m_SteamCallResultOnSendQueryUGCRequest.Set( apiCall, this, &CWorkshopSubUploaded::OnSendQueryUGCRequest );
+	}
 }
 
 void CWorkshopSubUploaded::OnWorkshopEdit( uint64 workshopID )
@@ -160,6 +177,12 @@ void CWorkshopSubUploaded::OnSendQueryUGCRequest( SteamUGCQueryCompleted_t *pCal
 		ConPrintf( Color( 255, 22, 22, 255 ), "[Workshop] Failed to retrieve uploaded addon. ErrorID: %i\n", pCallback->m_eResult );
 #endif
 		GetSteamAPI()->SteamUGC()->ReleaseQueryUGCRequest( handle );
+
+		Panel *pPanel = FindChildByName( "Refresh" );
+		vgui2::Button *pInfo = (vgui2::Button *)pPanel;
+		if ( pInfo )
+			pInfo->SetEnabled( true );
+
 		return;
 	}
 
@@ -213,6 +236,11 @@ void CWorkshopSubUploaded::OnSendQueryUGCRequest( SteamUGCQueryCompleted_t *pCal
 		if ( pDetails )
 			delete pDetails;
 	}
+
+	Panel *pPanel = FindChildByName( "Refresh" );
+	vgui2::Button *pInfo = (vgui2::Button *)pPanel;
+	if ( pInfo )
+		pInfo->SetEnabled( true );
 
 	GetSteamAPI()->SteamUGC()->ReleaseQueryUGCRequest( handle );
 }

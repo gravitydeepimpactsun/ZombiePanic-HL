@@ -42,7 +42,7 @@ void CClientVGUI::Initialize(CreateInterfaceFn *pFactories, int iNumFactories)
 	}
 
 	// Make sure zp_workshop is loaded.
-	g_pFullFileSystem->AddSearchPath( "../../workshop/content/3825360", "WORKSTOPDL" );
+	g_pFullFileSystem->AddSearchPath( "../../workshop/content/3825360", "WORKSHOPDL" );
 	g_pFullFileSystem->AddSearchPath( "zp_workshop", "WORKSHOP" );
 	g_pFullFileSystem->AddSearchPath( "zp_addon", "ADDON" );
 	g_pFullFileSystem->AddSearchPath( "", "ROOT" );

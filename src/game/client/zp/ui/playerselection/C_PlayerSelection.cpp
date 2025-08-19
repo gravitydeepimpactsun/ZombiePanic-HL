@@ -282,7 +282,7 @@ void C_PlayerSelection::SetupAvailablePlayerModels()
 	strFile[0] = 0;
 
 	// Add our path in
-	strcpy_s( strFile, "scripts/survivors.txt" );
+	V_strcpy_safe( strFile, "scripts/survivors.txt" );
 
 	// Setup our search
 	KeyValues *manifest = new KeyValues( "Survivors" );

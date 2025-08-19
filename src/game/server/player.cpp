@@ -805,7 +805,10 @@ void CBasePlayer::PackDeadPlayerItems(void)
 		iPW++;
 	}
 
+	// Let's not move the weapon box on death and/or panic
+#if 0
 	pWeaponBox->pev->velocity = pev->velocity * 1.2; // weaponbox has player's velocity, then some.
+#endif
 
 	RemoveAllItems(TRUE); // now strip off everything that wasn't handled by the code above.
 

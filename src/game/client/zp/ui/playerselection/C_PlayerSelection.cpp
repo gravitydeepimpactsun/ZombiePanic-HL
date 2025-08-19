@@ -10,8 +10,6 @@
 #include <vgui_controls/CheckButton.h>
 #include <vgui_controls/RichText.h>
 
-#include <filesystem.h>
-
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 

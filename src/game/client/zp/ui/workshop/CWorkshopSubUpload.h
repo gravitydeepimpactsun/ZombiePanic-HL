@@ -29,6 +29,10 @@ public:
 	void SetUploadData( const char *Title, const char *Desc, const char *Tags, ERemoteStoragePublishedFileVisibility Visibility );
 
 protected:
+	void EnableTagOnArray( const std::vector<std::string> &vArray, const std::vector<std::string> &vTags );
+	void AddTagToArray( std::vector<const char *> &vArray, const std::vector<std::string> &vTags );
+	bool HasCheckedTags( const std::vector<std::string> &vTags ) const;
+
 	void ResetPage();
 	void BeginUpload();
 	void PrepareUGCHandle();
@@ -73,7 +77,7 @@ private:
 	vgui2::TextEntry *pChangeLogText;
 	vgui2::ImagePanel *pAddonImage;
 	vgui2::ComboBox *pVisibilty;
-	vgui2::CheckButtonList *pTags[3];
+	vgui2::CheckButtonList *pTags;
 	vgui2::ProgressBar *pProgress;
 	vgui2::Label *pProgressLabel;
 };

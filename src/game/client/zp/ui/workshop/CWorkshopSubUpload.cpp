@@ -34,7 +34,7 @@
 
 static CWorkshopSubUpload *pUploader = nullptr;
 
-static const char *szTags_Weapons[] = {
+static const std::vector<std::string> szTags_Weapons = {
 	"Crowbar",
 	"Zombie Arms",
 	"Sig Sauer",
@@ -44,7 +44,7 @@ static const char *szTags_Weapons[] = {
 	"Shotgun",
 };
 
-static const char *szTags_Items[] = {
+static const std::vector<std::string> szTags_Items = {
 	"Medkit",
 	"Armor",
 	"Ammo Boxes",
@@ -53,13 +53,18 @@ static const char *szTags_Items[] = {
 	"Satchel Charge",
 };
 
-static const char *szTags_Generic[] = {
+static const std::vector<std::string> szTags_Generic = {
 	"Sounds",
 	"Survivor",
 	"Zombie",
 	"Background",
 	"Music",
 	"Sprays",
+};
+
+static const std::vector<std::string> szTags_GameModes = {
+	"Survival",
+	"Objective",
 };
 
 CWorkshopSubUpload::CWorkshopSubUpload(vgui2::Panel *parent)
@@ -72,9 +77,7 @@ CWorkshopSubUpload::CWorkshopSubUpload(vgui2::Panel *parent)
 	pContentText = new vgui2::TextEntry( this, "BrowseFolderTextBox" );
 	pAddonImage = new vgui2::ImagePanel( this, "AddonImage" );
 	pVisibilty = new vgui2::ComboBox( this, "Visibility", 5, false );
-	pTags[0] = new vgui2::CheckButtonList( this, "Tags1" );
-	pTags[1] = new vgui2::CheckButtonList( this, "Tags2" );
-	pTags[2] = new vgui2::CheckButtonList( this, "Tags3" );
+	pTags = new vgui2::CheckButtonList( this, "Tags" );
 	pChangeLogLabel = new vgui2::Label( this, "ChangeLogText", "#ZP_UI_Workshop_Upload_Changelog" );
 	pChangeLogText = new vgui2::TextEntry( this, "ChangeLogTextBox" );
 	pAddonUpload = new vgui2::Button( this, "AddonUpload", "#ZP_UI_Workshop_Upload_Addon", this, "AddonUpload" );
@@ -116,15 +119,32 @@ CWorkshopSubUpload::CWorkshopSubUpload(vgui2::Panel *parent)
 	last_folder[1].clear();
 	preview_image.clear();
 
+	int nItem = 0;
+
+#define AddTagTitle( _TITLE ) \
+	nItem = pTags->AddItem( _TITLE, false, new KeyValues( "Title" ) ); \
+	pTags->SetItemCheckable( nItem, false ); \
+	pTags->SetItemHideCheckBox( nItem, true )
+#define AddTags( _ARRAY ) \
+	for ( size_t i = 0; i < _ARRAY.size(); i++ ) \
+		pTags->AddItem( _ARRAY[i].c_str(), false, new KeyValues( "Item", _ARRAY[i].c_str(), "1" ) )
+
+
 	// Populate the tags
-	for ( int i = 0; i < ARRAYSIZE( szTags_Weapons ); i++ )
-		pTags[0]->AddItem( szTags_Weapons[i], false, new KeyValues( "Item", szTags_Weapons[i], "1" ) );
+	AddTagTitle( "#ZP_UI_Workshop_Upload_Tags_Weapons" );
+	AddTags( szTags_Weapons );
 
-	for ( int i = 0; i < ARRAYSIZE( szTags_Items ); i++ )
-		pTags[1]->AddItem( szTags_Items[i], false, new KeyValues( "Item", szTags_Items[i], "1" ) );
+	AddTagTitle( "" );
+	AddTagTitle( "#ZP_UI_Workshop_Upload_Tags_Items" );
+	AddTags( szTags_Items );
 
-	for ( int i = 0; i < ARRAYSIZE( szTags_Generic ); i++ )
-		pTags[2]->AddItem( szTags_Generic[i], false, new KeyValues( "Item", szTags_Generic[i], "1" ) );
+	AddTagTitle( "" );
+	AddTagTitle( "#ZP_UI_Workshop_Upload_Tags_GameModes" );
+	AddTags( szTags_GameModes );
+
+	AddTagTitle( "" );
+	AddTagTitle( "" );
+	AddTags( szTags_Generic );
 
 	pUploader = this;
 
@@ -363,14 +383,7 @@ void CWorkshopSubUpload::SetUpdating( PublishedFileId_t nItem )
 	last_folder[1].clear();
 	preview_image.clear();
 
-	for ( int i = 0; i < ARRAYSIZE( szTags_Weapons ); i++ )
-		pTags[0]->SetItemSelected( i, false );
-
-	for ( int i = 0; i < ARRAYSIZE( szTags_Items ); i++ )
-		pTags[1]->SetItemSelected( i, false );
-
-	for ( int i = 0; i < ARRAYSIZE( szTags_Generic ); i++ )
-		pTags[2]->SetItemSelected( i, false );
+	pTags->UncheckAllItems();
 
 	pAddonReset->SetVisible( (nItem > 0) ? true : false );
 	pAddonReset->SetEnabled( (nItem > 0) ? true : false );
@@ -401,23 +414,43 @@ void CWorkshopSubUpload::SetUploadData( const char *Title, const char *Desc, con
 	while ( std::getline( tagstream, segment, ',' ) )
 		seglist.push_back( segment );
 
-	for ( int i = 0; i < ARRAYSIZE( szTags_Weapons ); i++ )
-	{
-		if ( DoWeHaveTheTag( seglist, szTags_Weapons[i] ) )
-			pTags[0]->SetItemSelected( i, true );
-	}
+	EnableTagOnArray( seglist, szTags_Weapons );
+	EnableTagOnArray( seglist, szTags_Items );
+	EnableTagOnArray( seglist, szTags_Generic );
+	EnableTagOnArray( seglist, szTags_GameModes );
+}
 
-	for ( int i = 0; i < ARRAYSIZE( szTags_Items ); i++ )
+void CWorkshopSubUpload::EnableTagOnArray( const std::vector<std::string> &vArray, const std::vector<std::string> &vTags )
+{
+	for ( size_t i = 0; i < vTags.size(); i++ )
 	{
-		if ( DoWeHaveTheTag( seglist, szTags_Items[i] ) )
-			pTags[1]->SetItemSelected( i, true );
+		if ( !DoWeHaveTheTag( vArray, vTags[i] ) ) continue;
+		int iItem = pTags->GetItemByText( vTags[i].c_str() );
+		pTags->SetItemSelected( iItem, true );
 	}
+}
 
-	for ( int i = 0; i < ARRAYSIZE( szTags_Generic ); i++ )
+void CWorkshopSubUpload::AddTagToArray( std::vector<const char *> &vArray, const std::vector<std::string> &vTags )
+{
+	for ( size_t i = 0; i < vTags.size(); i++ )
 	{
-		if ( DoWeHaveTheTag( seglist, szTags_Generic[i] ) )
-			pTags[2]->SetItemSelected( i, true );
+		int iItem = pTags->GetItemByText( vTags[i].c_str() );
+		bool bIsChecked = pTags->IsItemChecked( iItem );
+		if ( !bIsChecked ) continue;
+		vArray.push_back( vTags[i].c_str() );
 	}
+}
+
+bool CWorkshopSubUpload::HasCheckedTags( const std::vector<std::string> &vTags ) const
+{
+	for ( size_t i = 0; i < vTags.size(); i++ )
+	{
+		int iItem = pTags->GetItemByText( vTags[i].c_str() );
+		bool bIsChecked = pTags->IsItemChecked( iItem );
+		if ( !bIsChecked ) continue;
+		return true;
+	}
+	return false;
 }
 
 void CWorkshopSubUpload::ResetPage()
@@ -449,26 +482,11 @@ void CWorkshopSubUpload::PrepareUGCHandle( )
 {
 	SteamParamStringArray_t tagarray;
 	std::vector<const char *> vArray;
-	for ( int i = 0; i < ARRAYSIZE( szTags_Weapons ); i++ )
-	{
-		bool bIsChecked = pTags[0]->IsItemChecked( i );
-		if ( !bIsChecked ) continue;
-		vArray.push_back( szTags_Weapons[i] );
-	}
-
-	for ( int i = 0; i < ARRAYSIZE( szTags_Items ); i++ )
-	{
-		bool bIsChecked = pTags[1]->IsItemChecked( i );
-		if ( !bIsChecked ) continue;
-		vArray.push_back( szTags_Items[i] );
-	}
-
-	for ( int i = 0; i < ARRAYSIZE( szTags_Generic ); i++ )
-	{
-		bool bIsChecked = pTags[2]->IsItemChecked( i );
-		if ( !bIsChecked ) continue;
-		vArray.push_back( szTags_Generic[i] );
-	}
+	
+	AddTagToArray( vArray, szTags_Weapons );
+	AddTagToArray( vArray, szTags_Items );
+	AddTagToArray( vArray, szTags_Generic );
+	AddTagToArray( vArray, szTags_GameModes );
 
 	tagarray.m_nNumStrings = vArray.size();
 	tagarray.m_ppStrings = vArray.data();
@@ -562,33 +580,29 @@ bool CWorkshopSubUpload::ValidateTheEntries()
 		return false;
 	}
 
-	bool bHasAtleastOneAssignedTag = false;
-	for ( int i = 0; i < ARRAYSIZE( szTags_Weapons ); i++ )
+	if ( !preview_image.empty() )
 	{
-		bool bIsChecked = pTags[0]->IsItemChecked( i );
-		if ( !bIsChecked ) continue;
-		bHasAtleastOneAssignedTag = true;
+		// Copy the image to the upload folder, and name it thumb.tga
+		int width, height, channels;
+		unsigned char *data = stbi_load( preview_image.c_str(), &width, &height, &channels, 4 );
+		if ( data )
+		{
+			stbi_write_tga( vgui2::VarArgs( "%sthumb.tga", buffer ), width, height, 4, data );
+			stbi_image_free( data );
+		}
 	}
 
-	for ( int i = 0; i < ARRAYSIZE( szTags_Items ); i++ )
-	{
-		bool bIsChecked = pTags[1]->IsItemChecked( i );
-		if ( !bIsChecked ) continue;
-		bHasAtleastOneAssignedTag = true;
-	}
-
-	for ( int i = 0; i < ARRAYSIZE( szTags_Generic ); i++ )
-	{
-		bool bIsChecked = pTags[2]->IsItemChecked( i );
-		if ( !bIsChecked ) continue;
-		bHasAtleastOneAssignedTag = true;
-	}
+	bool bHasAtleastOneAssignedTag = HasCheckedTags( szTags_Weapons );
+	if ( !bHasAtleastOneAssignedTag ) bHasAtleastOneAssignedTag = HasCheckedTags( szTags_Items );
+	if ( !bHasAtleastOneAssignedTag ) bHasAtleastOneAssignedTag = HasCheckedTags( szTags_Generic );
+	if ( !bHasAtleastOneAssignedTag ) bHasAtleastOneAssignedTag = HasCheckedTags( szTags_GameModes );
 
 	if ( !bHasAtleastOneAssignedTag )
 	{
 		ThrowError( "#ZP_Workshop_ErrorMsg_AssignTags" );
 		return false;
 	}
+
 	return true;
 }
 

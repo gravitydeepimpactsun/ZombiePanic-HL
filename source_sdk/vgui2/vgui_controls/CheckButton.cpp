@@ -22,6 +22,7 @@ using namespace vgui2;
 
 void CheckImage::Paint()
 {
+	if ( m_DisallowPaint ) return;
 #ifdef _WIN32
 	DrawSetTextFont(GetFont());
 

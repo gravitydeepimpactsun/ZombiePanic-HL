@@ -49,6 +49,8 @@ public:
 
 	Color _bgColor;
 
+	bool m_DisallowPaint = false;
+
 private:
 	CheckButton *_CheckButton;
 };

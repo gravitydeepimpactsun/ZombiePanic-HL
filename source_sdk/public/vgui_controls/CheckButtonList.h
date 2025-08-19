@@ -47,6 +47,12 @@ public:
 	void SetItemSelected(int itemID, bool state);
 	void SetItemCheckable(int itemID, bool state);
 
+	// Created for the Workshop Upload page for tags
+	const char *GetItemText(int itemID);
+	int GetItemByText(const char *szName);
+	void SetItemHideCheckBox(int itemID, bool state);
+	void UncheckAllItems();
+
 	/* MESSAGES SENT
 		"CheckButtonChecked" - sent when one of the check buttons state has changed
 

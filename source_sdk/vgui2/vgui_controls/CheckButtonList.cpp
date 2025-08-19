@@ -181,6 +181,36 @@ void CheckButtonList::SetItemCheckable(int itemID, bool state)
 	m_CheckItems[itemID].checkButton->SetCheckButtonCheckable(state);
 }
 
+const char *vgui2::CheckButtonList::GetItemText(int itemID)
+{
+	static char szItem[128];
+	m_CheckItems[itemID].checkButton->GetText( szItem, sizeof( szItem ) );
+	return szItem;
+}
+
+int vgui2::CheckButtonList::GetItemByText(const char *szName)
+{
+	for ( int i = 0; i < m_CheckItems.Count(); i++ )
+	{
+		char szItem[128];
+		m_CheckItems[i].checkButton->GetText( szItem, sizeof( szItem ) );
+		if ( (strcmp(szItem, szName) == 0) )
+			return i;
+	}
+	return -1;
+}
+
+void vgui2::CheckButtonList::SetItemHideCheckBox(int itemID, bool state)
+{
+	m_CheckItems[itemID].checkButton->GetCheckImage()->m_DisallowPaint = state;
+}
+
+void vgui2::CheckButtonList::UncheckAllItems()
+{
+	for ( int i = 0; i < m_CheckItems.Count(); i++ )
+		m_CheckItems[i].checkButton->SetSelected( false );
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: Forwards up check button selected message
 //-----------------------------------------------------------------------------

@@ -17,6 +17,16 @@
 
 extern ConVar cl_character;
 
+// was UTIL_STDReplaceString
+void CvarCommandFix( std::string &path, std::string search, std::string replace )
+{
+	size_t pos = 0;
+	while ((pos = path.find(search, pos)) != std::string::npos) {
+		path.replace(pos, search.length(), replace);
+		pos += replace.length();
+	}
+}
+
 C_PlayerSelection::C_PlayerSelection(vgui2::Panel *pParent)
     : BaseClass(pParent, "PlayerSelection")
 {
@@ -38,13 +48,13 @@ C_PlayerSelection::C_PlayerSelection(vgui2::Panel *pParent)
 	// Set Our model
 	ui_SelectPlayerModel = new vgui2::ComboBox(this, "player_select", 1, false);
 
+	// Add random model
+	AddPlayerOption( "random", "#ZP_UI_Char_Random", "random", "random" );
+
 	// Random [ID 0]
 	ui_SelectPlayerModel->ActivateItem( 0 );
 	iHasDescription = 0;
 
-	// Add random model
-	AddPlayerOption( "random", "#ZP_UI_Char_Random", "random", "random" );
-	
 	vgui2::HScheme hScheme = vgui2::scheme()->LoadSchemeFromFile( VGUI2_ROOT_DIR "resource/ClientSourceScheme.res", "ClientSourceScheme" );
 
 	SetScheme( hScheme );
@@ -100,13 +110,13 @@ C_PlayerSelection::C_PlayerSelection(vgui2::Panel *pParent)
 	ui_SelectPlayerAvatar->SetShouldScaleImage(true);
 
 	// Before we set the default image, lets check our current model
-	const char *szModelName = NULL;
-	szModelName = cl_character.GetString();
+	std::string SelectedModel( cl_character.GetString() );
+	CvarCommandFix( SelectedModel, "\"", "" );
 
 	for ( int iModel = 0; iModel < m_playermodels.Count(); iModel++ )
 	{
 		PLAYERMODELS &plMdl = m_playermodels[ iModel ];
-		if ( vgui2::FStrEq( plMdl.strType, szModelName ) )
+		if ( vgui2::FStrEq( plMdl.strType, SelectedModel.c_str() ) )
 		{
 			ui_SelectPlayerModel->ActivateItem( iModel );
 			break;

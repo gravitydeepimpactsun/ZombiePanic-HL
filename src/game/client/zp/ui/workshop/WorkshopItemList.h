@@ -77,6 +77,7 @@ namespace vgui2
 
 		virtual vgui2::Panel *GetItemLabel(int itemID);
 		virtual vgui2::Panel *GetItemPanel(int itemID);
+	    virtual vgui2::Panel *GetItemPanel(uint64 nWorkshopID);
 
 		vgui2::ScrollBar*  GetScrollbar() { return m_vbar; }
 

@@ -298,6 +298,18 @@ vgui2::Panel *WorkshopItemList::GetItemPanel(int itemID)
 	return m_DataItems[itemID].texture;
 }
 
+vgui2::Panel *vgui2::WorkshopItemList::GetItemPanel(uint64 nWorkshopID)
+{
+	for ( int i = 0; i < m_DataItems.Count(); i++ )
+	{
+		DATAITEM &item = m_DataItems[i];
+		if ( item.workshopid == nWorkshopID )
+			return item.texture;
+	}
+
+	return nullptr;
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------

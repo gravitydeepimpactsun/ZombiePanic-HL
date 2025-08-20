@@ -90,6 +90,15 @@ void CWorkshopSubUploaded::RefreshItems()
 	}
 }
 
+void CWorkshopSubUploaded::UpdateAddonPreview( PublishedFileId_t nWorkshopID )
+{
+	vgui2::ImagePanel *pIcon = (vgui2::ImagePanel *)pList->GetItemPanel( nWorkshopID );
+	if ( !pIcon ) return;
+	char buffer[158];
+	Q_snprintf( buffer, sizeof( buffer ), "thumb_%llu", nWorkshopID );
+	pIcon->SetImage( vgui2::scheme()->GetImage( buffer, false ) );
+}
+
 void CWorkshopSubUploaded::OnWorkshopEdit( uint64 workshopID )
 {
 	if ( !pProperty ) return;
@@ -112,13 +121,11 @@ void CWorkshopSubUploaded::AddItem( vgui2::WorkshopItem item )
 	// Create Image
 	vgui2::ImagePanel *pIcon = new vgui2::ImagePanel( this, "Icon" );
 
-	char buffer[158];
-	Q_snprintf( buffer, sizeof( buffer ), "%llu/thumb", item.uWorkshopID );
-
-	pIcon->SetImage( vgui2::scheme()->GetImage( buffer, false ) );
+	pIcon->SetImage( vgui2::scheme()->GetImage( "thumb_unknown", false ) );
 	pIcon->SetSize( 56, 56 );
 	pIcon->SetPos( 4, 4 );
 	pIcon->SetFillColor( Color( 25, 25, 25, 150 ) );
+	pIcon->SetShouldScaleImage( true );
 
 	// Font Text
 	vgui2::Label *pTitle = new vgui2::Label( this, "Title", "" );
@@ -217,18 +224,15 @@ void CWorkshopSubUploaded::OnSendQueryUGCRequest( SteamUGCQueryCompleted_t *pCal
 
 			AddItem( WorkshopAddon );
 
-			// Load the file, and save to TGA under thumb_<num>.tga
+			// Grab the preview image, and download it.
 			char szURL[1024];
-			if ( GetSteamAPI()->SteamUGC()->GetQueryUGCPreviewURL( pDetails->m_hPreviewFile, i, szURL, sizeof( szURL ) ) )
+			if ( GetSteamAPI()->SteamUGC()->GetQueryUGCPreviewURL( pCallback->m_handle, i, szURL, sizeof( szURL ) ) )
 			{
-				SteamAPICall_t pCall = k_uAPICallInvalid;
-
-				// Download the URL, and save it as a file.
-				HTTPRequestHandle httphandle = GetSteamAPI()->SteamHTTP()->CreateHTTPRequest( EHTTPMethod::k_EHTTPMethodGET, szURL );
-				GetSteamAPI()->SteamHTTP()->SetHTTPRequestHeaderValue( httphandle, "Cache-Control", "no-cache");
-				GetSteamAPI()->SteamHTTP()->SetHTTPRequestContextValue( httphandle, pDetails->m_nPublishedFileId );
-				GetSteamAPI()->SteamHTTP()->SendHTTPRequest( httphandle, &pCall );
-				m_SteamCallResultOnHTTPRequest.Set( pCall, this, &CWorkshopSubUploaded::UpdateHTTPCallback );
+				m_bCanDownloadPreview = true;
+				DownloadPreviewImage dlImage;
+				Q_snprintf( dlImage.URL, sizeof( dlImage.URL ), "%s", szURL );
+				dlImage.WorkshopID = pDetails->m_nPublishedFileId;
+				m_DownloadPreviewImages.push_back( dlImage );
 			}
 		}
 
@@ -247,8 +251,6 @@ void CWorkshopSubUploaded::OnSendQueryUGCRequest( SteamUGCQueryCompleted_t *pCal
 
 void CWorkshopSubUploaded::UpdateHTTPCallback( HTTPRequestCompleted_t *arg, bool bFailed )
 {
-	ConPrintf( "void CWorkshopSubUploaded::UpdateCallback()\n" );
-	ConPrintf( "STATUS CODE [%i]\n", arg->m_eStatusCode );
 	uint64 context = arg->m_ulContextValue;
 	if ( bFailed || arg->m_eStatusCode < 200 || arg->m_eStatusCode > 299 )
 	{
@@ -286,37 +288,34 @@ void CWorkshopSubUploaded::UpdateHTTPCallback( HTTPRequestCompleted_t *arg, bool
 	}
 	else if ( context > 0 )
 	{
-		ConPrintf( "WorkshopID Preview [%llu]\n", context );
 		uint32 size;
 		GetSteamAPI()->SteamHTTP()->GetHTTPResponseBodySize( arg->m_hRequest, &size );
 
 		if ( size > 0 )
 		{
-			ConPrintf( "Size Returned: [%i]\n", size );
 			uint8* pResponse = new uint8[size + 1];
 			GetSteamAPI()->SteamHTTP()->GetHTTPResponseBodyData( arg->m_hRequest, pResponse, size );
 			pResponse[size] = '\0';
 
 			// Make sure the folder exist.
-			g_pFullFileSystem->CreateDirHierarchy( "uploads", "WORKSHOP" );
+			g_pFullFileSystem->CreateDirHierarchy( vgui2::VarArgs( "temp/%llu", context ), "WORKSHOP" );
 
-			// Write the file
-			FileHandle_t file_h = g_pFullFileSystem->Open( vgui2::VarArgs( "uploads/thumb_%llu.jpg", context ), "w", "WORKSHOP" );
-
-			// Save the contents to the file
+			// Write a temp file, just so we can get our local path.
+			FileHandle_t file_h = g_pFullFileSystem->Open( vgui2::VarArgs( "temp/%llu/thumb_%llu", context, context ), "w", "WORKSHOP" );
 			g_pFullFileSystem->Write( pResponse, size, file_h );
-
-			// Close the file after use
 			g_pFullFileSystem->Close( file_h );
+
+			char szFullPath[1024];
+			g_pFullFileSystem->GetLocalPath( vgui2::VarArgs( "temp/%llu/thumb_%llu", context, context ), szFullPath, sizeof( szFullPath ) );
 
 			// Now convert the fucker to TGA
 			int width, height, channels;
 			// !!! Change this to full path !!!
-			unsigned char *data = stbi_load( vgui2::VarArgs( "uploads/thumb_%llu.jpg", context ), &width, &height, &channels, 4 );
+			unsigned char *data = stbi_load_from_memory( pResponse, size, &width, &height, &channels, 4 );
 			if ( data )
 			{
 				// !!! Change this to full path !!!
-				int success = stbi_write_tga( vgui2::VarArgs( "zp_workshop/uploads/thumb_%llu.tga", context ), width, height, 4, data );
+				int success = stbi_write_tga( vgui2::VarArgs( "%s.tga", szFullPath ), width, height, 4, data );
 				if ( !success )
 					ConPrintf( "Failed to write tga\n" );
 				stbi_image_free( data );
@@ -324,13 +323,55 @@ void CWorkshopSubUploaded::UpdateHTTPCallback( HTTPRequestCompleted_t *arg, bool
 			else
 				ConPrintf( "Failed to load the image!\nReason: %s\n", stbi_failure_reason() );
 
+			g_pFullFileSystem->RemoveFile( vgui2::VarArgs( "temp/%llu/thumb_%llu", context, context ), "WORKSHOP" );
+
+			// Add our path, so our image gets read.
+			char buffer[158];
+			Q_snprintf( buffer, sizeof( buffer ), "zp_workshop/temp/%llu", context );
+			// DO NOT UNCOMMENT, WILL CRASH THE GAME
+			// The issue lies with valve's filesystem code,
+			// and I doubt they will ever fix this.
+			// We could try RemoveAllSearchPaths, but then
+			// we need to rebuild all paths.
+			//g_pFullFileSystem->RemoveSearchPath( buffer );
+			g_pFullFileSystem->AddSearchPathNoWrite( buffer, "WORKSHOP" );
+
+			// Update the preview image
+			UpdateAddonPreview( context );
+
 			delete[] pResponse;
 		}
 	}
 	GetSteamAPI()->SteamHTTP()->ReleaseHTTPRequest( arg->m_hRequest );
+	m_bCanDownloadPreview = true;
 }
 
-CWorkshopSubUploaded::WorkshopItem CWorkshopSubUploaded::GetWorkshopItem( PublishedFileId_t nWorkshopID )
+void CWorkshopSubUploaded::CheckForPreviewDownload()
+{
+	if ( m_DownloadPreviewImages.size() < 1 ) return;
+	if ( !m_bCanDownloadPreview ) return;
+	DownloadPreviewImage dlImage = m_DownloadPreviewImages[0];
+	m_bCanDownloadPreview = false;
+
+	SteamAPICall_t pCall = k_uAPICallInvalid;
+
+	// Download the URL, and save it as a file.
+	HTTPRequestHandle httphandle = GetSteamAPI()->SteamHTTP()->CreateHTTPRequest( EHTTPMethod::k_EHTTPMethodGET, dlImage.URL );
+	GetSteamAPI()->SteamHTTP()->SetHTTPRequestHeaderValue( httphandle, "Cache-Control", "no-cache" );
+	GetSteamAPI()->SteamHTTP()->SetHTTPRequestContextValue( httphandle, dlImage.WorkshopID );
+	GetSteamAPI()->SteamHTTP()->SendHTTPRequest( httphandle, &pCall );
+	m_SteamCallResultOnHTTPRequest.Set( pCall, this, &CWorkshopSubUploaded::UpdateHTTPCallback );
+
+	m_DownloadPreviewImages.erase( m_DownloadPreviewImages.begin() );
+}
+
+void CWorkshopSubUploaded::OnTick()
+{
+	BaseClass::OnTick();
+	CheckForPreviewDownload();
+}
+
+CWorkshopSubUploaded::WorkshopItem CWorkshopSubUploaded::GetWorkshopItem(PublishedFileId_t nWorkshopID)
 {
 	for ( size_t i = 0; i < m_Items.size(); i++ )
 	{

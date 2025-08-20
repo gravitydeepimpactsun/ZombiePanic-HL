@@ -26,6 +26,7 @@ public:
 
 	virtual void OnCommand(const char *pcCommand);
 	virtual void RefreshItems();
+	virtual void UpdateAddonPreview( PublishedFileId_t nWorkshopID );
 
 protected:
 	void OnSendQueryUGCRequest( SteamUGCQueryCompleted_t *pCallback, bool bIOFailure );
@@ -34,6 +35,17 @@ protected:
 	CCallResult<CWorkshopSubUploaded, HTTPRequestCompleted_t> m_SteamCallResultOnHTTPRequest;
 
 	UGCQueryHandle_t	handle;
+
+	struct DownloadPreviewImage
+	{
+		PublishedFileId_t WorkshopID;
+		char URL[1024];
+	};
+	std::vector<DownloadPreviewImage> m_DownloadPreviewImages;
+	bool m_bCanDownloadPreview = false;
+	void CheckForPreviewDownload();
+
+	virtual void OnTick();
 
 	struct WorkshopItem
 	{

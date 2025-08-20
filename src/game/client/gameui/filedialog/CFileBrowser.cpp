@@ -401,6 +401,7 @@ void CFileBrowser::OpenFolder( const char *szFolder, const char *szPathID, bool 
 				default: kv->SetString( "Type", "File Unknown Type" ); break;
 				case FileType_Folder: kv->SetString( "Type", "File Folder" ); break;
 				case FileType_TGA: kv->SetString( "Type", "File TGA" ); break;
+				case FileType_PNG: kv->SetString( "Type", "File PNG" ); break;
 				case FileType_JPG: kv->SetString( "Type", "File JPEG" ); break;
 				case FileType_BSP: kv->SetString( "Type", "File BSP" ); break;
 				case FileType_TXT: kv->SetString( "Type", "File Text" ); break;

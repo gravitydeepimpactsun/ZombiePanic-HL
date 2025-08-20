@@ -310,11 +310,9 @@ void CWorkshopSubUploaded::UpdateHTTPCallback( HTTPRequestCompleted_t *arg, bool
 
 			// Now convert the fucker to TGA
 			int width, height, channels;
-			// !!! Change this to full path !!!
 			unsigned char *data = stbi_load_from_memory( pResponse, size, &width, &height, &channels, 4 );
 			if ( data )
 			{
-				// !!! Change this to full path !!!
 				int success = stbi_write_tga( vgui2::VarArgs( "%s.tga", szFullPath ), width, height, 4, data );
 				if ( !success )
 					ConPrintf( "Failed to write tga\n" );

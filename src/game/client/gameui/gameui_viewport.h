@@ -14,6 +14,7 @@ class C_PlayerSelection;
 class CWorkshopDialog;
 class CServerBrowser;
 class CImageMenuButton;
+class CBaseMenu;
 
 // Ported from Contagion
 enum eSupporterExports
@@ -123,7 +124,7 @@ private:
 	vgui2::DHANDLE<CWorkshopDialog> m_hWorkshopDialog;
 	vgui2::DHANDLE<CCreateWorkshopInfoBox> m_hWorkshopInfoBox;
 	vgui2::DHANDLE<CServerBrowser> m_hServerBrowser;
-	vgui2::DHANDLE<CImageMenuButton> m_hPatreonButton;
+	vgui2::DHANDLE<CBaseMenu> m_hMenu;
 
 	template <typename T>
 	inline T *GetDialog(vgui2::DHANDLE<T> &handle)

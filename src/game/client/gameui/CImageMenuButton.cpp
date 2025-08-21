@@ -9,6 +9,7 @@ CImageMenuButton::CImageMenuButton( vgui2::Panel *pParent, const char *szImage, 
 {
 	SetSize( 100, 80 );
 	SetPos( 0, 0 );
+	SetMouseInputEnabled( true );
 
 	m_szURL[0] = 0;
 	if ( szURL )

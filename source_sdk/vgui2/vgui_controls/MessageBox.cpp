@@ -148,6 +148,13 @@ void MessageBox::ApplySchemeSettings(IScheme *pScheme)
 
 	wide += 100;
 	tall += 100;
+
+	if ( IsProportional() )
+	{
+		wide += 100;
+		tall += 50;
+	}
+
 	SetSize(wide, tall);
 
 	if ( m_bShowMessageBoxOverCursor )

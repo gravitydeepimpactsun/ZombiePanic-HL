@@ -10,6 +10,7 @@ add_sources(
 	CImageMenuButton.h
 )
 
+add_subdirectory( menu )
 add_subdirectory( options )
 add_subdirectory( filedialog )
 add_subdirectory( serverbrowser )

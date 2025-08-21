@@ -1,0 +1,9 @@
+add_sources(
+	CMakeLists.txt
+	CBaseMenu.cpp
+	CBaseMenu.h
+	CMenuPage.cpp
+	CMenuPage.h
+	CMenuItem.cpp
+	CMenuItem.h
+)

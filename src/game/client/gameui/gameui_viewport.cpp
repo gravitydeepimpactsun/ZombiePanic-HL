@@ -12,7 +12,7 @@
 #include "zp/ui/achievements/C_AchievementDialog.h"
 #include "zp/ui/playerselection/C_PlayerSelection.h"
 #include "zp/ui/workshop/CWorkshopDialog.h"
-#include "CImageMenuButton.h"
+#include "menu/CBaseMenu.h"
 #include <FileSystem.h>
 #include <filesystem>
 #include <iostream>
@@ -107,6 +107,13 @@ CGameUIViewport::CGameUIViewport()
 		GetSteamAPI()->SteamHTTP()->SendHTTPRequest( request, &pCall );
 		m_callHTTPResult.Set( pCall, this, &CGameUIViewport::UpdateHTTPCallback );
 	}
+
+	int w, t;
+	vgui2::surface()->GetScreenSize( w, t );
+	m_hMenu = new CBaseMenu( this );
+	m_hMenu->MakePopup( false, false );
+	m_hMenu->SetMenuBounds( 0, 0, w, t );
+	m_hMenu->LoadPage( MenuPagesTable_t::PAGE_MAIN );
 }
 
 CGameUIViewport::~CGameUIViewport()
@@ -202,16 +209,6 @@ void CGameUIViewport::OnThink()
 			m_bPreventEscape = false;
 			m_iDelayedPreventEscapeFrame = 0;
 		}
-	}
-
-	// Create our dialog right away!
-	if ( !m_hPatreonButton )
-	{
-		int wx, wy, ww, wt;
-		vgui2::surface()->GetWorkspaceBounds( wx, wy, ww, wt );
-		m_hPatreonButton = new CImageMenuButton( this, "ui/patreon_button", "https://patreon.com/wuffesan" );
-		m_hPatreonButton->MakePopup( false, false );
-		m_hPatreonButton->SetContent( (ww - 256) - 50, (wt - 128) - 50, 256, 128 );
 	}
 
 	if ( m_bPrepareForQueryDownload )

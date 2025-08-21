@@ -434,18 +434,6 @@ ReadAchievement:
 }
 
 
-CON_COMMAND(gameui_achievements, "Opens Achievements dialog")
-{
-	// Since this command is called from game menu using "engine gameui_achievements"
-	// GameUI will hide itself and show the game.
-	// We need to show it again and after that activate C_AchievementDialog
-	// Otherwise it may be hidden by the dev console
-	gHUD.CallOnNextFrame([]() {
-		CGameUIViewport::Get()->GetAchievementDialog()->Activate();
-	});
-	g_pBaseUI->ActivateGameUI();
-}
-
 void C_AchievementDialog::OnCommand(const char* pcCommand)
 {
 	if ( !Q_stricmp( pcCommand, "hide_achieved" ) )

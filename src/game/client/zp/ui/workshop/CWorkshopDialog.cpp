@@ -11,18 +11,6 @@
 #include "CWorkshopSubUploaded.h"
 #include "CWorkshopSubUpload.h"
 
-CON_COMMAND(gameui_workshop, "Opens Workshop dialog")
-{
-	// Since this command is called from game menu using "engine gameui_workshop"
-	// GameUI will hide itself and show the game.
-	// We need to show it again and after that activate CWorkshopDialog
-	// Otherwise it may be hidden by the dev console
-	gHUD.CallOnNextFrame([]() {
-		CGameUIViewport::Get()->GetWorkshopDialog()->Activate();
-	});
-	g_pBaseUI->ActivateGameUI();
-}
-
 CWorkshopDialog::CWorkshopDialog(vgui2::Panel *pParent)
     : BaseClass(pParent, "WorkshopDialog")
 {

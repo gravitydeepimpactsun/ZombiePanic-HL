@@ -14,17 +14,6 @@
 #include "client_vgui.h"
 #include "IBaseUI.h"
 
-CON_COMMAND(gameui_serverbrowser, "Opens Server Browser")
-{
-	// Since this command is called from game menu using "engine gameui_serverbrowser"
-	// GameUI will hide itself and show the game.
-	// We need to show it again and after that activate CServerBrowser
-	// Otherwise it may be hidden by the dev console
-	gHUD.CallOnNextFrame([]()
-	    { CGameUIViewport::Get()->GetServerBrowser()->OpenBrowser(); });
-	g_pBaseUI->ActivateGameUI();
-}
-
 /*
 	This is a replica of Source Engine's Server Browser
 	except its stripped down version, specifically made for Zombie Panic!

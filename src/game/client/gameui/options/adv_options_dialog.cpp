@@ -15,18 +15,6 @@
 #include "options_general.h"
 #include "options_about.h"
 
-CON_COMMAND(gameui_cl_open_adv_options, "Opens Advanced Options dialog")
-{
-	// Since this command is called from game menu using "engine gameui_cl_open_adv_options"
-	// GameUI will hide itself and show the game.
-	// We need to show it again and after that activate CAdvOptionsDialog
-	// Otherwise it may be hidden by the dev console
-	gHUD.CallOnNextFrame([]() {
-		CGameUIViewport::Get()->GetOptionsDialog()->Activate();
-	});
-	g_pBaseUI->ActivateGameUI();
-}
-
 CAdvOptionsDialog::CAdvOptionsDialog(vgui2::Panel *pParent)
     : BaseClass(pParent, "AdvOptionsDialog")
 {

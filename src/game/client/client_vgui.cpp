@@ -164,6 +164,20 @@ static void DumpPanel(vgui2::VPANEL panel, int offset, bool bParentVisible, bool
 	}
 }
 
+CON_COMMAND(vgui_dumpgameui, "Dumps VGUI2 panel tree for debugging.")
+{
+	ConPrintf("Usage:\n");
+	ConPrintf("    vgui_dumpgameui - show list of visible panels\n");
+	ConPrintf("    vgui_dumpgameui all - show list of all panels\n");
+	ConPrintf("Color coding:\n");
+	ConPrintf("    Green - visible\n");
+	ConPrintf("    Red - hidden\n");
+	ConPrintf("\n");
+
+	bool bDumpAll = ConCommand::ArgC() > 1 && !strcmp(ConCommand::ArgV(1), "all");
+	DumpPanel(g_pEngineVGui->GetPanel(PANEL_GAMEUIDLL), 0, true, bDumpAll);
+}
+
 CON_COMMAND(vgui_dumptree, "Dumps VGUI2 panel tree for debugging.")
 {
 	ConPrintf("Usage:\n");

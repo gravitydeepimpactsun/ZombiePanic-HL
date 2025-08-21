@@ -5,6 +5,8 @@
 #include <vgui/IVGui.h>
 #include <vgui/IInput.h>
 #include <vgui/IInputInternal.h>
+#include <vgui/ISurface.h>
+#include <IEngineVGui.h>
 #include "client_vgui.h"
 #include <FileSystem.h>
 #include "tier1/KeyValues.h"
@@ -24,6 +26,7 @@ CMenuPage::CMenuPage( vgui2::Panel *pParent, MenuPagesTable_t nType, const char 
 
 	m_pTitle = new vgui2::Label( this, "Title", szTitle );
 	m_pTitle->SetPaintBackgroundEnabled( false );
+	m_pTitle->SetMouseInputEnabled( false );
 
 	// Invalid by default.
 	for ( int i = 0; i < MAX_PAGE_MENU_ITEMS; i++ )
@@ -107,6 +110,10 @@ void CMenuPage::DisablePanel( bool state )
 void CMenuPage::OnCommand( const char *pcCommand )
 {
 	GetParent()->OnCommand( pcCommand );
+	KeyValues *message = new KeyValues( "MousePressed", "code", vgui2::MouseCode::MOUSE_LEFT );
+	g_pVGuiPanel->SendMessage( GetVParent(), message->MakeCopy(), GetVPanel() );
+	message->deleteThis();
+	vgui2::surface()->PlaySound( "sound/ui/launch_selectmenu.wav" );
 }
 
 void CMenuPage::ApplySchemeSettings( vgui2::IScheme *pScheme )
@@ -136,4 +143,11 @@ void CMenuPage::OnThink()
 			PopulateMenu();
 		}
 	}
+}
+
+void CMenuPage::InternalMousePressed( int code )
+{
+	KeyValues *message = new KeyValues( "MousePressed", "code", vgui2::MouseCode::MOUSE_LEFT );
+	g_pVGuiPanel->SendMessage( GetVParent(), message->MakeCopy(), GetVPanel() );
+	message->deleteThis();
 }

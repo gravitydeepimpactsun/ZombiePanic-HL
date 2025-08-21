@@ -22,6 +22,7 @@ public:
 protected:
 	virtual void ApplySchemeSettings( vgui2::IScheme *pScheme );
 	virtual void OnThink() override;
+	void InternalMousePressed( int code ) override;
 
 private:
 	CMenuItem *m_pMenuItems[MAX_PAGE_MENU_ITEMS];

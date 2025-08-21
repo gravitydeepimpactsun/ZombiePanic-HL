@@ -1,6 +1,7 @@
 // ============== Copyright (c) 2025 Monochrome Games ============== \\
 
 #include <vgui/IVGui.h>
+#include <vgui/ISurface.h>
 #include "CMenuItem.h"
 #include "client_vgui.h"
 #include "zp/ui/workshop/WorkshopItemList.h"
@@ -85,6 +86,7 @@ void CMenuItem::OnCursorEntered()
 {
 	m_pText->SetFgColor( COLOR_ACTIVE );
 	m_pHelpText->SetFgColor( COLOR_ACTIVE );
+	vgui2::surface()->PlaySound( "sound/ui/launch_select1.wav" );
 }
 
 void CMenuItem::OnCursorExited()

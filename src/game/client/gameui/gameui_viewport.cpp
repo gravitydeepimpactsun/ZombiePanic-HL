@@ -187,6 +187,21 @@ CServerBrowser *CGameUIViewport::GetServerBrowser()
 	return GetDialog(m_hServerBrowser);
 }
 
+vgui2::Panel *CGameUIViewport::GetDialog( GameUIDialogs nDialog )
+{
+	switch ( nDialog )
+	{
+		case UIDialog_Achievements: return m_hAchDialog;
+		case UIDialog_Options: return m_hOptionsDialog;
+		case UIDialog_PlayerSelection: return m_hPlayerSelection;
+		case UIDialog_Workshop: return m_hWorkshopDialog;
+		case UIDialog_Credits:
+			break;
+		case UIDialog_ServerBrowser: return m_hServerBrowser;
+	}
+	return nullptr;
+}
+
 void CGameUIViewport::OnThink()
 {
 	BaseClass::OnThink();

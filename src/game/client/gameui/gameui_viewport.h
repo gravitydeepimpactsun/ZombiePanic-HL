@@ -16,6 +16,18 @@ class CServerBrowser;
 class CImageMenuButton;
 class CBaseMenu;
 
+enum GameUIDialogs
+{
+	UIDialog_Achievements = 0,
+	UIDialog_Options,
+	UIDialog_PlayerSelection,
+	UIDialog_Workshop,
+	UIDialog_Credits,
+	UIDialog_ServerBrowser,
+
+	UIDialog_MAX
+};
+
 // Ported from Contagion
 enum eSupporterExports
 {
@@ -63,6 +75,8 @@ public:
 	C_PlayerSelection *GetPlayerSelection();
 	CWorkshopDialog *GetWorkshopDialog();
 	CServerBrowser *GetServerBrowser();
+
+	vgui2::Panel *GetDialog( GameUIDialogs nDialog );
 
 	virtual void OnThink() override;
 

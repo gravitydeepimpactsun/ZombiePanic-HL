@@ -21,7 +21,8 @@ public:
 	void SetMenuBounds( const int &x, const int &y, const int &w, const int &t );
 
 protected:
-	virtual void OnThink() override;
+	void InternalMousePressed( int code ) override;
+	void DoDialogHackFix();
 
 private:
 	vgui2::DHANDLE<CImageMenuButton> m_hPatreonButton;

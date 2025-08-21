@@ -6,8 +6,13 @@
 #include "client_vgui.h"
 #include "zp/ui/workshop/WorkshopItemList.h"
 
-#define COLOR_ACTIVE		Color( 255, 253, 161, 255 )
-#define COLOR_NOT_ACTIVE	Color( 255, 255, 255, 255 )
+#define COLOR_ACTIVE			Color( 255, 253, 161, 255 )
+#define COLOR_ACTIVE_HELP		Color( 168, 166, 104, 255 )
+#define COLOR_NOT_ACTIVE		Color( 255, 255, 255, 255 )
+#define COLOR_NOT_ACTIVE_HELP	Color( 133, 133, 133, 255 )
+
+ConVar cl_menu_icons( "cl_menu_icons", "1", FCVAR_BHL_ARCHIVE );
+ConVar cl_menu_helptext( "cl_menu_helptext", "1", FCVAR_BHL_ARCHIVE );
 
 CMenuItem::CMenuItem( vgui2::Panel *pParent, EHudScale nType, const char *szImage, const char *szText, const char *szHelp, const char *szCommand )
     : BaseClass( pParent, "CMenuItem" )
@@ -32,18 +37,22 @@ CMenuItem::CMenuItem( vgui2::Panel *pParent, EHudScale nType, const char *szImag
 	m_pPanel->SetImage( vgui2::VarArgs( "ui/mainmenu/icons/%s", szImage ) );
 	m_pPanel->SetMouseInputEnabled( false );
 	m_pPanel->SetKeyBoardInputEnabled( false );
+	m_pPanel->SetVisible( cl_menu_icons.GetBool() );
 
 	m_pText = new vgui2::Label( this, "Text", szText );
 	m_pText->SetContentAlignment( vgui2::Label::Alignment::a_west );
 	m_pText->SetPaintBackgroundEnabled( false );
 	m_pText->SetMouseInputEnabled( false );
 	m_pText->SetKeyBoardInputEnabled( false );
+	m_pText->SetFgColor( COLOR_NOT_ACTIVE );
 
 	m_pHelpText = new vgui2::Label( this, "HelpMe", szHelp );
 	m_pHelpText->SetContentAlignment( vgui2::Label::Alignment::a_west );
 	m_pHelpText->SetPaintBackgroundEnabled( false );
 	m_pHelpText->SetMouseInputEnabled( false );
 	m_pHelpText->SetKeyBoardInputEnabled( false );
+	m_pHelpText->SetVisible( cl_menu_helptext.GetBool() );
+	m_pHelpText->SetFgColor( COLOR_NOT_ACTIVE_HELP );
 
 	m_ScaleType = nType;
 }
@@ -52,7 +61,8 @@ void CMenuItem::SetContent( const int &x, const int &y, const int &w, const int 
 {
 	SetSize( w, h );
 	SetPos( x, y );
-	m_pPanel->SetSize( h, h );
+	m_pPanel->SetPos( 0, 15 );
+	m_pPanel->SetSize( h - 20, h - 20 );
 
 	int iTallLarge, iHelpTextPos;
 	switch ( m_ScaleType )
@@ -76,8 +86,8 @@ void CMenuItem::SetContent( const int &x, const int &y, const int &w, const int 
 			break;
 	}
 
-	m_pText->SetBounds( h, 10, w, iTallLarge );
-	m_pHelpText->SetBounds( h, iHelpTextPos, w, h );
+	m_pText->SetBounds( h + 5, 10, w, iTallLarge );
+	m_pHelpText->SetBounds( h + 5, iHelpTextPos, w, h );
 
 	InvalidateLayout( true );
 	Repaint();
@@ -109,12 +119,11 @@ void CMenuItem::ApplySchemeSettings( vgui2::IScheme *pScheme )
 void CMenuItem::OnCursorEntered()
 {
 	m_pText->SetFgColor( COLOR_ACTIVE );
-	m_pHelpText->SetFgColor( COLOR_ACTIVE );
-	vgui2::surface()->PlaySound( "sound/ui/launch_select1.wav" );
+	m_pHelpText->SetFgColor( COLOR_ACTIVE_HELP );
 }
 
 void CMenuItem::OnCursorExited()
 {
 	m_pText->SetFgColor( COLOR_NOT_ACTIVE );
-	m_pHelpText->SetFgColor( COLOR_NOT_ACTIVE );
+	m_pHelpText->SetFgColor( COLOR_NOT_ACTIVE_HELP );
 }

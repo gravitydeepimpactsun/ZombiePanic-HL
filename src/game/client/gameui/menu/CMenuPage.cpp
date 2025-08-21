@@ -98,7 +98,7 @@ void CMenuPage::PopulateMenu()
 				continue;
 			}
 			m_pMenuItems[m_iMenuItem] = new CMenuItem( this,
-				kvSub->GetString( "Icon", "back" ),
+				kvSub->GetString( "Icon" ),
 				kvSub->GetString( "Label", "Example String" ),
 				kvSub->GetString( "HelpText" ),
 				kvSub->GetString( "Command" )

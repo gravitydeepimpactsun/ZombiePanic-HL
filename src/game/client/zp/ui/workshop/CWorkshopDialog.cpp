@@ -14,7 +14,7 @@
 CWorkshopDialog::CWorkshopDialog(vgui2::Panel *pParent)
     : BaseClass(pParent, "WorkshopDialog")
 {
-	SetBounds(0, 0, 800, 600);
+	SetBounds(0, 0, 807, 600);
 	SetSizeable(false);
 	SetDeleteSelfOnClose(true);
 

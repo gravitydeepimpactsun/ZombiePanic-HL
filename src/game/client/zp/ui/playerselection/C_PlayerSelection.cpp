@@ -31,7 +31,6 @@ C_PlayerSelection::C_PlayerSelection(vgui2::Panel *pParent)
 	SetKeyBoardInputEnabled(true);
 	SetMouseInputEnabled(true);
 
-	SetProportional(false);
 	SetTitleBarVisible(true);
 	SetMinimizeButtonVisible(false);
 	SetMaximizeButtonVisible(false);
@@ -163,7 +162,7 @@ C_PlayerSelection::C_PlayerSelection(vgui2::Panel *pParent)
 	ui_SelectPlayerBio->SetWrap( true );
 	ui_SelectPlayerBio->SetContentAlignment( vgui2::Label::Alignment::a_northwest );
 	ui_SelectPlayerBio->SetPaintBackgroundEnabled( false );
-	
+
 	V_strcpy_safe( strCurrentBio, "random" );
 	LoadPageInfo( "random", 0 );
 

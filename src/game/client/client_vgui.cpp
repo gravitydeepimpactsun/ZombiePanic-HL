@@ -102,9 +102,9 @@ void CClientVGUI::Shutdown()
 
 void CClientVGUI::GetProportionalBase(int &wide, int &tall)
 {
-	// Pre-HL25 values
-	wide = 640;
-	tall = 480;
+	//1280x720, was 640x480
+	wide = 1280;
+	tall = 720;
 }
 
 static void DumpPanel(vgui2::VPANEL panel, int offset, bool bParentVisible, bool bDumpAll)

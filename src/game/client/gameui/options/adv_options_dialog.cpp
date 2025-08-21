@@ -39,6 +39,7 @@ CAdvOptionsDialog::CAdvOptionsDialog(vgui2::Panel *pParent)
 	SetApplyButtonVisible(true);
 	EnableApplyButton(true);
 	GetPropertySheet()->SetTabWidth(84);
+
 	MoveToCenterOfScreen();
 }
 

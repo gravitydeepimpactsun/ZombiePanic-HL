@@ -94,6 +94,8 @@ CBaseMenu::CBaseMenu( vgui2::Panel *pParent )
 	for ( int i = 0; i < MenuPagesTable_t::PAGE_MAX; i++ )
 		pPage[i] = nullptr;
 	m_Page = MenuPagesTable_t::PAGE_MAIN;
+	m_hPatreonButton = nullptr;
+	m_hMessageBox = nullptr;
 }
 
 void CBaseMenu::OnCommand( const char *pcCommand )
@@ -158,25 +160,53 @@ void CBaseMenu::OnCommand( const char *pcCommand )
 		LoadPage(MenuPagesTable_t::PAGE_EXTRAS);
 	else if (!Q_stricmp(pcCommand, "Quit"))
 	{
-		vgui2::MessageBox *pMessageBox = new vgui2::MessageBox("#GameUI_QuitConfirmationTitle", "#GameUI_QuitConfirmationText", this);
-		pMessageBox->SetOKButtonVisible(true);
-		pMessageBox->SetCancelButtonVisible(true);
-		pMessageBox->AddActionSignalTarget(this);
-		pMessageBox->SetCommand("OnQuitConfirm");
-		pMessageBox->DoModal();
+		if ( m_hMessageBox )
+		{
+			m_hMessageBox->Activate();
+			return;
+		}
+		m_hMessageBox = new vgui2::MessageBox("#GameUI_QuitConfirmationTitle", "#GameUI_QuitConfirmationText", this);
+		m_hMessageBox->SetOKButtonVisible(true);
+		m_hMessageBox->SetCancelButtonVisible(true);
+		m_hMessageBox->AddActionSignalTarget(this);
+		m_hMessageBox->SetCommand("OnQuitConfirm");
+		m_hMessageBox->SetCancelCommand( new KeyValues("Command", "command", "OnMessageBoxClosed") );
+		m_hMessageBox->DoModal();
 	}
 	else if (!Q_stricmp(pcCommand, "OnQuitConfirm"))
+	{
+		if ( m_hMessageBox )
+			m_hMessageBox->DeletePanel();
+		m_hMessageBox = nullptr;
 		EngineClientCmd("quit\n");
+	}
 	else if (!Q_stricmp(pcCommand, "OnDisconnect"))
+	{
+		if ( m_hMessageBox )
+			m_hMessageBox->DeletePanel();
+		m_hMessageBox = nullptr;
 		EngineClientCmd("disconnect\n");
+	}
+	else if (!Q_stricmp(pcCommand, "OnMessageBoxClosed"))
+	{
+		if ( m_hMessageBox )
+			m_hMessageBox->DeletePanel();
+		m_hMessageBox = nullptr;
+	}
 	else if (!Q_stricmp(pcCommand, "Disconnect"))
 	{
-		vgui2::MessageBox *pMessageBox = new vgui2::MessageBox("#GameUI_DisconnectConfirmationTitle", "#GameUI_DisconnectConfirmationText", this);
-		pMessageBox->SetOKButtonVisible(true);
-		pMessageBox->SetCancelButtonVisible(true);
-		pMessageBox->AddActionSignalTarget(this);
-		pMessageBox->SetCommand("OnDisconnect");
-		pMessageBox->DoModal();
+		if ( m_hMessageBox )
+		{
+			m_hMessageBox->Activate();
+			return;
+		}
+		m_hMessageBox = new vgui2::MessageBox("#GameUI_DisconnectConfirmationTitle", "#GameUI_DisconnectConfirmationText", this);
+		m_hMessageBox->SetOKButtonVisible(true);
+		m_hMessageBox->SetCancelButtonVisible(true);
+		m_hMessageBox->AddActionSignalTarget(this);
+		m_hMessageBox->SetCommand("OnDisconnect");
+		m_hMessageBox->SetCancelCommand( new KeyValues("Command", "command", "OnMessageBoxClosed") );
+		m_hMessageBox->DoModal();
 	}
 	else if (!Q_stricmp(pcCommand, "ResumeGame"))
 		g_pBaseUI->HideGameUI();
@@ -262,4 +292,13 @@ void CBaseMenu::DoDialogHackFix()
 		g_pVGuiPanel->MoveToFront( vCreateServer );
 	if ( vOptionsDialog != 0 )
 		g_pVGuiPanel->MoveToFront( vOptionsDialog );
+
+	// Move all message boxes to front, always!
+	for (int i = 0; i < GetChildCount(); i++)
+	{
+		Panel *pChild = GetChild(i);
+		if ( !pChild ) continue;
+		if ( !V_stricmp( pChild->GetClassName(), "MessageBox" ) )
+			pChild->MoveToFront();
+	}
 }

@@ -52,7 +52,7 @@ void CMenuItem::SetContent( const int &x, const int &y, const int &w, const int 
 	SetPos( x, y );
 	m_pPanel->SetSize( h, h );
 
-	m_pText->SetBounds( h, 10, w, 35 );
+	m_pText->SetBounds( h, 10, w, 40 );
 	m_pHelpText->SetBounds( h, 25, w, h );
 
 	InvalidateLayout( true );

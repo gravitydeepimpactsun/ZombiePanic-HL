@@ -124,7 +124,7 @@ C_PlayerSelection::C_PlayerSelection(vgui2::Panel *pParent)
 	//======================================
 	//======================================
 	ui_Label_pagenum = new vgui2::Label(this, "Character_bio_page", "Page (X/Y)");
-	ui_Label_pagenum->SetPos( 745, 445 );
+	ui_Label_pagenum->SetPos( 730, 445 );
 	ui_Label_pagenum->SetSize( 90, 24 );
 	ui_Label_pagenum->SetPaintBackgroundEnabled( false );
 
@@ -132,14 +132,14 @@ C_PlayerSelection::C_PlayerSelection(vgui2::Panel *pParent)
 	//======================================
 	//======================================
 	ui_Bttn_Back = new vgui2::Button(this, "page_back", "#ZP_UI_Back");
-	ui_Bttn_Back->SetPos( 734, 473 );
-	ui_Bttn_Back->SetSize( 42, 24 );
+	ui_Bttn_Back->SetPos( 715, 473 );
+	ui_Bttn_Back->SetSize( 50, 24 );
 	ui_Bttn_Back->SetEnabled( false );
 	ui_Bttn_Back->SetCommand( "previous_page" );
 
 	ui_Bttn_Next = new vgui2::Button(this, "page_next", "#ZP_UI_Next");
 	ui_Bttn_Next->SetPos( 781, 473 );
-	ui_Bttn_Next->SetSize( 42, 24 );
+	ui_Bttn_Next->SetSize( 50, 24 );
 	ui_Bttn_Next->SetEnabled( false );
 	ui_Bttn_Next->SetCommand( "next_page" );
 
@@ -156,7 +156,7 @@ C_PlayerSelection::C_PlayerSelection(vgui2::Panel *pParent)
 
 	// Setup survivor BIO
 	ui_SelectPlayerBio = new vgui2::Label(this, "Character_bio", "If you read this, it failed to read the bio...");
-	ui_SelectPlayerBio->SetPos( 224, 72 );
+	ui_SelectPlayerBio->SetPos( 224, 90 );
 	ui_SelectPlayerBio->SetSize( 600, 400 );
 	ui_SelectPlayerBio->SetFont( hFont );
 	ui_SelectPlayerBio->SetWrap( true );
@@ -166,6 +166,24 @@ C_PlayerSelection::C_PlayerSelection(vgui2::Panel *pParent)
 	V_strcpy_safe( strCurrentBio, "random" );
 	LoadPageInfo( "random", 0 );
 
+	SetProportional( true );
+
+	// We need to set the for proportional here.
+	{
+		hFont = pScheme->GetFont( "BioProportional", true );
+		ui_SelectPlayerBio->SetFont( hFont );
+
+		hFont = pScheme->GetFont( "DefaultProportional", true );
+		ui_Bttn_Back->SetFont( hFont );
+		ui_Bttn_Next->SetFont( hFont );
+		ui_Label_pagenum->SetFont( hFont );
+
+		pPanel = FindChildByName( "SetModel" );
+		vgui2::Button *pSetModel = (vgui2::Button *)pPanel;
+		if ( pSetModel )
+			pSetModel->SetFont( hFont );
+		ui_SelectPlayerModel->SetFont( hFont );
+	}
 	MoveToCenterOfScreen();
 }
 

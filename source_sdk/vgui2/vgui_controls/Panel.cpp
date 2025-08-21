@@ -1065,6 +1065,27 @@ bool Panel::IsVisible()
     return false;
 }
 
+float vgui2::Panel::GetProportionalScale()
+{
+	float scale = 1.0;
+	if ( IsProportional() )
+	{	
+		int screenW, screenH;
+		surface()->GetScreenSize( screenW, screenH );
+
+		int proW,proH;
+		VGui_GetProportionalBase(proW, proH);
+
+		scale =	( (float)( screenH ) / (float)( proH ) );
+	}
+	return scale;
+}
+
+int vgui2::Panel::GetScaledValue( int const &iValue )
+{
+	return (int)( ceil( iValue * GetProportionalScale() ) );
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------

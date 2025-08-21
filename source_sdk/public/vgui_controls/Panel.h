@@ -208,6 +208,9 @@ public:
 	virtual void SetVisible(bool state);
 	virtual bool IsVisible();
 
+	float GetProportionalScale();
+	int GetScaledValue( int const &iValue );
+
 	// painting
 	virtual VPANEL IsWithinTraverse(int x, int y, bool traversePopups);	// recursive; returns a pointer to the panel at those coordinates
 	MESSAGE_FUNC( Repaint, "Repaint" );							// marks the panel as needing to be repainted

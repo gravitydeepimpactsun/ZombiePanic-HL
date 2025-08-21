@@ -1208,9 +1208,9 @@ int Frame::GetCaptionHeight()
 	const int CAPTIONHEIGHT = 23;
 	if ( m_bSmallCaption )
 	{
-		return 12;
+		return GetScaledValue( 12 );
 	}
-	return CAPTIONHEIGHT;
+	return GetScaledValue( CAPTIONHEIGHT );
 }
 
 //-----------------------------------------------------------------------------
@@ -1278,6 +1278,8 @@ void Frame::PerformLayout()
 	int offset = offset_start;
 
 	int top_border_offset = (int) ( ( 5+3 ) * scale );
+	if ( IsProportional() )
+		top_border_offset = (int) ( ( 5 ) * scale );
 	if ( m_bSmallCaption )
 	{
 		top_border_offset = (int) ( ( 3 ) * scale );
@@ -1443,10 +1445,10 @@ void Frame::GetClientArea(int &x, int &y, int &wide, int &tall)
 
 		yinset += m_iTitleTextInsetYOverride;
 
-		y = yinset + captionTall + border + 1;
+		y = yinset + GetScaledValue( captionTall ) + border + 1;
 		tall = (tall - yinset) - y;
 	}
-	
+
 	if ( m_bSmallCaption )
 	{
 		tall -= 5;
@@ -1609,18 +1611,7 @@ void Frame::PaintBackground()
 		surface()->DrawSetColor(titleColor);
 		int captionHeight = m_bSmallCaption ? 14 : 28;
 		int inset = m_bSmallCaption ? 3 : 5;
-		float scale = 1.0;
-		if ( IsProportional() )
-		{	
-			int screenW, screenH;
-			surface()->GetScreenSize( screenW, screenH );
-
-			int proW,proH;
-			VGui_GetProportionalBase(proW, proH);
-
-			scale =	( (float)( screenH ) / (float)( proH ) );
-		}
-		captionHeight = (int)( ceil( captionHeight * scale ) );
+		captionHeight = GetScaledValue( captionHeight );
 
 		surface()->DrawFilledRect(inset, inset, wide - inset, captionHeight );
 		

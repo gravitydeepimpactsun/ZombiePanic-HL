@@ -1607,14 +1607,27 @@ void Frame::PaintBackground()
 
 		// caption
 		surface()->DrawSetColor(titleColor);
+		int captionHeight = m_bSmallCaption ? 14 : 28;
 		int inset = m_bSmallCaption ? 3 : 5;
-		int captionHeight = m_bSmallCaption ? 14: 28;
+		float scale = 1.0;
+		if ( IsProportional() )
+		{	
+			int screenW, screenH;
+			surface()->GetScreenSize( screenW, screenH );
+
+			int proW,proH;
+			VGui_GetProportionalBase(proW, proH);
+
+			scale =	( (float)( screenH ) / (float)( proH ) );
+		}
+		captionHeight = (int)( ceil( captionHeight * scale ) );
 
 		surface()->DrawFilledRect(inset, inset, wide - inset, captionHeight );
 		
 		if (_title)
 		{
 			int nTitleX = m_iTitleTextInsetXOverride ? m_iTitleTextInsetXOverride : m_iTitleTextInsetX;
+			//nTitleX = (int)( ceil( nTitleX * scale ) );
 			int nTitleWidth = wide - 72;
 #if !defined( _X360 )
 			if ( _menuButton && _menuButton->IsVisible() )

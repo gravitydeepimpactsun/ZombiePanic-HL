@@ -38,10 +38,10 @@ CMenuPage::CMenuPage( vgui2::Panel *pParent, MenuPagesTable_t nType, const char 
 }
 
 static constexpr MenuItemsMenuAdjustments MENU_ITEM_DATA[] = {
-	MenuItemsMenuAdjustments { 320,		350,	300,	50,		EHudScale::X05 },
-	MenuItemsMenuAdjustments { 640,		350,	500,	60,		EHudScale::X1 },
+	MenuItemsMenuAdjustments { 320,		20,		300,	50,		EHudScale::X05 },
+	MenuItemsMenuAdjustments { 640,		150,	500,	60,		EHudScale::X1 },
 	MenuItemsMenuAdjustments { 1280,	350,	700,	80,		EHudScale::X2 },
-	MenuItemsMenuAdjustments { 2560,	350,	1000,	120,	EHudScale::X4 },
+	MenuItemsMenuAdjustments { 2560,	1050,	1800,	120,	EHudScale::X4 },
 };
 
 void GetMenuAdjustment( const int &iMyRes, MenuItemsMenuAdjustments &adjustment )

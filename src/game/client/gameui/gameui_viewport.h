@@ -11,6 +11,7 @@ class CGameUITestPanel;
 class CAdvOptionsDialog;
 class C_AchievementDialog;
 class C_PlayerSelection;
+class C_ZPCredits;
 class CWorkshopDialog;
 class CServerBrowser;
 class CImageMenuButton;
@@ -73,6 +74,7 @@ public:
 	CAdvOptionsDialog *GetOptionsDialog();
 	C_AchievementDialog *GetAchievementDialog();
 	C_PlayerSelection *GetPlayerSelection();
+	C_ZPCredits *GetCredits();
 	CWorkshopDialog *GetWorkshopDialog();
 	CServerBrowser *GetServerBrowser();
 
@@ -135,6 +137,7 @@ private:
 	vgui2::DHANDLE<CAdvOptionsDialog> m_hOptionsDialog;
 	vgui2::DHANDLE<C_AchievementDialog> m_hAchDialog;
 	vgui2::DHANDLE<C_PlayerSelection> m_hPlayerSelection;
+	vgui2::DHANDLE<C_ZPCredits> m_hCredits;
 	vgui2::DHANDLE<CWorkshopDialog> m_hWorkshopDialog;
 	vgui2::DHANDLE<CCreateWorkshopInfoBox> m_hWorkshopInfoBox;
 	vgui2::DHANDLE<CServerBrowser> m_hServerBrowser;

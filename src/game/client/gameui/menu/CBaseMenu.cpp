@@ -13,6 +13,7 @@
 #include "gameui/options/adv_options_dialog.h"
 #include "zp/ui/achievements/C_AchievementDialog.h"
 #include "zp/ui/playerselection/C_PlayerSelection.h"
+#include "zp/ui/credits/C_ZPCredits.h"
 #include "zp/ui/workshop/CWorkshopDialog.h"
 
 /// <summary>
@@ -129,7 +130,9 @@ void CBaseMenu::OnCommand( const char *pcCommand )
 	}
 	else if (!Q_stricmp(pcCommand, "OpenCreditsDialog"))
 	{
-		// TODO: Create Credits Dialog
+		gHUD.CallOnNextFrame([]()
+		    { CGameUIViewport::Get()->GetCredits()->Activate(); });
+		g_pBaseUI->ActivateGameUI();
 	}
 	else if (!Q_stricmp(pcCommand, "OpenCreateMultiplayerGameDialog"))
 	{

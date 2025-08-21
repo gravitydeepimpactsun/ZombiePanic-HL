@@ -127,6 +127,7 @@ C_PlayerSelection::C_PlayerSelection(vgui2::Panel *pParent)
 	ui_Label_pagenum = new vgui2::Label(this, "Character_bio_page", "Page (X/Y)");
 	ui_Label_pagenum->SetPos( 745, 445 );
 	ui_Label_pagenum->SetSize( 90, 24 );
+	ui_Label_pagenum->SetPaintBackgroundEnabled( false );
 
 	// Buttons
 	//======================================
@@ -161,6 +162,7 @@ C_PlayerSelection::C_PlayerSelection(vgui2::Panel *pParent)
 	ui_SelectPlayerBio->SetFont( hFont );
 	ui_SelectPlayerBio->SetWrap( true );
 	ui_SelectPlayerBio->SetContentAlignment( vgui2::Label::Alignment::a_northwest );
+	ui_SelectPlayerBio->SetPaintBackgroundEnabled( false );
 	
 	V_strcpy_safe( strCurrentBio, "random" );
 	LoadPageInfo( "random", 0 );

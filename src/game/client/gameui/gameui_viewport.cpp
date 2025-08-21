@@ -11,6 +11,7 @@
 #include "options/adv_options_dialog.h"
 #include "zp/ui/achievements/C_AchievementDialog.h"
 #include "zp/ui/playerselection/C_PlayerSelection.h"
+#include "zp/ui/credits/C_ZPCredits.h"
 #include "zp/ui/workshop/CWorkshopDialog.h"
 #include "menu/CBaseMenu.h"
 #include <FileSystem.h>
@@ -177,6 +178,11 @@ C_PlayerSelection *CGameUIViewport::GetPlayerSelection()
 	return GetDialog(m_hPlayerSelection);
 }
 
+C_ZPCredits *CGameUIViewport::GetCredits()
+{
+	return GetDialog(m_hCredits);
+}
+
 CWorkshopDialog *CGameUIViewport::GetWorkshopDialog()
 {
 	return GetDialog(m_hWorkshopDialog);
@@ -195,8 +201,7 @@ vgui2::Panel *CGameUIViewport::GetDialog( GameUIDialogs nDialog )
 		case UIDialog_Options: return m_hOptionsDialog;
 		case UIDialog_PlayerSelection: return m_hPlayerSelection;
 		case UIDialog_Workshop: return m_hWorkshopDialog;
-		case UIDialog_Credits:
-			break;
+		case UIDialog_Credits: return m_hCredits;
 		case UIDialog_ServerBrowser: return m_hServerBrowser;
 	}
 	return nullptr;

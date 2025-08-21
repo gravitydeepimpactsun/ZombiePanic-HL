@@ -10,6 +10,14 @@ add_sources(
 	hud/zp_ammobank.h
 	ui/playerselection/C_PlayerSelection.cpp
 	ui/playerselection/C_PlayerSelection.h
+	ui/credits/C_ZPCredits.cpp
+	ui/credits/C_ZPCredits.h
+	ui/credits/C_ZPCredits_Sub_Contrib.cpp
+	ui/credits/C_ZPCredits_Sub_Contrib.h
+	ui/credits/C_ZPCredits_Sub_Credits.cpp
+	ui/credits/C_ZPCredits_Sub_Credits.h
+	ui/credits/C_ZPCredits_Sub_Info.cpp
+	ui/credits/C_ZPCredits_Sub_Info.h
 	ui/achievements/AchievementList.cpp
 	ui/achievements/AchievementList.h
 	ui/achievements/C_AchievementDialog.cpp

@@ -11,6 +11,14 @@ enum MenuPagesTable_t
 	PAGE_MAX
 };
 
+struct MenuItemsMenuAdjustments
+{
+	int PosStart;
+	int MenuWide;
+	int MenuItemTall;
+	EHudScale Type;
+};
+
 #define MAX_PAGE_MENU_ITEMS 10
 
 #endif

@@ -37,6 +37,13 @@ CMenuPage::CMenuPage( vgui2::Panel *pParent, MenuPagesTable_t nType, const char 
 	m_IsConnected = false;
 }
 
+static constexpr MenuItemsMenuAdjustments MENU_ITEM_DATA[] = {
+	MenuItemsMenuAdjustments { 20,		300,	50,		EHudScale::X05 },
+	MenuItemsMenuAdjustments { 640,		500,	60,		EHudScale::X1 },
+	MenuItemsMenuAdjustments { 1280,	700,	80,		EHudScale::X2 },
+	MenuItemsMenuAdjustments { 2560,	1000,	120,	EHudScale::X4 },
+};
+
 void CMenuPage::PopulateMenu()
 {
 	for ( int i = 0; i < MAX_PAGE_MENU_ITEMS; i++ )
@@ -49,22 +56,13 @@ void CMenuPage::PopulateMenu()
 	int screen_wide = GetParent()->GetWide();
 	int screen_tall = GetParent()->GetTall();
 
-	int yPos = 350;
-	int wide = 700;
 	int nHudSize = UTIL_GetHudSize( screen_wide, screen_tall );
-	switch ( nHudSize )
-	{
-		default:
-		case 320: yPos = 20; wide = 300; break;
-		case 640: yPos = 150; wide = 500; break;
-		case 1280: yPos = 350; wide = 700; break;
-		case 2560: yPos = 500; wide = 1000; break;
-	}
+	MenuItemsMenuAdjustments menuAdjust = MENU_ITEM_DATA[nHudSize];
 
-	SetWide( wide );
+	SetWide( menuAdjust.MenuWide );
 	SetTall( screen_tall );
 
-	m_pTitle->SetBounds( 0, yPos, GetWide(), 60 );
+	m_pTitle->SetBounds( 0, menuAdjust.PosStart, GetWide(), 60 );
 	m_pTitle->SetContentAlignment( vgui2::Label::Alignment::a_center );
 
 	// ui/mainmenu/%s.res
@@ -98,6 +96,7 @@ void CMenuPage::PopulateMenu()
 				continue;
 			}
 			m_pMenuItems[m_iMenuItem] = new CMenuItem( this,
+			    menuAdjust.Type,
 				kvSub->GetString( "Icon" ),
 				kvSub->GetString( "Label", "Example String" ),
 				kvSub->GetString( "HelpText" ),
@@ -107,12 +106,13 @@ void CMenuPage::PopulateMenu()
 			kvSub = kvSub->GetNextKey();
 		}
 	}
-	
+
+	int yPos = menuAdjust.PosStart;
 	yPos += m_pTitle->GetTall() + 25;
 	for ( int i = 0; i < MAX_PAGE_MENU_ITEMS; i++ )
 	{
 		if ( !m_pMenuItems[i] ) continue;
-		m_pMenuItems[ i ]->SetContent( 50, yPos, GetWide(), 80 );
+		m_pMenuItems[ i ]->SetContent( 50, yPos, GetWide(), menuAdjust.MenuItemTall );
 		yPos += m_pMenuItems[ i ]->GetTall() + 5;
 	}
 }

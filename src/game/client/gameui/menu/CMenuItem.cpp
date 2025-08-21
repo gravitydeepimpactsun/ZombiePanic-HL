@@ -9,7 +9,7 @@
 #define COLOR_ACTIVE		Color( 255, 253, 161, 255 )
 #define COLOR_NOT_ACTIVE	Color( 255, 255, 255, 255 )
 
-CMenuItem::CMenuItem( vgui2::Panel *pParent, const char *szImage, const char *szText, const char *szHelp, const char *szCommand )
+CMenuItem::CMenuItem( vgui2::Panel *pParent, EHudScale nType, const char *szImage, const char *szText, const char *szHelp, const char *szCommand )
     : BaseClass( pParent, "CMenuItem" )
 {
 	SetSize( 100, 80 );
@@ -44,6 +44,8 @@ CMenuItem::CMenuItem( vgui2::Panel *pParent, const char *szImage, const char *sz
 	m_pHelpText->SetPaintBackgroundEnabled( false );
 	m_pHelpText->SetMouseInputEnabled( false );
 	m_pHelpText->SetKeyBoardInputEnabled( false );
+
+	m_ScaleType = nType;
 }
 
 void CMenuItem::SetContent( const int &x, const int &y, const int &w, const int &h )
@@ -52,8 +54,30 @@ void CMenuItem::SetContent( const int &x, const int &y, const int &w, const int 
 	SetPos( x, y );
 	m_pPanel->SetSize( h, h );
 
-	m_pText->SetBounds( h, 10, w, 40 );
-	m_pHelpText->SetBounds( h, 25, w, h );
+	int iTallLarge, iHelpTextPos;
+	switch ( m_ScaleType )
+	{
+		case EHudScale::X05:
+		    iTallLarge = 25;
+		    iHelpTextPos = 15;
+			break;
+		default:
+		case EHudScale::X1:
+		    iTallLarge = 35;
+		    iHelpTextPos = 20;
+			break;
+		case EHudScale::X2:
+		    iTallLarge = 40;
+		    iHelpTextPos = 25;
+			break;
+		case EHudScale::X4:
+		    iTallLarge = 80;
+		    iHelpTextPos = 40;
+			break;
+	}
+
+	m_pText->SetBounds( h, 10, w, iTallLarge );
+	m_pHelpText->SetBounds( h, iHelpTextPos, w, h );
 
 	InvalidateLayout( true );
 	Repaint();

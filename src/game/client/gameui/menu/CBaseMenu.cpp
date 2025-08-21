@@ -64,6 +64,19 @@ static void GetGameMenuVPanelItems( vgui2::VPANEL &vCreateServer, vgui2::VPANEL 
 	}
 	if ( vGameMenu == 0 ) return;
 
+/*
+	The GameMenu.res needs to only have 2 items, it should look like this:
+	"1"
+	{
+		"label" ""
+		"command" "OpenCreateMultiplayerGameDialog"
+	}
+	"2"
+	{
+		"label" ""
+		"command" "OpenOptionsDialog"
+	}
+*/
 	vMenuItem1 = g_pVGuiPanel->GetChild( vGameMenu, 1 );
 	vMenuItem2 = g_pVGuiPanel->GetChild( vGameMenu, 3 );
 }

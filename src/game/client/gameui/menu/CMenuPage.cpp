@@ -12,6 +12,8 @@
 #include "tier1/KeyValues.h"
 #include "zp/ui/workshop/WorkshopItemList.h"
 
+extern int UTIL_GetHudSize( const int &wide, const int &tall );
+
 CMenuPage::CMenuPage( vgui2::Panel *pParent, MenuPagesTable_t nType, const char *szTitle )
     : BaseClass( pParent, "CMenuPage" )
 {
@@ -44,10 +46,24 @@ void CMenuPage::PopulateMenu()
 		m_pMenuItems[i] = nullptr;
 	}
 
-	SetWide( 700 );
-	SetTall( GetParent()->GetTall() );
+	int screen_wide = GetParent()->GetWide();
+	int screen_tall = GetParent()->GetTall();
 
 	int yPos = 350;
+	int wide = 700;
+	int nHudSize = UTIL_GetHudSize( screen_wide, screen_tall );
+	switch ( nHudSize )
+	{
+		default:
+		case 320: yPos = 20; wide = 300; break;
+		case 640: yPos = 150; wide = 500; break;
+		case 1280: yPos = 350; wide = 700; break;
+		case 2560: yPos = 500; wide = 1000; break;
+	}
+
+	SetWide( wide );
+	SetTall( screen_tall );
+
 	m_pTitle->SetBounds( 0, yPos, GetWide(), 60 );
 	m_pTitle->SetContentAlignment( vgui2::Label::Alignment::a_center );
 

@@ -197,8 +197,6 @@ void HookHudMessage(const char *name)
 
 static void AboutCommand(void)
 {
-	ConPrintf("BugfixedHL-Rebased\n");
-	ConPrintf("Bugfixed and improved Half-Life Client\n");
 	ConPrintf("Version: " APP_VERSION "%s\n", IsDebug() ? " [Debug Build]" : "");
 	ConPrintf("Engine: %s\n", gHUD.GetEngineVersion());
 	ConPrintf("\n");
@@ -245,6 +243,33 @@ static int GetHudSize(const SCREENINFO &screenInfo, EHudScale maxScale)
 	    "HUD Size Auto-detect: fallback %dx%d for too small screen %dx%d\n",
 	    fallbackInfo.iRes, fallbackInfo.iHeight,
 	    screenInfo.iWidth, screenInfo.iHeight);
+	return fallbackInfo.iRes;
+}
+
+// Similar to GetHudSize, but only cares about our screen height.
+// used by VGUI2
+int UTIL_GetHudSize( const int &wide, const int &tall )
+{
+	// Auto-detect
+	for (auto it = std::rbegin(HUD_SCALE_INFO); it != std::rend(HUD_SCALE_INFO); ++it)
+	{
+		if (tall >= it->iHeight)
+		{
+			// Found the largest one.
+			gEngfuncs.Con_DPrintf(
+				"HUD Size Auto-detect: %dx%d for screen %dx%d\n",
+				it->iRes, it->iHeight,
+			    wide, tall);
+			return it->iRes;
+		}
+	}
+
+	// Too low resolution. Fall back to the smallest one.
+	const HudScaleInfo &fallbackInfo = HUD_SCALE_INFO[0];
+	gEngfuncs.Con_DPrintf(
+	    "HUD Size Auto-detect: fallback %dx%d for too small screen %dx%d\n",
+	    fallbackInfo.iRes, fallbackInfo.iHeight,
+	    wide, tall);
 	return fallbackInfo.iRes;
 }
 

@@ -1,6 +1,5 @@
 //========= Copyright (c) 2022 Zombie Panic! Team, All rights reserved. ============//
 
-#include "ienginevgui.h"
 #include "C_ZPCredits.h"
 
 #include <vgui_controls/Button.h>

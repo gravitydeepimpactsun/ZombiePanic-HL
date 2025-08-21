@@ -13,6 +13,7 @@ enum MenuPagesTable_t
 
 struct MenuItemsMenuAdjustments
 {
+	int iRes;
 	int PosStart;
 	int MenuWide;
 	int MenuItemTall;

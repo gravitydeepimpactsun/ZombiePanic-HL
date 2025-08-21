@@ -38,11 +38,23 @@ CMenuPage::CMenuPage( vgui2::Panel *pParent, MenuPagesTable_t nType, const char 
 }
 
 static constexpr MenuItemsMenuAdjustments MENU_ITEM_DATA[] = {
-	MenuItemsMenuAdjustments { 20,		300,	50,		EHudScale::X05 },
-	MenuItemsMenuAdjustments { 640,		500,	60,		EHudScale::X1 },
-	MenuItemsMenuAdjustments { 1280,	700,	80,		EHudScale::X2 },
-	MenuItemsMenuAdjustments { 2560,	1000,	120,	EHudScale::X4 },
+	MenuItemsMenuAdjustments { 320,		350,	300,	50,		EHudScale::X05 },
+	MenuItemsMenuAdjustments { 640,		350,	500,	60,		EHudScale::X1 },
+	MenuItemsMenuAdjustments { 1280,	350,	700,	80,		EHudScale::X2 },
+	MenuItemsMenuAdjustments { 2560,	350,	1000,	120,	EHudScale::X4 },
 };
+
+void GetMenuAdjustment( const int &iMyRes, MenuItemsMenuAdjustments &adjustment )
+{
+	for (auto it = std::rbegin(MENU_ITEM_DATA); it != std::rend(MENU_ITEM_DATA); ++it)
+	{
+		if ( it->iRes == iMyRes )
+		{
+			adjustment = *it;
+			return;
+		}
+	}
+}
 
 void CMenuPage::PopulateMenu()
 {
@@ -57,7 +69,8 @@ void CMenuPage::PopulateMenu()
 	int screen_tall = GetParent()->GetTall();
 
 	int nHudSize = UTIL_GetHudSize( screen_wide, screen_tall );
-	MenuItemsMenuAdjustments menuAdjust = MENU_ITEM_DATA[nHudSize];
+	MenuItemsMenuAdjustments menuAdjust;
+	GetMenuAdjustment( nHudSize, menuAdjust );
 
 	SetWide( menuAdjust.MenuWide );
 	SetTall( screen_tall );

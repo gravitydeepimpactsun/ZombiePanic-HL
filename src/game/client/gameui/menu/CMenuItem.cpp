@@ -30,7 +30,6 @@ CMenuItem::CMenuItem( vgui2::Panel *pParent, EHudScale nType, const char *szImag
 		Q_strcpy( m_szCommand, szCommand );
 
 	m_pPanel = new vgui2::ImagePanel( this, "Image" );
-	m_pPanel->SetFillColor( Color( 0, 0, 0, 100 ) );
 	m_pPanel->SetSize( GetWide(), GetTall() );
 	m_pPanel->SetPos( 0, 0 );
 	m_pPanel->SetShouldScaleImage( true );

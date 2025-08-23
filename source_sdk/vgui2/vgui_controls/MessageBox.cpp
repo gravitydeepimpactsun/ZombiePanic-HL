@@ -152,7 +152,7 @@ void MessageBox::ApplySchemeSettings(IScheme *pScheme)
 	if ( IsProportional() )
 	{
 		wide += 100;
-		tall += 50;
+		tall += GetScaledValue( 50 );
 	}
 
 	SetSize(wide, tall);

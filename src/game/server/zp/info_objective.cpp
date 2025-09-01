@@ -17,8 +17,6 @@ extern int gmsgObjective;
 void CObjectiveMessage::Spawn( void )
 {
 	m_State = ObjectiveState::State_Normal;
-	UTIL_strcpy( m_Message, "My Objective" );
-	m_NextObj[0] = 0;
 	BaseClass::Spawn();
 }
 
@@ -29,14 +27,9 @@ void CObjectiveMessage::Restart()
 
 void CObjectiveMessage::KeyValue( KeyValueData *pkvd )
 {
-	if ( FStrEq( pkvd->szKeyName, "message" ) )
+	if ( FStrEq( pkvd->szKeyName, "next_obj" ) )
 	{
-		UTIL_strcpy( m_Message, pkvd->szValue );
-		pkvd->fHandled = TRUE;
-	}
-	else if ( FStrEq( pkvd->szKeyName, "next_obj" ) )
-	{
-		UTIL_strcpy( m_NextObj, pkvd->szValue );
+		m_NextObj = ALLOC_STRING(pkvd->szValue); // Make a copy of the next objective
 		pkvd->fHandled = TRUE;
 	}
 	else
@@ -82,8 +75,8 @@ void CObjectiveMessage::UpdateMessageState()
 	// All they care about is our state and message.
 	// They do not care about your feelings.
 	MESSAGE_BEGIN( MSG_ALL, gmsgObjective );
-	WRITE_BYTE( m_State );
-	WRITE_STRING( m_Message );
+	WRITE_SHORT( m_State );
+	WRITE_STRING( STRING( pev->message ) );
 	MESSAGE_END();
 }
 
@@ -97,7 +90,7 @@ void CObjectiveMessage::CallNewObjective()
 	if ( eGameModeType != ZP::GAMEMODE_OBJECTIVE ) return;
 
 	// Let's search for our new message
-	CBaseEntity *pFind = UTIL_FindEntityByTargetname( nullptr, m_NextObj );
+	CBaseEntity *pFind = UTIL_FindEntityByTargetname( nullptr, STRING( m_NextObj ) );
 	if ( !pFind ) return;
 	pFind->Use( nullptr, nullptr, USE_ON, 0 );
 }

@@ -16,7 +16,7 @@ class CObjectiveMessage : public CPointEntity
 public:
 	void Spawn( void );
 	void Restart();
-	void KeyValue( KeyValueData *pkvd );
+	void KeyValue( KeyValueData *pkvd ) override;
 	void Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
 	void UpdateMessageState();
 	void CallNewObjective();
@@ -25,8 +25,7 @@ public:
 
 private:
 	ObjectiveState m_State;
-	char m_Message[32];
-	char m_NextObj[32];
+	string_t m_NextObj = 0;
 };
 
 class CObjectiveMessageSet : public CPointEntity

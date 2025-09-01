@@ -28,7 +28,7 @@ private:
 
 	CPanelAnimationVarAliasType( int, m_iTextX, "TextX", "70", "proportional_int" );
 	CPanelAnimationVarAliasType( int, m_iTextY, "TextY", "5", "proportional_int" );
-	CPanelAnimationVarAliasType( int, m_iTextWide, "TextWide", "500", "proportional_int" );
+	CPanelAnimationVarAliasType( int, m_iTextWide, "TextWide", "800", "proportional_int" );
 	CPanelAnimationVarAliasType( int, m_iTextTall, "TextTall", "100", "proportional_int" );
 
 protected:

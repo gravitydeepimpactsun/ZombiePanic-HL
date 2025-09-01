@@ -20,6 +20,8 @@ ObjectiveState CObjectiveText::m_State;
 std::string CObjectiveText::m_strObjectiveString;
 std::string CObjectiveText::m_strObjectiveString_Changed;
 
+static ConVar cl_obj_debug("cl_obj_debug", "0", FCVAR_CLIENTDLL | FCVAR_CHEATS);
+
 CObjectiveText::CObjectiveText()
     : vgui2::Panel(NULL, "HudObjectiveText")
 {
@@ -38,7 +40,7 @@ void CObjectiveText::ApplySchemeSettings(vgui2::IScheme *pScheme)
 {
 	BaseClass::ApplySchemeSettings(pScheme);
 
-	m_pText->SetFont( pScheme->GetFont( "Title" ) );
+	m_pText->SetFont( pScheme->GetFont( "ObjectiveText" ) );
 	m_pText->SetContentAlignment( vgui2::Label::a_northwest );
 	m_pText->SetFgColor( Color( 255, 255, 255, 255 ) );
 
@@ -65,6 +67,10 @@ void CObjectiveText::Paint()
 		return;
 	}
 
+	// Make sure we're visible
+	if ( !m_pText->IsVisible() )
+		m_pText->SetVisible( true );
+
 	// Now draw our lives
 	m_pText->SetBounds( m_iTextX, m_iTextY, m_iTextWide, m_iTextTall );
 
@@ -76,8 +82,7 @@ void CObjectiveText::Paint()
 
 	// Default to white
 	clrR = clrG = clrB = 255;
-	// Default to tranparent
-	clrA = 0;
+	clrA = 200;
 
 	switch( m_State )
 	{
@@ -96,6 +101,16 @@ void CObjectiveText::Paint()
 		break;
 	}
 
+	if (cl_obj_debug.GetBool())
+	{
+		gEngfuncs.Con_NPrintf(14, "Objective Text: %s", m_strObjectiveString.c_str());
+		gEngfuncs.Con_NPrintf(15, "Objective Text Changed: %s", m_strObjectiveString_Changed.c_str());
+		gEngfuncs.Con_NPrintf(16, "Objective State: %d", m_State);
+		gEngfuncs.Con_NPrintf(17, "Objective Changed: %d", m_bObjectiveChanged);
+		if (m_flChangedRecently > 0)
+			gEngfuncs.Con_NPrintf(18, "Objective Changed Time: %.2f", m_flChangedRecently);
+	}
+
 	// Override the values, if this is set
 	if ( m_bObjectiveChanged || m_flChangedRecently > 0 )
 	{
@@ -112,7 +127,7 @@ void CObjectiveText::Paint()
 			m_bObjectiveChanged = false;
 		}
 		else
-			m_flChangedRecently -= gpGlobals->frametime;
+			m_flChangedRecently -= 0.025f;
 
 		// Set the new text
 		m_pText->SetText( m_strObjectiveString_Changed.c_str() );
@@ -131,8 +146,8 @@ int CObjectiveText::MsgFunc_ObjMsg(const char *pszName, int iSize, void *pbuf)
 {
 	BEGIN_READ( pbuf, iSize );
 	int obj_state = READ_SHORT();
-	static char szText[32];
-	strncpy( szText, READ_STRING(), 32 );
+	static char szText[512];
+	strncpy( szText, READ_STRING(), 512 );
 
 	// Mark if we just completed or failed an objective
 	if ( obj_state == ObjectiveState::State_Completed || obj_state == ObjectiveState::State_Failed )

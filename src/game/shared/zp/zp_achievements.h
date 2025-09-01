@@ -21,6 +21,7 @@ enum EStats
 	ZP_PUMPUPSHOTGUN,
 	ZP_CHILDOFGRAVE,
 	ZP_KILLS_MP5,
+	ZP_MMMWAP,
 
 	// Maps -- Survival
 	MAP_ZP_SANTERIA,
@@ -84,6 +85,7 @@ enum EAchievements
 	TABLE_FLIP,
 	KILLS_MP5,
 	PARTOFHORDE,
+	MMMWAP,
 
 	ACHV_MAX
 };

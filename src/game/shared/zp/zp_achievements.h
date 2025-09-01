@@ -22,6 +22,7 @@ enum EStats
 	ZP_CHILDOFGRAVE,
 	ZP_KILLS_MP5,
 	ZP_MMMWAP,
+	ZP_ESCAPE_ARTIST,
 
 	// Maps -- Survival
 	MAP_ZP_SANTERIA,
@@ -86,6 +87,8 @@ enum EAchievements
 	KILLS_MP5,
 	PARTOFHORDE,
 	MMMWAP,
+	FIRST_ESCAPE,
+	ESCAPE_ARTIST,
 
 	ACHV_MAX
 };

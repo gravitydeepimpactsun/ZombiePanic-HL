@@ -32,6 +32,7 @@
 
 #define FCVAR_BHL_ARCHIVE      (1 << 22) // (Client only) Will be saved to bugfixedhl.cfg
 #define FCVAR_DEVELOPMENTONLY  (1 << 23) // (Client only) Cvar won't be registered unless game is running with -dev flag
+#define FCVAR_CHEATS  (1 << 24) // Cheats required Cvar
 
 typedef struct cvar_s
 {

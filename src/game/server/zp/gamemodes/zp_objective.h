@@ -26,6 +26,8 @@ protected:
 	virtual void GiveWeaponsOnRoundStart() override;
 	virtual void RestartRound();
 
+	bool HasAnySurvivorEscaped();
+
 private:
 	bool m_bHasPlayersReachedEnd;
 };

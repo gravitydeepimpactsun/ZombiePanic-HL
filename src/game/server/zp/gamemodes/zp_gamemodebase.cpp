@@ -63,7 +63,7 @@ void CBaseGameMode::OnGameModeThink()
 		if ( plr && plr->IsConnected() )
 		{
 			int iTeam = plr->pev->team;
-			if ( iTeam == ZP::TEAM_SURVIVIOR && plr->IsAlive() )
+			if ( iTeam == ZP::TEAM_SURVIVIOR && plr->IsAlive() && !plr->IsObserver() )
 			{
 				if ( GetRoundState() == ZP::RoundState_WaitingForPlayers )
 					iSurvivorsFound++;

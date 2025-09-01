@@ -417,8 +417,16 @@ private:
 	float m_flLastRegen = -1;
 	float m_flRegenTime = 0;
 	bool m_bRegenUpdated = false;
+	// Used by trigger_endround and zp_gamerules to check if a survivor has escaped
+	bool m_bHasEscaped = false;
 
 public:
+
+	// Has this survivor escaped?
+	bool HasEscaped() { return m_bHasEscaped; }
+	// Sets the escaped state
+	void SetHasEscaped(bool state) { m_bHasEscaped = state; }
+
 	// Increases the fatigue.
 	void IncreaseFatigue( float flValue )
 	{

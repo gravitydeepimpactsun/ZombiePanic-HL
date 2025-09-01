@@ -4,6 +4,7 @@
 #include "util.h"
 #include "cbase.h"
 #include "triggers.h"
+#include "player.h"
 #include "zp/gamemodes/zp_gamemodebase.h"
 
 class CTriggerEndRound : public CBaseTrigger
@@ -11,28 +12,29 @@ class CTriggerEndRound : public CBaseTrigger
 public:
 	void Spawn(void);
 	void OnEndRoundTouch(CBaseEntity *pOther);
-
-private:
-	bool m_bActivated;
 };
-LINK_ENTITY_TO_CLASS( trigger_endround, CTriggerEndRound );
+LINK_ENTITY_TO_CLASS( trigger_endround, CTriggerEndRound );		// For backwards compatibility
+LINK_ENTITY_TO_CLASS( trigger_escape, CTriggerEndRound );
 
 void CTriggerEndRound::Spawn(void)
 {
 	InitTrigger();
-	m_bActivated = false;
 
 	SetTouch( &CTriggerEndRound::OnEndRoundTouch );
 }
 
-void CTriggerEndRound::OnEndRoundTouch(CBaseEntity *pOther)
+void CTriggerEndRound::OnEndRoundTouch( CBaseEntity *pOther )
 {
-	if ( m_bActivated ) return;
 	if ( !pOther->IsPlayer() ) return;
 	if ( !pOther->IsAlive() ) return;
 	if ( pOther->pev->team != ZP::TEAM_SURVIVIOR ) return;
 	IGameModeBase *pGameMode = ZP::GetCurrentGameMode();
 	if ( !pGameMode ) return;
-	m_bActivated = true;
-	pGameMode->SetWinState( IGameModeBase::WinState_e::State_SurvivorWin );
+	CBasePlayer *pPlayer = (CBasePlayer *)pOther;
+	// Set escaped state
+	pPlayer->SetHasEscaped( true );
+	// Start spectating
+	pPlayer->StartObserver();
+	pPlayer->GiveAchievement( EAchievements::FIRST_ESCAPE );
+	pPlayer->GiveAchievement( EAchievements::ESCAPE_ARTIST );
 }

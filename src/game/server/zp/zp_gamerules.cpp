@@ -347,6 +347,7 @@ void CZombiePanicGameRules::ResetRound()
 			plr->StopObserver();
 			ChangePlayerTeam(plr, ZP::Teams[ZP::TEAM_OBSERVER], FALSE, FALSE);
 			plr->StartWelcomeCam();
+			plr->SetHasEscaped( false );
 			// The player is now naked :)
 			plr->RemoveAllItems( TRUE );
 			// This is being applied in StartWelcomeCam(),

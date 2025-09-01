@@ -54,6 +54,7 @@ class CFuncWall : public CBaseEntity
 {
 public:
 	void Spawn(void);
+	void Restart();
 	void Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
 
 	// Bmodels don't go across transitions
@@ -71,6 +72,11 @@ void CFuncWall ::Spawn(void)
 
 	// If it can't move/go away, it's really part of the world
 	pev->flags |= FL_WORLDBRUSH;
+}
+
+void CFuncWall ::Restart()
+{
+	pev->frame = 0;
 }
 
 void CFuncWall ::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value)

@@ -40,6 +40,7 @@ static const char *s_EntitiesRestarts[] = {
 	"ambient_generic",
 	"env_sprite",
 	"trigger_once",
+	"func_wall",
 	"func_wall_toggle",
 	"func_healthcharger",
 	"func_recharge",

@@ -1759,7 +1759,10 @@ void CBasePlayer::PlayerUse(void)
 	else
 	{
 		if (m_afButtonPressed & IN_USE)
+		{
 			EMIT_SOUND(ENT(pev), CHAN_ITEM, "common/wpn_denyselect.wav", 0.4, ATTN_NORM);
+			GiveAchievement( EAchievements::MMMWAP );
+		}
 	}
 }
 

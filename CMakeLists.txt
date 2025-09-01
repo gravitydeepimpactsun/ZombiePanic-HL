@@ -31,7 +31,7 @@ include( GitVersionSemverfier )
 set( BHL_REPO_VERSION_MAJOR 1 )
 set( BHL_REPO_VERSION_MINOR 1 )
 set( BHL_REPO_VERSION_PATCH 0 )
-set( BHL_REPO_VERSION_TAG "pre-release" )
+set( BHL_REPO_VERSION_TAG "Release" )
 
 if( GIT_SUCCESS AND NOT GIT_NO_TAG )
 	message( "Version: ${GIT_SEM_VERSION} (from Git)" )
@@ -189,6 +189,13 @@ elseif( COMPILER_MSVC )
 	# Target Windows 7
 	add_compile_definitions( _WIN32_WINNT=0x0601 )
 	add_compile_definitions( WINVER=0x0601 )
+
+	# We have to add this define for Windows builds since some defines uses this instead of _WIN32...
+	add_compile_definitions( WIN32 )
+
+	# Debug data
+	add_compile_options("$<$<CONFIG:RELEASE>:/Zi>")
+	add_link_options("$<$<CONFIG:RELEASE>:/DEBUG>")
 endif()
 
 set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${C_CXX_COMPILER_FLAGS}" )

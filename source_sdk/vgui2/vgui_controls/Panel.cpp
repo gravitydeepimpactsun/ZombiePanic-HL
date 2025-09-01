@@ -5254,45 +5254,37 @@ void Panel::OnMessage(const KeyValues *params, VPANEL ifromPanel)
 					switch ( pMap->firstParamType )
 					{
 						case DATATYPE_INT:
-							typedef void (Panel::*MessageFunc_Int_t)(int);
 							(this->*((MessageFunc_Int_t)pMap->func))( param1->GetInt() );
 							break;
 
 						case DATATYPE_UINT64:
-							typedef void (Panel::*MessageFunc_Uin64_t)(uint64);
 							(this->*((MessageFunc_Uin64_t)pMap->func))( param1->GetUint64() );
 							break;
 
 						case DATATYPE_PTR:
-							typedef void (Panel::*MessageFunc_Ptr_t)( void * );
-							(this->*((MessageFunc_Ptr_t)pMap->func))( param1->GetPtr() );
+							(this->*((MessageFunc_Ptr_t)pMap->func))( (vgui2::Panel *)param1->GetPtr() );
 							break;
 
 						case DATATYPE_HANDLE:
 							{
-								typedef void (Panel::*MessageFunc_VPANEL_t)( VPANEL );
 								VPANEL vpanel = ivgui()->HandleToPanel( param1->GetInt() );
 								(this->*((MessageFunc_VPANEL_t)pMap->func))( vpanel );
 							}
 							break;
 
 						case DATATYPE_FLOAT:
-							typedef void (Panel::*MessageFunc_Float_t)( float );
 							(this->*((MessageFunc_Float_t)pMap->func))( param1->GetFloat() );
 							break;
 
 						case DATATYPE_CONSTCHARPTR:
-							typedef void (Panel::*MessageFunc_CharPtr_t)( const char * );
 							(this->*((MessageFunc_CharPtr_t)pMap->func))( param1->GetString() );
 							break;
 
 						case DATATYPE_CONSTWCHARPTR:
-							typedef void (Panel::*MessageFunc_WCharPtr_t)( const wchar_t * );
 							(this->*((MessageFunc_WCharPtr_t)pMap->func))( param1->GetWString() );
 							break;
 
 						case DATATYPE_KEYVALUES:
-							typedef void (Panel::*MessageFunc_KeyValues_t)(KeyValues *);
 							if ( pMap->firstParamName )
 							{
 								(this->*((MessageFunc_KeyValues_t)pMap->func))( (KeyValues *)param1->GetPtr() );
@@ -5326,50 +5318,41 @@ void Panel::OnMessage(const KeyValues *params, VPANEL ifromPanel)
 
 					if ( (DATATYPE_INT == pMap->firstParamType) && (DATATYPE_INT == pMap->secondParamType) )
 					{
-						typedef void (Panel::*MessageFunc_IntInt_t)(int, int);
 						(this->*((MessageFunc_IntInt_t)pMap->func))( param1->GetInt(), param2->GetInt() );
 					}
 					else if ( (DATATYPE_PTR == pMap->firstParamType) && (DATATYPE_INT == pMap->secondParamType) )
 					{
-						typedef void (Panel::*MessageFunc_PtrInt_t)(void *, int);
-						(this->*((MessageFunc_PtrInt_t)pMap->func))( param1->GetPtr(), param2->GetInt() );
+						(this->*((MessageFunc_PtrInt_t)pMap->func))( (vgui2::Panel *)param1->GetPtr(), param2->GetInt() );
 					}
 					else if ( (DATATYPE_CONSTCHARPTR == pMap->firstParamType) && (DATATYPE_INT == pMap->secondParamType) )
 					{
-						typedef void (Panel::*MessageFunc_ConstCharPtrInt_t)(const char *, int);
 						(this->*((MessageFunc_ConstCharPtrInt_t)pMap->func))( param1->GetString(), param2->GetInt() );
 					}
 					else if ( (DATATYPE_CONSTCHARPTR == pMap->firstParamType) && (DATATYPE_CONSTCHARPTR == pMap->secondParamType) )
 					{
-						typedef void (Panel::*MessageFunc_ConstCharPtrConstCharPtr_t)(const char *, const char *);
 						(this->*((MessageFunc_ConstCharPtrConstCharPtr_t)pMap->func))( param1->GetString(), param2->GetString() );
 					}
 					else if ( (DATATYPE_INT == pMap->firstParamType) && (DATATYPE_CONSTCHARPTR == pMap->secondParamType) )
 					{
-						typedef void (Panel::*MessageFunc_IntConstCharPtr_t)(int, const char *);
 						(this->*((MessageFunc_IntConstCharPtr_t)pMap->func))( param1->GetInt(), param2->GetString() );
 					}
 					else if ( (DATATYPE_PTR == pMap->firstParamType) && (DATATYPE_CONSTCHARPTR == pMap->secondParamType) )
 					{
-						typedef void (Panel::*MessageFunc_PtrConstCharPtr_t)(void *, const char *);
-						(this->*((MessageFunc_PtrConstCharPtr_t)pMap->func))( param1->GetPtr(), param2->GetString() );
+						(this->*((MessageFunc_PtrConstCharPtr_t)pMap->func))( (vgui2::Panel *)param1->GetPtr(), param2->GetString() );
 					}
 					else if ( (DATATYPE_PTR == pMap->firstParamType) && (DATATYPE_CONSTWCHARPTR == pMap->secondParamType) )
 					{
-						typedef void (Panel::*MessageFunc_PtrConstCharPtr_t)(void *, const wchar_t *);
-						(this->*((MessageFunc_PtrConstCharPtr_t)pMap->func))( param1->GetPtr(), param2->GetWString() );
+						(this->*((MessageFunc_PtrConstWCharPtr_t)pMap->func))( (vgui2::Panel *)param1->GetPtr(), param2->GetWString() );
 					}
 					else if ( (DATATYPE_HANDLE == pMap->firstParamType) && (DATATYPE_CONSTCHARPTR == pMap->secondParamType) )
 					{
-						typedef void (Panel::*MessageFunc_HandleConstCharPtr_t)(VPANEL, const char *);
 						VPANEL vp = ivgui()->HandleToPanel( param1->GetInt() );
 						(this->*((MessageFunc_HandleConstCharPtr_t)pMap->func))( vp, param2->GetString() );
 					}
 					else if ( (DATATYPE_HANDLE == pMap->firstParamType) && (DATATYPE_CONSTWCHARPTR == pMap->secondParamType) )
 					{
-						typedef void (Panel::*MessageFunc_HandleConstCharPtr_t)(VPANEL, const wchar_t *);
 						VPANEL vp = ivgui()->HandleToPanel( param1->GetInt() );
-						(this->*((MessageFunc_HandleConstCharPtr_t)pMap->func))( vp, param2->GetWString() );
+						(this->*((MessageFunc_HandleConstWCharPtr_t)pMap->func))( vp, param2->GetWString() );
 					}
 					else
 					{
@@ -5738,11 +5721,11 @@ void Panel::PreparePanelMap( PanelMap_t *panelMap )
 //-----------------------------------------------------------------------------
 void Panel::OnDelete()
 {
-#ifdef WIN32
+#ifdef _WIN32
 	Assert( IsX360() || ( IsPC() && _heapchk() == _HEAPOK ) );
 #endif
 	delete this;
-#ifdef WIN32
+#ifdef _WIN32
 	Assert( IsX360() || ( IsPC() && _heapchk() == _HEAPOK ) );
 #endif
 }

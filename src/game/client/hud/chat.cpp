@@ -71,7 +71,14 @@ static bool PlayingWithAFriend()
 		CSteamID steamfriend( pi->GetValidSteamID64() );
 		if ( !steamfriend.IsValid() ) continue;
 		if ( GetSteamAPI()->SteamFriends()->GetFriendRelationship( steamfriend ) == k_EFriendRelationshipFriend )
+		{
+			// Check our local player with this player, and make sure we are on the same team!
+			CPlayerInfo *localplayer = GetPlayerInfo( gEngfuncs.GetLocalPlayer()->index );
+			if ( !localplayer ) continue;
+			if ( !localplayer->IsConnected() ) continue;
+			if ( localplayer->GetTeamNumber() != pi->GetTeamNumber() ) continue;
 			return true;
+		}
 	}
 	return false;
 }

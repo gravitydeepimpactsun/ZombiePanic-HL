@@ -8,8 +8,8 @@ We will not go over how to use and/or operate CMake. If you are new to CMake, pl
 
 ### Windows
 
-* Windows 7 or newer
-* Visual Studio 2022 or newer
+* Windows 10 or newer
+* Visual Studio 2022 or newer (latest C++17 MSVC compilers are required)
 
 ### Linux
 

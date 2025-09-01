@@ -664,6 +664,7 @@ LINK_ENTITY_TO_CLASS(trigger_cdaudio, CTriggerCDAudio);
 // !!!HACK - overloaded HEALTH to avoid adding new field
 void CTriggerCDAudio ::Touch(CBaseEntity *pOther)
 {
+	if ( !IsFilterValid( pOther ) ) return;
 	if (!pOther->IsPlayer())
 	{ // only clients may trigger these events
 		return;
@@ -918,6 +919,8 @@ void CBaseTrigger ::ToggleUse(CBaseEntity *pActivator, CBaseEntity *pCaller, USE
 // When touched, a hurt trigger does DMG points of damage each half-second
 void CBaseTrigger ::HurtTouch(CBaseEntity *pOther)
 {
+	if ( !IsFilterValid( pOther ) ) return;
+
 	float fldmg;
 
 	if (!pOther->pev->takedamage)
@@ -1139,6 +1142,8 @@ void CTriggerOnce::Restart()
 
 void CBaseTrigger ::MultiTouch(CBaseEntity *pOther)
 {
+	if ( !IsFilterValid( pOther ) ) return;
+
 	entvars_t *pevToucher;
 
 	pevToucher = pOther->pev;
@@ -1871,6 +1876,8 @@ void CTriggerPush ::Touch(CBaseEntity *pOther)
 
 void CBaseTrigger ::TeleportTouch(CBaseEntity *pOther)
 {
+	if ( !IsFilterValid( pOther ) ) return;
+
 	entvars_t *pevToucher = pOther->pev;
 	edict_t *pentTarget = NULL;
 

@@ -169,7 +169,9 @@ public:
 	virtual int Restore(CRestore &restore);
 	virtual int ObjectCaps(void) { return FCAP_ACROSS_TRANSITION; }
 	virtual void Activate(void) { }
-	virtual void Restart(void) { }
+#if defined( SERVER_DLL )
+	virtual void Restart(void);
+#endif
 
 	// Setup the object->object collision box (pev->mins / pev->maxs is the object->world collision box)
 	virtual void SetObjectCollisionBox(void);

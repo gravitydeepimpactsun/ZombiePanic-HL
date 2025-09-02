@@ -817,6 +817,22 @@ bool CBaseEntity::IsFilterValid( CBaseEntity *pOther ) const
 	return false;
 }
 
+void CBaseEntity::Restart()
+{
+	// This is the base entity, we don't restart anything here.
+	// However, derived classes may want to call the base class first,
+	// then do their own stuff.
+	// But if this gets called, at least we can warn the developer
+	// that the entity is not doing anything in Restart.
+	UTIL_PrintConsole(
+		UTIL_VarArgs(
+			"Warning: Empty CBaseEntity::Restart called for %s!\n",
+			STRING( pev->classname )
+		),
+		this
+	);
+}
+
 // NOTE: szName must be a pointer to constant memory, e.g. "monster_class" because the entity
 // will keep a pointer to it after this call.
 CBaseEntity *CBaseEntity::Create(char *szName, const Vector &vecOrigin, const Vector &vecAngles, edict_t *pentOwner)

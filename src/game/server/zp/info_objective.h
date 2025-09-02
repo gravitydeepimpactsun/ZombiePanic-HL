@@ -26,6 +26,7 @@ public:
 private:
 	ObjectiveState m_State;
 	string_t m_NextObj = 0;
+	string_t m_ZombieText = 0;
 };
 
 class CObjectiveMessageSet : public CPointEntity

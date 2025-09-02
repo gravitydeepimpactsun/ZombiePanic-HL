@@ -17,10 +17,8 @@ extern globalvars_t *gpGlobals;
 
 bool CObjectiveText::m_bObjectiveChanged;
 ObjectiveState CObjectiveText::m_State;
-std::string CObjectiveText::m_strObjectiveString;
-std::string CObjectiveText::m_strObjectiveString_Changed;
-
-static ConVar cl_obj_debug("cl_obj_debug", "0", FCVAR_CLIENTDLL | FCVAR_CHEATS);
+std::string CObjectiveText::m_strObjectiveString[2];
+std::string CObjectiveText::m_strObjectiveString_Changed[2];
 
 CObjectiveText::CObjectiveText()
     : vgui2::Panel(NULL, "HudObjectiveText")
@@ -45,6 +43,18 @@ void CObjectiveText::ApplySchemeSettings(vgui2::IScheme *pScheme)
 	m_pText->SetFgColor( Color( 255, 255, 255, 255 ) );
 
 	SetBgColor( Color(0, 0, 0, 0) );
+}
+
+void CObjectiveText::DrawText( bool bChanged )
+{
+	CPlayerInfo *localplayer = GetPlayerInfo( gEngfuncs.GetLocalPlayer()->index );
+	if ( !localplayer ) return;
+	if ( !localplayer->IsConnected() ) return;
+	bool bIsZombo = ( localplayer->GetTeamNumber() == ZP::TEAM_ZOMBIE );
+	if ( bChanged )
+		m_pText->SetText( m_strObjectiveString_Changed[ bIsZombo ? 1 : 0 ].c_str() );
+	else
+		m_pText->SetText( m_strObjectiveString[ bIsZombo ? 1 : 0 ].c_str() );
 }
 
 bool CObjectiveText::IsAllowedToDraw()
@@ -101,16 +111,6 @@ void CObjectiveText::Paint()
 		break;
 	}
 
-	if (cl_obj_debug.GetBool())
-	{
-		gEngfuncs.Con_NPrintf(14, "Objective Text: %s", m_strObjectiveString.c_str());
-		gEngfuncs.Con_NPrintf(15, "Objective Text Changed: %s", m_strObjectiveString_Changed.c_str());
-		gEngfuncs.Con_NPrintf(16, "Objective State: %d", m_State);
-		gEngfuncs.Con_NPrintf(17, "Objective Changed: %d", m_bObjectiveChanged);
-		if (m_flChangedRecently > 0)
-			gEngfuncs.Con_NPrintf(18, "Objective Changed Time: %.2f", m_flChangedRecently);
-	}
-
 	// Override the values, if this is set
 	if ( m_bObjectiveChanged || m_flChangedRecently > 0 )
 	{
@@ -130,7 +130,7 @@ void CObjectiveText::Paint()
 			m_flChangedRecently -= 0.025f;
 
 		// Set the new text
-		m_pText->SetText( m_strObjectiveString_Changed.c_str() );
+		DrawText( true );
 	}
 	else
 	{
@@ -138,7 +138,7 @@ void CObjectiveText::Paint()
 		m_pText->SetFgColor( Color( clrR, clrG, clrB, clrA ) );
 
 		// Set the new text
-		m_pText->SetText( m_strObjectiveString.c_str() );
+		DrawText( false );
 	}
 }
 
@@ -148,19 +148,25 @@ int CObjectiveText::MsgFunc_ObjMsg(const char *pszName, int iSize, void *pbuf)
 	int obj_state = READ_SHORT();
 	static char szText[512];
 	strncpy( szText, READ_STRING(), 512 );
+	static char szTextZombo[512];
+	strncpy( szTextZombo, READ_STRING(), 512 );
 
 	// Mark if we just completed or failed an objective
 	if ( obj_state == ObjectiveState::State_Completed || obj_state == ObjectiveState::State_Failed )
 	{
-		CObjectiveText::m_strObjectiveString_Changed = szText;
-		CObjectiveText::m_strObjectiveString = szText;
+		CObjectiveText::m_strObjectiveString_Changed[0] = szText;
+		CObjectiveText::m_strObjectiveString[0] = szText;
+		CObjectiveText::m_strObjectiveString_Changed[1] = szTextZombo;
+		CObjectiveText::m_strObjectiveString[1] = szTextZombo;
 		// Set our obj ID
 		CObjectiveText::m_bObjectiveChanged = true;
 	}
 	else
 	{
-		CObjectiveText::m_strObjectiveString_Changed = "";
-		CObjectiveText::m_strObjectiveString = szText;
+		CObjectiveText::m_strObjectiveString_Changed[0] = "";
+		CObjectiveText::m_strObjectiveString_Changed[1] = "";
+		CObjectiveText::m_strObjectiveString[0] = szText;
+		CObjectiveText::m_strObjectiveString[1] = szTextZombo;
 	}
 
 	m_pText->SetVisible( true );

@@ -16,6 +16,7 @@ public:
 	virtual bool IsAllowedToDraw();
 	virtual void Paint();
 	virtual void ApplySchemeSettings(vgui2::IScheme *pScheme);
+	virtual void DrawText( bool bChanged );
 
 	int MsgFunc_ObjMsg(const char *pszName, int iSize, void *pbuf);
 
@@ -23,8 +24,8 @@ private:
 	float m_flChangedRecently;
 	static bool m_bObjectiveChanged;
 	static ObjectiveState m_State;
-	static std::string m_strObjectiveString;
-	static std::string m_strObjectiveString_Changed;
+	static std::string m_strObjectiveString[2];
+	static std::string m_strObjectiveString_Changed[2];
 
 	CPanelAnimationVarAliasType( int, m_iTextX, "TextX", "70", "proportional_int" );
 	CPanelAnimationVarAliasType( int, m_iTextY, "TextY", "5", "proportional_int" );

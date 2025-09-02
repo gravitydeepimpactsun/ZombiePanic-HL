@@ -32,6 +32,11 @@ void CObjectiveMessage::KeyValue( KeyValueData *pkvd )
 		m_NextObj = ALLOC_STRING(pkvd->szValue); // Make a copy of the next objective
 		pkvd->fHandled = TRUE;
 	}
+	else if ( FStrEq( pkvd->szKeyName, "zombo_text" ) )
+	{
+		m_ZombieText = ALLOC_STRING(pkvd->szValue); // Make a copy of the next objective
+		pkvd->fHandled = TRUE;
+	}
 	else
 		BaseClass::KeyValue( pkvd );
 }
@@ -77,6 +82,7 @@ void CObjectiveMessage::UpdateMessageState()
 	MESSAGE_BEGIN( MSG_ALL, gmsgObjective );
 	WRITE_SHORT( m_State );
 	WRITE_STRING( STRING( pev->message ) );
+	WRITE_STRING( STRING( m_ZombieText ) );
 	MESSAGE_END();
 }
 

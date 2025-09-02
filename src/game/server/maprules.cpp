@@ -790,6 +790,7 @@ class CGameCounter : public CRulePointEntity
 {
 public:
 	void Spawn(void);
+	void Restart();
 	void Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
 	inline BOOL RemoveOnFire(void) { return (pev->spawnflags & SF_GAMECOUNT_FIREONCE) ? TRUE : FALSE; }
 	inline BOOL ResetOnFire(void) { return (pev->spawnflags & SF_GAMECOUNT_RESET) ? TRUE : FALSE; }
@@ -805,6 +806,7 @@ public:
 private:
 	inline void SetCountValue(int value) { pev->frags = value; }
 	inline void SetInitialValue(int value) { pev->dmg = value; }
+	bool m_bSoftRemoved = false;
 };
 
 LINK_ENTITY_TO_CLASS(game_counter, CGameCounter);
@@ -816,8 +818,17 @@ void CGameCounter::Spawn(void)
 	CRulePointEntity::Spawn();
 }
 
+void CGameCounter::Restart()
+{
+	// Reset the count
+	ResetCount();
+	m_bSoftRemoved = false;
+}
+
 void CGameCounter::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value)
 {
+	if (m_bSoftRemoved)
+		return;
 	if (!CanFireForActivator(pActivator))
 		return;
 
@@ -841,9 +852,7 @@ void CGameCounter::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE u
 	{
 		SUB_UseTargets(pActivator, USE_TOGGLE, 0);
 		if (RemoveOnFire())
-		{
-			UTIL_Remove(this);
-		}
+			m_bSoftRemoved = true;
 
 		if (ResetOnFire())
 		{
@@ -862,24 +871,26 @@ class CGameCounterSet : public CRulePointEntity
 {
 public:
 	void Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
+	inline void Restart() { m_bSoftRemoved = false; }
 	inline BOOL RemoveOnFire(void) { return (pev->spawnflags & SF_GAMECOUNTSET_FIREONCE) ? TRUE : FALSE; }
 
 private:
+	bool m_bSoftRemoved = false;
 };
 
 LINK_ENTITY_TO_CLASS(game_counter_set, CGameCounterSet);
 
 void CGameCounterSet::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value)
 {
+	if (m_bSoftRemoved)
+		return;
 	if (!CanFireForActivator(pActivator))
 		return;
 
 	SUB_UseTargets(pActivator, USE_SET, pev->frags);
 
 	if (RemoveOnFire())
-	{
-		UTIL_Remove(this);
-	}
+		m_bSoftRemoved = true;
 }
 
 //

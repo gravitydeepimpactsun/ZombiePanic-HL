@@ -820,8 +820,7 @@ bool CBaseEntity::IsFilterValid( CBaseEntity *pOther ) const
 void CBaseEntity::Restart()
 {
 	// This is the base entity, we don't restart anything here.
-	// However, derived classes may want to call the base class first,
-	// then do their own stuff.
+	// However, derived classes may want to call the function. (e.g., CBaseMonster)
 	// But if this gets called, at least we can warn the developer
 	// that the entity is not doing anything in Restart.
 	UTIL_PrintConsole(

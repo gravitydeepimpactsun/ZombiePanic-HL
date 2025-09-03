@@ -176,6 +176,9 @@ void CZPBeacons::DrawPositions()
 
 		sprintf( szIconPath, "%s%s", iconPath, beacon.important ? "_main" : "" );
 
+		// TODO: Add "draw health" bar for defend beacons
+		// It's not implemented server-side yet, so no hurry
+
 		beacon.drawData.x = x;
 		beacon.drawData.y = y;
 		beacon.drawData.textureID = GetBeaconTextureID( szIconPath );

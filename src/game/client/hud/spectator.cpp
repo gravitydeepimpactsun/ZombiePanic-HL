@@ -319,10 +319,13 @@ void CHudSpectator::SetSpectatorStartPosition()
 	else if (UTIL_FindEntityInMap("info_player_start", m_cameraOrigin, m_cameraAngles))
 		pm_iJumpSpectator = 1;
 
-	else if (UTIL_FindEntityInMap("info_player_deathmatch", m_cameraOrigin, m_cameraAngles))
+	else if (UTIL_FindEntityInMap("info_player_observer", m_cameraOrigin, m_cameraAngles))
 		pm_iJumpSpectator = 1;
 
-	else if (UTIL_FindEntityInMap("info_player_coop", m_cameraOrigin, m_cameraAngles))
+	else if (UTIL_FindEntityInMap("info_player_team1", m_cameraOrigin, m_cameraAngles))
+		pm_iJumpSpectator = 1;
+
+	else if (UTIL_FindEntityInMap("info_player_team2", m_cameraOrigin, m_cameraAngles))
 		pm_iJumpSpectator = 1;
 	else
 	{

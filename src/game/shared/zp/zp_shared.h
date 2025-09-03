@@ -135,6 +135,25 @@ WeaponData GetWeaponSlotInfo( const char *szClassname );
 #define PLR_DEATH_FLAG_TEAMKILLER		(1 << 4)			// Player was a friend :(
 
 
+// Beacon Types (used by info_beacon entity)
+enum BeaconTypes
+{
+	BEACON_BUTTON = 0,
+	BEACON_DEFEND,
+	BEACON_DESTROY,
+	BEACON_WAYPOINT,
+	BEACON_CAPTUREPOINT,
+};
+
+// Beacon Draw Types (used by info_beacon entity)
+enum BeaconDrawTypes
+{
+	BEACON_DRAW_ALWAYS = 0, // Always draw, no matter what
+	BEACON_DRAW_UNCOLLUDED, // Only draw when uncolluded
+	BEACON_DRAW_COLLUDED, // Only draw when colluded
+};
+
+
 namespace ZP
 {
 #ifdef SERVER_DLL

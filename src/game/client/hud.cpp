@@ -84,6 +84,7 @@
 #include "zp/hud/zp_roundstate.h"
 #include "zp/hud/zp_ammobank.h"
 #include "zp/hud/zp_objective.h"
+#include "zp/hud/zp_beacons.h"
 
 // Adrenaline Gamer HUD Elements
 #include "hud/ag/ag_countdown.h"
@@ -325,6 +326,10 @@ void CHud::Init(void)
 	HookHudMessage<&CHud::MsgFunc_Fog>("Fog");
 	HookHudMessage<&CHud::MsgFunc_Timer>("RndTime");
 
+	// Zombie Panic! specific messages
+	HookHudMessage<&CHud::MsgFunc_BeaconDraw>("BcnD");
+	HookHudMessage<&CHud::MsgFunc_BeaconReset>("BcnR");
+
 	// TFFree CommandMenu
 	HookCommand("+commandmenu", [] {
 		if (g_pViewport)
@@ -387,6 +392,7 @@ void CHud::Init(void)
 	UpdateHudColors();
 
 	// Create HUD elements
+	RegisterHudElem<CZPBeacons>();
 	RegisterHudElem<CHudAmmo>();
 	RegisterHudElem<CHudHealth>();
 	RegisterHudElem<CHudChat>();

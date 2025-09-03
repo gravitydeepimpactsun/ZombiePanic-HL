@@ -8,6 +8,8 @@ add_sources(
 	hud/zp_roundstate.h
 	hud/zp_ammobank.cpp
 	hud/zp_ammobank.h
+	hud/zp_beacons.cpp
+	hud/zp_beacons.h
 	ui/playerselection/C_PlayerSelection.cpp
 	ui/playerselection/C_PlayerSelection.h
 	ui/credits/C_ZPCredits.cpp

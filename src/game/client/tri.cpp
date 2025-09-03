@@ -18,6 +18,7 @@
 #include "triangleapi.h"
 #include "Exports.h"
 #include "hud/spectator.h"
+#include "zp/hud/zp_beacons.h"
 
 #include "particleman.h"
 #include "tri.h"
@@ -81,6 +82,8 @@ void CL_DLLEXPORT HUD_DrawNormalTriangles(void)
 	//	RecClDrawNormalTriangles();
 
 	CHudSpectator::Get()->DrawOverview();
+	// Draw our beacon positions
+	CZPBeacons::Get()->DrawPositions();
 }
 
 #if defined(_TFC)

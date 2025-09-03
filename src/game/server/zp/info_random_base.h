@@ -51,7 +51,7 @@ public:
 
 namespace ZP
 {
-	void SpawnWeaponsFromRandomEntities();
+	void OnGameModeRoundStart();
 	void CheckHowManySpawnedItems( CBasePlayer *pPlayer );
 }
 

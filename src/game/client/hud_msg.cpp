@@ -25,6 +25,7 @@
 #include "hud/ammo.h"
 #include "engine_builds.h"
 #include "zp/zp_shared.h"
+#include "zp/hud/zp_beacons.h"
 #include "vgui/team_menu.h"
 #include "vgui/client_viewport.h"
 
@@ -247,5 +248,42 @@ int CHud::MsgFunc_Timer(const char *pszName, int iSize, void *pbuf)
 
 	m_GameTimer.RoundTimer = READ_FLOAT();
 	m_GameTimer.GameTime = READ_SHORT();
+	return 1;
+}
+
+
+int CHud::MsgFunc_BeaconDraw(const char *pszName, int iSize, void *pbuf)
+{
+	BEGIN_READ(pbuf, iSize);
+
+	// Setup our beacon data
+	CZPBeacons::BeaconData beacon;
+	beacon.id = READ_SHORT();
+	beacon.active = ( READ_BYTE() == 1 ) ? true : false;
+	beacon.important = ( READ_BYTE() == 1 ) ? true : false;
+	beacon.type = (BeaconTypes)READ_BYTE();
+	beacon.position.x = READ_COORD();
+	beacon.position.y = READ_COORD();
+	beacon.position.z = READ_COORD();
+	beacon.range = READ_FLOAT();
+
+	static char szText[512];
+	szText[0] = 0;
+	strncpy( szText, READ_STRING(), sizeof( szText ) );
+	beacon.text = szText;
+
+	strncpy( szText, READ_STRING(), sizeof( szText ) );
+	beacon.text_zombie = szText;
+
+	// Add the beacon to our list (or update it if it already exists)
+	CZPBeacons::Get()->AddBeacon( beacon );
+	return 1;
+}
+
+
+int CHud::MsgFunc_BeaconReset(const char *pszName, int iSize, void *pbuf)
+{
+	// We don't read anything from the message, just clear the list
+	CZPBeacons::Get()->ResetBeacons();
 	return 1;
 }

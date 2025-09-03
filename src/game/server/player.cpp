@@ -239,6 +239,8 @@ int gmsgStatusIcon = 0;
 int gmsgFog = 0;
 
 int gmsgObjective = 0;
+int gmsgBeaconDraw = 0;
+int gmsgBeaconReset = 0;
 int gmsgAchievement = 0;
 int gmsgAchEarned = 0;
 int gmsgRoundTime = 0;
@@ -319,6 +321,9 @@ void LinkUserMessages(void)
 	}
 
 	gmsgFog = REG_USER_MSG("Fog", 7);
+
+	gmsgBeaconDraw = REG_USER_MSG("BcnD", -1);
+	gmsgBeaconReset = REG_USER_MSG("BcnR", -1);
 
 	gmsgObjective = REG_USER_MSG("ObjMsg", -1);
 	gmsgAchievement = REG_USER_MSG("GiveAch", -1);

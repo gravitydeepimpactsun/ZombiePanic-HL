@@ -4,6 +4,7 @@
 #include "util.h"
 #include "player.h"
 #include "zp/info_random_base.h"
+#include "zp/info_beacon.h"
 #ifdef SCRIPT_SYSTEM
 #include "core.h"
 #endif
@@ -357,7 +358,7 @@ bool CRandomItemBase::IsLimited( SpawnList *item ) const
 	return false;
 }
 
-void ZP::SpawnWeaponsFromRandomEntities()
+void ZP::OnGameModeRoundStart()
 {
 	// Clear it
 	s_RandomSpawnLocations.clear();
@@ -408,4 +409,14 @@ void ZP::SpawnWeaponsFromRandomEntities()
 		item->Full = false;
 	}
 	s_iCurrentPlayerAmount = 0;
+
+	// Now, let's start our beacons (if Start On spawnflags is set)
+	CInfoBeacon *pBeacon = (CInfoBeacon *)UTIL_FindEntityByClassname( nullptr, "info_beacon" );
+	while ( pBeacon )
+	{
+		// Make sure we only start those with SP_START_ENABLED flag set
+		if ( pBeacon->pev->spawnflags & SP_START_ENABLED )
+			pBeacon->UpdateMessageState();
+		pBeacon = (CInfoBeacon *)UTIL_FindEntityByClassname( pBeacon, "info_beacon" );
+	}
 }

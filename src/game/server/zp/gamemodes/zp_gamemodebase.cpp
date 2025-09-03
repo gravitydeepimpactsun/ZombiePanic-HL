@@ -6,6 +6,7 @@
 #include "player.h"
 #include "weapons.h"
 
+#include "zp/info_beacon.h"
 #include "zp/info_random_base.h"
 #include "zp_gamemodebase.h"
 
@@ -119,7 +120,7 @@ void CBaseGameMode::OnGameModeThink()
 		    WRITE_SHORT(GetRoundState());
 		    MESSAGE_END();
 		    GiveWeaponsOnRoundStart();
-		    ZP::SpawnWeaponsFromRandomEntities();
+		    ZP::OnGameModeRoundStart();
 			// Tell the clients that we have a new round timer!
 			UpdateClientTimer();
 		}
@@ -263,6 +264,18 @@ void CBaseGameMode::OnPlayerSpawned( CBasePlayer *pPlayer )
 {
 	// Tell the clients that we have a new round timer!
 	UpdateClientTimer();
+
+	// Player spawned, check if we need to show any info_beacon entities
+	// We need to do this here, because a new player may have joined mid-round
+	if ( GetRoundState() != ZP::RoundState_RoundHasBegun ) return;
+	CInfoBeacon *pBeacon = (CInfoBeacon *)UTIL_FindEntityByClassname( nullptr, "info_beacon" );
+	while ( pBeacon )
+	{
+		// Make sure we only start those with SP_START_ENABLED flag set
+		if ( pBeacon->IsActive() )
+			pBeacon->UpdateMessageState();
+		pBeacon = (CInfoBeacon *)UTIL_FindEntityByClassname( pBeacon, "info_beacon" );
+	}
 }
 
 void CBaseGameMode::OnPlayerDisconnected(CBasePlayer *pPlayer)

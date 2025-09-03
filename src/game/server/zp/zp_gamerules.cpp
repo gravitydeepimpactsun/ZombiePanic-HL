@@ -52,6 +52,7 @@ static const char *s_EntitiesRestarts[] = {
 	"trigger_auto",
 	"trigger_multiple",
 	"info_objective",
+	"info_beacon",
 	"multi_manager",
 	"game_counter",
 	"game_counter_set",
@@ -161,6 +162,7 @@ extern int gmsgScoreInfo;
 extern int gmsgRounds;
 extern int gmsgVGUIMenu;
 extern int gmsgRoundState;
+extern int gmsgBeaconReset;
 
 void CZombiePanicGameRules::UpdateGameMode(CBasePlayer *pPlayer)
 {
@@ -374,6 +376,10 @@ void CZombiePanicGameRules::ResetRound()
 	// Make sure we tell everyone that our rounds have increased
 	MESSAGE_BEGIN(MSG_ALL, gmsgRounds, NULL);
 	WRITE_BYTE(m_iRounds);
+	MESSAGE_END();
+
+	// Make sure we clear our beacons
+	MESSAGE_BEGIN(MSG_ALL, gmsgBeaconReset, NULL);
 	MESSAGE_END();
 }
 

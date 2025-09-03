@@ -42,12 +42,12 @@ void CInfoBeacon::KeyValue( KeyValueData *pkvd )
 		m_TextZombie = ALLOC_STRING(pkvd->szValue); // Make a copy of the next objective
 		pkvd->fHandled = TRUE;
 	}
-	else if ( FStrEq( pkvd->szKeyName, "beacon_type" ) )
+	else if ( FStrEq( pkvd->szKeyName, "icon" ) )
 	{
 		m_Type = (BeaconTypes)atoi( pkvd->szValue );
 		pkvd->fHandled = TRUE;
 	}
-	else if ( FStrEq( pkvd->szKeyName, "draw_type" ) )
+	else if ( FStrEq( pkvd->szKeyName, "drawtype" ) )
 	{
 		m_DrawType = (BeaconDrawTypes)atoi( pkvd->szValue );
 		pkvd->fHandled = TRUE;
@@ -62,7 +62,7 @@ void CInfoBeacon::KeyValue( KeyValueData *pkvd )
 		m_bImportant = atoi( pkvd->szValue ) != 0;
 		pkvd->fHandled = TRUE;
 	}
-	else if ( FStrEq( pkvd->szKeyName, "show_health" ) )
+	else if ( FStrEq( pkvd->szKeyName, "showhealth" ) )
 	{
 		m_bShowHealth = atoi( pkvd->szValue ) != 0;
 		pkvd->fHandled = TRUE;
@@ -105,7 +105,10 @@ void CInfoBeacon::UpdateMessageState()
 		WRITE_SHORT( ENTINDEX( edict() ) ); // Unique ID for this beacon, so we can update/remove it later. It's using the entity index of the info_beacon entity.
 		WRITE_BYTE( m_bActive ? 1 : 0 ); // Is the beacon active or not
 		WRITE_BYTE( m_bImportant ? 1 : 0 ); // If true, the beacon is drawn with golden colors
-		WRITE_BYTE( (int)m_Type ); // Type of beacon, for the icon. Zombies have a different icon that reads from their own seperate file.
+		WRITE_SHORT( (int)m_Type ); // Type of beacon, for the icon. Zombies have a different icon that reads from their own seperate file.
+		WRITE_SHORT( (int)m_DrawType ); // When to draw the beacon
+		WRITE_BYTE( m_bShowHealth ? 1 : 0 ); // If true, show health bar below the beacon icon. Very useful for defend, destroy and capture point beacons.
+	    WRITE_SHORT( pev->health ); // Current health of the beacon, only used if m_bShowHealth is true
 		WRITE_COORD( pev->origin.x ); // World position of the beacon
 		WRITE_COORD( pev->origin.y );
 		WRITE_COORD( pev->origin.z );

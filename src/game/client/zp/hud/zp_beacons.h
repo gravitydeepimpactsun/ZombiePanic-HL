@@ -27,6 +27,9 @@ public:
 		std::string text; // Text to display below the beacon icon
 		std::string text_zombie; // Optional text for zombies, if not set, it will use the human text.
 		BeaconTypes type; // Type of beacon, for the icon. Zombies have a different icon that reads from their own seperate file.
+		BeaconDrawTypes drawtype; // How to draw the beacon
+		bool drawHealth; // If true, show health bar below the beacon icon. Very useful for defend, destroy and capture point beacons.
+		int health; // Current health of the beacon, only used if drawHealth is true
 		Vector position; // World position of the beacon
 		float range; // Range in units for the beacon to be visible, 0 = always visible
 		bool active; // Is the beacon active or not

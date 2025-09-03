@@ -3,8 +3,10 @@
 #include "hud.h"
 #include "cl_util.h"
 #include "cl_entity.h"
+#include "event_api.h"
 #include "triangleapi.h"
 #include "com_model.h"
+#include "pmtrace.h"
 
 #include <vgui/ISurface.h>
 #include <vgui/IScheme.h>
@@ -117,6 +119,25 @@ void CZPBeacons::Paint()
 		wchar_t wsText[256];
 		g_pVGuiLocalize->ConvertANSIToUnicode( szText, wsText, sizeof( wsText ) );
 		vgui2::surface()->DrawPrintText( wsText, wcslen(wsText) );
+
+		// Draw the health bar if needed
+		if ( beacon.drawHealth )
+		{
+			int barWidth = 100;
+			int barHeight = 5;
+			int barX = x - barWidth / 2;
+			int barY = textY + textHeight + 5;
+			// Draw the background
+			vgui2::surface()->DrawSetColor( Color( 0, 0, 0, 200 ) );
+			vgui2::surface()->DrawFilledRect( barX, barY, barX + barWidth, barY + barHeight );
+			// Draw the health
+			int healthWidth = ( beacon.health * barWidth ) / 100;
+			vgui2::surface()->DrawSetColor( Color( 255, 0, 0, 200 ) );
+			vgui2::surface()->DrawFilledRect( barX, barY, barX + healthWidth, barY + barHeight );
+			// Draw the border
+			vgui2::surface()->DrawSetColor( Color( 255, 255, 255, 255 ) );
+			vgui2::surface()->DrawOutlinedRect( barX, barY, barX + barWidth, barY + barHeight );
+		}
 	}
 }
 
@@ -138,6 +159,30 @@ void CZPBeacons::DrawPositions()
 			float dist = ( beacon.position - v_origin ).Length();
 			if ( dist > beacon.range )
 				bShouldDraw = false;
+		}
+
+		switch ( beacon.drawtype )
+		{
+			// Check if the beacon is visible using a simple tracer from beacon.position to v_origin
+			case BEACON_DRAW_COLLUDED:
+			{
+				pmtrace_t tr;
+				gEngfuncs.pEventAPI->EV_SetTraceHull( 2 ); // Point hull
+				gEngfuncs.pEventAPI->EV_PlayerTrace( beacon.position, v_origin, 0xFFFFFFFF, -1, &tr );
+				if ( tr.fraction < 0.99f ) // If we hit something, the beacon is not visible
+					bShouldDraw = false;
+			}
+		    break;
+			// The same code as above, but inverted
+			case BEACON_DRAW_UNCOLLUDED:
+			{
+				pmtrace_t tr;
+				gEngfuncs.pEventAPI->EV_SetTraceHull( 2 ); // Point hull
+				gEngfuncs.pEventAPI->EV_PlayerTrace( beacon.position, v_origin, 0xFFFFFFFF, -1, &tr );
+				if ( tr.fraction < 0.99f ) // If we hit something, the beacon is visible
+					bShouldDraw = true;
+			}
+		    break;
 		}
 
 		// Project to screen
@@ -175,9 +220,6 @@ void CZPBeacons::DrawPositions()
 			iconPath = g_BeaconTypeIcons_Zombie[ beacon.type ];
 
 		sprintf( szIconPath, "%s%s", iconPath, beacon.important ? "_main" : "" );
-
-		// TODO: Add "draw health" bar for defend beacons
-		// It's not implemented server-side yet, so no hurry
 
 		beacon.drawData.x = x;
 		beacon.drawData.y = y;

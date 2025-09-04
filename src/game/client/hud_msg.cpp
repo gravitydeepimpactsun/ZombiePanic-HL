@@ -264,7 +264,8 @@ int CHud::MsgFunc_BeaconDraw(const char *pszName, int iSize, void *pbuf)
 	beacon.type = (BeaconTypes)READ_SHORT();
 	beacon.drawtype = (BeaconDrawTypes)READ_SHORT();
 	beacon.drawHealth = ( READ_BYTE() == 1 ) ? true : false;
-	beacon.health = READ_SHORT();
+	int iHealth = READ_SHORT();
+	beacon.health = clamp( iHealth, 0, 100 );
 	beacon.teamfilter = READ_SHORT();
 	beacon.position.x = READ_COORD();
 	beacon.position.y = READ_COORD();

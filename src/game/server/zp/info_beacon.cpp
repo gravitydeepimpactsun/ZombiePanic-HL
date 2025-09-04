@@ -99,16 +99,27 @@ void CInfoBeacon::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE u
 
 void CInfoBeacon::UpdateMessageState()
 {
+	BeaconTypes TypeCheck = m_Type;
+	if ( m_teamfilter == 2 )
+	{
+		// If this beacon is for zombies only, reverse defend/destroy types.
+		if ( m_Type == BEACON_DEFEND )
+			TypeCheck = BEACON_DESTROY;
+		else if ( m_Type == BEACON_DESTROY )
+			TypeCheck = BEACON_DEFEND;
+	}
+
 	// Send our info to the client.
 	// All they care about is our state and message.
 	MESSAGE_BEGIN( MSG_ALL, gmsgBeaconDraw );
 		WRITE_SHORT( ENTINDEX( edict() ) ); // Unique ID for this beacon, so we can update/remove it later. It's using the entity index of the info_beacon entity.
 		WRITE_BYTE( m_bActive ? 1 : 0 ); // Is the beacon active or not
 		WRITE_BYTE( m_bImportant ? 1 : 0 ); // If true, the beacon is drawn with golden colors
-		WRITE_SHORT( (int)m_Type ); // Type of beacon, for the icon. Zombies have a different icon that reads from their own seperate file.
+		WRITE_SHORT( (int)TypeCheck ); // Type of beacon, for the icon. Zombies have a different icon that reads from their own seperate file.
 		WRITE_SHORT( (int)m_DrawType ); // When to draw the beacon
 		WRITE_BYTE( m_bShowHealth ? 1 : 0 ); // If true, show health bar below the beacon icon. Very useful for defend, destroy and capture point beacons.
 	    WRITE_SHORT( pev->health ); // Current health of the beacon, only used if m_bShowHealth is true
+	    WRITE_SHORT( m_teamfilter ); // Team filter, 0 = all, 1 = humans only, 2 = zombies only (Only matters if we just want zombie or human only beacons)
 		WRITE_COORD( pev->origin.x ); // World position of the beacon
 		WRITE_COORD( pev->origin.y );
 		WRITE_COORD( pev->origin.z );

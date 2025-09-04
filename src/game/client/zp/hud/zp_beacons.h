@@ -30,6 +30,7 @@ public:
 		BeaconDrawTypes drawtype; // How to draw the beacon
 		bool drawHealth; // If true, show health bar below the beacon icon. Very useful for defend, destroy and capture point beacons.
 		int health; // Current health of the beacon, only used if drawHealth is true
+		int teamfilter; // Team filter, 0 = all, 1 = humans only, 2 = zombies only (Only matters if we just want zombie or human only beacons)
 		Vector position; // World position of the beacon
 		float range; // Range in units for the beacon to be visible, 0 = always visible
 		bool active; // Is the beacon active or not

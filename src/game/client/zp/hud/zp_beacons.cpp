@@ -191,6 +191,12 @@ void CZPBeacons::DrawPositions()
 		screen[1] = YPROJECT( screen[1] );
 		screen[2] = 0.0f;
 
+		// If we have a team filter, check if we should draw it
+		if ( beacon.teamfilter == 1 && pPlayer->curstate.team != ZP::TEAM_SURVIVIOR )
+			bShouldDraw = false;
+		else if ( beacon.teamfilter == 2 && pPlayer->curstate.team != ZP::TEAM_ZOMBIE )
+			bShouldDraw = false;
+
 		// If this is true, make sure the beacon X,Y cords are on screen
 		if ( bShouldDraw )
 		{

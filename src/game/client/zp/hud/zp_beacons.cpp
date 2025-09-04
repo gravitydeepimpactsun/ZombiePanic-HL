@@ -30,8 +30,8 @@ static const char *g_BeaconTypeIcons[] =
 static const char *g_BeaconTypeIcons_Zombie[] =
 {
 	"ui/icons/beacons/zp_button",
-	"ui/icons/beacons/zp_defend",
 	"ui/icons/beacons/zp_destroy",
+	"ui/icons/beacons/zp_defend",
 	"ui/icons/beacons/zp_waypoint",
 	"ui/icons/beacons/capturepoint",
 };

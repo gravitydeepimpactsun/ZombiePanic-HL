@@ -131,7 +131,6 @@ void CObjectiveText::Paint()
 
 		// Set the new text
 		DrawText( true );
-		gEngfuncs.Con_NPrintf(16, "Objective State: %d", m_State);
 	}
 	else
 	{

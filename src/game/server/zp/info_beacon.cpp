@@ -13,6 +13,7 @@ extern int gmsgBeaconDraw;
 
 void CInfoBeacon::Spawn() 
 {
+	pev->health = 0; // Make sure it's 0 health on spawn.
 	m_bForcedOff = false;
 	if ( FBitSet( pev->spawnflags, SP_START_ENABLED ) )
 		m_bActive = true;
@@ -23,6 +24,8 @@ void CInfoBeacon::Spawn()
 
 void CInfoBeacon::Restart()
 {
+	// Reset our state
+	pev->health = 0;
 	m_bForcedOff = false;
 	if ( FBitSet( pev->spawnflags, SP_START_ENABLED ) )
 		m_bActive = true;

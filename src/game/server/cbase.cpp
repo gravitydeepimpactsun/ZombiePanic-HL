@@ -854,7 +854,12 @@ CBaseEntity *CBaseEntity::Create(char *szName, const Vector &vecOrigin, const Ve
 }
 
 
-void FireEntityOutput( CBaseEntity *pEnt, const std::string &szOutput, const std::string &szValue, float flDelay )
+void FireEntityOutput( CBaseEntity *pEnt, const std::string &szOutput )
+{
+	::FireEntityOutput( pEnt, szOutput, "", 0.0f );
+}
+
+void FireEntityOutput(CBaseEntity *pEnt, const std::string &szOutput, const std::string &szValue, float flDelay)
 {
 #ifdef SCRIPT_SYSTEM
 	ScriptSystem::CallScriptDelay( AvailableScripts_t::InputOutput, nullptr, szOutput, flDelay, 2, std::to_string( pEnt->entindex() ), szValue );

@@ -10,7 +10,10 @@ enum IOFunctionCommands_t
 {
 	IO_INVALID = -1,
 	IO_FIRE_OUTPUT = 0,
+	IO_EXEC_AS,
 	IO_WAIT,
+	IO_IF,
+	IO_END,
 	IO_PRINT_TO_CONSOLE,
 	IO_PRINT_TO_CHAT,
 
@@ -34,6 +37,7 @@ struct IOFunctionCommand
 	std::string Message; // The message of our command, used by PRINT_TO values and IO_FIRE_OUTPUT after our first argument value
 	float Delay; // How long until we fire this? used by IO_WAIT
 	std::string EntFire; // The entity we want to call
+	std::string Input; // The input we want to call
 };
 
 struct IOFunctionData

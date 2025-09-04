@@ -26,6 +26,9 @@
 #include "func_break.h"
 #include "decals.h"
 #include "explode.h"
+#ifdef SCRIPT_SYSTEM
+#include "core.h"
+#endif
 
 extern DLL_GLOBAL Vector g_vecAttackDir;
 
@@ -162,6 +165,15 @@ void CBreakable::Spawn(void)
 	// Flag unbreakable glass as "worldbrush" so it will block ALL tracelines
 	if (!IsBreakable() && pev->rendermode != kRenderNormal)
 		pev->flags |= FL_WORLDBRUSH;
+
+#ifdef SCRIPT_SYSTEM
+	// Outputs
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "OnBreak" );
+
+	// Inputs
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "Break" );
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "SetHealth" );
+#endif
 }
 
 const char *CBreakable::pSoundsWood[] = {
@@ -546,6 +558,7 @@ int CBreakable ::TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, flo
 	{
 		SoftRemove();
 		Die(pevAttacker ? CBaseEntity::Instance(pevAttacker) : NULL);
+		FireEntityOutput( this, "OnBreak" );
 		return 0;
 	}
 

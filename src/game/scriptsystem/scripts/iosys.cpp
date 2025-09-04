@@ -21,7 +21,10 @@ static const char *g_IOFunctions[IO_ON_MAX] = {
 // Same as above, a static list of our I/O IOFunctionCommands_t
 static const char *g_IOCommands[IO_MAX] = {
 	"FireOutput",
+	"ASCall",
 	"Wait",
+	"If",
+	"End",
 	"PrintToConsole",
 	"PrintToChat",
 };
@@ -85,15 +88,37 @@ void IOSystem::OnCalled(pOnScriptCallbackReturn pfnCallback, KeyValues *pData, c
 		IScriptFunctions ScriptFunction = m_Functions[i];
 		if ( ScriptFunction.Function == szFunctionName )
 		{
-			if ( m_szScript ) m_szScript->OnCalled( szFunctionName, pData );
+			bool bIsScriptCall = FStrEq( pData->GetString( "arg0" ), "SCall" );
+			if ( m_szScript && !bIsScriptCall ) m_szScript->OnCalled( szFunctionName, pData );
 			if ( ScriptFunction.Callback ) (*ScriptFunction.Callback)(pData);
 			if ( ScriptFunction.Entity )
 			{
-				CBaseEntity *pEntity = (CBaseEntity *)GET_PRIVATE(ScriptFunction.Entity);
-				if ( pEntity )
-					pEntity->ScriptCallback( pData );
+				if ( bIsScriptCall )
+				{
+					// Make sure we call the right entity, if not, ignore.
+					CBaseEntity *pEnt = UTIL_FindEntityByTargetname( nullptr, pData->GetString( "arg1" ) );
+					if ( pEnt )
+					{
+						KeyValues *pKvNew = new KeyValues( "Items" );
+						pKvNew->SetString( "Action", szFunctionName.c_str() );
+						pKvNew->SetString( "arg0", pData->GetString( "arg2" ) );
+						pEnt->ScriptCallback( pKvNew );
+						pKvNew->deleteThis();
+					}
+				}
+				else
+				{
+					CBaseEntity *pEntity = (CBaseEntity *)GET_PRIVATE( ScriptFunction.Entity );
+					if ( pEntity && pEntity->entindex() == atoi( pData->GetString( "arg0" ) ) )
+					{
+						KeyValues *pKvNew = new KeyValues( "Items" );
+						pKvNew->SetString( "Action", szFunctionName.c_str() );
+						pKvNew->SetString( "arg0", pData->GetString( "arg1" ) );
+						pEntity->ScriptCallback( pKvNew );
+						pKvNew->deleteThis();
+					}
+				}
 			}
-			break;
 		}
 	}
 	if ( pfnCallback )
@@ -339,10 +364,12 @@ IOScriptFile::IOScriptFile( const std::string &szFile )
 				case IO_FIRE_OUTPUT:
 				{
 					// Example: FireOutput "my_target" "MyInput" "MyValue" 5.0
-					// EntFire = arg0, Message = arg2, Delay = arg3
+					// EntFire = arg0, Input = arg1, Message = arg2, Delay = arg3
 					auto args = Split(restOfLine, ' ');
 					if (args.size() > 0)
 						cmd.EntFire = args[0];
+					if (args.size() > 1)
+					    cmd.Input = args[1];
 					if (args.size() > 2)
 						cmd.Message = args[2];
 					if (args.size() > 3)
@@ -406,9 +433,9 @@ void IOScriptFile::OnInput( CBaseEntity *pEnt, const std::string &szAction, cons
 	if ( !pEnt ) return;
 	CallData( IO_ON_INPUT_RECEIVED, UTIL_VarArgs( "%i, %s, %s", pEnt->entindex(), szAction.c_str(), szValue.c_str() ) );
 
-	KeyValues *pScriptCall = new KeyValues( "ScriptCallback" );
+	KeyValues *pScriptCall = new KeyValues( "Items" );
 	pScriptCall->SetString( "Action", szAction.c_str() );
-	pScriptCall->SetString( "Value", szValue.c_str() );
+	pScriptCall->SetString( "arg0", szValue.c_str() );
 	pEnt->ScriptCallback( pScriptCall );
 	pScriptCall->deleteThis();
 }
@@ -421,8 +448,60 @@ void IOScriptFile::CallData( const std::string &szFunction )
 
 void IOScriptFile::CallData( const std::string &szFunction, const std::string &szArgs )
 {
-	// TODO: Create the crap
-	// Format our arguments, read function, etc...
+	for ( size_t i = 0; i < m_Functions.size(); i++ )
+	{
+		// Get our function data
+		IOFunctionData function = m_Functions[i];
+		if ( function.FunctionName != szFunction ) continue;
+		
+		// Execute our commands (if we have any)
+		for ( size_t y = 0; y < function.Commands.size(); y++ )
+		{
+			IOFunctionCommand cmd = function.Commands[ y ];
+			switch ( cmd.Type )
+			{
+				case IO_FIRE_OUTPUT:
+				{
+					// Let's fire an output!
+					// Make sure it's I/O
+					// We don't use the entity index here, since we don't want to call ourselves and make an infinite loop (if it happens)
+				    ScriptSystem::CallScriptDelay( AvailableScripts_t::InputOutput, nullptr, cmd.Input, cmd.Delay, 3, "SCall", cmd.EntFire.c_str(), cmd.Message.c_str() );
+				}
+				break;
+
+				case IO_EXEC_AS:
+					// Doesn't do anything for now.
+				break;
+
+				case IO_WAIT:
+					// Doesn't do anything for now.
+				break;
+
+				case IO_IF:
+					// Doesn't do anything for now.
+				break;
+
+				case IO_END:
+					// Doesn't do anything for now.
+				break;
+
+				case IO_PRINT_TO_CHAT:
+				{
+					// TODO: Convert the %sN values to our szArgs
+					UTIL_ClientPrintAll( HUD_PRINTTALK, cmd.Message.c_str() );
+				}
+				break;
+
+				case IO_PRINT_TO_CONSOLE:
+				{
+				    // TODO: Convert the %sN values to our szArgs
+					for ( int i = 1; i <= gpGlobals->maxClients; i++ )
+						UTIL_PrintConsole( cmd.Message.c_str(), UTIL_PlayerByIndex( i ) );
+				}
+				break;
+			}
+		}
+	}
 }
 
 void IOScriptFile::CallData( const IOFunctions_t &nFunction, const std::string &szArgs )

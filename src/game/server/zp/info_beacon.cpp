@@ -4,6 +4,9 @@
 #include "util.h"
 #include "eiface.h"
 #include "zp/info_beacon.h"
+#ifdef SCRIPT_SYSTEM
+#include "core.h"
+#endif
 
 // Our actual objective entity
 LINK_ENTITY_TO_CLASS( info_beacon, CInfoBeacon );
@@ -20,6 +23,16 @@ void CInfoBeacon::Spawn()
 	else
 		m_bActive = false;
 	BaseClass::Spawn();
+
+#ifdef SCRIPT_SYSTEM
+	// Inputs
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "TurnOn" );
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "TurnOff" );
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "ShowBar" );
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "Increment" );
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "Decrement" );
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "Set" );
+#endif
 }
 
 void CInfoBeacon::Restart()

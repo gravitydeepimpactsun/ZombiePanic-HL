@@ -5,6 +5,9 @@
 #include "eiface.h"
 #include "zp/gamemodes/zp_gamemodebase.h"
 #include "zp/info_objective.h"
+#ifdef SCRIPT_SYSTEM
+#include "core.h"
+#endif
 
 // Our actual objective entity
 LINK_ENTITY_TO_CLASS( info_objective, CObjectiveMessage );
@@ -18,6 +21,13 @@ void CObjectiveMessage::Spawn( void )
 {
 	m_State = ObjectiveState::State_Normal;
 	BaseClass::Spawn();
+
+#ifdef SCRIPT_SYSTEM
+	// Inputs
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "SetHumanText" );
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "SetZombieText" );
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "SetState" );
+#endif
 }
 
 void CObjectiveMessage::Restart()

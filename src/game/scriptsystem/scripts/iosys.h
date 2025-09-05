@@ -23,6 +23,7 @@ enum IOFunctionCommands_t
 enum IOFunctions_t
 {
 	IO_ON_MAP_START = 0,
+	IO_ON_ROUND_RESTART,
 	IO_ON_MAP_END,
 	IO_ON_PLAYER_SPAWNED,
 	IO_ON_INPUT_RECEIVED,
@@ -64,6 +65,7 @@ public:
 
 	void OnCalled( const std::string &szFunction, KeyValues *pData );
 	void OnThink();
+	void OnRoundRestart();
 
 private:
 	void OnOutput( CBaseEntity *pEnt, const std::string &szAction, const std::string &szValue, const float &szDelay );
@@ -100,6 +102,7 @@ public:
 	void OnCalled(pOnScriptCallbackReturn pfnCallback, KeyValues *pData, const std::string &szFunctionName);
 	void OnLevelInit(bool bPostLoad);
 	void OnLevelShutdown();
+	void OnRoundRestart();
 	void OnRegisterFunction(pOnScriptCallback pCallback, const std::string &szFunctionName);
 	void OnRegisterFunction(CBaseEntity *pEntity, const std::string &szFunctionName);
 	void OnLoadMapScriptFile();
@@ -111,6 +114,17 @@ private:
 		{
 			IScriptFunctions ScriptFunction = m_Functions[i];
 			if ( ScriptFunction.Function == szFunctionName )
+				return true;
+		}
+		return false;
+	}
+	inline bool FunctionAlreadyExist(CBaseEntity *pEnt, const std::string &szFunctionName)
+	{
+		for (size_t i = 0; i < m_Functions.size(); i++)
+		{
+			IScriptFunctions ScriptFunction = m_Functions[i];
+			if ( ScriptFunction.Function == szFunctionName
+				&& FClassnameIs( CBaseEntity::Instance( ScriptFunction.Entity )->pev, STRING( pEnt->pev->classname ) ) )
 				return true;
 		}
 		return false;

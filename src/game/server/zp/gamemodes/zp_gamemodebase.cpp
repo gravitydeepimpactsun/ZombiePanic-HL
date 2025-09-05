@@ -6,6 +6,10 @@
 #include "player.h"
 #include "weapons.h"
 
+#ifdef SCRIPT_SYSTEM
+#include "core.h"
+#endif
+
 #include "zp/info_beacon.h"
 #include "zp/info_random_base.h"
 #include "zp_gamemodebase.h"
@@ -169,6 +173,16 @@ void CBaseGameMode::GiveWeaponsOnRoundStart()
 
 void CBaseGameMode::RestartRound()
 {
+#ifdef SCRIPT_SYSTEM
+	ScriptSystem::OnRoundRestart();
+	ScriptSystem::CallScript(
+		AvailableScripts_t::InputOutput,
+		nullptr,
+		"OnRoundRestart",
+		1,
+	    IO_FUNCTION
+	);
+#endif
 	SetRoundState( ZP::RoundState::RoundState_WaitingForPlayers );
 	SetWinState( WinState_e::State_None );
 	m_bAllSurvivorsDead = false;
@@ -264,6 +278,17 @@ void CBaseGameMode::OnPlayerSpawned( CBasePlayer *pPlayer )
 {
 	// Tell the clients that we have a new round timer!
 	UpdateClientTimer();
+
+#ifdef SCRIPT_SYSTEM
+	ScriptSystem::CallScript(
+		AvailableScripts_t::InputOutput,
+		nullptr,
+		"OnPlayerSpawned",
+		2,
+	    IO_FUNCTION,
+	    std::to_string( pPlayer->entindex() )
+	);
+#endif
 
 	// Player spawned, check if we need to show any info_beacon entities
 	// We need to do this here, because a new player may have joined mid-round

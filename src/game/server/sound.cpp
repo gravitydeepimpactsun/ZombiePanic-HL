@@ -24,6 +24,9 @@
 #include "player.h"
 #include "talkmonster.h"
 #include "gamerules.h"
+#ifdef SCRIPT_SYSTEM
+#include "core.h"
+#endif
 
 static char *memfgets(byte *pMemFile, int fileSize, int &filePos, char *pBuffer, int bufferSize);
 
@@ -121,6 +124,7 @@ public:
 	void EXPORT ToggleUse(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
 	void EXPORT RampThink(void);
 	void InitModulationParms(void);
+	void OnScriptCallBack(KeyValues *pData);
 
 	virtual int Save(CSave &save);
 	virtual int Restore(CRestore &restore);
@@ -214,6 +218,36 @@ void CAmbientGeneric ::Spawn(void)
 	else
 		m_fLooping = TRUE;
 	Precache();
+
+#ifdef SCRIPT_SYSTEM
+	// Outputs
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "OnTurnOn" );
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "OnTurnOff" );
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "OnPitchChanged" );
+
+	// Inputs
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "TurnOn" );
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "TurnOff" );
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "Toggle" );
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "SetPitch" );
+
+	SetEntityScriptCallback( &CAmbientGeneric::OnScriptCallBack );
+#endif
+}
+
+void CAmbientGeneric::OnScriptCallBack( KeyValues *pData )
+{
+	const char *szAction = pData->GetString( "Action" );
+	const char *szValue = pData->GetString( "arg0" );
+	// Check what kind of action we got
+	if ( FStrEq( szAction, "TurnOn" ) )
+		Use( nullptr, nullptr, USE_ON, 0 );
+	else if ( FStrEq( szAction, "TurnOff" ) )
+		Use( nullptr, nullptr, USE_OFF, 0 );
+	else if ( FStrEq( szAction, "Toggle" ) )
+		Use( nullptr, nullptr, USE_TOGGLE, 0 );
+	else if ( FStrEq( szAction, "SetPitch" ) )
+		Use( nullptr, nullptr, USE_SET, atof( szValue ) );
 }
 
 void CAmbientGeneric::Restart()
@@ -649,6 +683,7 @@ void CAmbientGeneric ::ToggleUse(CBaseEntity *pActivator, CBaseEntity *pCaller, 
 		UTIL_EmitAmbientSound(ENT(pev), pev->origin, szSoundFile,
 		    0, 0, SND_CHANGE_PITCH, m_dpv.pitch);
 
+		FireEntityOutput( this, "OnPitchChanged" );
 		return;
 	}
 
@@ -704,6 +739,7 @@ void CAmbientGeneric ::ToggleUse(CBaseEntity *pActivator, CBaseEntity *pCaller, 
 				UTIL_EmitAmbientSound(ENT(pev), pev->origin, szSoundFile,
 				    0, 0, SND_STOP, 0);
 		}
+		FireEntityOutput( this, "OnTurnOff" );
 	}
 	else
 	{ // turn sound on
@@ -728,6 +764,8 @@ void CAmbientGeneric ::ToggleUse(CBaseEntity *pActivator, CBaseEntity *pCaller, 
 		    (m_dpv.vol * 0.01), m_flAttenuation, 0, m_dpv.pitch);
 
 		pev->nextthink = gpGlobals->time + 0.1;
+
+		FireEntityOutput( this, "OnTurnOn" );
 	}
 }
 // KeyValue - load keyvalue pairs into member data of the

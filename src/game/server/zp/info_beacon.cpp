@@ -78,6 +78,7 @@ void CInfoBeacon::Restart()
 {
 	// Reset our state
 	pev->health = 0;
+	m_bShowHealth = m_bShowHealthRem;
 	m_bForcedOff = false;
 	if ( FBitSet( pev->spawnflags, SP_START_ENABLED ) )
 		m_bActive = true;
@@ -120,6 +121,7 @@ void CInfoBeacon::KeyValue( KeyValueData *pkvd )
 	else if ( FStrEq( pkvd->szKeyName, "showhealth" ) )
 	{
 		m_bShowHealth = atoi( pkvd->szValue ) != 0;
+		m_bShowHealthRem = m_bShowHealth;
 		pkvd->fHandled = TRUE;
 	}
 	else

@@ -13,6 +13,9 @@ enum AvailableScripts_t
 using pOnScriptCallback = void (*)(KeyValues *pData);
 using pOnScriptCallbackReturn = void (*)(KeyValues *pData, AvailableScripts_t nScript);
 
+// Use these for arg0
+static const std::string IO_FUNCTION( "Function" );
+
 struct IScriptFunctions
 {
 	pOnScriptCallback Callback;
@@ -58,6 +61,11 @@ public:
 	/// When the level is shutting down
 	/// </summary>
 	virtual void OnLevelShutdown() = 0;
+
+	/// <summary>
+	/// Round has just restarted
+	/// </summary>
+	virtual void OnRoundRestart() = 0;
 
 	/// <summary>
 	/// This will trigger when ScriptSystem::RegisterScriptCallback is fired,

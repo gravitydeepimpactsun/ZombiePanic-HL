@@ -32,6 +32,7 @@ private:
 	BeaconDrawTypes m_DrawType = BEACON_DRAW_ALWAYS; // When to draw the beacon
 	bool m_bImportant = false; // If true, draw with golden colors
 	bool m_bShowHealth = false; // If true, show health bar below the beacon icon. Very useful for defend, destroy and capture point beacons.
+	bool m_bShowHealthRem = false; // Ditto, for Restart();
 	bool m_bActive = false; // Is the beacon active or not
 	bool m_bForcedOff = false; // If true, the beacon is forced off and cannot be enabled until the next round.
 };

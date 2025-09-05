@@ -62,6 +62,18 @@ void ScriptSystem::OnThink()
 	}
 }
 
+void ScriptSystem::OnRoundRestart()
+{
+	// If we have any delayed calls, make sure we clear em out.
+	m_DelayedCalls.clear();
+	for ( size_t i = 0; i < m_Scripts.size(); i++ )
+	{
+		IBaseScriptClass *pScript = m_Scripts[i];
+		if ( !pScript ) continue;
+		pScript->OnRoundRestart();
+	}
+}
+
 bool ScriptSystem::AddToScriptManager(IBaseScriptClass *pScript)
 {
 	for (size_t i = 0; i < m_Scripts.size(); i++)

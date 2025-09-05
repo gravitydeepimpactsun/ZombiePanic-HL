@@ -28,6 +28,9 @@
 #include "zp/zp_shared.h"
 #include "func_break.h"
 #include "explode.h"
+#ifdef SCRIPT_SYSTEM
+#include "core.h"
+#endif
 
 #if !defined(_WIN32)
 #include <string.h> // memset())))
@@ -841,6 +844,67 @@ void CBaseButton::Spawn()
 	}
 
 	m_iEffectsRem = pev->effects;
+	m_bIsLocked = false;
+
+#ifdef SCRIPT_SYSTEM
+	// Outputs
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "OnTurnOn" );
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "OnTurnOff" );
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "OnLocked" );
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "OnUnLocked" );
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "OnUse" );
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "OnLockedUse" );
+
+	// Inputs
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "SetLocked" );
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "Activate" );
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "DeActivate" );
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "SetBreakable" );
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "CanExplode" );
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "SetHealth" );
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "Break" );
+
+	SetEntityScriptCallback( &CBaseButton::OnScriptCallBack );
+#endif
+}
+
+void CBaseButton::OnScriptCallBack( KeyValues *pData )
+{
+	const char *szAction = pData->GetString( "Action" );
+	const char *szValue = pData->GetString( "arg0" );
+	// Check what kind of action we got
+	if ( FStrEq( szAction, "Activate" ) )
+	{
+		SetTouch(NULL);
+		SetUse(NULL);
+
+		// if the button is flagged for USE button activation only, take away it's touch function and add a use function
+		if (FBitSet(pev->spawnflags, SF_BUTTON_TOUCH_ONLY)) // touchable button
+			SetTouch(&CBaseButton::ButtonTouch);
+		else
+		{
+			SetTouch(NULL);
+			SetUse(&CBaseButton::ButtonUse);
+		}
+	}
+	else if ( FStrEq( szAction, "DeActivate" ) )
+	{
+		SetTouch(NULL);
+		SetUse(NULL);
+	}
+	else if ( FStrEq( szAction, "Break" ) )
+		TakeDamage( pev, pev, m_iButtonHealth + 1, DMG_CLUB );
+	else if ( FStrEq( szAction, "CanExplode" ) )
+		m_bExplode = atoi( szValue );
+	else if ( FStrEq( szAction, "SetBreakable" ) )
+		pev->takedamage = atoi( szValue ) ? DAMAGE_YES : DAMAGE_NO;
+	else if ( FStrEq( szAction, "SetLocked" ) )
+		m_bIsLocked = atoi( szValue );
+	else if ( FStrEq( szAction, "SetHealth" ) )
+	{
+		if ( pev->takedamage != DAMAGE_NO )
+			m_iButtonHealth = atoi( szValue );
+	}
 }
 
 void CBaseButton::Restart()
@@ -848,6 +912,7 @@ void CBaseButton::Restart()
 	pev->solid = SOLID_BSP;
 	pev->deadflag = DEAD_NO;
 
+	m_bIsLocked = false;
 	m_hActivator = nullptr;
 	SetMovedir(pev);
 
@@ -1071,7 +1136,7 @@ void CBaseButton::ButtonTouch(CBaseEntity *pOther)
 	if (code == BUTTON_NOTHING)
 		return;
 
-	if (!UTIL_IsMasterTriggered(m_sMaster, pOther))
+	if (!UTIL_IsMasterTriggered(m_sMaster, pOther) || m_bIsLocked)
 	{
 		// play button locked sound
 		PlayLockSounds(pev, &m_ls, TRUE, TRUE);

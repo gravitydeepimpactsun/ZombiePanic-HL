@@ -39,7 +39,6 @@ static const char *s_EntitiesRestarts[] = {
 	"func_vehicle",
 	"func_train",
 	"func_pushable",
-	"armoury_entity",
 	"ambient_generic",
 	"env_sprite",
 	"trigger_once",

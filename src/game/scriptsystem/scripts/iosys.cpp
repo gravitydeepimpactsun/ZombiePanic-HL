@@ -12,6 +12,7 @@
 // A simple static list of our I/O IOFunctions_t
 static const char *g_IOFunctions[IO_ON_MAX] = {
 	"OnMapStart",
+	"OnRoundRestart",
 	"OnMapEnd",
 	"OnPlayerSpawned",
 	"OnInputReceived",
@@ -107,9 +108,14 @@ IOSystem::IOSystem()
 	ScriptSystem::AddToScriptManager( this );
 }
 
+// Does nothing.
+static void DefaultGenericCallback( KeyValues * ) {}
+
 void IOSystem::OnInit()
 {
-	// Nothing to do here yet.
+	// Default callbacks
+	for ( size_t i = 0; i < IO_ON_MAX; i++ )
+		ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, DefaultGenericCallback, g_IOFunctions[i] );
 }
 
 void IOSystem::OnThink()
@@ -121,13 +127,18 @@ void IOSystem::OnThink()
 void IOSystem::OnCalled(pOnScriptCallbackReturn pfnCallback, KeyValues *pData, const std::string &szFunctionName)
 {
 	if ( !bAvailableToCall ) return;
+	bool bIsScriptCall = FStrEq( pData->GetString( "arg0" ), "SCall" );
 	for (size_t i = 0; i < m_Functions.size(); i++)
 	{
 		IScriptFunctions ScriptFunction = m_Functions[i];
 		if ( ScriptFunction.Function == szFunctionName )
 		{
-			bool bIsScriptCall = FStrEq( pData->GetString( "arg0" ), "SCall" );
-			if ( m_szScript && !bIsScriptCall ) m_szScript->OnCalled( szFunctionName, pData );
+			// Only call once.
+			if ( m_szScript && !bIsScriptCall )
+			{
+				m_szScript->OnCalled( szFunctionName, pData );
+				bIsScriptCall = true;
+			}
 			if ( ScriptFunction.Callback ) (*ScriptFunction.Callback)(pData);
 			if ( ScriptFunction.Entity )
 			{
@@ -163,23 +174,31 @@ void IOSystem::OnCalled(pOnScriptCallbackReturn pfnCallback, KeyValues *pData, c
 		(*pfnCallback)(pData, GetScriptType());
 }
 
-void IOSystem::OnLevelInit(bool bPostLoad)
+void IOSystem::OnLevelInit( bool bPostLoad )
 {
 	if ( !bPostLoad )
 	{
 		bAvailableToCall = true;
 		OnLoadMapScriptFile();
+		ScriptSystem::CallScript( AvailableScripts_t::InputOutput, nullptr, g_IOFunctions[ IO_ON_MAP_START ], 0 );
 	}
 }
 
 void IOSystem::OnLevelShutdown()
 {
+	ScriptSystem::CallScript( AvailableScripts_t::InputOutput, nullptr, g_IOFunctions[ IO_ON_MAP_END ], 0 );
 	if ( m_szScript )
 		delete m_szScript;
 	m_szScript = nullptr;
 	bAvailableToCall = false;
 	// Clear our functions on shutdown
 	m_Functions.clear();
+}
+
+void IOSystem::OnRoundRestart()
+{
+	if ( m_szScript )
+		m_szScript->OnRoundRestart();
 }
 
 void IOSystem::OnRegisterFunction(pOnScriptCallback pCallback, const std::string &szFunctionName)
@@ -194,7 +213,7 @@ void IOSystem::OnRegisterFunction(pOnScriptCallback pCallback, const std::string
 
 void IOSystem::OnRegisterFunction(CBaseEntity *pEntity, const std::string &szFunctionName)
 {
-	if ( FunctionAlreadyExist( szFunctionName ) ) return;
+	if ( FunctionAlreadyExist( pEntity, szFunctionName ) ) return;
 	IScriptFunctions ScriptFunction;
 	ScriptFunction.Callback = nullptr;
 	ScriptFunction.Entity = pEntity->edict();
@@ -479,6 +498,11 @@ void IOScriptFile::OnThink()
 		RunCommands( i );
 }
 
+void IOScriptFile::OnRoundRestart()
+{
+	m_Commands.clear();
+}
+
 IOScriptFile::~IOScriptFile()
 {
 	m_Functions.clear();
@@ -488,6 +512,12 @@ void IOScriptFile::OnCalled( const std::string &szFunction, KeyValues *pData )
 {
 	// Fire an output variable
 	if ( !pData ) return;
+	if ( FStrEq( pData->GetString( "arg0" ), "Function" ) )
+	{
+		CallData( szFunction, pData->GetString( "arg1" ) );
+		return;
+	}
+
 	CBaseEntity *pEnt = nullptr;
 	edict_t *pEdict = INDEXENT( atoi( pData->GetString( "arg0" ) ) );
 	if ( pEdict && !pEdict->free )
@@ -537,11 +567,16 @@ void IOScriptFile::CallData( const std::string &szFunction, const std::string &s
 		IOCall.ID = GetCurrentID() + 1;
 		IOCall.Arguments = Split(szArgs, ',');
 
-		// Very simplified for now
-		if ( szFunction == "OnOutputSent" )
-			IOCall.InputCall = IOCall.Arguments[1];
+		if ( IOCall.Arguments.size() > 0 )
+		{
+			// Very simplified for now
+			if ( szFunction == "OnOutputSent" )
+				IOCall.InputCall = IOCall.Arguments[1];
+			else
+				IOCall.InputCall = IOCall.Arguments[0];
+		}
 		else
-			IOCall.InputCall = IOCall.Arguments[0];
+			IOCall.InputCall = "";
 
 		// Add our commands
 		for ( size_t y = 0; y < function.Commands.size(); y++ )

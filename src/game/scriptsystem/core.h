@@ -45,6 +45,11 @@ namespace ScriptSystem
     void OnThink();
 
     /// <summary>
+    /// The round has just restarted, let's call our scripts and tell them to clear any data they have.
+    /// </summary>
+    void OnRoundRestart();
+
+    /// <summary>
     /// Our callback enum states, used by pOnScriptCallbackReturn
     /// </summary>
     enum ScriptCallBackEnum

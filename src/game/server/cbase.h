@@ -50,13 +50,10 @@ CBaseEntity
 #include "saverestore.h"
 #include "schedule.h"
 #include "zp/zp_shared.h"
+#include <tier1/KeyValues.h>
 
 #ifndef MONSTEREVENT_H
 #include "monsterevent.h"
-#endif
-
-#ifdef SCRIPT_SYSTEM
-#include "KeyValues.h"
 #endif
 
 // C functions for external declarations that call the appropriate C++ methods
@@ -750,6 +747,7 @@ public:
 	virtual void Precache(void);
 	void RotSpawn(void);
 	virtual void KeyValue(KeyValueData *pkvd);
+	void OnScriptCallBack(KeyValues *pData);
 
 	void ButtonActivate();
 	void SparkSoundCache(void);
@@ -803,6 +801,7 @@ public:
 	int m_iszGibModel = 0;
 	int m_idShard = 0;
 	string_t m_ibreaktarget;
+	bool m_bIsLocked = false;
 };
 
 //

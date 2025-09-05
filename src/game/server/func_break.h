@@ -91,7 +91,7 @@ public:
 	int m_iszGibModel;
 	int m_iszSpawnObject;
 	float m_flHealth;
-	string_t m_savedname;
+	bool m_bIsDestroyed;
 };
 
 #endif // FUNC_BREAK_H

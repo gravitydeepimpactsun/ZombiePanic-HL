@@ -493,6 +493,7 @@ void CBreakable::BreakTouch(CBaseEntity *pOther)
 // Break when triggered
 void CBreakable::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value)
 {
+	if (m_bIsDestroyed) return;
 	if (IsBreakable())
 	{
 		pev->angles.y = m_angle;
@@ -543,6 +544,8 @@ void CBreakable::TraceAttack(entvars_t *pevAttacker, float flDamage, Vector vecD
 //=========================================================
 int CBreakable ::TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int bitsDamageType)
 {
+	if (m_bIsDestroyed) return 0;
+
 	Vector vecTemp;
 
 	if (!IsBreakable())
@@ -581,7 +584,6 @@ int CBreakable ::TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, flo
 	{
 		SoftRemove();
 		Die(pevAttacker ? CBaseEntity::Instance(pevAttacker) : NULL);
-		FireEntityOutput( this, "OnBreak" );
 		return 0;
 	}
 
@@ -600,6 +602,9 @@ void CBreakable::Die(void)
 
 void CBreakable::Die(CBaseEntity *pActivator)
 {
+	m_bIsDestroyed = true;
+	FireEntityOutput( this, "OnBreak" );
+
 	Vector vecSpot; // shard origin
 	Vector vecVelocity; // shard velocity
 	CBaseEntity *pEntity = NULL;
@@ -763,10 +768,6 @@ void CBreakable::Die(CBaseEntity *pActivator)
 		}
 	}
 
-	// Don't fire something that could fire myself
-	m_savedname = pev->targetname;
-	pev->targetname = 0;
-
 	pev->solid = SOLID_NOT;
 	// Fire targets on break
 	SUB_UseTargets(pActivator, USE_TOGGLE, 0);
@@ -800,6 +801,8 @@ int CBreakable ::DamageDecal(int bitsDamageType)
 
 void CBreakable::Restart()
 {
+	m_bIsDestroyed = false;
+
 	pev->solid = SOLID_BSP;
 	pev->movetype = MOVETYPE_PUSH;
 	pev->deadflag = DEAD_NO;
@@ -813,9 +816,6 @@ void CBreakable::Restart()
 	pev->effects &= ~EF_NODRAW;
 	m_angle = pev->angles.y;
 	pev->angles.y = 0;
-
-	if ( m_savedname != 0 )
-		pev->targetname = m_savedname;
 
 	SET_MODEL(ENT(pev), STRING(pev->model));
 	SetTouch(&CBreakable::BreakTouch);
@@ -915,6 +915,8 @@ void CPushable ::Spawn(void)
 	// Multiply by area of the box's cross-section (assume 1000 units^3 standard volume)
 	pev->skin = (pev->skin * (pev->maxs.x - pev->mins.x) * (pev->maxs.y - pev->mins.y)) * 0.0005;
 	m_soundTime = 0;
+
+	m_bIsDestroyed = false;
 }
 
 void CPushable::Restart()

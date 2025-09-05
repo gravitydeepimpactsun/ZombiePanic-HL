@@ -47,13 +47,17 @@ void CInfoBeacon::OnScriptCallBack( KeyValues *pData )
 	else if ( FStrEq( szAction, "TurnOff" ) )
 		Use( nullptr, nullptr, USE_OFF, 0 );
 	else if ( FStrEq( szAction, "ShowBar" ) )
+	{
 		m_bShowHealth = atoi( szValue ) ? true : false;
+		UpdateMessageState();
+	}
 	else if ( FStrEq( szAction, "Increment" ) )
 	{
 		if ( FStrEq( szValue, "" ) )
 			pev->health++;
 		else
 			pev->health += atoi( szValue );
+		UpdateMessageState();
 	}
 	else if ( FStrEq( szAction, "Decrement" ) )
 	{
@@ -61,9 +65,13 @@ void CInfoBeacon::OnScriptCallBack( KeyValues *pData )
 			pev->health--;
 		else
 			pev->health -= atoi( szValue );
+		UpdateMessageState();
 	}
 	else if ( FStrEq( szAction, "Set" ) )
+	{
 		pev->health = clamp( atoi( szValue ), 0, 100 );
+		UpdateMessageState();
+	}
 }
 
 void CInfoBeacon::Restart()

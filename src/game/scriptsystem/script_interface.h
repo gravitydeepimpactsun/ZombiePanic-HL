@@ -44,6 +44,11 @@ public:
 	virtual void OnInit() = 0;
 
 	/// <summary>
+	/// Executes on each frame
+	/// </summary>
+	virtual void OnThink() = 0;
+
+	/// <summary>
 	/// When we are loading our level
 	/// </summary>
 	/// <param name="bPostLoad">If true, then we fired after loading our level</param>

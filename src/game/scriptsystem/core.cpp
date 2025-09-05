@@ -54,6 +54,12 @@ void ScriptSystem::OnThink()
 			break;
 		}
 	}
+	for ( size_t i = 0; i < m_Scripts.size(); i++ )
+	{
+		IBaseScriptClass *pScript = m_Scripts[i];
+		if ( !pScript ) continue;
+		pScript->OnThink();
+	}
 }
 
 bool ScriptSystem::AddToScriptManager(IBaseScriptClass *pScript)

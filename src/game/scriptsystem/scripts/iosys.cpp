@@ -23,8 +23,8 @@ static const char *g_IOCommands[IO_MAX] = {
 	"FireOutput",
 	"ASCall",
 	"Wait",
-	"If",
-	"End",
+	"if",
+	"end",
 	"PrintToConsole",
 	"PrintToChat",
 };
@@ -36,7 +36,12 @@ static std::string MessageCleanup( const std::string &str )
 	if (start == std::string::npos)
 		return "";
 	size_t end = str.find_last_not_of(ws);
-	return str.substr(start, end - start + 1);
+	std::string output = str.substr(start, end - start + 1);
+	// Now, we check if we have a remaining " at the end, if we do, get rid of it.
+	size_t last = output.find_last_of(ws);
+	if (last == std::string::npos)
+		return output;
+	return output.substr(start, last - 1);
 }
 
 static std::string Trim( const std::string &str )
@@ -105,6 +110,12 @@ IOSystem::IOSystem()
 void IOSystem::OnInit()
 {
 	// Nothing to do here yet.
+}
+
+void IOSystem::OnThink()
+{
+	if ( !m_szScript ) return;
+	m_szScript->OnThink();
 }
 
 void IOSystem::OnCalled(pOnScriptCallbackReturn pfnCallback, KeyValues *pData, const std::string &szFunctionName)
@@ -277,6 +288,7 @@ IOScriptFile::IOScriptFile( const std::string &szFile )
 	// Let's parse our file.
 	m_szFileName = szFile;
 	m_Functions.clear();
+	m_Commands.clear();
 
 	// Make sure we get the full path to file!
 	char szFullPath[1024];
@@ -291,6 +303,7 @@ IOScriptFile::IOScriptFile( const std::string &szFile )
 	IOFunctionData currentFunction;
 	bool inFunction = false;
 	bool inBlock = false;
+	std::string inIf;
 
 	while ( std::getline(file, line) )
 	{
@@ -308,6 +321,7 @@ IOScriptFile::IOScriptFile( const std::string &szFile )
 			}
 			inFunction = true;
 			inBlock = false;
+			inIf.clear();
 
 			// Parse function name and parameters
 			size_t nameStart = strlen("Function ");
@@ -368,6 +382,7 @@ IOScriptFile::IOScriptFile( const std::string &szFile )
 			std::string cmdName;
 			iss >> cmdName;
 			IOFunctionCommand cmd;
+			cmd.Require = inIf;
 
 			// Identify command type (IOFunctionCommands_t)
 			int commandType = -1;
@@ -394,11 +409,11 @@ IOScriptFile::IOScriptFile( const std::string &szFile )
 					// EntFire = arg0, Input = arg1, Message = arg2, Delay = arg3
 					auto args = Split(restOfLine, ' ');
 					if (args.size() > 0)
-						cmd.EntFire = args[0];
+						cmd.EntFire = MessageCleanup( args[0] );
 					if (args.size() > 1)
-					    cmd.Input = args[1];
+					    cmd.Input = MessageCleanup( args[1] );
 					if (args.size() > 2)
-						cmd.Message = args[2];
+						cmd.Message = MessageCleanup( args[2] );
 					if (args.size() > 3)
 						cmd.Delay = std::stof(args[3]);
 					break;
@@ -410,12 +425,39 @@ IOScriptFile::IOScriptFile( const std::string &szFile )
 						cmd.Delay = std::stof(restOfLine);
 					break;
 				}
+			    case IO_IF:
+				{
+					// Example: if EntityName == "apple"
+					// or if EntityName is "apple"
+					auto args = Split(restOfLine, ' ');
+				    if ( args.size() < 2 )
+					    inIf = "_invalid_if_statement";
+					else
+					{
+					    if ( args[1] == "==" )
+						    inIf = MessageCleanup( args[2] );
+					    else if ( args[1] == "is" )
+						    inIf = MessageCleanup( args[2] );
+					}
+				    break;
+				}
+			    case IO_END:
+				{
+					if ( !inIf.empty() )
+						inIf.clear();
+				    break;
+				}
+			    case IO_EXEC_AS:
+				{
+					// Do nothing for now.
+				    break;
+				}
 				case IO_PRINT_TO_CONSOLE:
 				case IO_PRINT_TO_CHAT:
 				{
 					// Example: PrintToConsole "Message here"
-				    // Replace " + param + " with %sN%
-				    cmd.Message = ReplaceScriptArgs(restOfLine, currentFunction.Parameters);
+					// Replace {param} with %sN%
+					cmd.Message = ReplaceScriptArgs(restOfLine, currentFunction.Parameters);
 					break;
 				}
 				default:
@@ -429,6 +471,12 @@ IOScriptFile::IOScriptFile( const std::string &szFile )
 	if (inFunction && !currentFunction.FunctionName.empty())
 		m_Functions.push_back(currentFunction);
 	file.close();
+}
+
+void IOScriptFile::OnThink()
+{
+	for ( size_t i = 0; i < m_Commands.size(); i++ )
+		RunCommands( i );
 }
 
 IOScriptFile::~IOScriptFile()
@@ -452,7 +500,7 @@ void IOScriptFile::OnCalled( const std::string &szFunction, KeyValues *pData )
 
 void IOScriptFile::OnOutput( CBaseEntity *pEnt, const std::string &szAction, const std::string &szValue, const float &szDelay )
 {
-	CallData( IO_ON_OUTPUT_SENT, UTIL_VarArgs( "%i, %s, %s, %f", pEnt->entindex(), szAction.c_str(), szValue.c_str(), szDelay ) );
+	CallData( IO_ON_OUTPUT_SENT, UTIL_VarArgs( "%i, %s, %s, %s, %f", pEnt->entindex(), STRING( pEnt->pev->targetname ), szAction.c_str(), szValue.c_str(), szDelay ) );
 }
 
 void IOScriptFile::OnInput( CBaseEntity *pEnt, const std::string &szAction, const std::string &szValue )
@@ -475,72 +523,125 @@ void IOScriptFile::CallData( const std::string &szFunction )
 
 void IOScriptFile::CallData( const std::string &szFunction, const std::string &szArgs )
 {
+	// We need this if we have more than 1 wait command.
+	float flPreviousWait = 0.0f;
 	for ( size_t i = 0; i < m_Functions.size(); i++ )
 	{
 		// Get our function data
 		IOFunctionData function = m_Functions[i];
 		if ( function.FunctionName != szFunction ) continue;
-		
-		// Execute our commands (if we have any)
+
+		// Let's add our command to our vector.
+		// We must also apply the Input call
+		IOFunctionCall IOCall;
+		IOCall.ID = GetCurrentID() + 1;
+		IOCall.Arguments = Split(szArgs, ',');
+
+		// Very simplified for now
+		if ( szFunction == "OnOutputSent" )
+			IOCall.InputCall = IOCall.Arguments[1];
+		else
+			IOCall.InputCall = IOCall.Arguments[0];
+
+		// Add our commands
 		for ( size_t y = 0; y < function.Commands.size(); y++ )
 		{
-			// TODO: Add to a new vector, that gets read by OnThink.
-			// Then we go through everything line by line
-			// We also check if, end and wait statements
-			IOFunctionCommand cmd = function.Commands[ y ];
-			switch ( cmd.Type )
+			IOFunctionCommand cmd = function.Commands[y];
+			// Only wait needs this
+			if ( cmd.Type == IO_WAIT )
 			{
-				case IO_FIRE_OUTPUT:
-				{
-					// Let's fire an output!
-					// Make sure it's I/O
-					// We don't use the entity index here, since we don't want to call ourselves and make an infinite loop (if it happens)
-				    ScriptSystem::CallScriptDelay( AvailableScripts_t::InputOutput, nullptr, cmd.Input, cmd.Delay, 3, "SCall", cmd.EntFire.c_str(), cmd.Message.c_str() );
-				}
-				break;
-
-				case IO_EXEC_AS:
-					// Doesn't do anything for now.
-				break;
-
-				case IO_WAIT:
-					// Doesn't do anything for now.
-				break;
-
-				case IO_IF:
-					// Doesn't do anything for now.
-				break;
-
-				case IO_END:
-					// Doesn't do anything for now.
-				break;
-
-				case IO_PRINT_TO_CHAT:
-				{
-				    std::string szOutput = GetArgValues( cmd.Message, Split(szArgs, ',') );
-				    szOutput += "\n";
-					UTIL_ClientPrintAll( HUD_PRINTTALK, MessageCleanup( szOutput ).c_str() );
-				}
-				break;
-
-				case IO_PRINT_TO_CONSOLE:
-				{
-				    std::string szOutput = GetArgValues( cmd.Message, Split(szArgs, ',') );
-				    szOutput += "\n";
-					for ( int i = 1; i <= gpGlobals->maxClients; i++ )
-					{
-						CBaseEntity *pPlayer = UTIL_PlayerByIndex( i );
-					    if ( pPlayer )
-							UTIL_PrintConsole( MessageCleanup( szOutput ).c_str(), pPlayer );
-					}
-				}
-				break;
+				float flDelay = cmd.Delay;
+				cmd.Delay = gpGlobals->time + flDelay + flPreviousWait;
+				flPreviousWait += flDelay;
 			}
+			IOCall.Commands.push_back( cmd );
 		}
+
+		m_Commands.push_back( IOCall );
 	}
 }
 
 void IOScriptFile::CallData( const IOFunctions_t &nFunction, const std::string &szArgs )
 {
 	CallData( g_IOFunctions[ nFunction ], szArgs );
+}
+
+void IOScriptFile::RunCommands( int nID )
+{
+	IOFunctionCall &pFunctionCall = m_Commands[ nID ];
+	// If we have commands to execute, then let's do that.
+	if ( pFunctionCall.Commands.size() > 0 )
+	{
+		IOFunctionCommand cmd = pFunctionCall.Commands[ 0 ];
+
+		// Not empty? check what we require
+		if ( !cmd.Require.empty() )
+		{
+			// Make sure what we require is the same as our input call
+			if ( cmd.Require != pFunctionCall.InputCall )
+			{
+				pFunctionCall.Commands.erase( pFunctionCall.Commands.begin() );
+				return;
+			}
+		}
+
+		switch ( cmd.Type )
+		{
+			case IO_FIRE_OUTPUT:
+			{
+				// Let's fire an output!
+				// Make sure it's I/O
+				// We don't use the entity index here, since we don't want to call ourselves and make an infinite loop (if it happens)
+			    const std::string &szArg0( "SCall" );
+			    const std::string &szArg1( cmd.EntFire );
+			    const std::string &szArg2( cmd.Message );
+			    ScriptSystem::CallScriptDelay( AvailableScripts_t::InputOutput, nullptr, cmd.Input, cmd.Delay, 3, szArg0, szArg1, szArg2 );
+			}
+			break;
+
+			case IO_EXEC_AS:
+				// Doesn't do anything for now.
+			break;
+
+			case IO_WAIT:
+			{
+				// We still have delay, don't go to the next command until we are done.
+			    if ( cmd.Delay > gpGlobals->time )
+					return;
+			}
+			break;
+
+			case IO_PRINT_TO_CHAT:
+			{
+			    std::string szOutput = GetArgValues( cmd.Message, pFunctionCall.Arguments );
+			    szOutput = MessageCleanup( szOutput ) + "\n";
+				UTIL_ClientPrintAll( HUD_PRINTTALK, szOutput.c_str() );
+			}
+			break;
+
+			case IO_PRINT_TO_CONSOLE:
+			{
+			    std::string szOutput = GetArgValues( cmd.Message, pFunctionCall.Arguments );
+			    szOutput = MessageCleanup( szOutput ) + "\n";
+				for ( int i = 1; i <= gpGlobals->maxClients; i++ )
+				{
+					CBaseEntity *pPlayer = UTIL_PlayerByIndex( i );
+				    if ( pPlayer )
+						UTIL_PrintConsole( szOutput.c_str(), pPlayer );
+				}
+			}
+			break;
+		}
+
+		// Erase after use
+		pFunctionCall.Commands.erase( pFunctionCall.Commands.begin() );
+	}
+	else
+		m_Commands.erase( m_Commands.begin() + nID );
+}
+
+uint IOScriptFile::GetCurrentID() const
+{
+	if ( m_Commands.size() == 0 ) return -1;
+	return m_Commands[ m_Commands.size() - 1 ].ID;
 }

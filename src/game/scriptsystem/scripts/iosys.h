@@ -38,12 +38,21 @@ struct IOFunctionCommand
 	float Delay; // How long until we fire this? used by IO_WAIT
 	std::string EntFire; // The entity we want to call
 	std::string Input; // The input we want to call
+	std::string Require; // The value we require to execute this
 };
 
 struct IOFunctionData
 {
 	std::string FunctionName; // The function name
 	std::vector<std::string> Parameters; // The parameters it takes
+	std::vector<IOFunctionCommand> Commands; // The commands it will execute
+};
+
+struct IOFunctionCall
+{
+	uint ID; // Our ID for this function call
+	std::string InputCall; // Our function
+	std::vector<std::string> Arguments; // Our arguments
 	std::vector<IOFunctionCommand> Commands; // The commands it will execute
 };
 
@@ -54,6 +63,7 @@ public:
 	~IOScriptFile();
 
 	void OnCalled( const std::string &szFunction, KeyValues *pData );
+	void OnThink();
 
 private:
 	void OnOutput( CBaseEntity *pEnt, const std::string &szAction, const std::string &szValue, const float &szDelay );
@@ -68,9 +78,15 @@ private:
 	// Let's call specific functions
 	void CallData( const IOFunctions_t &nFunction, const std::string &szArgs );
 
+	// Runs the commands
+	void RunCommands( int nID );
+
 	std::string m_szFileName;
 	// Our available functions
 	std::vector<IOFunctionData> m_Functions;
+	std::vector<IOFunctionCall> m_Commands;
+
+	uint GetCurrentID() const;
 };
 
 class IOSystem : public IBaseScriptClass
@@ -80,6 +96,7 @@ public:
 
 	AvailableScripts_t GetScriptType() { return AvailableScripts_t::InputOutput; }
 	void OnInit();
+	void OnThink();
 	void OnCalled(pOnScriptCallbackReturn pfnCallback, KeyValues *pData, const std::string &szFunctionName);
 	void OnLevelInit(bool bPostLoad);
 	void OnLevelShutdown();

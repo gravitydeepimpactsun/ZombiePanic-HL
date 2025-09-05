@@ -27,6 +27,8 @@ void CObjectiveMessage::Spawn( void )
 	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "SetHumanText" );
 	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "SetZombieText" );
 	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "SetState" );
+
+	SetEntityScriptCallback( &CObjectiveMessage::OnScriptCallBack );
 #endif
 }
 
@@ -115,6 +117,19 @@ bool CObjectiveMessage::IsFirstObjective()
 {
 	if ( pev->spawnflags & OBJECTIVE_MESSAGE_FIRST ) return true;
 	return false;
+}
+
+void CObjectiveMessage::OnScriptCallBack( KeyValues *pData )
+{
+	const char *szAction = pData->GetString( "Action" );
+	const char *szValue = pData->GetString( "arg0" );
+	// Check what kind of action we got
+	if ( FStrEq( szAction, "SetState" ) )
+		Use( nullptr, nullptr, USE_ON, atoi( szValue ) );
+	else if ( FStrEq( szAction, "SetHumanText" ) )
+		m_NextObj = ALLOC_STRING( szValue );
+	else if ( FStrEq( szAction, "SetZombieText" ) )
+		m_ZombieText = ALLOC_STRING( szValue );
 }
 
 //-----------------------------------------------------------------------------------

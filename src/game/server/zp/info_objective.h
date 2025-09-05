@@ -22,6 +22,7 @@ public:
 	void CallNewObjective();
 	bool IsFirstObjective();
 	virtual int ObjectCaps(void) { return CBaseEntity::ObjectCaps() | FCAP_MUST_RESET; }
+	void OnScriptCallBack( KeyValues *pData );
 
 private:
 	ObjectiveState m_State;

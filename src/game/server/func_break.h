@@ -47,6 +47,7 @@ public:
 	void EXPORT BreakTouch(CBaseEntity *pOther);
 	void Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
 	void DamageSound(void);
+	void OnScriptCallBack( KeyValues *pData );
 
 	// breakables use an overridden takedamage
 	virtual int TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int bitsDamageType);

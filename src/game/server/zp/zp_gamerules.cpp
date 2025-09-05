@@ -10,6 +10,9 @@
 #include "game.h"
 #include "shake.h"
 #include "zp/info_random_base.h"
+#ifdef SCRIPT_SYSTEM
+#include "core.h"
+#endif
 
 extern DLL_GLOBAL BOOL g_fGameOver;
 
@@ -94,6 +97,10 @@ extern cvar_t timeleft;
 void CZombiePanicGameRules ::Think(void)
 {
 	CGameRules::Think();
+
+#ifdef SCRIPT_SYSTEM
+	ScriptSystem::OnThink();
+#endif
 
 	g_VoiceGameMgr.Update(gpGlobals->frametime);
 

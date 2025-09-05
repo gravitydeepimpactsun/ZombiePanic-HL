@@ -75,9 +75,9 @@ private:
 
 class IOSystem : public IBaseScriptClass
 {
+public:
 	IOSystem();
 
-public:
 	AvailableScripts_t GetScriptType() { return AvailableScripts_t::InputOutput; }
 	void OnInit();
 	void OnCalled(pOnScriptCallbackReturn pfnCallback, KeyValues *pData, const std::string &szFunctionName);

@@ -29,6 +29,16 @@ static const char *g_IOCommands[IO_MAX] = {
 	"PrintToChat",
 };
 
+static std::string MessageCleanup( const std::string &str )
+{
+	const char *ws = "\"";
+	size_t start = str.find_first_not_of(ws);
+	if (start == std::string::npos)
+		return "";
+	size_t end = str.find_last_not_of(ws);
+	return str.substr(start, end - start + 1);
+}
+
 static std::string Trim( const std::string &str )
 {
 	const char *ws = " \t\n\r";
@@ -49,12 +59,29 @@ static std::vector<std::string> Split( const std::string &s, char delimiter )
 	return tokens;
 }
 
+static std::string GetArgValues(const std::string &message, const std::vector<std::string> &params)
+{
+	std::string result = message;
+	for (size_t i = 0; i < params.size(); ++i)
+	{
+		std::string replacement = params[i];
+		std::string pattern = "%s" + std::to_string(i) + "%";
+		size_t pos = 0;
+		while ((pos = result.find(pattern, pos)) != std::string::npos)
+		{
+			result.replace(pos, pattern.length(), replacement);
+			pos += replacement.length();
+		}
+	}
+	return result;
+}
+
 static std::string ReplaceScriptArgs(const std::string &message, const std::vector<std::string> &params)
 {
 	std::string result = message;
 	for (size_t i = 0; i < params.size(); ++i)
 	{
-		std::string pattern = "\" + " + params[i] + " + \"";
+		std::string pattern = "{" + params[i] + "}";
 		std::string replacement = "%s" + std::to_string(i) + "%";
 		size_t pos = 0;
 		while ((pos = result.find(pattern, pos)) != std::string::npos)
@@ -222,7 +249,7 @@ IOScriptFile::IOScriptFile( const std::string &szFile )
 	}
 
 	// An example of input being recieved:
-	Function OnInputReceived( String EntityID, String InputName, String InputValue )
+	Function OnInputReceived( EntityID, InputName, InputValue )
 	{
 		// We recieved an input!
 		// Arguments:
@@ -230,7 +257,7 @@ IOScriptFile::IOScriptFile( const std::string &szFile )
 		// arg1 = Input name
 		// arg2 = Value
 		// Example:
-		PrintToConsole "We recieved an input from entity: " + EntityID + " with input name: " + InputName + " and value: " + InputValue
+		PrintToConsole "We recieved an input from entity: {EntityID} with input name: {InputName} and value: {InputValue}"
 	}
 
 	// An example of output being sent:
@@ -243,7 +270,7 @@ IOScriptFile::IOScriptFile( const std::string &szFile )
 		// arg2 = Value
 		// arg3 = Delay
 		// Example:
-		PrintToConsole "We sent an output to entity: " + EntityID + " with output name: " + OutputName + " and value: " + OutputValue + " after a delay of: " + OutputDelay
+		PrintToConsole "We sent an output to entity: {EntityID} with output name: {OutputName} and value: {OutputValue} after a delay of: {OutputDelay}"
 	}
 	*/
 
@@ -425,7 +452,7 @@ void IOScriptFile::OnCalled( const std::string &szFunction, KeyValues *pData )
 
 void IOScriptFile::OnOutput( CBaseEntity *pEnt, const std::string &szAction, const std::string &szValue, const float &szDelay )
 {
-	CallData( IO_ON_OUTPUT_SENT, UTIL_VarArgs( "%i, %s, %s", pEnt->entindex(), szAction.c_str(), szValue.c_str() ) );
+	CallData( IO_ON_OUTPUT_SENT, UTIL_VarArgs( "%i, %s, %s, %f", pEnt->entindex(), szAction.c_str(), szValue.c_str(), szDelay ) );
 }
 
 void IOScriptFile::OnInput( CBaseEntity *pEnt, const std::string &szAction, const std::string &szValue )
@@ -457,6 +484,9 @@ void IOScriptFile::CallData( const std::string &szFunction, const std::string &s
 		// Execute our commands (if we have any)
 		for ( size_t y = 0; y < function.Commands.size(); y++ )
 		{
+			// TODO: Add to a new vector, that gets read by OnThink.
+			// Then we go through everything line by line
+			// We also check if, end and wait statements
 			IOFunctionCommand cmd = function.Commands[ y ];
 			switch ( cmd.Type )
 			{
@@ -487,16 +517,22 @@ void IOScriptFile::CallData( const std::string &szFunction, const std::string &s
 
 				case IO_PRINT_TO_CHAT:
 				{
-					// TODO: Convert the %sN values to our szArgs
-					UTIL_ClientPrintAll( HUD_PRINTTALK, cmd.Message.c_str() );
+				    std::string szOutput = GetArgValues( cmd.Message, Split(szArgs, ',') );
+				    szOutput += "\n";
+					UTIL_ClientPrintAll( HUD_PRINTTALK, MessageCleanup( szOutput ).c_str() );
 				}
 				break;
 
 				case IO_PRINT_TO_CONSOLE:
 				{
-				    // TODO: Convert the %sN values to our szArgs
+				    std::string szOutput = GetArgValues( cmd.Message, Split(szArgs, ',') );
+				    szOutput += "\n";
 					for ( int i = 1; i <= gpGlobals->maxClients; i++ )
-						UTIL_PrintConsole( cmd.Message.c_str(), UTIL_PlayerByIndex( i ) );
+					{
+						CBaseEntity *pPlayer = UTIL_PlayerByIndex( i );
+					    if ( pPlayer )
+							UTIL_PrintConsole( MessageCleanup( szOutput ).c_str(), pPlayer );
+					}
 				}
 				break;
 			}

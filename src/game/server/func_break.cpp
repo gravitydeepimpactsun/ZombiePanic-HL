@@ -173,7 +173,30 @@ void CBreakable::Spawn(void)
 	// Inputs
 	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "Break" );
 	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "SetHealth" );
+
+	SetEntityScriptCallback( &CBreakable::OnScriptCallBack );
 #endif
+}
+
+void CBreakable::OnScriptCallBack( KeyValues *pData )
+{
+	const char *szAction = pData->GetString( "Action" );
+	const char *szValue = pData->GetString( "arg0" );
+	// Check what kind of action we got
+	if ( FStrEq( szAction, "OnBreak" ) )
+	{
+		// Do nothing for now, but it's here if we want the output to do something.
+	}
+	else if ( FStrEq( szAction, "Break" ) )
+	{
+		if ( pev->takedamage != DAMAGE_NO )
+			TakeDamage( pev, pev, pev->health + 1, DMG_CLUB );
+	}
+	else if ( FStrEq( szAction, "SetHealth" ) )
+	{
+		if ( pev->takedamage != DAMAGE_NO )
+			pev->health = atoi( szValue );
+	}
 }
 
 const char *CBreakable::pSoundsWood[] = {

@@ -32,7 +32,38 @@ void CInfoBeacon::Spawn()
 	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "Increment" );
 	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "Decrement" );
 	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "Set" );
+
+	SetEntityScriptCallback( &CInfoBeacon::OnScriptCallBack );
 #endif
+}
+
+void CInfoBeacon::OnScriptCallBack( KeyValues *pData )
+{
+	const char *szAction = pData->GetString( "Action" );
+	const char *szValue = pData->GetString( "arg0" );
+	// Check what kind of action we got
+	if ( FStrEq( szAction, "TurnOn" ) )
+		Use( nullptr, nullptr, USE_ON, 0 );
+	else if ( FStrEq( szAction, "TurnOff" ) )
+		Use( nullptr, nullptr, USE_OFF, 0 );
+	else if ( FStrEq( szAction, "ShowBar" ) )
+		m_bShowHealth = atoi( szValue ) ? true : false;
+	else if ( FStrEq( szAction, "Increment" ) )
+	{
+		if ( FStrEq( szValue, "" ) )
+			pev->health++;
+		else
+			pev->health += atoi( szValue );
+	}
+	else if ( FStrEq( szAction, "Decrement" ) )
+	{
+		if ( FStrEq( szValue, "" ) )
+			pev->health--;
+		else
+			pev->health -= atoi( szValue );
+	}
+	else if ( FStrEq( szAction, "Set" ) )
+		pev->health = clamp( atoi( szValue ), 0, 100 );
 }
 
 void CInfoBeacon::Restart()

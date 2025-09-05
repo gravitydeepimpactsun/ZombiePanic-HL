@@ -15,6 +15,12 @@ static std::vector<IBaseScriptClass *> m_Scripts;
 
 void ScriptSystem::ScriptFunctionCall(ScriptFunctionCall_t nCallType)
 {
+	// Register all our functions here.
+	if ( nCallType == ScriptFunctionCall_t::GAMEDLL_INIT )
+	{
+		new IOSystem();
+	}
+
 	for (size_t i = 0; i < m_Scripts.size(); i++)
 	{
 		IBaseScriptClass *pScript = m_Scripts[i];
@@ -54,7 +60,7 @@ bool ScriptSystem::AddToScriptManager(IBaseScriptClass *pScript)
 {
 	for (size_t i = 0; i < m_Scripts.size(); i++)
 	{
-		if ( pScript == m_Scripts[i] )
+		if ( pScript->GetScriptType() == m_Scripts[i]->GetScriptType() )
 			return false;
 	}
 	m_Scripts.push_back( pScript );

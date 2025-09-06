@@ -79,13 +79,55 @@ static void SetItemAsFull( const char *szClassname )
 	}
 }
 
+struct ReportEntities
+{
+	string_t classname;
+	int amount;
+};
+
 void ZP::CheckHowManySpawnedItems( CBasePlayer *pPlayer )
 {
 	bool bIsCheatsEnabled = CVAR_GET_FLOAT("sv_cheats") >= 1 ? true : false;
 	if ( !bIsCheatsEnabled ) return;
-	UTIL_PrintConsole( "Items spawned this round:\n", pPlayer );
-	for (DebugSpawnList &i : s_SpawnedItems)
-		UTIL_PrintConsole( UTIL_VarArgs( "%s [%i]\n", i.Classname.c_str(), i.Amount ), pPlayer );
+
+	std::vector<ReportEntities> m_Classnames;
+	for ( size_t i = 1; i < gpGlobals->maxEntities - 1; i++ )
+	{
+		edict_t *pEdict = g_engfuncs.pfnPEntityOfEntIndex( i );
+		CBaseEntity *pEnt = CBaseEntity::Instance( pEdict );
+		if ( !pEnt ) continue;
+		string_t classname = pEnt->pev->classname;
+		if ( classname == 0 ) continue;
+		if ( FStrEq( STRING( classname ), "worldspawn" ) ) continue;
+
+		bool bAlreadyExist = false;
+		for (size_t i = 0; i < m_Classnames.size(); i++)
+		{
+			ReportEntities &repEnt = m_Classnames[i];
+			if ( FStrEq( STRING( repEnt.classname ), STRING( classname ) ) )
+			{
+				repEnt.amount++;
+				bAlreadyExist = true;
+			}
+		}
+		if ( bAlreadyExist ) continue;
+
+		ReportEntities repEnt;
+		repEnt.classname = classname;
+		repEnt.amount = 1;
+		m_Classnames.push_back( repEnt );
+	}
+
+	UTIL_PrintConsole( "Reported Entities:\n", pPlayer );
+	for ( size_t i = 0; i < m_Classnames.size(); i++ )
+	{
+		ReportEntities repEnt = m_Classnames[i];
+		UTIL_PrintConsole( UTIL_VarArgs( "%s (%i)\n", STRING( repEnt.classname ), repEnt.amount ), pPlayer );
+	}
+
+	//UTIL_PrintConsole( "Items spawned this round:\n", pPlayer );
+	//for (DebugSpawnList &i : s_SpawnedItems)
+	//	UTIL_PrintConsole( UTIL_VarArgs( "%s [%i]\n", i.Classname.c_str(), i.Amount ), pPlayer );
 	UTIL_PrintConsole( "--------------------\n", pPlayer );
 }
 

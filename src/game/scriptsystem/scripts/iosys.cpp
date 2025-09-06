@@ -30,6 +30,7 @@ static const char *g_IOCommands[IO_MAX] = {
 	"PrintToChat",
 };
 
+
 static std::string MessageCleanup( const std::string &str )
 {
 	const char *ws = "\"";
@@ -679,4 +680,14 @@ uint IOScriptFile::GetCurrentID() const
 {
 	if ( m_Commands.size() == 0 ) return -1;
 	return m_Commands[ m_Commands.size() - 1 ].ID;
+}
+
+const char *IO_GetAvailableFunctions( IOFunctions_t nFunc )
+{
+	return g_IOFunctions[ nFunc ];
+}
+
+const char *IO_GetAvailableFunctionCommands( IOFunctionCommands_t nCommand )
+{
+	return g_IOCommands[ nCommand ];
 }

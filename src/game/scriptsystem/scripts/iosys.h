@@ -31,6 +31,8 @@ enum IOFunctions_t
 
 	IO_ON_MAX
 };
+const char *IO_GetAvailableFunctions( IOFunctions_t nFunc );
+const char *IO_GetAvailableFunctionCommands( IOFunctionCommands_t nCommand );
 
 struct IOFunctionCommand
 {

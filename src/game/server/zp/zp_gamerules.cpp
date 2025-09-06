@@ -686,6 +686,33 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 		}
 		return TRUE;
 	}
+#ifdef SCRIPT_SYSTEM
+	else if (FStrEq(pcmd, "ss") || FStrEq(pcmd, "scriptsystem") || FStrEq(pcmd, "scall"))
+	{
+		const char *pSetCommand = CMD_ARGV(1);
+		if ( FStrEq( pSetCommand, "func" ) )
+		{
+			UTIL_PrintConsole( "Available functions:\n", pPlayer );
+			for ( int i = 0; i < IOFunctions_t::IO_ON_MAX; i++ )
+				UTIL_PrintConsole( UTIL_VarArgs( "%s\n", IO_GetAvailableFunctions( (IOFunctions_t)i ) ), pPlayer );
+			return TRUE;
+		}
+		else if ( FStrEq( pSetCommand, "cmds" ) )
+		{
+			UTIL_PrintConsole( "Available commands:\n", pPlayer );
+			for ( int i = 0; i < IOFunctionCommands_t::IO_MAX; i++ )
+				UTIL_PrintConsole( UTIL_VarArgs( "%s\n", IO_GetAvailableFunctionCommands( (IOFunctionCommands_t)i ) ), pPlayer );
+			return TRUE;
+		}
+		else
+		{
+			UTIL_PrintConsole( "Available commands:\n", pPlayer );
+			UTIL_PrintConsole( "scall func - Print all available functions\n", pPlayer );
+			UTIL_PrintConsole( "scall cmds - Print all available commands\n", pPlayer );
+		}
+		return TRUE;
+	}
+#endif
 
 	if ( m_pGameMode->IsTestModeActive() )
 	{

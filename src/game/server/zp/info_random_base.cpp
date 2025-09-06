@@ -90,6 +90,7 @@ void ZP::CheckHowManySpawnedItems( CBasePlayer *pPlayer )
 	bool bIsCheatsEnabled = CVAR_GET_FLOAT("sv_cheats") >= 1 ? true : false;
 	if ( !bIsCheatsEnabled ) return;
 
+	int m_EntAmount = 0;
 	std::vector<ReportEntities> m_Classnames;
 	for ( size_t i = 1; i < gpGlobals->maxEntities - 1; i++ )
 	{
@@ -99,7 +100,7 @@ void ZP::CheckHowManySpawnedItems( CBasePlayer *pPlayer )
 		string_t classname = pEnt->pev->classname;
 		if ( classname == 0 ) continue;
 		if ( FStrEq( STRING( classname ), "worldspawn" ) ) continue;
-
+		m_EntAmount++;
 		bool bAlreadyExist = false;
 		for (size_t i = 0; i < m_Classnames.size(); i++)
 		{
@@ -118,12 +119,12 @@ void ZP::CheckHowManySpawnedItems( CBasePlayer *pPlayer )
 		m_Classnames.push_back( repEnt );
 	}
 
-	UTIL_PrintConsole( "Reported Entities:\n", pPlayer );
 	for ( size_t i = 0; i < m_Classnames.size(); i++ )
 	{
 		ReportEntities repEnt = m_Classnames[i];
-		UTIL_PrintConsole( UTIL_VarArgs( "%s (%i)\n", STRING( repEnt.classname ), repEnt.amount ), pPlayer );
+		UTIL_PrintConsole( UTIL_VarArgs( "Class: %s (%i)\n", STRING( repEnt.classname ), repEnt.amount ), pPlayer );
 	}
+	UTIL_PrintConsole( UTIL_VarArgs( "Total %i entities\n", m_EntAmount ), pPlayer );
 
 	//UTIL_PrintConsole( "Items spawned this round:\n", pPlayer );
 	//for (DebugSpawnList &i : s_SpawnedItems)

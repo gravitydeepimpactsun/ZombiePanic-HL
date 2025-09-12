@@ -164,6 +164,19 @@ namespace ZP
     void CheckIfBreakableGlass( TraceResult *pTrace, CBaseEntity *pEnt, const Vector &vDir, int iDamageFlag );
 #endif
 
+	// Normalize our vector output
+	inline Vector2D Normalize( const Vector2D &input )
+	{
+	    float flLen = input.Length();
+		if ( flLen == 0 )
+			return Vector2D( 0, 0 );
+		else
+		{
+			flLen = 1 / flLen;
+			return Vector2D( input.x * flLen, input.y * flLen );
+		}
+	}
+
 	enum RoundState
 	{
 		RoundState_Invalid = -1,

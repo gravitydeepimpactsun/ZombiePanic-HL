@@ -38,10 +38,23 @@
 #include <tier2/tier2.h>
 #include <KeyValues.h>
 
+// For our draw
+#include "mathlib/mathlib.h"
+#include "engfuncs.h"
+#include "tri.h"
+#include "triangleapi.h"
+
+// Normalize
+#include "zp/zp_shared.h"
+
 weather_properties	WeatherData;
 
 cl_drip		FirstChainDrip;
 cl_rainfx	FirstChainFX;
+
+// Mathlib doesn't want to work for client, so let's use these instead.
+extern void AngleMatrix( const float *angles, float (*matrix)[4] );
+extern void VectorTransform( const float *in1, float in2[3][4], float *out );
 
 double rain_curtime;    // current time
 double rain_oldtime;    // last time we have updated drips
@@ -70,7 +83,7 @@ void Weather::Process()
 	{
 		// fix first frame bug with nextspawntime
 		rain_nextspawntime = gEngfuncs.GetClientTime();
-		Weather::Parse();
+		Parse();
 		return;
 	}
 
@@ -110,7 +123,7 @@ void Weather::Process()
 		if (curDrip->origin.z < curDrip->minHeight) 
 		{
 			if ( WeatherData.weatherMode == WEATHER_RAIN )
-				Weather::WaterLandingEffect( curDrip, curDrip->landInWater ); // create water rings
+				WaterLandingEffect( curDrip, curDrip->landInWater ); // create water rings
 
 			curDrip->p_Prev->p_Next = curDrip->p_Next; // link chain
 			if (nextDrip != NULL)
@@ -344,7 +357,7 @@ void Weather::Reset()
 		fxcounter--;
 	}
 
-	Weather::Init();
+	Init();
 }
 
 
@@ -416,5 +429,236 @@ void Weather::Parse( void )
 			else
 				WeatherData.weatherMode = WEATHER_NONE;
 		}
+	}
+}
+
+void Weather::SetPoint( float x, float y, float z, float (*matrix)[4] )
+{
+	Vector point, result;
+	point[0] = x;
+	point[1] = y;
+	point[2] = z;
+
+	VectorTransform( point, matrix, result );
+
+	gEngfuncs.pTriAPI->Vertex3f( result[0], result[1], result[2] );
+}
+
+void Weather::Draw()
+{
+	if ( FirstChainDrip.p_Next == NULL ) return;
+	if ( !cl_weather_quality.GetBool() ) return;
+	if ( WeatherData.weatherMode == WEATHER_NONE ) return;
+
+	V_HSPRITE hsprTexture;
+	const model_s *pTexture;
+	float visibleHeight = WeatherData.globalHeight - SNOWFADEDIST;
+
+	// Load our sprite texture
+	switch ( WeatherData.weatherMode )
+	{
+		case WEATHER_RAIN:
+		default:
+			hsprTexture = LoadSprite( "sprites/effects/rain.spr" );
+		break;
+
+		case WEATHER_SNOW:
+			hsprTexture = LoadSprite( "sprites/effects/snowflake.spr" );
+		break;
+
+		case WEATHER_DUST:
+			hsprTexture = LoadSprite( "sprites/effects/fx_dust.spr" );
+		break;
+	}
+
+	// usual triapi stuff
+	pTexture = gEngfuncs.GetSpritePointer( hsprTexture );
+	gEngfuncs.pTriAPI->SpriteTexture( (struct model_s *)pTexture, 0 );
+	gEngfuncs.pTriAPI->RenderMode( kRenderTransAdd );
+	gEngfuncs.pTriAPI->CullFace( TRI_NONE );
+
+	// go through drips list
+	cl_drip* Drip = FirstChainDrip.p_Next;
+	cl_entity_t *player = gEngfuncs.GetLocalPlayer();
+
+	switch ( WeatherData.weatherMode )
+	{
+		case WEATHER_RAIN:
+		{
+			while (Drip != NULL)
+			{
+				cl_drip* nextdDrip = Drip->p_Next;
+					
+				Vector2D toPlayer; 
+				toPlayer.x = player->origin[0] - Drip->origin[0];
+				toPlayer.y = player->origin[1] - Drip->origin[1];
+				toPlayer = ZP::Normalize( toPlayer );
+	
+				toPlayer.x *= DRIP_SPRITE_HALFWIDTH;
+				toPlayer.y *= DRIP_SPRITE_HALFWIDTH;
+
+				float shiftX = (Drip->xDelta / DRIPSPEED) * DRIP_SPRITE_HALFHEIGHT;
+				float shiftY = (Drip->yDelta / DRIPSPEED) * DRIP_SPRITE_HALFHEIGHT;
+
+			// --- draw triangle --------------------------
+				gEngfuncs.pTriAPI->Color4f( 1.0, 1.0, 1.0, Drip->alpha );
+				gEngfuncs.pTriAPI->Begin( TRI_TRIANGLES );
+
+					gEngfuncs.pTriAPI->TexCoord2f( 0, 0 );
+					gEngfuncs.pTriAPI->Vertex3f( Drip->origin[0]-toPlayer.y - shiftX, Drip->origin[1]+toPlayer.x - shiftY,Drip->origin[2] + DRIP_SPRITE_HALFHEIGHT );
+
+					gEngfuncs.pTriAPI->TexCoord2f( 0.5, 1 );
+					gEngfuncs.pTriAPI->Vertex3f( Drip->origin[0] + shiftX, Drip->origin[1] + shiftY, Drip->origin[2]-DRIP_SPRITE_HALFHEIGHT );
+
+					gEngfuncs.pTriAPI->TexCoord2f( 1, 0 );
+					gEngfuncs.pTriAPI->Vertex3f( Drip->origin[0]+toPlayer.y - shiftX, Drip->origin[1]-toPlayer.x - shiftY, Drip->origin[2]+DRIP_SPRITE_HALFHEIGHT);
+
+				gEngfuncs.pTriAPI->End();
+			// --- draw triangle end ----------------------
+
+				Drip = nextdDrip;
+			}
+		}
+		break;
+
+		case WEATHER_SNOW:
+		{
+			Vector normal;
+			gEngfuncs.GetViewAngles((float*)normal);
+
+			float matrix[3][4];
+			AngleMatrix( normal, matrix );	// calc view matrix
+
+			while (Drip != NULL)
+			{
+				cl_drip* nextdDrip = Drip->p_Next;
+
+				matrix[0][3] = Drip->origin[0]; // write origin to matrix
+				matrix[1][3] = Drip->origin[1];
+				matrix[2][3] = Drip->origin[2];
+
+				// apply start fading effect
+				float alpha = (Drip->origin[2] <= visibleHeight) ? Drip->alpha : ((WeatherData.globalHeight - Drip->origin[2]) / (float)SNOWFADEDIST) * Drip->alpha;
+
+			// --- draw quad --------------------------
+				gEngfuncs.pTriAPI->Color4f( 1.0, 1.0, 1.0, alpha );
+				gEngfuncs.pTriAPI->Begin( TRI_QUADS );
+
+					gEngfuncs.pTriAPI->TexCoord2f( 0, 0 );
+					SetPoint(0, SNOW_SPRITE_HALFSIZE ,SNOW_SPRITE_HALFSIZE, matrix);
+
+					gEngfuncs.pTriAPI->TexCoord2f( 0, 1 );
+					SetPoint(0, SNOW_SPRITE_HALFSIZE ,-SNOW_SPRITE_HALFSIZE, matrix);
+
+					gEngfuncs.pTriAPI->TexCoord2f( 1, 1 );
+					SetPoint(0, -SNOW_SPRITE_HALFSIZE ,-SNOW_SPRITE_HALFSIZE, matrix);
+
+					gEngfuncs.pTriAPI->TexCoord2f( 1, 0 );
+					SetPoint(0, -SNOW_SPRITE_HALFSIZE ,SNOW_SPRITE_HALFSIZE, matrix);
+
+				gEngfuncs.pTriAPI->End();
+			// --- draw quad end ----------------------
+
+				Drip = nextdDrip;
+			}
+		}
+		break;
+
+		case WEATHER_DUST:
+		{
+			Vector normal;
+			gEngfuncs.GetViewAngles((float*)normal);
+
+			float matrix[3][4];
+			AngleMatrix( normal, matrix );	// calc view matrix
+
+			while (Drip != NULL)
+			{
+				cl_drip* nextdDrip = Drip->p_Next;
+
+				matrix[0][3] = Drip->origin[0]; // write origin to matrix
+				matrix[1][3] = Drip->origin[1];
+				matrix[2][3] = Drip->origin[2];
+
+				// apply start fading effect
+			    float alpha = (Drip->origin[2] <= visibleHeight) ? Drip->alpha : ((WeatherData.globalHeight - Drip->origin[2]) / (float)SNOWFADEDIST) * Drip->alpha;
+
+			// --- draw quad --------------------------
+				gEngfuncs.pTriAPI->Color4f( 1.0, 1.0, 1.0, alpha );
+				gEngfuncs.pTriAPI->Begin( TRI_QUADS );
+
+					gEngfuncs.pTriAPI->TexCoord2f( 0, 0 );
+					SetPoint(0, DUST_SPRITE_HALFSIZE ,DUST_SPRITE_HALFSIZE, matrix);
+
+					gEngfuncs.pTriAPI->TexCoord2f( 0, 1 );
+					SetPoint(0, DUST_SPRITE_HALFSIZE ,-DUST_SPRITE_HALFSIZE, matrix);
+
+					gEngfuncs.pTriAPI->TexCoord2f( 1, 1 );
+					SetPoint(0, -DUST_SPRITE_HALFSIZE ,-DUST_SPRITE_HALFSIZE, matrix);
+
+					gEngfuncs.pTriAPI->TexCoord2f( 1, 0 );
+					SetPoint(0, -DUST_SPRITE_HALFSIZE ,DUST_SPRITE_HALFSIZE, matrix);
+
+				gEngfuncs.pTriAPI->End();
+			// --- draw quad end ----------------------
+
+				Drip = nextdDrip;
+			}
+		}
+		break;
+	}
+
+	// Draw our effects
+	DrawFXObjects();
+}
+
+void Weather::DrawFXObjects()
+{
+	if ( FirstChainFX.p_Next == NULL ) return;
+
+	float curtime = gEngfuncs.GetClientTime();
+
+	// go through objects list
+	cl_rainfx* curFX = FirstChainFX.p_Next;
+	while (curFX != NULL)
+	{
+		cl_rainfx* nextFX = curFX->p_Next;
+
+		// usual triapi stuff
+		V_HSPRITE hsprTexture;
+		const model_s *pTexture;
+		if ( curFX->inWater )
+			hsprTexture = LoadSprite( RANDOM_LONG(0, 1) == 1 ? "sprites/effects/rain_splash_01.spr" : "sprites/effects/rain_splash_02.spr" );
+		else
+			hsprTexture = LoadSprite( "sprites/effects/rainsplash.spr" );
+		pTexture = gEngfuncs.GetSpritePointer( hsprTexture );
+		gEngfuncs.pTriAPI->SpriteTexture( (struct model_s *)pTexture, 0 );
+		gEngfuncs.pTriAPI->RenderMode( kRenderTransAdd );
+		gEngfuncs.pTriAPI->CullFace( TRI_NONE );
+
+		// fadeout
+		float alpha = ((curFX->birthTime + curFX->life - curtime) / curFX->life) * curFX->alpha;
+		float size = (curtime - curFX->birthTime) * MAXRINGHALFSIZE;
+
+		// --- draw quad --------------------------
+		gEngfuncs.pTriAPI->Color4f( 1.0, 1.0, 1.0, alpha );
+		gEngfuncs.pTriAPI->Begin( TRI_QUADS );
+
+			gEngfuncs.pTriAPI->TexCoord2f( 0, 0 );
+			gEngfuncs.pTriAPI->Vertex3f(curFX->origin[0] - size, curFX->origin[1] - size, curFX->origin[2]);
+
+			gEngfuncs.pTriAPI->TexCoord2f( 0, 1 );
+			gEngfuncs.pTriAPI->Vertex3f(curFX->origin[0] - size, curFX->origin[1] + size, curFX->origin[2]);
+
+			gEngfuncs.pTriAPI->TexCoord2f( 1, 1 );
+			gEngfuncs.pTriAPI->Vertex3f(curFX->origin[0] + size, curFX->origin[1] + size, curFX->origin[2]);
+
+			gEngfuncs.pTriAPI->TexCoord2f( 1, 0 );
+			gEngfuncs.pTriAPI->Vertex3f(curFX->origin[0] + size, curFX->origin[1] - size, curFX->origin[2]);
+
+		gEngfuncs.pTriAPI->End();
+		// --- draw quad end ----------------------
+
+		curFX = nextFX;
 	}
 }

@@ -23,6 +23,7 @@
 #include "particleman.h"
 #include "tri.h"
 #include "fog.h"
+#include "sphl/weather.h"
 
 CSysModule *g_hParticleManModule = NULL;
 IParticleMan *g_pParticleMan = NULL;
@@ -109,4 +110,10 @@ void CL_DLLEXPORT HUD_DrawTransparentTriangles(void)
 
 	if (g_pParticleMan)
 		g_pParticleMan->Update();
+
+
+	// Process and then draw the weather
+	Weather::ProcessFXObjects();
+	Weather::Process();
+	Weather::Draw();
 }

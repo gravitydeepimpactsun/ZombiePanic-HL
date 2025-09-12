@@ -106,6 +106,10 @@ namespace Weather
 	void Process( void );
 	void ProcessFXObjects( void );
 	void WaterLandingEffect( cl_drip *drip, bool inWater );
+
+	void SetPoint( float x, float y, float z, float (*matrix)[4] );
+	void Draw();
+	void DrawFXObjects();
 }
 
 #endif

@@ -194,8 +194,8 @@ elseif( COMPILER_MSVC )
 	add_compile_definitions( WIN32 )
 
 	# Debug data
-	add_compile_options("$<$<CONFIG:RELEASE>:/Zi>")
-	add_link_options("$<$<CONFIG:RELEASE>:/DEBUG>")
+	add_compile_options("$<$<CONFIG:Debug>:/Zi>")
+	add_link_options("$<$<CONFIG:Debug>:/DEBUG>")
 endif()
 
 set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${C_CXX_COMPILER_FLAGS}" )

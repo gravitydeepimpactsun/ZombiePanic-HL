@@ -2418,7 +2418,6 @@ LINK_ENTITY_TO_CLASS(env_fog, CClientFog)
 
 void CClientFog::KeyValue(KeyValueData *pkvd)
 {
-#if 0
 	if (FStrEq(pkvd->szKeyName, "startdist"))
 	{
 		m_iStartDist = Q_atoi(pkvd->szValue);
@@ -2430,7 +2429,6 @@ void CClientFog::KeyValue(KeyValueData *pkvd)
 		pkvd->fHandled = TRUE;
 	}
 	else
-#endif
 	if (FStrEq(pkvd->szKeyName, "density"))
 	{
 		m_fDensity = atof(pkvd->szValue);

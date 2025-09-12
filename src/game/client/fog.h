@@ -9,6 +9,8 @@ struct FogParams
 	bool fogSkybox = false;
 	float color[3] = {0.0f, 0.0f, 0.0f};
 	float density = 0.0f;
+	int fogStart = FOG_START_DISTANCE;
+	int fogEnd = FOG_END_DISTANCE;
 };
 
 class CFog

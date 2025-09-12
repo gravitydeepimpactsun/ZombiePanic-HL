@@ -216,6 +216,8 @@ int CHud::MsgFunc_Fog(const char *pszName, int iSize, void *pbuf)
 {
 	FogParams fogParams;
 	float density;
+	int fog_start;
+	int fog_end;
 
 	// Reset fog parameters
 	gFog.ClearFog();
@@ -227,9 +229,13 @@ int CHud::MsgFunc_Fog(const char *pszName, int iSize, void *pbuf)
 	fogParams.color[2] = (float)READ_BYTE(); // b
 
 	density = READ_FLOAT();
+	fog_start = READ_SHORT();
+	fog_end = READ_SHORT();
 
 	if (READ_OK())
 	{
+		fogParams.fogStart = fog_start;
+		fogParams.fogEnd = fog_end;
 		fogParams.density = density;
 		fogParams.fogSkybox = true;
 		gFog.SetFogParameters(fogParams);

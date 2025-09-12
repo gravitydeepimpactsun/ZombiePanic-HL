@@ -34,7 +34,7 @@ void CFog::RenderFog()
 		bFog = false;
 
 	gEngfuncs.pTriAPI->FogParams(m_FogParams.density, m_FogParams.fogSkybox);
-	gEngfuncs.pTriAPI->Fog(m_FogParams.color, FOG_START_DISTANCE, FOG_END_DISTANCE, bFog);
+	gEngfuncs.pTriAPI->Fog(m_FogParams.color, m_FogParams.fogStart, m_FogParams.fogEnd, bFog);
 }
 
 void CFog::ClearFog()

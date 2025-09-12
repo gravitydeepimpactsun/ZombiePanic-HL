@@ -4896,6 +4896,8 @@ void CBasePlayer ::UpdateClientData(void)
 				WRITE_BYTE(g);
 				WRITE_BYTE(b);
 				WRITE_FLOAT(pFog->m_fDensity);
+				WRITE_SHORT(pFog->m_iStartDist);
+				WRITE_SHORT(pFog->m_iEndDist);
 				MESSAGE_END();
 			}
 

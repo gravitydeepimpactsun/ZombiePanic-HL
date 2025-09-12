@@ -2428,8 +2428,7 @@ void CClientFog::KeyValue(KeyValueData *pkvd)
 		m_iEndDist = Q_atoi(pkvd->szValue);
 		pkvd->fHandled = TRUE;
 	}
-	else
-	if (FStrEq(pkvd->szKeyName, "density"))
+	else if (FStrEq(pkvd->szKeyName, "density"))
 	{
 		m_fDensity = atof(pkvd->szValue);
 

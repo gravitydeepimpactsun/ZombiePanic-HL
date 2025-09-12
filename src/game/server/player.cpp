@@ -237,6 +237,7 @@ int gmsgViewMode = 0;
 int gmsgVGUIMenu = 0;
 int gmsgStatusIcon = 0;
 int gmsgFog = 0;
+int gmsgWeather = 0;
 
 int gmsgObjective = 0;
 int gmsgBeaconDraw = 0;
@@ -321,6 +322,7 @@ void LinkUserMessages(void)
 	}
 
 	gmsgFog = REG_USER_MSG("Fog", 7);
+	gmsgWeather = REG_USER_MSG("Weather", 16);
 
 	gmsgBeaconDraw = REG_USER_MSG("BcnD", -1);
 	gmsgBeaconReset = REG_USER_MSG("BcnR", -1);

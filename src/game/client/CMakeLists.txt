@@ -1,4 +1,5 @@
 add_subdirectory( zp )
+add_subdirectory( sphl )
 
 add_sources(
 	CMakeLists.txt

@@ -324,6 +324,7 @@ void CHud::Init(void)
 	HookHudMessage<&CHud::MsgFunc_Concuss>("Concuss");
 	HookHudMessage<&CHud::MsgFunc_Logo>("Logo");
 	HookHudMessage<&CHud::MsgFunc_Fog>("Fog");
+	HookHudMessage<&CHud::MsgFunc_Weather>("Weather");
 	HookHudMessage<&CHud::MsgFunc_Timer>("RndTime");
 
 	// Zombie Panic! specific messages

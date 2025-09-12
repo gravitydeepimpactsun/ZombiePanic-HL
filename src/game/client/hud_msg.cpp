@@ -33,6 +33,9 @@
 extern IParticleMan *g_pParticleMan;
 
 #include "fog.h"
+#include "sphl/weather.h"
+
+extern weather_properties WeatherData;
 
 #define MAX_CLIENTS 32
 
@@ -244,6 +247,21 @@ int CHud::MsgFunc_Fog(const char *pszName, int iSize, void *pbuf)
 	{
 		gFog.ClearFog();
 	}
+
+	return 1;
+}
+
+int CHud::MsgFunc_Weather(const char* pszName, int iSize, void* pbuf)
+{
+	BEGIN_READ( pbuf, iSize );
+		WeatherData.dripsPerSecond =	READ_SHORT();
+		WeatherData.distFromPlayer =	READ_COORD();
+		WeatherData.windX =				READ_COORD();
+		WeatherData.windY =				READ_COORD();
+		WeatherData.randX =				READ_COORD();
+		WeatherData.randY =				READ_COORD();
+		WeatherData.weatherMode =		(WeatherMode_t)READ_SHORT();
+		WeatherData.globalHeight =		READ_COORD();
 
 	return 1;
 }

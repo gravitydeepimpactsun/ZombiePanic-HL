@@ -230,7 +230,7 @@ void IOSystem::OnLoadMapScriptFile()
 	m_szScript = nullptr;
 
 	// Load our map script file.
-	m_szScript = new IOScriptFile( "scripts/maps/" + std::string( STRING( gpGlobals->mapname ) ) + ".txt" );
+	m_szScript = new IOScriptFile( "scripts/maps/" + std::string( STRING( gpGlobals->mapname ) ) + ".io" );
 }
 
 IOScriptFile::IOScriptFile( const std::string &szFile )

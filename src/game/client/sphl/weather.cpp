@@ -392,7 +392,7 @@ void Weather::Parse( void )
 {
 	if ( WeatherData.distFromPlayer != 0 || WeatherData.dripsPerSecond != 0 || WeatherData.globalHeight != 0 ) return;
 
-	std::string szFile( "scripts/" + std::string( gEngfuncs.pfnGetLevelName() ) + ".txt" );
+	std::string szFile( "scripts/maps/" + std::string( STRING( gpGlobals->mapname ) ) + ".txt" );
 	KeyValuesAD kvData( "Weather" );
 	if ( kvData->LoadFromFile( g_pFullFileSystem, szFile.c_str(), "GAME" ) )
 	{

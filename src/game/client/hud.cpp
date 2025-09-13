@@ -79,6 +79,8 @@
 #include "hud/timer.h"
 #include "hud/strafeguide.h"
 
+#include "sphl/weather.h"
+
 // Zombie Panic!
 #include "zp/hud/zp_zombielives.h"
 #include "zp/hud/zp_roundstate.h"
@@ -293,6 +295,7 @@ CHud::CHud()
 
 CHud::~CHud()
 {
+	Weather::Reset();
 }
 
 // This is called every time the DLL is loaded
@@ -666,6 +669,9 @@ void CHud::VidInit(void)
 		i->VidInit();
 
 	RegisterHUDTextures();
+
+	// Reset the weather each time we load a new level
+	Weather::Reset();
 }
 
 void CHud::Frame(double time)

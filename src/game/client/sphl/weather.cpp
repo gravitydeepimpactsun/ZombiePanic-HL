@@ -13,6 +13,7 @@
 //  -Changed and tweaked this for Zombie Panic! (We use a different base, so I had to change a few things)
 //  -Changed the old "cl_weather" to "cl_weather_quality" ConVar
 //  -Removed .pcs files, changed to KeyValues format instead
+// - Added convar "cl_weather_rainsplash" to enable/disable rain splashes. It's disabled by default.
 
 //SysOp: 
 //	-Added new Dust Mode (customizable in .pcs file) Use rain mode 2 for turn it on.
@@ -66,6 +67,7 @@ int fxcounter = 0;
 
 // 3 is the default, which is "High".
 static ConVar cl_weather_quality( "cl_weather_quality", "3", FCVAR_BHL_ARCHIVE );
+static ConVar cl_weather_rainsplash( "cl_weather_rainsplash", "0", FCVAR_BHL_ARCHIVE );
 
 /*
 =================================
@@ -264,6 +266,7 @@ void Weather::Process()
 
 void Weather::WaterLandingEffect( cl_drip *drip, bool inWater )
 {
+	if ( !cl_weather_rainsplash.GetBool() ) return;
 	int max_drawamount = 0;
 	switch ( cl_weather_quality.GetInt() )
 	{
@@ -405,7 +408,11 @@ void Weather::Parse( void )
 {
 	if ( WeatherData.distFromPlayer != 0 || WeatherData.dripsPerSecond != 0 || WeatherData.globalHeight != 0 ) return;
 
-	std::string szFile( "scripts/maps/" + std::string( STRING( gpGlobals->mapname ) ) + ".txt" );
+	char mapname[64];
+	strcpy( mapname, gEngfuncs.pfnGetLevelName() );
+	mapname[strlen(mapname) - 4] = 0; // cut .bsp
+
+	std::string szFile( "scripts/" + std::string( mapname ) + ".txt" );
 	KeyValuesAD kvData( "Weather" );
 	if ( kvData->LoadFromFile( g_pFullFileSystem, szFile.c_str(), "GAME" ) )
 	{

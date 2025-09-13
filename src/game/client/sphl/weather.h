@@ -22,14 +22,14 @@
 #define SNOWSPEED		200		// speed of snowflakes
 #define SNOWFADEDIST	80
 
-#define MAXDRIPS_LOW			500
-#define MAXDRIPS_MEDIUM			1000
+#define MAXDRIPS_LOW			150
+#define MAXDRIPS_MEDIUM			800
 #define MAXDRIPS_HIGH			2000
 #define MAXDRIPS_VERYHIGH		3000
-#define MAXFX_LOW				500
-#define MAXFX_MEDIUM			1000
-#define MAXFX_HIGH				2000
-#define MAXFX_VERYHIGH			3000
+#define MAXFX_LOW				150
+#define MAXFX_MEDIUM			500
+#define MAXFX_HIGH				1000
+#define MAXFX_VERYHIGH			2000
 
 #define DRIP_SPRITE_HALFHEIGHT	46
 #define DRIP_SPRITE_HALFWIDTH	8

@@ -321,7 +321,7 @@ void LinkUserMessages(void)
 		REG_USER_MSG(gCustomMessages[i], 0);
 	}
 
-	gmsgFog = REG_USER_MSG("Fog", 7);
+	gmsgFog = REG_USER_MSG("Fog", 11);
 	gmsgWeather = REG_USER_MSG("Weather", 16);
 
 	gmsgBeaconDraw = REG_USER_MSG("BcnD", -1);

@@ -125,6 +125,7 @@ private:
 		for (size_t i = 0; i < m_Functions.size(); i++)
 		{
 			IScriptFunctions ScriptFunction = m_Functions[i];
+			if ( !CBaseEntity::Instance( ScriptFunction.Entity ) ) continue;
 			if ( ScriptFunction.Function == szFunctionName
 				&& FClassnameIs( CBaseEntity::Instance( ScriptFunction.Entity )->pev, STRING( pEnt->pev->classname ) ) )
 				return true;

@@ -16,6 +16,8 @@ static ConVar cl_fog_start( "cl_fog_start", "1500", FCVAR_CHEATS, "Start distanc
 static ConVar cl_fog_end( "cl_fog_end", "2000", FCVAR_CHEATS, "End distance of the fog when overridden" );
 static ConVar cl_fog_color( "cl_fog_color", "128 128 128", FCVAR_CHEATS, "Color of the fog when overridden (r g b)" );
 
+static Vector nullColor( 0, 0, 0 );
+
 CFog::CFog()
 {
 	ClearFog();
@@ -168,7 +170,7 @@ void CFog::DrawFog( FogDrawType nType )
 		case FOG_DRAW_TRANSPARENT:
 		{
 		    m_bAllowOverride = false;
-			RenderFog( Vector(0, 0, 0) );
+			RenderFog( nullColor );
 		    m_bAllowOverride = true;
 		}
 		break;

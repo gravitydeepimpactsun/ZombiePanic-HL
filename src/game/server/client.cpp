@@ -821,6 +821,9 @@ void StartFrame(void)
 
 	gpGlobals->teamplay = teamplay.value;
 	g_ulFrameCount++;
+
+	// Make sure the fog is updated each frame
+	CClientFog::FogThink();
 }
 
 #ifdef PLATFORM_WINDOWS

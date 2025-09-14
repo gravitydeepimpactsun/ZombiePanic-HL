@@ -1,4 +1,5 @@
 #include "hud.h"
+#include "mathlib/vector.h"
 #include "fog.h"
 #if WIN32
 	#include "windows.h"

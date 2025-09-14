@@ -9,6 +9,16 @@
 #include "zp/zp_shared.h"
 #include "../../hud/base.h"
 
+static const int BEACON_ICON_SIZE = 64;
+
+enum BeaconScreenDrawState_t
+{
+	DRAWSTATE_NO = 0, // Not drawn at all
+	DRAWSTATE_YES, // Drawn normally
+	DRAWSTATE_EDGE, // Drawn at the edge of the screen
+	DRAWSTATE_BEHIND, // Behind the player, drawn at the edge of the screen
+};
+
 class CZPBeacons : public CHudElemBase<CZPBeacons>, public vgui2::Panel
 {
 public:

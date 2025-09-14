@@ -90,15 +90,14 @@ void CZPBeacons::Paint()
 			r = 255, g = 215, b = 0;
 
 		// Draw the icon
-		int iconSize = 64;
-		int iconX = x - iconSize / 2;
+		int iconX = x - BEACON_ICON_SIZE / 2;
 		// Debug: draw a box where the icon is
 		//vgui2::surface()->DrawSetColor( r, g, b, 100 );
-		//vgui2::surface()->DrawFilledRect( iconX, y, iconX + iconSize, y + iconSize );
+		//vgui2::surface()->DrawFilledRect( iconX, y, iconX + BEACON_ICON_SIZE, y + BEACON_ICON_SIZE );
 
 		vgui2::surface()->DrawSetColor( Color( 255, 255, 255, 255 ) );
 		vgui2::surface()->DrawSetTexture( beacon.drawData.textureID );
-		vgui2::surface()->DrawTexturedRect( iconX, y, iconX + iconSize, y + iconSize );
+		vgui2::surface()->DrawTexturedRect( iconX, y, iconX + BEACON_ICON_SIZE, y + BEACON_ICON_SIZE );
 
 		// Draw the text
 		const char *szText = beacon.text.c_str();
@@ -110,7 +109,7 @@ void CZPBeacons::Paint()
 		gEngfuncs.pfnDrawConsoleStringLen( szText, &textWidth, &textHeight );
 
 		int textX = x - textWidth / 2;
-		int textY = y + iconSize + 5;
+		int textY = y + BEACON_ICON_SIZE + 5;
 
 		vgui2::surface()->DrawSetTextFont( m_hBeaconText );
 		vgui2::surface()->DrawSetTextColor( r, g, b, 255 );
@@ -153,12 +152,12 @@ void CZPBeacons::DrawPositions()
 	{
 		BeaconData &beacon = m_Beacons[i];
 		if ( !beacon.active ) continue;
-		bool bShouldDraw = true;
+		BeaconScreenDrawState_t drawState = DRAWSTATE_YES;
 		if ( beacon.range > 0 )
 		{
 			float dist = ( beacon.position - v_origin ).Length();
 			if ( dist > beacon.range )
-				bShouldDraw = false;
+				drawState = DRAWSTATE_NO;
 		}
 
 		switch ( beacon.drawtype )
@@ -170,7 +169,7 @@ void CZPBeacons::DrawPositions()
 				gEngfuncs.pEventAPI->EV_SetTraceHull( 2 ); // Point hull
 				gEngfuncs.pEventAPI->EV_PlayerTrace( beacon.position, v_origin, 0xFFFFFFFF, -1, &tr );
 				if ( tr.fraction < 0.99f ) // If we hit something, the beacon is not visible
-					bShouldDraw = false;
+				    drawState = DRAWSTATE_NO;
 			}
 		    break;
 			// The same code as above, but inverted
@@ -180,7 +179,7 @@ void CZPBeacons::DrawPositions()
 				gEngfuncs.pEventAPI->EV_SetTraceHull( 2 ); // Point hull
 				gEngfuncs.pEventAPI->EV_PlayerTrace( beacon.position, v_origin, 0xFFFFFFFF, -1, &tr );
 				if ( tr.fraction < 0.99f ) // If we hit something, the beacon is visible
-					bShouldDraw = true;
+				    drawState = DRAWSTATE_NO;
 			}
 		    break;
 		}
@@ -193,15 +192,16 @@ void CZPBeacons::DrawPositions()
 
 		// If we have a team filter, check if we should draw it
 		if ( beacon.teamfilter == 1 && pPlayer->curstate.team != ZP::TEAM_SURVIVIOR )
-			bShouldDraw = false;
+			drawState = DRAWSTATE_NO;
 		else if ( beacon.teamfilter == 2 && pPlayer->curstate.team != ZP::TEAM_ZOMBIE )
-			bShouldDraw = false;
+			drawState = DRAWSTATE_NO;
 
 		// If this is true, make sure the beacon X,Y cords are on screen
-		if ( bShouldDraw )
+		if ( drawState != DRAWSTATE_NO )
 		{
-			if ( screen[0] < 0 || screen[0] > GetWide() || screen[1] < 0 || screen[1] > GetTall() )
-				bShouldDraw = false;
+			// If the beacon is off screen, draw it on the edge of the screen
+			if ( screen[0] < 0 || screen[0] > ( GetWide() - BEACON_ICON_SIZE ) || screen[1] < 0 || screen[1] > ( GetTall() - BEACON_ICON_SIZE ) )
+				drawState = DRAWSTATE_EDGE;
 			// screen Z isn't really working here, so we need to use a different method
 			// If the beacon is behind the player, don't draw it
 			Vector vDir = beacon.position - v_origin;
@@ -209,15 +209,48 @@ void CZPBeacons::DrawPositions()
 			Vector vForward;
 			AngleVectors( pPlayer->angles, vForward, NULL, NULL );
 			float flDot = vDir.Dot( vForward );
-			if ( flDot < 0.1f ) // If the angle is more than ~84 degrees, don't draw it
-				bShouldDraw = false;
+			if ( flDot < 0.1f ) // If the angle is more than ~84 degrees, draw it on the edge of the screen
+				drawState = DRAWSTATE_BEHIND;
 		}
 
-		beacon.drawData.visible = bShouldDraw;
-		if ( !bShouldDraw ) continue;
+		beacon.drawData.visible = ( drawState > DRAWSTATE_NO ) ? true : false;
+		if ( drawState == DRAWSTATE_NO ) continue;
 
 		int x = static_cast<int>( screen.x );
 		int y = static_cast<int>( screen.y );
+
+		// A simple switch statement to clamp the beacon to the edge of the screen if needed
+		// And if we are behind the player, make sure we draw it at the bottom of the screen (or top if inverted)
+		switch (drawState)
+		{
+			case DRAWSTATE_EDGE:
+			{
+				if (x < 0)
+				    x = BEACON_ICON_SIZE;
+			    if (x > GetWide() - BEACON_ICON_SIZE)
+				    x = GetWide() - BEACON_ICON_SIZE;
+				if (y < 0)
+				    y = 0;
+			    if (y > GetTall() - BEACON_ICON_SIZE)
+				    y = GetTall() - BEACON_ICON_SIZE;
+			}
+			break;
+			// The beacon is behind the player, let's allow it to move around the edge of the screen
+			case DRAWSTATE_BEHIND:
+			{
+				// If the beacon is to the left of the player, draw it on the right side of the screen
+				if ( x < GetWide() / 2 )
+					x = GetWide() - BEACON_ICON_SIZE;
+				else
+					x = BEACON_ICON_SIZE;
+				// If the beacon is above the player, draw it at the bottom of the screen
+				if ( y < GetTall() / 2 )
+					y = GetTall() - BEACON_ICON_SIZE;
+				else
+				    y = 0;
+			}
+			break;
+		}
 
 		char szIconPath[256];
 		szIconPath[0] = '\0';

@@ -544,13 +544,25 @@ else()
 	)
 endif()
 
+# OpenGL Library
+set( OPENGL_LIBRARY "" )
+if( WIN32 )
+	set( OPENGL_LIBRARY
+		${OPENGL_LIBRARY}
+		opengl32
+	)
+else()
+	# Only required on Linux
+	find_package( OpenGL REQUIRED )
+endif()
+
 # Link with dependencies
 target_link_libraries( client
 	${GAME_COMMON_LIBS}
 	${SOURCE_SDK_LIBS}
 	${UPDATER_LIBS}
 	glad
-	opengl32
+	${OPENGL_LIBRARY}
 	pcre
 	semver
 	nlohmann_json

@@ -218,30 +218,31 @@ int CHud::MsgFunc_Concuss(const char *pszName, int iSize, void *pbuf)
 int CHud::MsgFunc_Fog(const char *pszName, int iSize, void *pbuf)
 {
 	FogParams fogParams;
-	float density;
-	int fog_start;
-	int fog_end;
 
 	// Reset fog parameters
 	gFog.ClearFog();
 
 	BEGIN_READ(pbuf, iSize);
 
-	fogParams.color[0] = (float)READ_BYTE(); // r
-	fogParams.color[1] = (float)READ_BYTE(); // g
-	fogParams.color[2] = (float)READ_BYTE(); // b
+	int startdist = READ_COORD();
+	int enddist = READ_COORD();
 
-	density = READ_FLOAT();
-	fog_start = READ_SHORT();
-	fog_end = READ_SHORT();
+	Vector fogcolor;
+	for (int i = 0; i < 3; i++)
+		fogcolor[i] = (float)READ_BYTE() / 255.0f;
+	VectorCopy( fogcolor, fogParams.color );
+
+	float blendtime = READ_COORD();
+	float fogdensity = READ_COORD();
 
 	if (READ_OK())
 	{
-		fogParams.fogStart = fog_start;
-		fogParams.fogEnd = fog_end;
-		fogParams.density = density;
+		fogParams.fogStart = startdist;
+		fogParams.fogEnd = enddist;
+		fogParams.density = fogdensity;
+		fogParams.flBlendTime = blendtime;
 		fogParams.fogSkybox = true;
-		gFog.SetFogParameters(fogParams);
+		gFog.SetFogParameters( fogParams );
 	}
 	else
 	{

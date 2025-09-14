@@ -41,6 +41,7 @@ extern DLL_GLOBAL BOOL g_fGameOver;
 
 extern void SetMovedir(entvars_t *pev);
 extern Vector VecBModelOrigin(entvars_t *pevBModel);
+extern int gmsgFog;
 
 class CFrictionModifier : public CBaseEntity
 {
@@ -2414,6 +2415,13 @@ void CTriggerCamera::Move()
 	pev->velocity = ((pev->movedir * pev->speed) * fraction) + (pev->velocity * (1 - fraction));
 }
 
+//=========================================================
+// Global variables for fog
+//=========================================================
+int CClientFog::g_iCurrentEndDist = 0;
+int CClientFog::g_iIdealEndDist = 0;
+float CClientFog::g_flBlendDoneTime = 0;
+
 LINK_ENTITY_TO_CLASS(env_fog, CClientFog)
 
 void CClientFog::KeyValue(KeyValueData *pkvd)
@@ -2428,13 +2436,14 @@ void CClientFog::KeyValue(KeyValueData *pkvd)
 		m_iEndDist = Q_atoi(pkvd->szValue);
 		pkvd->fHandled = TRUE;
 	}
+	else if (FStrEq(pkvd->szKeyName, "blendtime"))
+	{
+		m_flBlendTime = atof(pkvd->szValue);
+		pkvd->fHandled = TRUE;
+	}
 	else if (FStrEq(pkvd->szKeyName, "density"))
 	{
-		m_fDensity = atof(pkvd->szValue);
-
-		if (m_fDensity < 0 || m_fDensity > 0.01)
-			m_fDensity = 0;
-
+		m_fDensity = clamp( atof(pkvd->szValue), 0.0f, 1.0f );
 		pkvd->fHandled = TRUE;
 	}
 	else
@@ -2443,10 +2452,124 @@ void CClientFog::KeyValue(KeyValueData *pkvd)
 	}
 }
 
+
 void CClientFog::Spawn()
 {
-	pev->movetype = MOVETYPE_NOCLIP;
-	pev->solid = SOLID_NOT; // Remove model & collisions
-	pev->renderamt = 0; // The engine won't draw this model if this is set to 0 and blending is on
-	pev->rendermode = kRenderTransTexture;
+	Precache();
+
+	pev->solid = SOLID_NOT;
+	pev->effects |= EF_NODRAW;
+	pev->movetype = MOVETYPE_NONE;
+
+	if ( FBitSet(pev->spawnflags, SF_FOG_ACTIVE) || FStringNull(pev->targetname) )
+		m_bActive = true;
+	else
+		m_bActive = false;
+}
+
+
+void CClientFog::UpdateFog( bool isOn, bool doBlend, CBaseEntity *pPlayer )
+{
+	if ( isOn )
+	{
+		if (pPlayer)
+			MESSAGE_BEGIN(MSG_ONE, gmsgFog, NULL, pPlayer->pev);
+		else
+			MESSAGE_BEGIN(MSG_ALL, gmsgFog, NULL);
+
+		WRITE_COORD(m_iStartDist);
+		WRITE_COORD(m_iEndDist);
+		WRITE_BYTE(pev->rendercolor.x);
+		WRITE_BYTE(pev->rendercolor.y);
+		WRITE_BYTE(pev->rendercolor.z);
+		if (doBlend)
+			WRITE_COORD(m_flBlendTime);
+		else
+			WRITE_COORD(0);
+		WRITE_COORD(m_fDensity);
+		MESSAGE_END();
+	}
+	else if ( !m_flBlendTime )
+	{
+		if ( pPlayer )
+			MESSAGE_BEGIN(MSG_ONE, gmsgFog, NULL, pPlayer->pev);
+		else
+			MESSAGE_BEGIN(MSG_ALL, gmsgFog, NULL);
+
+		WRITE_COORD(0);
+		WRITE_COORD(0);
+		WRITE_BYTE(0);
+		WRITE_BYTE(0);
+		WRITE_BYTE(0);
+		WRITE_COORD(0);
+		WRITE_COORD(0);
+		MESSAGE_END();
+	}
+}
+
+void CClientFog::SendInitMessages( CBaseEntity *pPlayer )
+{
+	if ( !m_bActive ) return;
+	UpdateFog( true, false, pPlayer );
+	CClientFog::SetCurrentEndDist( m_iEndDist, m_flBlendTime );
+}
+
+
+void CClientFog::SetCurrentEndDist( int enddist, float blendtime )
+{
+	if ((!blendtime || g_iCurrentEndDist < enddist) || !g_iCurrentEndDist)
+	{
+		g_iCurrentEndDist = enddist;
+		g_iIdealEndDist = 0;
+		g_flBlendDoneTime = 0;
+	}
+	else
+	{
+		g_iIdealEndDist = enddist;
+		g_flBlendDoneTime = gpGlobals->time + blendtime;
+	}
+}
+
+void CClientFog::FogThink()
+{
+	if (!g_flBlendDoneTime || !g_iIdealEndDist)
+		return;
+
+	if (g_flBlendDoneTime <= gpGlobals->time)
+	{
+		g_iCurrentEndDist = g_iIdealEndDist;
+		g_iIdealEndDist = 0;
+		g_flBlendDoneTime = 0;
+	}
+}
+
+
+void CClientFog::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
+{
+	bool prevState = m_bActive;
+	switch (useType)
+	{
+	case USE_OFF:
+		m_bActive = false;
+		break;
+	case USE_ON:
+		m_bActive = true;
+		break;
+	default:
+		m_bActive = !m_bActive;
+		break;
+	}
+
+	// Only update if it was changed
+	if (prevState != m_bActive)
+	{
+		// Update fog msg
+		UpdateFog(m_bActive, true, NULL);
+
+		if (m_bActive || !m_flBlendTime)
+		{
+			// Set globalvars for target fog
+			CClientFog::SetCurrentEndDist( m_bActive ? m_iEndDist : 0, m_flBlendTime );
+		}
+	}
 }

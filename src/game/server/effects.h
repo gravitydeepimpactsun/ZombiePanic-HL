@@ -221,16 +221,33 @@ public:
 	Vector m_firePosition;
 };
 
+#define SF_FOG_ACTIVE (1<<0)
+
 class CClientFog : public CBaseEntity
 {
 public:
 	virtual void Spawn();
 	virtual void KeyValue(KeyValueData *pkvd);
 
-public:
+    void    SendInitMessages( CBaseEntity* pPlayer = NULL );
+    void    UpdateFog( bool isOn, bool doBlend, CBaseEntity* pPlayer );
+    void    Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
+
+    static void SetCurrentEndDist( int enddist, float blendtime );
+    static int GetCurrentEndDist( void ) { return g_iCurrentEndDist; }
+
+    static void FogThink( void );
+
 	int m_iStartDist = 0;
 	int m_iEndDist = 0;
 	float m_fDensity = 0.0f;
+	float m_flBlendTime = 0.0f;
+	bool m_bActive = false;
+
+private:
+	static int g_iCurrentEndDist;
+	static int g_iIdealEndDist;
+	static float g_flBlendDoneTime;
 };
 
 #endif //EFFECTS_H

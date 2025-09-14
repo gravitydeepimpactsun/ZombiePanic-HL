@@ -4885,22 +4885,10 @@ void CBasePlayer ::UpdateClientData(void)
 
 			// Send fog message
 			CBaseEntity *pEntity = UTIL_FindEntityByClassname(nullptr, "env_fog");
-			if (pEntity)
+			if ( pEntity )
 			{
 				CClientFog *pFog = static_cast<CClientFog *>(pEntity);
-
-				int r = clamp(int(pFog->pev->rendercolor[0]), 0, 255);
-				int g = clamp(int(pFog->pev->rendercolor[1]), 0, 255);
-				int b = clamp(int(pFog->pev->rendercolor[2]), 0, 255);
-
-				MESSAGE_BEGIN(MSG_ONE, gmsgFog, nullptr, pev);
-				WRITE_BYTE(r);
-				WRITE_BYTE(g);
-				WRITE_BYTE(b);
-				WRITE_FLOAT(pFog->m_fDensity);
-				WRITE_SHORT(pFog->m_iStartDist);
-				WRITE_SHORT(pFog->m_iEndDist);
-				MESSAGE_END();
+				pFog->SendInitMessages( this );
 			}
 
 			g_pGameRules->InitHUD(this);

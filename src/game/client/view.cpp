@@ -880,6 +880,8 @@ void V_CalcNormalRefdef(struct ref_params_s *pparams)
 	lasttime = pparams->time;
 
 	v_origin = pparams->vieworg;
+
+	gFog.DrawFog( FogDrawType::FOG_DRAW_VIEW );
 }
 
 void V_SmoothInterpolateAngles(float *startAngle, float *endAngle, float *finalAngle, float degreesPerSec)

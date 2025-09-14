@@ -550,6 +550,7 @@ target_link_libraries( client
 	${SOURCE_SDK_LIBS}
 	${UPDATER_LIBS}
 	glad
+	opengl32
 	pcre
 	semver
 	nlohmann_json

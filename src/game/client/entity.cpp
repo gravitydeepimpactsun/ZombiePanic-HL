@@ -16,6 +16,7 @@
 #include "hud/spectator.h"
 #include "cl_voice_status.h"
 #include "engine_builds.h"
+#include "fog.h"
 
 #include "particleman.h"
 extern IParticleMan *g_pParticleMan;
@@ -356,6 +357,9 @@ void CL_DLLEXPORT HUD_CreateEntities(void)
 	Game_AddObjects();
 
 	GetClientVoiceMgr()->CreateEntities();
+
+	// Blend the fog
+	gFog.BlendFog();
 }
 
 #if defined(_TFC)

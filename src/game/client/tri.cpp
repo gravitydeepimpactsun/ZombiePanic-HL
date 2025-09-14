@@ -85,6 +85,8 @@ void CL_DLLEXPORT HUD_DrawNormalTriangles(void)
 	CHudSpectator::Get()->DrawOverview();
 	// Draw our beacon positions
 	CZPBeacons::Get()->DrawPositions();
+
+	gFog.DrawFog( FogDrawType::FOG_DRAW_STANDARD );
 }
 
 #if defined(_TFC)
@@ -106,11 +108,10 @@ void CL_DLLEXPORT HUD_DrawTransparentTriangles(void)
 	RunEventList();
 #endif
 
-	gFog.RenderFog();
+	gFog.DrawFog( FogDrawType::FOG_DRAW_TRANSPARENT );
 
 	if (g_pParticleMan)
 		g_pParticleMan->Update();
-
 
 	// Process and then draw the weather
 	Weather::ProcessFXObjects();

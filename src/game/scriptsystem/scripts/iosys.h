@@ -16,6 +16,7 @@ enum IOFunctionCommands_t
 	IO_END,
 	IO_PRINT_TO_CONSOLE,
 	IO_PRINT_TO_CHAT,
+	IO_GIVE_ITEM,
 
 	IO_MAX
 };

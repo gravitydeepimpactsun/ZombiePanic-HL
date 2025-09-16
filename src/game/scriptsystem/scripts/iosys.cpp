@@ -9,6 +9,9 @@
 #include "FileSystem.h"
 #include <KeyValues.h>
 
+// For giving stuff for our players.
+#include "player.h"
+
 // A simple static list of our I/O IOFunctions_t
 static const char *g_IOFunctions[IO_ON_MAX] = {
 	"OnMapStart",
@@ -28,6 +31,7 @@ static const char *g_IOCommands[IO_MAX] = {
 	"end",
 	"PrintToConsole",
 	"PrintToChat",
+	"GiveItem",
 };
 
 
@@ -472,12 +476,25 @@ IOScriptFile::IOScriptFile( const std::string &szFile )
 					// Do nothing for now.
 				    break;
 				}
+			    case IO_GIVE_ITEM:
+				{
+				    // Example: GiveItem 0 "item_name"
+				    // arg0 = Player ID (0 for all players)
+				    const std::string msg = ReplaceScriptArgs( restOfLine, currentFunction.Parameters );
+				    auto args = Split( msg, ' ' );
+					if ( args.size() < 2 ) break;
+				    // We will store player ID in EntFire.
+				    cmd.EntFire = args[0];
+				    // Replace {param} with %sN%
+					cmd.Message = ReplaceScriptArgs( MessageCleanup( args[1] ), currentFunction.Parameters );
+				    break;
+				}
 				case IO_PRINT_TO_CONSOLE:
 				case IO_PRINT_TO_CHAT:
 				{
 					// Example: PrintToConsole "Message here"
 					// Replace {param} with %sN%
-					cmd.Message = ReplaceScriptArgs(restOfLine, currentFunction.Parameters);
+					cmd.Message = ReplaceScriptArgs( restOfLine, currentFunction.Parameters );
 					break;
 				}
 				default:
@@ -637,6 +654,32 @@ void IOScriptFile::RunCommands( int nID )
 
 			case IO_EXEC_AS:
 				// Doesn't do anything for now.
+			break;
+
+			case IO_GIVE_ITEM:
+				// Give item to player(s)
+				{
+					std::string szPlayer = GetArgValues( cmd.EntFire, pFunctionCall.Arguments );
+					int nPlayerID = atoi( szPlayer.c_str() );
+					std::string szItem = GetArgValues( cmd.Message, pFunctionCall.Arguments );
+					int iszItem = ALLOC_STRING( szItem.c_str() ); // Make a copy of the classname
+					if ( nPlayerID == 0 )
+					{
+						// Give to all players
+						for ( int i = 1; i <= gpGlobals->maxClients; i++ )
+						{
+							CBasePlayer *pPlayer = (CBasePlayer *)UTIL_PlayerByIndex( i );
+							if ( pPlayer )
+								pPlayer->GiveNamedItem( STRING(iszItem) );
+						}
+					}
+					else
+					{
+						CBasePlayer *pPlayer = (CBasePlayer *)UTIL_PlayerByIndex( nPlayerID );
+						if ( pPlayer )
+							pPlayer->GiveNamedItem( STRING(iszItem) );
+					}
+			    }
 			break;
 
 			case IO_WAIT:

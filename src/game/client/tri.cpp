@@ -115,11 +115,11 @@ void CL_DLLEXPORT HUD_DrawTransparentTriangles(void)
 	RunEventList();
 #endif
 
-	gFog.DrawFog( FogDrawType::FOG_DRAW_TRANSPARENT );
-
 #if USE_PARANOIA_RENDER
 	RendererDrawTransparent();
 #endif
+
+	gFog.DrawFog( FogDrawType::FOG_DRAW_TRANSPARENT );
 
 	if (g_pParticleMan)
 		g_pParticleMan->Update();

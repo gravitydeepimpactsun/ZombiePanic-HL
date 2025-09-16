@@ -38,6 +38,7 @@ public:
 	virtual int ObjectCaps(void) { return (CBaseEntity ::ObjectCaps() | FCAP_IMPULSE_USE); }
 	int TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int bitsDamageType);
 	void Spawn(void);
+	void Restart(void);
 	void Think(void);
 	//void Pain( float flDamage );
 	void Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
@@ -51,6 +52,11 @@ public:
 	static TYPEDESCRIPTION m_SaveData[];
 
 	int m_animate;
+
+	int m_renderfx;
+	int m_rendermode;
+	float m_renderamt;
+	Vector m_rendercolor;
 };
 
 TYPEDESCRIPTION CCycler::m_SaveData[] = {
@@ -140,6 +146,31 @@ void CCycler ::Spawn()
 	{
 		m_animate = 1;
 	}
+
+	m_renderfx = pev->renderfx;
+	m_rendermode = pev->rendermode;
+	m_renderamt = pev->renderamt;
+	m_rendercolor = pev->rendercolor;
+}
+
+void CCycler ::Restart(void)
+{
+	pev->effects = 0;
+	pev->frame = 0;
+	pev->sequence = 0;
+	m_animate = 1;
+	pev->framerate = 1.0;
+	ResetSequenceInfo();
+	pev->nextthink = gpGlobals->time + 0.1;
+
+	pev->solid = SOLID_SLIDEBOX;
+	pev->movetype = MOVETYPE_NONE;
+	pev->takedamage = DAMAGE_YES;
+
+	pev->renderfx = m_renderfx;
+	pev->rendermode = m_rendermode;
+	pev->renderamt = m_renderamt;
+	pev->rendercolor = m_rendercolor;
 }
 
 //

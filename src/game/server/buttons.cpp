@@ -886,11 +886,14 @@ void CBaseButton::OnScriptCallBack( KeyValues *pData )
 			SetTouch(NULL);
 			SetUse(&CBaseButton::ButtonUse);
 		}
+
+		FireEntityOutput( this, "OnTurnOn" );
 	}
 	else if ( FStrEq( szAction, "DeActivate" ) )
 	{
 		SetTouch(NULL);
 		SetUse(NULL);
+		FireEntityOutput( this, "OnTurnOff" );
 	}
 	else if ( FStrEq( szAction, "Break" ) )
 		TakeDamage( pev, pev, m_iButtonHealth + 1, DMG_CLUB );
@@ -899,7 +902,10 @@ void CBaseButton::OnScriptCallBack( KeyValues *pData )
 	else if ( FStrEq( szAction, "SetBreakable" ) )
 		pev->takedamage = atoi( szValue ) ? DAMAGE_YES : DAMAGE_NO;
 	else if ( FStrEq( szAction, "SetLocked" ) )
+	{
 		m_bIsLocked = atoi( szValue );
+		FireEntityOutput( this, m_bIsLocked ? "OnLocked" : "OnUnLocked" );
+	}
 	else if ( FStrEq( szAction, "SetHealth" ) )
 	{
 		if ( pev->takedamage != DAMAGE_NO )
@@ -1086,7 +1092,36 @@ void CBaseButton::ButtonUse(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_T
 	if (m_toggle_state == TS_GOING_UP || m_toggle_state == TS_GOING_DOWN)
 		return;
 
+	if (m_bIsLocked)
+	{
+		// play button locked sound
+		PlayLockSounds(pev, &m_ls, TRUE, TRUE);
+		const std::string &szOutput( "OnLockedUse" );
+		ScriptSystem::CallScriptDelay(
+			AvailableScripts_t::InputOutput,
+			nullptr,
+			szOutput,
+			0.0f,
+			2,
+			std::to_string( entindex() ),
+			std::to_string( pActivator->entindex() )
+		);
+		return;
+	}
+
 	m_hActivator = pActivator;
+
+	const std::string &szOutput( "OnUse" );
+	ScriptSystem::CallScriptDelay(
+		AvailableScripts_t::InputOutput,
+		nullptr,
+		szOutput,
+		0.0f,
+		2,
+		std::to_string( entindex() ),
+		std::to_string( pActivator->entindex() )
+	);
+
 	if (m_toggle_state == TS_AT_TOP)
 	{
 		if (!m_fStayPushed && FBitSet(pev->spawnflags, SF_BUTTON_TOGGLE))
@@ -1140,6 +1175,16 @@ void CBaseButton::ButtonTouch(CBaseEntity *pOther)
 	{
 		// play button locked sound
 		PlayLockSounds(pev, &m_ls, TRUE, TRUE);
+		const std::string &szOutput( "OnLockedUse" );
+		ScriptSystem::CallScriptDelay(
+			AvailableScripts_t::InputOutput,
+			nullptr,
+			szOutput,
+			0.0f,
+			2,
+			std::to_string( entindex() ),
+			std::to_string( pOther->entindex() )
+		);
 		return;
 	}
 

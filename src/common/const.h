@@ -706,6 +706,10 @@ enum
 	kRenderFxGlowShell, // Glowing Shell
 	kRenderFxClampMinScale, // Keep this sprite from getting very small (SPRITES only!)
 	kRenderFxLightMultiplier, //CTM !!!CZERO added to tell the studiorender that the value in iuser2 is a lightmultiplier
+#if USE_PARANOIA_RENDER
+	kRenderFx3DSkyBox = 70, // 3D skybox entity
+	kRenderFxDynamicLight, // Light the model with dynamic lights
+#endif
 };
 
 typedef unsigned int func_t;

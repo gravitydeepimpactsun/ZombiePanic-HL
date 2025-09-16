@@ -110,3 +110,7 @@ add_subdirectory( vgui )
 if( USE_UPDATER )
 	add_subdirectory( updater )
 endif()
+
+if( USE_PARANOIA_RENDER )
+	add_subdirectory( paranoia )
+endif()

@@ -24,6 +24,9 @@
 #include "tri.h"
 #include "fog.h"
 #include "sphl/weather.h"
+#if USE_PARANOIA_RENDER
+#include "paranoia/gl_renderer.h"
+#endif
 
 CSysModule *g_hParticleManModule = NULL;
 IParticleMan *g_pParticleMan = NULL;
@@ -86,6 +89,10 @@ void CL_DLLEXPORT HUD_DrawNormalTriangles(void)
 	// Draw our beacon positions
 	CZPBeacons::Get()->DrawPositions();
 
+#if USE_PARANOIA_RENDER
+	RendererDrawNormal();
+#endif
+
 	gFog.DrawFog( FogDrawType::FOG_DRAW_STANDARD );
 }
 
@@ -109,6 +116,10 @@ void CL_DLLEXPORT HUD_DrawTransparentTriangles(void)
 #endif
 
 	gFog.DrawFog( FogDrawType::FOG_DRAW_TRANSPARENT );
+
+#if USE_PARANOIA_RENDER
+	RendererDrawTransparent();
+#endif
 
 	if (g_pParticleMan)
 		g_pParticleMan->Update();

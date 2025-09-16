@@ -114,6 +114,18 @@ cvar_t v_ipitch_level = { "v_ipitch_level", "0.3", 0, 0.3 };
 
 float v_idlescale; // used by TFC for concussion grenade effect
 
+#if USE_PARANOIA_RENDER
+#include "paranoia/gl_renderer.h"
+#include "paranoia/gl_dlight.h"
+
+Vector render_origin;
+Vector render_angles;
+
+extern int g_flashlight;
+void SetupFlashlight( Vector origin, Vector angles, float time, float frametime );
+
+#endif
+
 //=============================================================================
 /*
 void V_NormalizeAngles( float *angles )
@@ -632,6 +644,10 @@ void V_CalcNormalRefdef(struct ref_params_s *pparams)
 	VectorCopy(pparams->cl_viewangles, angles);
 
 	AngleVectors(angles, pparams->forward, pparams->right, pparams->up);
+
+#if USE_PARANOIA_RENDER
+	SetupFlashlight( pparams->vieworg, pparams->viewangles, pparams->time, pparams->frametime );
+#endif
 
 	// don't allow cheats in multiplayer
 	if (pparams->maxclients <= 1)
@@ -1763,6 +1779,17 @@ void CL_DLLEXPORT V_CalcRefdef(struct ref_params_s *pparams)
 	dlight_t *pZomboVision = gEngfuncs.pEfxAPI->CL_AllocDlight( 2 );
 	if ( pZomboVision )
 		V_ZombieVision( pZomboVision, pparams );
+
+#if USE_PARANOIA_RENDER
+	// Paranoia Render is enabled,
+	// draw our custom render crap, such as better flashlight and a 3D skybox
+
+	render_origin = pparams->vieworg;
+	render_angles = pparams->viewangles;
+	AngleVectors( render_angles, g_vViewForward, g_vViewRight, g_vViewUp ); // for XaeroX's sprite rendering..
+
+	RendererCalcRefDef( pparams );
+#endif
 }
 
 /*
@@ -1896,4 +1923,48 @@ void V_Move(int mx, int my)
 	}
 }
 
+#endif
+
+#if USE_PARANOIA_RENDER
+//===============================
+// buz: flashlight managenemt
+//===============================
+void SetupFlashlight( Vector origin, Vector angles, float time, float frametime)
+{
+	if (!g_flashlight)
+		return;
+
+	static float add = 0;
+	float addideal = 0;
+	pmtrace_t tr;
+	Vector fwd, right, up;
+	AngleVectors(angles, fwd, right, up);
+	fwd = origin + (fwd*150);
+	gEngfuncs.pEventAPI->EV_SetTraceHull( 2 );
+	gEngfuncs.pEventAPI->EV_PlayerTrace( origin, fwd, PM_NORMAL, -1, &tr );
+	if (tr.fraction < 1.0)
+		addideal = (1 - tr.fraction)*30;
+	float speed = (add - addideal)*10;
+	if (speed < 0) speed *= -1;
+	if (add < addideal)
+	{
+		add += frametime*speed;
+		if (add > addideal) add = addideal;
+	}
+	else if (add > addideal)
+	{
+		add -= frametime*speed;
+		if (add < addideal) add = addideal;
+	}
+
+	DynamicLight *flashlight = MY_AllocDlight(-666);
+	flashlight->origin = origin + Vector(0,0,-13) + (right*5);
+	flashlight->radius = 700;
+	flashlight->die = time + 0.01;
+	flashlight->angles = angles;
+	strcpy(flashlight->spot_texture, "gfx/flashlight.tga");
+	flashlight->cone_hor = 50+add;
+	flashlight->cone_ver = 50+add;
+	flashlight->color = Vector(1.4, 1.4, 1.4); // make model dymanic lighting happy
+}
 #endif

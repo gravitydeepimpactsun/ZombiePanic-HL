@@ -13,6 +13,19 @@
 #include "com_model.h"
 #include "studio.h"
 
+#if USE_PARANOIA_RENDER
+#define MAX_MODEL_DYNLIGHTS 4
+
+struct lighting_ext
+{
+	Vector ambientlight;
+	Vector addlight;
+	Vector lightdir;
+};
+
+void	CrossProduct2( const float *v1, const float *v2, float *cross );
+#endif
+
 /*
 ====================
 CStudioModelRenderer
@@ -114,6 +127,24 @@ public:
 
 	// Calculate the viewmodel fov and set the OpenGL projection matrix
 	virtual void SetViewmodelFovProjection(void);
+
+
+#if USE_PARANOIA_RENDER
+	// OpenGL related stuff, so our models render properly with Paranoia Renderer
+	void GL_SetupModel( int bodypart );
+	void GL_DrawPoints();
+
+	void GL_SetupRenderer( int rendermode );
+	void GL_RestoreRenderer();
+
+	void GL_SetupLighting ();
+	void GL_SetupTextureHeader();
+
+	void Lighting(Vector &lv, int bone, int flags, Vector normal);
+	void Chrome(int *pchrome, int bone, Vector normal);
+
+	studiohdr_t *m_pTextureHeader;
+#endif
 
 public:
 	// Client clock

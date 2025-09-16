@@ -73,6 +73,7 @@ include( CTest )
 #-----------------------------------------------------------------
 option( AUTO_DEPLOY		"Whether to automatically deploy to deploy paths" )
 option( USE_UPDATER		"Enable update checked and downloader" )
+option( USE_PARANOIA_RENDER		"Enable paranoia render" )
 
 #-----------------------------------------------------------------
 # Compiler checks
@@ -416,6 +417,17 @@ set( SOURCE_SDK_GFX_PATH "ui/gfx/vgui" )
 add_subdirectory( source_sdk )
 
 #-----------------------------------------------------------------
+# Paranoia Render
+#-----------------------------------------------------------------
+set( PARANOIA_DEFINES USE_PARANOIA_RENDER=0 )
+
+if( USE_PARANOIA_RENDER )
+	set( PARANOIA_DEFINES
+		USE_PARANOIA_RENDER=1
+	)
+endif()
+
+#-----------------------------------------------------------------
 # Updater
 #-----------------------------------------------------------------
 set( UPDATER_LIBS "" )
@@ -510,6 +522,7 @@ target_compile_definitions( client PRIVATE
 	${GAME_COMMON_DEFINES}
 	${SOURCE_SDK_DEFINES}
 	${UPDATER_DEFINES}
+	${PARANOIA_DEFINES}
 	VERSION_SAFE_STEAM_API_INTERFACES
 	CLIENT_DLL
 )

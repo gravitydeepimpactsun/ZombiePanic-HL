@@ -81,6 +81,11 @@
 
 #include "sphl/weather.h"
 
+#if USE_PARANOIA_RENDER
+	#include "paranoia/glmanager.h"
+	#include "paranoia/gl_renderer.h"
+#endif
+
 // Zombie Panic!
 #include "zp/hud/zp_zombielives.h"
 #include "zp/hud/zp_roundstate.h"
@@ -295,6 +300,9 @@ CHud::CHud()
 
 CHud::~CHud()
 {
+#if USE_PARANOIA_RENDER
+	RendererCleanup();
+#endif
 	Weather::Reset();
 }
 
@@ -303,6 +311,11 @@ void CHud::Init(void)
 {
 	// Check that elem list is empty
 	Assert(m_HudList.empty());
+
+#if USE_PARANOIA_RENDER
+	gl.Init();
+	RendererInit();
+#endif
 
 	// Fill color code colors with default ones
 	memcpy(m_ColorCodeColors, s_DefaultColorCodeColors, sizeof(s_DefaultColorCodeColors));
@@ -568,6 +581,11 @@ void CHud::VidInit(void)
 	}
 
 	CSvcMessages::Get().VidInit();
+
+#if USE_PARANOIA_RENDER
+	gl.VidInit();
+	RendererVidInit();
+#endif
 
 	// ----------
 	// Load Sprites

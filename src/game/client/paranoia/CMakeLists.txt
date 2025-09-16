@@ -1,0 +1,22 @@
+add_sources(
+	CMakeLists.txt
+	gl_bsp.cpp
+	gl_bsp.h
+	gl_debug.cpp
+	gl_dlight.h
+	gl_light_dynamic.cpp
+	gl_lightmap.cpp
+	gl_model.cpp
+	gl_postprocess.cpp
+	gl_renderer.cpp
+	gl_renderer.h
+	gl_texloader.cpp
+	gl_texloader.h
+	gl_rsurf.cpp
+	gl_sky.cpp
+	gl_studiomodel.cpp
+	gl_texloader.cpp
+	gl_texloader.h
+	glmanager.cpp
+	glmanager.h
+)

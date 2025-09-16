@@ -18,6 +18,10 @@
 #include "engine_builds.h"
 #include "fog.h"
 
+#if USE_PARANOIA_RENDER
+	#include "paranoia/gl_renderer.h"
+#endif
+
 #include "particleman.h"
 extern IParticleMan *g_pParticleMan;
 
@@ -54,6 +58,11 @@ int CL_DLLEXPORT HUD_AddEntity(int type, struct cl_entity_s *ent, const char *mo
 	default:
 		break;
 	}
+
+#if USE_PARANOIA_RENDER
+	if (!RendererFilterEntities(type, ent, modelname))
+		return 0;
+#endif
 
 	// hide corpses option
 	if (cl_hidecorpses.GetBool() && ent->curstate.renderfx == kRenderFxDeadPlayer)
@@ -360,6 +369,10 @@ void CL_DLLEXPORT HUD_CreateEntities(void)
 
 	// Blend the fog
 	gFog.BlendFog();
+
+#if USE_PARANOIA_RENDER
+	RendererCreateEntities();
+#endif
 }
 
 #if defined(_TFC)
@@ -437,6 +450,10 @@ void CL_DLLEXPORT HUD_TempEntUpdate(
 	int i;
 	TEMPENTITY *pTemp, *pnext, *pprev;
 	float freq, gravity, gravitySlow, life, fastFreq;
+
+#if USE_PARANOIA_RENDER
+	RendererTentsUpdate();
+#endif
 
 	Vector vAngles;
 

@@ -103,7 +103,7 @@ void GLManager::VidInit()
 		hOpengl32dll = 0;
 		glstate = GMSTATE_INITFAILED;
 		return;
-	}		
+	}
 
 	gEngfuncs.Con_Printf("VidInit: opengl32.dll loaded successfully\n");
 	Log("GL manager: loaded library\n");

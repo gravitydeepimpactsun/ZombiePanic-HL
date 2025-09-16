@@ -11,4 +11,8 @@ if (WIN32)
     add_subdirectory( windows )
 endif()
 
+if (USE_PARANOIA_RENDER)
+	add_subdirectory( opengl32 )
+endif()
+
 set( SDL2_INCLUDE_FILES "${SDL2_INCLUDE_FILES}" PARENT_SCOPE )

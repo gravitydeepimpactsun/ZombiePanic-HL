@@ -560,9 +560,11 @@ endif()
 # OpenGL Library
 set( OPENGL_LIBRARY "" )
 if( WIN32 )
+	# Paranoia Render needs the original lib,
+	# not our custom one, as it will be loaded dynamically.
 	set( OPENGL_LIBRARY
 		${OPENGL_LIBRARY}
-		opengl32
+		"opengl32.lib"
 	)
 else()
 	# Only required on Linux

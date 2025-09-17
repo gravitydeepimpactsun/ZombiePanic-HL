@@ -17,6 +17,8 @@ add_sources(
 	gamemodes/zp_gamemodebase.cpp
 	gamemodes/zp_survival.cpp
 	gamemodes/zp_survival.h
+	gamemodes/zp_hardcore.cpp
+	gamemodes/zp_hardcore.h
 	gamemodes/zp_objective.cpp
 	gamemodes/zp_objective.h
 	gamemodes/zp_dev.cpp

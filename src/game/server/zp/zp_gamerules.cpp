@@ -82,6 +82,7 @@ CZombiePanicGameRules::CZombiePanicGameRules()
 	{
 		case ZP::GAMEMODE_SURVIVAL: m_pGameMode = new ZPGameMode_Survival; break;
 		case ZP::GAMEMODE_OBJECTIVE: m_pGameMode = new ZPGameMode_Objective; break;
+		case ZP::GAMEMODE_HARDCORE: m_pGameMode = new ZPGameMode_HardCore; break;
 		default: m_pGameMode = new ZPGameMode_Dev; break;
 	}
 	ZP::SetCurrentGameMode( m_pGameMode );

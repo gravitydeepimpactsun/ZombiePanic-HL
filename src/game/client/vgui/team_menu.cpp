@@ -148,6 +148,13 @@ void CTeamMenu::Update()
 				    m_pLabelGameModeName->SetText( "#ZP_GAMEMODE_OBJECTIVE" );
 				}
 				break;
+				case ZP::GAMEMODE_HARDCORE:
+				{
+
+					m_pGameModeInfo->SetText( "#ZP_GAMEMODE_HARDCORE_INFO" );
+				    m_pLabelGameModeName->SetText( "#ZP_GAMEMODE_HARDCORE" );
+				}
+				break;
 			}
 			m_bUpdatedGameModeInfo = true;
 		}

@@ -10,6 +10,7 @@
 #include "zp/gamemodes/zp_dev.h"
 #include "zp/gamemodes/zp_survival.h"
 #include "zp/gamemodes/zp_objective.h"
+#include "zp/gamemodes/zp_hardcore.h"
 
 class CZombiePanicGameRules : public CHalfLifeMultiplay
 {

@@ -524,6 +524,8 @@ void CBasePlayer ::TraceAttack(entvars_t *pevAttacker, float flDamage, Vector ve
 {
 	if (pev->takedamage)
 	{
+		bool bIsInHardcore = ( ZP::GetCurrentGameMode()->GetGameModeType() == ZP::GameModeType_e::GAMEMODE_HARDCORE );
+
 		m_LastHitGroup = ptr->iHitgroup;
 
 		switch (ptr->iHitgroup)
@@ -552,6 +554,17 @@ void CBasePlayer ::TraceAttack(entvars_t *pevAttacker, float flDamage, Vector ve
 			break;
 		default:
 			break;
+		}
+
+		// Are we in hardcore mode?
+		if ( bIsInHardcore )
+		{
+			// In hardcore mode, headshots do double damage
+			// everything else is halved by 50%
+			if ( ptr->iHitgroup == HITGROUP_HEAD )
+				flDamage *= 2.0f;
+			else
+				flDamage *= 0.5f;
 		}
 
 		SpawnBlood(ptr->vecEndPos, BloodColor(), flDamage); // a little surface blood.
@@ -2110,7 +2123,8 @@ void CBasePlayer::UpdateHealthRegen()
 	// We recently got hurt, reset the timer.
 	if ( m_bRegenUpdated )
 	{
-		m_flRegenTime = 3.0f;
+		bool bIsInHardcore = ( ZP::GetCurrentGameMode()->GetGameModeType() == ZP::GameModeType_e::GAMEMODE_HARDCORE );
+		m_flRegenTime = bIsInHardcore ? 1.5f : 3.0f;
 		m_flLastRegen = gpGlobals->time + m_flRegenTime;
 		m_bRegenUpdated = false;
 		return;

@@ -26,7 +26,6 @@ protected:
 	virtual void UpdateZombieLifesForClient();
 	virtual void GiveWeaponsOnRoundStart();
 
-private:
 	int m_iZombieLives;
 };
 

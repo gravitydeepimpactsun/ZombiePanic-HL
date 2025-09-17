@@ -378,6 +378,7 @@ ZP::GameModeType_e ZP::IsValidGameModeMap(const char *szLevel)
 #endif
 	if ( !stricmp( sz, "zp_" ) ) return GameModeType_e::GAMEMODE_SURVIVAL;
 	else if ( !stricmp( sz, "zpo" ) ) return GameModeType_e::GAMEMODE_OBJECTIVE;
+	else if ( !stricmp( sz, "zph" ) ) return GameModeType_e::GAMEMODE_HARDCORE;
 	return GameModeType_e::GAMEMODE_NONE;
 }
 

@@ -40,7 +40,13 @@ bool CHudZombieLives::IsAllowedToDraw()
 	if ( gHUD.m_RoundState < ZP::RoundState::RoundState_RoundHasBegunPost ) return false;
 	if ( g_pViewport->IsVGUIVisible( MENU_TEAM ) ) return false;
 	if ( g_pViewport->IsVGUIVisible( MENU_MOTD ) ) return false;
-	if ( gHUD.m_GameMode != ZP::GAMEMODE_SURVIVAL ) return false;
+	// Only draw in survival or hardcore modes
+	switch ( gHUD.m_GameMode )
+	{
+		case ZP::GAMEMODE_SURVIVAL:
+		case ZP::GAMEMODE_HARDCORE: break;
+		default: return false;
+	}
 	if ( gEngfuncs.GetLocalPlayer()->index <= 0 ) return false;
 	CPlayerInfo *localplayer = GetPlayerInfo( gEngfuncs.GetLocalPlayer()->index );
 	if ( !localplayer->IsConnected() ) return false;

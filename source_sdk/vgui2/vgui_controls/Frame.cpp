@@ -658,6 +658,14 @@ public:
 		}
 	}
 
+	void SetImageSize( int w, int h )
+	{
+		if ( _enabled )
+			_enabled->SetSize(w, h);
+		if ( _disabled )
+			_disabled->SetSize(w, h);
+	}
+
 	virtual void ApplySchemeSettings(IScheme *pScheme)
 	{
 		BaseClass::ApplySchemeSettings(pScheme);
@@ -1271,6 +1279,7 @@ void Frame::PerformLayout()
 		VGui_GetProportionalBase(proW, proH);
 
 		scale =	( (float)( screenH ) / (float)( proH ) );
+		_menuButton->SetImageSize( (int)( (GetCaptionHeight()-5) * scale ), (int)( (GetCaptionHeight()-5) * scale ) );
 	}
 	
 #if !defined( _X360 )

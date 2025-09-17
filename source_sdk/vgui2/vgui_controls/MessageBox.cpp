@@ -285,6 +285,15 @@ void MessageBox::PerformLayout()
 
 	GetSize(boxWidth, boxTall);
 
+	// For resolution larger than 1080p, we need to make sure the
+	// message label is centered properly within the box in the y direction.
+	int labelWide, labelTall;
+	m_pMessageLabel->GetSize(labelWide, labelTall);
+	int boxLabelY = (boxTall - labelTall - 70) / 2;
+	if (boxLabelY < 10)
+		boxLabelY = 10;
+	y = boxLabelY;
+
 	m_pMessageLabel->SetPos((wide/2)-(m_pMessageLabel->GetWide()/2) + x, y + 5 );
 	if ( !m_pCancelButton->IsVisible() )
 	{

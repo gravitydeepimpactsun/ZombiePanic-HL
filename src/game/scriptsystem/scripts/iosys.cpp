@@ -12,6 +12,8 @@
 // For giving stuff for our players.
 #include "player.h"
 
+#include "zp/info_random_base.h"
+
 // A simple static list of our I/O IOFunctions_t
 static const char *g_IOFunctions[IO_ON_MAX] = {
 	"OnMapStart",
@@ -32,8 +34,11 @@ static const char *g_IOCommands[IO_MAX] = {
 	"PrintToConsole",
 	"PrintToChat",
 	"GiveItem",
+	"AddToSpawnList",
+	"SpawnItems",
 };
 
+static std::vector<ISpawnListData> s_SpawnListData; // Used by IO_SPAWN_ITEMS and IO_ADD_TO_SPAWN_LIST
 
 static std::string MessageCleanup( const std::string &str )
 {
@@ -129,9 +134,10 @@ void IOSystem::OnThink()
 	m_szScript->OnThink();
 }
 
-void IOSystem::OnCalled(pOnScriptCallbackReturn pfnCallback, KeyValues *pData, const std::string &szFunctionName)
+ScriptCallBackEnum IOSystem::OnCalled(pOnScriptCallbackReturn pfnCallback, KeyValues *pData, const std::string &szFunctionName)
 {
-	if ( !bAvailableToCall ) return;
+	if ( !bAvailableToCall ) return ScriptCall_Warning;
+	ScriptCallBackEnum nRet = ScriptCall_Error;
 	bool bIsScriptCall = FStrEq( pData->GetString( "arg0" ), "SCall" );
 	for (size_t i = 0; i < m_Functions.size(); i++)
 	{
@@ -173,10 +179,13 @@ void IOSystem::OnCalled(pOnScriptCallbackReturn pfnCallback, KeyValues *pData, c
 					}
 				}
 			}
+			// We found our function, return OK
+			nRet = ScriptCall_OK;
 		}
 	}
 	if ( pfnCallback )
 		(*pfnCallback)(pData, GetScriptType());
+	return nRet;
 }
 
 void IOSystem::OnLevelInit( bool bPostLoad )
@@ -328,6 +337,7 @@ IOScriptFile::IOScriptFile( const std::string &szFile )
 	bool inFunction = false;
 	bool inBlock = false;
 	std::string inIf;
+	IORequirementStatements currentRequirement = IORequirementStatements::IF_EQUAL;
 
 	while ( std::getline(file, line) )
 	{
@@ -346,6 +356,7 @@ IOScriptFile::IOScriptFile( const std::string &szFile )
 			inFunction = true;
 			inBlock = false;
 			inIf.clear();
+			currentRequirement = IORequirementStatements::IF_EQUAL;
 
 			// Parse function name and parameters
 			size_t nameStart = strlen("Function ");
@@ -407,6 +418,11 @@ IOScriptFile::IOScriptFile( const std::string &szFile )
 			iss >> cmdName;
 			IOFunctionCommand cmd;
 			cmd.Require = inIf;
+			cmd.RequireStatement = currentRequirement;
+			cmd.IsElseIf = (cmd.Type == IO_ELSEIF || cmd.Type == IO_ELSE);
+			cmd.SpawnItem.ListName.clear();
+			cmd.SpawnItem.ItemName.clear();
+			cmd.SpawnItem.Limit = 0;
 
 			// Identify command type (IOFunctionCommands_t)
 			int commandType = -1;
@@ -450,18 +466,45 @@ IOScriptFile::IOScriptFile( const std::string &szFile )
 					break;
 				}
 			    case IO_IF:
+			    case IO_ELSE:
+			    case IO_ELSEIF:
 				{
 					// Example: if EntityName == "apple"
 					// or if EntityName is "apple"
+				    // or if PlayerCount >= 5
+				    // or if PlayerCount > 5
+				    // or if PlayerCount <= 5
+					// This also applies to elseif and else
 					auto args = Split(restOfLine, ' ');
-				    if ( args.size() < 2 )
-					    inIf = "_invalid_if_statement";
+					if ( args.size() < 2 )
+						inIf = "_invalid_if_statement";
 					else
 					{
-					    if ( args[1] == "==" )
-						    inIf = MessageCleanup( args[2] );
-					    else if ( args[1] == "is" )
-						    inIf = MessageCleanup( args[2] );
+						if ( args[1] == "==" || args[1] == "is" )
+						{
+							inIf = MessageCleanup( args[2] );
+						    currentRequirement = IORequirementStatements::IF_EQUAL;
+						}
+					    else if (args[1] == ">=")
+						{
+							inIf = MessageCleanup( args[2] );
+						    currentRequirement = IORequirementStatements::IF_GREATER_EQUAL;
+						}
+					    else if (args[1] == "<=")
+						{
+							inIf = MessageCleanup( args[2] );
+						    currentRequirement = IORequirementStatements::IF_LESS_EQUAL;
+						}
+						else if (args[1] == ">")
+						{
+							inIf = MessageCleanup( args[2] );
+							currentRequirement = IORequirementStatements::IF_GREATER;
+						}
+						else if (args[1] == "<")
+						{
+							inIf = MessageCleanup( args[2] );
+							currentRequirement = IORequirementStatements::IF_LESS;
+					    }
 					}
 				    break;
 				}
@@ -489,6 +532,20 @@ IOScriptFile::IOScriptFile( const std::string &szFile )
 					cmd.Message = ReplaceScriptArgs( MessageCleanup( args[1] ), currentFunction.Parameters );
 				    break;
 				}
+				case IO_ADD_TO_SPAWN_LIST:
+				{
+				    // Example: AddToSpawnList Ammo "item_name" 5
+				    // arg0 = List name (Ammo/Weapons/Item)
+					// arg1 = Item name
+					// arg2 = Limit
+					const std::string msg = ReplaceScriptArgs( restOfLine, currentFunction.Parameters );
+				    auto args = Split(msg, ' ');
+					if ( args.size() < 3 ) break;
+					cmd.SpawnItem.ListName = MessageCleanup( args[0] );
+					cmd.SpawnItem.ItemName = MessageCleanup( args[1] );
+					cmd.SpawnItem.Limit = std::stoi( args[2] );
+					break;
+			    }
 				case IO_PRINT_TO_CONSOLE:
 				case IO_PRINT_TO_CHAT:
 				{
@@ -626,16 +683,66 @@ void IOScriptFile::RunCommands( int nID )
 	if ( pFunctionCall.Commands.size() > 0 )
 	{
 		IOFunctionCommand cmd = pFunctionCall.Commands[ 0 ];
+		bool bAlreadyFiredSpecialIfCase = false;
 
 		// Not empty? check what we require
 		if ( !cmd.Require.empty() )
 		{
+			bool bMatch = true;
 			// Make sure what we require is the same as our input call
 			if ( cmd.Require != pFunctionCall.InputCall )
+				bMatch = false;
+
+			// Maybe it's a argument value?
+			if ( !bMatch )
+			{
+				// Reset, and try again.
+				bMatch = true;
+
+				std::string szValue = GetArgValues( cmd.Require, pFunctionCall.Arguments );
+				if ( szValue != pFunctionCall.InputCall )
+					bMatch = false;
+
+				// Check our requirement statement (only for numeric values)
+				if ( cmd.RequireStatement == IORequirementStatements::IF_GREATER )
+				{
+					if ( atoi( szValue.c_str() ) <= atoi( pFunctionCall.InputCall.c_str() ) )
+						bMatch = false;
+				}
+				else if ( cmd.RequireStatement == IORequirementStatements::IF_LESS )
+				{
+					if ( atoi( szValue.c_str() ) >= atoi( pFunctionCall.InputCall.c_str() ) )
+						bMatch = false;
+				}
+				else if ( cmd.RequireStatement == IORequirementStatements::IF_GREATER_EQUAL )
+				{
+					if ( atoi( szValue.c_str() ) < atoi( pFunctionCall.InputCall.c_str() ) )
+						bMatch = false;
+				}
+				else if ( cmd.RequireStatement == IORequirementStatements::IF_LESS_EQUAL )
+				{
+					if ( atoi( szValue.c_str() ) > atoi( pFunctionCall.InputCall.c_str() ) )
+						bMatch = false;
+				}
+			}
+
+			// If we don't match, erase this command and return.
+			if ( !bMatch )
 			{
 				pFunctionCall.Commands.erase( pFunctionCall.Commands.begin() );
 				return;
 			}
+
+			// We match, but is this an ELSEIF or ELSE command?
+			if ( cmd.IsElseIf && bAlreadyFiredSpecialIfCase )
+			{
+				// We already fired a special case, erase this command and return.
+				pFunctionCall.Commands.erase( pFunctionCall.Commands.begin() );
+				return;
+			}
+
+			// Set this to true, so we don't fire any other ELSEIF or ELSE commands.
+			bAlreadyFiredSpecialIfCase = true;
 		}
 
 		switch ( cmd.Type )
@@ -682,6 +789,32 @@ void IOScriptFile::RunCommands( int nID )
 			    }
 			break;
 
+			case IO_ADD_TO_SPAWN_LIST:
+			{
+				// Let's add our spawn item to our list.
+				if ( !cmd.SpawnItem.ListName.empty() && !cmd.SpawnItem.ItemName.empty() && cmd.SpawnItem.Limit > 0 )
+					s_SpawnListData.push_back( cmd.SpawnItem );
+		    }
+		    break;
+
+			case IO_SPAWN_ITEMS:
+			{
+				KeyValuesAD mySpawnItems( "SpawnItems" );
+			    // Let's populare our spawn items.
+				for ( size_t i = 0; i < s_SpawnListData.size(); i++ )
+			    {
+					ISpawnListData item = s_SpawnListData[i];
+					KeyValues *pItem = mySpawnItems->FindKey( item.ListName.c_str(), true );
+					pItem->SetString( "Classname", item.ItemName.c_str() );
+					pItem->SetInt( "Amount", item.Limit );
+			    }
+			    // Let's spawn our items now.
+				ZP::IO_CalculatePlayerAmount( mySpawnItems );
+				// Clear our list after use.
+				s_SpawnListData.clear();
+			}
+		    break;
+
 			case IO_WAIT:
 			{
 				// We still have delay, don't go to the next command until we are done.
@@ -708,6 +841,13 @@ void IOScriptFile::RunCommands( int nID )
 				    if ( pPlayer )
 						UTIL_PrintConsole( szOutput.c_str(), pPlayer );
 				}
+			}
+			break;
+
+			case IO_END:
+			{
+				// We reached the end of an if block, reset our special case flag.
+				bAlreadyFiredSpecialIfCase = false;
 			}
 			break;
 		}

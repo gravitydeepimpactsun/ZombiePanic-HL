@@ -85,9 +85,10 @@ bool ScriptSystem::AddToScriptManager(IBaseScriptClass *pScript)
 	return true;
 }
 
-ScriptSystem::ScriptCallBackEnum ScriptSystem::CallScript(AvailableScripts_t nType, pOnScriptCallbackReturn pCallback, std::string szFunctionName, int iNumArgs, ...)
+ScriptCallBackEnum ScriptSystem::CallScript(AvailableScripts_t nType, pOnScriptCallbackReturn pCallback, std::string szFunctionName, int iNumArgs, ...)
 {
 	ScriptCallBackEnum nRet = ScriptCall_OK;
+	bool bHasError = false;
 	for (size_t i = 0; i < m_Scripts.size(); i++)
 	{
 		IBaseScriptClass *pScript = m_Scripts[i];
@@ -105,14 +106,17 @@ ScriptSystem::ScriptCallBackEnum ScriptSystem::CallScript(AvailableScripts_t nTy
 			}
 			va_end(argptr);
 
-			pScript->OnCalled( pCallback, pItems, szFunctionName );
+			bool bRet = pScript->OnCalled( pCallback, pItems, szFunctionName );
+			if ( !bRet )
+				bHasError = true;
 		}
 	}
-
+	if ( bHasError )
+		nRet = ScriptCall_Error;
 	return nRet;
 }
 
-ScriptSystem::ScriptCallBackEnum ScriptSystem::CallScriptArray(AvailableScripts_t nType, pOnScriptCallbackReturn pCallback, std::string szFunctionName, std::vector<std::string> nArray)
+ScriptCallBackEnum ScriptSystem::CallScriptArray(AvailableScripts_t nType, pOnScriptCallbackReturn pCallback, std::string szFunctionName, std::vector<std::string> nArray)
 {
 	ScriptCallBackEnum nRet = ScriptCall_OK;
 	for (size_t i = 0; i < m_Scripts.size(); i++)

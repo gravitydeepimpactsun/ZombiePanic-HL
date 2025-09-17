@@ -4,6 +4,16 @@
 #define SCRIPT_SYSTEM_SCRIPT_INTERFACE
 #pragma once
 
+/// <summary>
+/// Our callback enum states
+/// </summary>
+enum ScriptCallBackEnum
+{
+	ScriptCall_OK = 0,
+	ScriptCall_Warning,
+	ScriptCall_Error
+};
+
 // Our available scripts to register to
 enum AvailableScripts_t
 {
@@ -39,7 +49,8 @@ public:
 	/// <param name="pfnCallback">Our callback function</param>
 	/// <param name="pData">Our data in keyvalues</param>
 	/// <param name="szFunctionName">Our function we want to call</param>
-	virtual void OnCalled(pOnScriptCallbackReturn pfnCallback, KeyValues *pData, const std::string &szFunctionName) = 0;
+	/// <returns>True if we handled the call, false if not</returns>
+	virtual ScriptCallBackEnum OnCalled(pOnScriptCallbackReturn pfnCallback, KeyValues *pData, const std::string &szFunctionName) = 0;
 
 	/// <summary>
 	/// Fires when our script class is created and added into our ScriptSystem manager.

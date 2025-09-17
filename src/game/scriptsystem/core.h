@@ -18,6 +18,9 @@
 #include "scripts/angelscript.h"
 #endif
 
+inline void __IO_EmptyScriptCallback( KeyValues *pData ) {}
+#define EmptyIOCallback __IO_EmptyScriptCallback
+
 namespace ScriptSystem
 {
     enum ScriptFunctionCall_t
@@ -48,16 +51,6 @@ namespace ScriptSystem
     /// The round has just restarted, let's call our scripts and tell them to clear any data they have.
     /// </summary>
     void OnRoundRestart();
-
-    /// <summary>
-    /// Our callback enum states, used by pOnScriptCallbackReturn
-    /// </summary>
-    enum ScriptCallBackEnum
-    {
-        ScriptCall_OK = 0,
-        ScriptCall_Warning,
-        ScriptCall_Error
-    };
 
     /// <summary>
     /// Add our script to our manager

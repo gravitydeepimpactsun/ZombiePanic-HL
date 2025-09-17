@@ -53,9 +53,15 @@ static WeaponInfo sWeaponInfoList[] = {
 
 WeaponData CreateWeaponSlotData( const char *szClassname )
 {
-	// TODO: Make sure "weapon_" is included!
 	if ( !szClassname ) return WeaponData();
-	std::string szFile( WEAPON_SCRIPT_PATH + std::string( szClassname ) + WEAPON_SCRIPT_FILE );
+
+	std::string szClassnameStr( szClassname );
+	// Make sure our classname is starting with "weapon_"
+	// if not, add it.
+	if ( szClassnameStr.find( "weapon_" ) != 0 )
+		szClassnameStr = "weapon_" + szClassnameStr;
+
+	std::string szFile( WEAPON_SCRIPT_PATH + szClassnameStr + WEAPON_SCRIPT_FILE );
 	KeyValues *pWeaponScript = new KeyValues( "WeaponInfo" );
 	if ( !pWeaponScript->LoadFromFile( g_pFullFileSystem, szFile.c_str() ) )
 	{
@@ -64,7 +70,7 @@ WeaponData CreateWeaponSlotData( const char *szClassname )
 	}
 
 	WeaponData slot;
-	slot.WeaponID = GetWeaponInfo( szClassname ).WeaponID;
+	slot.WeaponID = GetWeaponInfo( szClassnameStr.c_str() ).WeaponID;
 	slot.Ammo1[0] = 0;
 	slot.Ammo2[0] = 0;
 

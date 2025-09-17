@@ -1096,6 +1096,7 @@ void CBaseButton::ButtonUse(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_T
 	{
 		// play button locked sound
 		PlayLockSounds(pev, &m_ls, TRUE, TRUE);
+#ifdef SCRIPT_SYSTEM
 		const std::string &szOutput( "OnLockedUse" );
 		ScriptSystem::CallScriptDelay(
 			AvailableScripts_t::InputOutput,
@@ -1106,11 +1107,13 @@ void CBaseButton::ButtonUse(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_T
 			std::to_string( entindex() ),
 			std::to_string( pActivator->entindex() )
 		);
+#endif
 		return;
 	}
 
 	m_hActivator = pActivator;
 
+#ifdef SCRIPT_SYSTEM
 	const std::string &szOutput( "OnUse" );
 	ScriptSystem::CallScriptDelay(
 		AvailableScripts_t::InputOutput,
@@ -1121,6 +1124,7 @@ void CBaseButton::ButtonUse(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_T
 		std::to_string( entindex() ),
 		std::to_string( pActivator->entindex() )
 	);
+#endif
 
 	if (m_toggle_state == TS_AT_TOP)
 	{
@@ -1175,6 +1179,7 @@ void CBaseButton::ButtonTouch(CBaseEntity *pOther)
 	{
 		// play button locked sound
 		PlayLockSounds(pev, &m_ls, TRUE, TRUE);
+#ifdef SCRIPT_SYSTEM
 		const std::string &szOutput( "OnLockedUse" );
 		ScriptSystem::CallScriptDelay(
 			AvailableScripts_t::InputOutput,
@@ -1185,6 +1190,7 @@ void CBaseButton::ButtonTouch(CBaseEntity *pOther)
 			std::to_string( entindex() ),
 			std::to_string( pOther->entindex() )
 		);
+#endif
 		return;
 	}
 

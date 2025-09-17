@@ -52,6 +52,7 @@ struct DebugSpawnList
 static std::vector<DebugSpawnList> s_SpawnedItems;
 static std::vector<SpawnList*> s_SpawnList;
 static SpawnList *m_DefaultSpawnItem = new SpawnList();
+static int s_iCurrentPlayerAmount = 0;
 
 static void OnItemCreated(const char *szClassname)
 {
@@ -132,110 +133,57 @@ void ZP::CheckHowManySpawnedItems( CBasePlayer *pPlayer )
 	UTIL_PrintConsole( "--------------------\n", pPlayer );
 }
 
-void CRandomItemBase::SpawnItem(void)
+void ZP::SpawnItems()
 {
-	int istr = GetRandomClassname();
-	if ( istr == 0 ) return;
-	const char *szItemToSpawn = STRING( istr );
-	if ( szItemToSpawn && szItemToSpawn[0] )
-	{
-		edict_t *pent = CREATE_NAMED_ENTITY( istr );
-		if ( FNullEnt(pent) ) return;
-
-		VARS(pent)->origin = pev->origin + Vector( 0, 0, 2 );
-		VARS(pent)->angles = pev->angles;
-		pent->v.spawnflags |= SF_NORESPAWN;
-		DispatchSpawn(pent);
-
-		CBaseEntity *pSpawned = (CBaseEntity *)GET_PRIVATE(pent);
-		if ( pSpawned )
-		{
-			pSpawned->SetSpawnedTroughRandomEntity( true );
-			OnItemCreated( szItemToSpawn );
-		}
-	}
-}
-
-string_t CRandomItemBase::GetRandomClassname() const
-{
-	std::vector<SpawnList*> temp = s_SpawnList;
-	int idx = RANDOM_LONG( 0, temp.size() - 1 );
-	SpawnList *item = temp[ idx ];
-
-	bool bNotValidItem = IsLimited( item );
-	while ( bNotValidItem )
-	{
-		// All of it was invalid?
-		// Return default value then.
-		if ( temp.size() == 0 )
-		{
-			item = m_DefaultSpawnItem;
-			break;
-		}
-		else
-		{
-			idx = RANDOM_LONG( 0, temp.size() - 1 );
-			item = temp[ idx ];
-			temp.erase( temp.begin() + idx );
-		}
-		bNotValidItem = IsLimited( item );
-	}
-	if ( FStrEq( item->Classname, "" ) ) return 0;
-
-	// How many items did we find?
-	// We also start at 1, since *this* item needs to be counted for.
-	int iFound = 1;
-
-	// Now we check how many there are on the map
-	CBaseEntity *pFind = UTIL_FindEntityByClassname( nullptr, item->Classname );
+	// First spawn all weapons
+	CRandomItemBase *pFind = (CRandomItemBase *)UTIL_FindEntityByClassname( nullptr, "info_random_weapon" );
 	while ( pFind )
 	{
-		iFound++;
-		pFind = UTIL_FindEntityByClassname( pFind, item->Classname );
+		AddSpawnItem( ItemType::TypeWeapon, pFind );
+		pFind = (CRandomItemBase *)UTIL_FindEntityByClassname( pFind, "info_random_weapon" );
 	}
 
-	// Check how many we got, if it's equal or above, make Full true
-	if ( iFound >= item->Limit )
-		SetItemAsFull( item->Classname );
-
-	return ALLOC_STRING( item->Classname );
-}
-
-#ifdef SCRIPT_SYSTEM
-void OnScriptCallback( KeyValues *pData, AvailableScripts_t nScriptType )
-{
-	// TODO: Make AvailableScripts_t::Angelscript call this callback if the function was a success
-}
-#endif
-
-static int s_iCurrentPlayerAmount = 0;
-static void CheckCurrentPlayers()
-{
-	for ( int i = 1; i <= gpGlobals->maxClients; i++ )
+	// Now go trough our ammo.
+	pFind = (CRandomItemBase *)UTIL_FindEntityByClassname( nullptr, "info_random_ammo" );
+	while ( pFind )
 	{
-		CBasePlayer *plr = (CBasePlayer *)UTIL_PlayerByIndex( i );
-		if ( plr && plr->IsConnected() )
-			s_iCurrentPlayerAmount++;
+		AddSpawnItem( ItemType::TypeAmmo, pFind );
+		pFind = (CRandomItemBase *)UTIL_FindEntityByClassname( pFind, "info_random_ammo" );
 	}
 
-#ifdef SCRIPT_SYSTEM
-	// Call our script system, and make sure we are calling Angelscript
-	// and setup our item stuff.
-	ScriptSystem::CallScript(
-		AvailableScripts_t::Angelscript,
-		OnScriptCallback,
-		"CalculatePlayerAmount",
-		2,
-		s_iCurrentPlayerAmount,
-		MAKE_STRING( gpGlobals->mapname )
-	);
-#endif
-	// TODO: Put this under #else once AvailableScripts_t::Angelscript is complete.
+	// Now go trough our items.
+	pFind = (CRandomItemBase *)UTIL_FindEntityByClassname( nullptr, "info_random_item" );
+	while ( pFind )
+	{
+		AddSpawnItem( ItemType::TypeItem, pFind );
+		pFind = (CRandomItemBase *)UTIL_FindEntityByClassname( pFind, "info_random_item" );
+	}
+
+	std::random_device rd;
+	std::mt19937 g( rd() );
+	std::shuffle( s_RandomSpawnLocations.begin(), s_RandomSpawnLocations.end(), g );
+
+	SpawnItems( ItemType::TypeWeapon );
+	SpawnItems( ItemType::TypeItem );
+	SpawnItems( ItemType::TypeAmmo );
+
+	// Reset after use
+	for ( size_t i = 0; i < s_SpawnList.size(); i++ )
+	{
+		SpawnList *item = s_SpawnList[i];
+		item->Full = false;
+	}
+	s_iCurrentPlayerAmount = 0;
+}
+
+void ZP::SetupDefaultSpawnList()
+{
 #define ItemSpawner s_SpawnList
+	int nPlayers = s_iCurrentPlayerAmount;
 	int nAmmoToSpawn[5];
 	int nWeaponToSpawn[5];
 	int nItemToSpawn[4];
-	int nPlayers = s_iCurrentPlayerAmount;
+
 	if ( nPlayers >= 18 )
 	{
 		nAmmoToSpawn[0] = 12; // 0 - ammo_9mmclip
@@ -391,6 +339,175 @@ static void CheckCurrentPlayers()
 	ItemSpawner.push_back( new SpawnList( "weapon_shotgun", nWeaponToSpawn[4], ItemType::TypeWeapon ) );
 }
 
+void CRandomItemBase::SpawnItem(void)
+{
+	int istr = GetRandomClassname();
+	if ( istr == 0 ) return;
+	const char *szItemToSpawn = STRING( istr );
+	if ( szItemToSpawn && szItemToSpawn[0] )
+	{
+		edict_t *pent = CREATE_NAMED_ENTITY( istr );
+		if ( FNullEnt(pent) ) return;
+
+		VARS(pent)->origin = pev->origin + Vector( 0, 0, 2 );
+		VARS(pent)->angles = pev->angles;
+		pent->v.spawnflags |= SF_NORESPAWN;
+		DispatchSpawn(pent);
+
+		CBaseEntity *pSpawned = (CBaseEntity *)GET_PRIVATE(pent);
+		if ( pSpawned )
+		{
+			pSpawned->SetSpawnedTroughRandomEntity( true );
+			OnItemCreated( szItemToSpawn );
+		}
+	}
+}
+
+string_t CRandomItemBase::GetRandomClassname() const
+{
+	std::vector<SpawnList*> temp = s_SpawnList;
+	int idx = RANDOM_LONG( 0, temp.size() - 1 );
+	SpawnList *item = temp[ idx ];
+
+	bool bNotValidItem = IsLimited( item );
+	while ( bNotValidItem )
+	{
+		// All of it was invalid?
+		// Return default value then.
+		if ( temp.size() == 0 )
+		{
+			item = m_DefaultSpawnItem;
+			break;
+		}
+		else
+		{
+			idx = RANDOM_LONG( 0, temp.size() - 1 );
+			item = temp[ idx ];
+			temp.erase( temp.begin() + idx );
+		}
+		bNotValidItem = IsLimited( item );
+	}
+	if ( FStrEq( item->Classname, "" ) ) return 0;
+
+	// How many items did we find?
+	// We also start at 1, since *this* item needs to be counted for.
+	int iFound = 1;
+
+	// Now we check how many there are on the map
+	CBaseEntity *pFind = UTIL_FindEntityByClassname( nullptr, item->Classname );
+	while ( pFind )
+	{
+		iFound++;
+		pFind = UTIL_FindEntityByClassname( pFind, item->Classname );
+	}
+
+	// Check how many we got, if it's equal or above, make Full true
+	if ( iFound >= item->Limit )
+		SetItemAsFull( item->Classname );
+
+	return ALLOC_STRING( item->Classname );
+}
+
+#ifdef SCRIPT_SYSTEM
+void OnScriptCallback( KeyValues *pData, AvailableScripts_t nScriptType )
+{
+	// TODO: Make AvailableScripts_t::Angelscript call this callback if the function was a success
+}
+
+// This is for I/O system
+void ZP::IO_CalculatePlayerAmount( KeyValues *pData )
+{
+	// Loop through our ammo types
+	KeyValues *pSpawnItems = pData->FindKey( "Ammo" );
+	if ( pSpawnItems )
+	{
+		for ( KeyValues *pAmmo = pSpawnItems->GetFirstSubKey(); pAmmo; pAmmo = pAmmo->GetNextKey() )
+		{
+			const char *szClassname = pAmmo->GetString( "Classname" );
+			int nAmount = pAmmo->GetInt( "Amount", 0 );
+			if ( szClassname && szClassname[0] && nAmount > 0 )
+				s_SpawnList.push_back( new SpawnList( szClassname, nAmount, ItemType::TypeAmmo ) );
+		}
+	}
+
+	// Ditto, but for items.
+	pSpawnItems = pData->FindKey( "Items" );
+	if ( pSpawnItems )
+	{
+		// Loop through this ammo type
+		for ( KeyValues *pAmmo = pSpawnItems->GetFirstSubKey(); pAmmo; pAmmo = pAmmo->GetNextKey() )
+		{
+			const char *szClassname = pAmmo->GetString( "Classname" );
+			int nAmount = pAmmo->GetInt( "Amount", 0 );
+			if ( szClassname && szClassname[0] && nAmount > 0 )
+				s_SpawnList.push_back( new SpawnList( szClassname, nAmount, ItemType::TypeItem ) );
+		}
+	}
+
+	// Ditto, but for weapons.
+	pSpawnItems = pData->FindKey( "Weapons" );
+	if ( pSpawnItems )
+	{
+		// Loop through this ammo type
+		for ( KeyValues *pAmmo = pSpawnItems->GetFirstSubKey(); pAmmo; pAmmo = pAmmo->GetNextKey() )
+		{
+			const char *szClassname = pAmmo->GetString( "Classname" );
+			int nAmount = pAmmo->GetInt( "Amount", 0 );
+			if ( szClassname && szClassname[0] && nAmount > 0 )
+				s_SpawnList.push_back( new SpawnList( szClassname, nAmount, ItemType::TypeWeapon ) );
+		}
+	}
+
+	// Let's spawn our items now.
+	SpawnItems();
+}
+#endif
+
+static void CheckCurrentPlayers()
+{
+	for ( int i = 1; i <= gpGlobals->maxClients; i++ )
+	{
+		CBasePlayer *plr = (CBasePlayer *)UTIL_PlayerByIndex( i );
+		if ( plr && plr->IsConnected() )
+			s_iCurrentPlayerAmount++;
+	}
+
+#ifdef SCRIPT_SYSTEM
+	// For I/O, we need to register CalculatePlayerAmount as a function.
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, EmptyIOCallback, "CalculatePlayerAmount" );
+
+	// Call our script system, and make sure we are calling Angelscript
+	// and setup our item stuff.
+	const std::string &szMapname( STRING( gpGlobals->mapname ) );
+	ScriptSystem::CallScript(
+		AvailableScripts_t::Angelscript,
+		OnScriptCallback,
+		"CalculatePlayerAmount",
+		2,
+		std::to_string( s_iCurrentPlayerAmount ),
+		szMapname
+	);
+
+	// Let's also call our I/O, if we use that instead.
+	const std::string &szArg0( "SCall" );
+	ScriptCallBackEnum ret = ScriptSystem::CallScript(
+		AvailableScripts_t::InputOutput,
+		nullptr,
+		"CalculatePlayerAmount",
+		2,
+		szArg0,
+		std::to_string( s_iCurrentPlayerAmount )
+	);
+
+	// Function was not found or failed to call?
+	// Setup default spawn list then.
+	if ( ret != ScriptCallBackEnum::ScriptCall_OK )
+		ZP::SetupDefaultSpawnList();
+#else
+	ZP::SetupDefaultSpawnList();
+#endif
+}
+
 bool CRandomItemBase::IsLimited( SpawnList *item ) const
 {
 	// Not the correct type, return true.
@@ -414,45 +531,8 @@ void ZP::OnGameModeRoundStart()
 	// Check all players first
 	CheckCurrentPlayers();
 
-	// First spawn all weapons
-	CRandomItemBase *pFind = (CRandomItemBase *)UTIL_FindEntityByClassname( nullptr, "info_random_weapon" );
-	while ( pFind )
-	{
-		AddSpawnItem( ItemType::TypeWeapon, pFind );
-		pFind = (CRandomItemBase *)UTIL_FindEntityByClassname( pFind, "info_random_weapon" );
-	}
-
-	// Now go trough our ammo.
-	pFind = (CRandomItemBase *)UTIL_FindEntityByClassname( nullptr, "info_random_ammo" );
-	while ( pFind )
-	{
-		AddSpawnItem( ItemType::TypeAmmo, pFind );
-		pFind = (CRandomItemBase *)UTIL_FindEntityByClassname( pFind, "info_random_ammo" );
-	}
-
-	// Now go trough our items.
-	pFind = (CRandomItemBase *)UTIL_FindEntityByClassname( nullptr, "info_random_item" );
-	while ( pFind )
-	{
-		AddSpawnItem( ItemType::TypeItem, pFind );
-		pFind = (CRandomItemBase *)UTIL_FindEntityByClassname( pFind, "info_random_item" );
-	}
-
-	std::random_device rd;
-	std::mt19937 g( rd() );
-	std::shuffle( s_RandomSpawnLocations.begin(), s_RandomSpawnLocations.end(), g );
-
-	SpawnItems( ItemType::TypeWeapon );
-	SpawnItems( ItemType::TypeItem );
-	SpawnItems( ItemType::TypeAmmo );
-
-	// Reset after use
-	for ( size_t i = 0; i < s_SpawnList.size(); i++ )
-	{
-		SpawnList *item = s_SpawnList[i];
-		item->Full = false;
-	}
-	s_iCurrentPlayerAmount = 0;
+	// Now, let's spawn our items
+	SpawnItems();
 
 	// Now, let's start our beacons (if Start On spawnflags is set)
 	CInfoBeacon *pBeacon = (CInfoBeacon *)UTIL_FindEntityByClassname( nullptr, "info_beacon" );

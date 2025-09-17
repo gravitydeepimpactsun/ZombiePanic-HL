@@ -53,6 +53,9 @@ namespace ZP
 {
 	void OnGameModeRoundStart();
 	void CheckHowManySpawnedItems( CBasePlayer *pPlayer );
+	void SpawnItems();
+    void SetupDefaultSpawnList();
+	void IO_CalculatePlayerAmount( KeyValues *pData );
 }
 
 #endif

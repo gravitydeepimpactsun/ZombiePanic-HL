@@ -13,10 +13,14 @@ enum IOFunctionCommands_t
 	IO_EXEC_AS,
 	IO_WAIT,
 	IO_IF,
+	IO_ELSEIF,
+	IO_ELSE,
 	IO_END,
 	IO_PRINT_TO_CONSOLE,
 	IO_PRINT_TO_CHAT,
 	IO_GIVE_ITEM,
+	IO_ADD_TO_SPAWN_LIST,
+	IO_SPAWN_ITEMS,
 
 	IO_MAX
 };
@@ -35,6 +39,22 @@ enum IOFunctions_t
 const char *IO_GetAvailableFunctions( IOFunctions_t nFunc );
 const char *IO_GetAvailableFunctionCommands( IOFunctionCommands_t nCommand );
 
+struct ISpawnListData
+{
+	std::string ListName; // The list name (Ammo/Weapons/Item)
+	std::string ItemName; // The item name
+	int Limit; // The limit of this item in the list
+};
+
+enum IORequirementStatements
+{
+	IF_EQUAL = 0,
+	IF_GREATER,
+	IF_GREATER_EQUAL,
+	IF_LESS,
+	IF_LESS_EQUAL,
+};
+
 struct IOFunctionCommand
 {
 	IOFunctionCommands_t Type; // The type of this command
@@ -43,6 +63,9 @@ struct IOFunctionCommand
 	std::string EntFire; // The entity we want to call
 	std::string Input; // The input we want to call
 	std::string Require; // The value we require to execute this
+	IORequirementStatements RequireStatement; // The requirement we need to use
+	bool IsElseIf; // Is this an ELSEIF or ELSE command?
+	ISpawnListData SpawnItem; // The spawn list data, used by IO_ADD_TO_SPAWN_LIST
 };
 
 struct IOFunctionData
@@ -102,7 +125,7 @@ public:
 	AvailableScripts_t GetScriptType() { return AvailableScripts_t::InputOutput; }
 	void OnInit();
 	void OnThink();
-	void OnCalled(pOnScriptCallbackReturn pfnCallback, KeyValues *pData, const std::string &szFunctionName);
+	ScriptCallBackEnum OnCalled(pOnScriptCallbackReturn pfnCallback, KeyValues *pData, const std::string &szFunctionName);
 	void OnLevelInit(bool bPostLoad);
 	void OnLevelShutdown();
 	void OnRoundRestart();

@@ -48,6 +48,7 @@ struct ISpawnListData
 
 enum IORequirementStatements
 {
+	IF_INVALID = -1,
 	IF_EQUAL = 0,
 	IF_GREATER,
 	IF_GREATER_EQUAL,
@@ -64,7 +65,8 @@ struct IOFunctionCommand
 	std::string Input; // The input we want to call
 	std::string Require; // The value we require to execute this
 	IORequirementStatements RequireStatement; // The requirement we need to use
-	bool IsElseIf; // Is this an ELSEIF or ELSE command?
+	bool IsElseIf; // Is this an ELSEIF command?
+	bool IsElse; // Is this an ELSE command?
 	ISpawnListData SpawnItem; // The spawn list data, used by IO_ADD_TO_SPAWN_LIST
 };
 

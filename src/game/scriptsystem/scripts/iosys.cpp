@@ -336,6 +336,8 @@ IOScriptFile::IOScriptFile( const std::string &szFile )
 	IOFunctionData currentFunction;
 	bool inFunction = false;
 	bool inBlock = false;
+	bool inElse = false;
+	bool inElseIf = false;
 	std::string inIf;
 	IORequirementStatements currentRequirement = IORequirementStatements::IF_EQUAL;
 
@@ -356,6 +358,8 @@ IOScriptFile::IOScriptFile( const std::string &szFile )
 			inFunction = true;
 			inBlock = false;
 			inIf.clear();
+			inElse = false;
+			inElseIf = false;
 			currentRequirement = IORequirementStatements::IF_EQUAL;
 
 			// Parse function name and parameters
@@ -419,7 +423,8 @@ IOScriptFile::IOScriptFile( const std::string &szFile )
 			IOFunctionCommand cmd;
 			cmd.Require = inIf;
 			cmd.RequireStatement = currentRequirement;
-			cmd.IsElseIf = (cmd.Type == IO_ELSEIF || cmd.Type == IO_ELSE);
+			cmd.IsElseIf = inElseIf;
+			cmd.IsElse = inElse;
 			cmd.SpawnItem.ListName.clear();
 			cmd.SpawnItem.ItemName.clear();
 			cmd.SpawnItem.Limit = 0;
@@ -466,7 +471,6 @@ IOScriptFile::IOScriptFile( const std::string &szFile )
 					break;
 				}
 			    case IO_IF:
-			    case IO_ELSE:
 			    case IO_ELSEIF:
 				{
 					// Example: if EntityName == "apple"
@@ -505,9 +509,23 @@ IOScriptFile::IOScriptFile( const std::string &szFile )
 							inIf = MessageCleanup( args[2] );
 							currentRequirement = IORequirementStatements::IF_LESS;
 					    }
+					    // Make sure this is set correctly.
+					    if ( cmd.Type == IO_ELSEIF )
+							inElseIf = true;
+						else
+						    inElseIf = false;
 					}
 				    break;
 				}
+				case IO_ELSE:
+				{
+				    // Else has no condition.
+				    // IsElse is already set above.
+				    currentRequirement = IORequirementStatements::IF_INVALID;
+				    inElseIf = false;
+				    inElse = true;
+				}
+			    break;
 			    case IO_END:
 				{
 					if ( !inIf.empty() )
@@ -535,7 +553,7 @@ IOScriptFile::IOScriptFile( const std::string &szFile )
 				case IO_ADD_TO_SPAWN_LIST:
 				{
 				    // Example: AddToSpawnList Ammo "item_name" 5
-				    // arg0 = List name (Ammo/Weapons/Item)
+				    // arg0 = List name (Ammo/Weapons/Items)
 					// arg1 = Item name
 					// arg2 = Limit
 					const std::string msg = ReplaceScriptArgs( restOfLine, currentFunction.Parameters );
@@ -733,7 +751,7 @@ void IOScriptFile::RunCommands( int nID )
 			}
 
 			// We match, but is this an ELSEIF or ELSE command?
-			if ( cmd.IsElseIf && bAlreadyFiredSpecialIfCase )
+			if ( ( cmd.IsElseIf || cmd.IsElse ) && bAlreadyFiredSpecialIfCase )
 			{
 				// We already fired a special case, erase this command and return.
 				pFunctionCall.Commands.erase( pFunctionCall.Commands.begin() );

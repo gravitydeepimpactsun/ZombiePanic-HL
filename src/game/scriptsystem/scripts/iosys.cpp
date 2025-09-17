@@ -699,29 +699,28 @@ void IOScriptFile::RunCommands( int nID )
 				// Reset, and try again.
 				bMatch = true;
 
-				std::string szValue = GetArgValues( cmd.Require, pFunctionCall.Arguments );
-				if ( szValue != pFunctionCall.InputCall )
-					bMatch = false;
+				const std::string &szValue = pFunctionCall.InputCall;
+				const std::string &szArgument = cmd.Require;
 
 				// Check our requirement statement (only for numeric values)
 				if ( cmd.RequireStatement == IORequirementStatements::IF_GREATER )
 				{
-					if ( atoi( szValue.c_str() ) <= atoi( pFunctionCall.InputCall.c_str() ) )
+					if ( atoi( szValue.c_str() ) <= atoi( szArgument.c_str() ) )
 						bMatch = false;
 				}
 				else if ( cmd.RequireStatement == IORequirementStatements::IF_LESS )
 				{
-					if ( atoi( szValue.c_str() ) >= atoi( pFunctionCall.InputCall.c_str() ) )
+					if ( atoi( szValue.c_str() ) >= atoi( szArgument.c_str() ) )
 						bMatch = false;
 				}
 				else if ( cmd.RequireStatement == IORequirementStatements::IF_GREATER_EQUAL )
 				{
-					if ( atoi( szValue.c_str() ) < atoi( pFunctionCall.InputCall.c_str() ) )
+					if ( atoi( szValue.c_str() ) < atoi( szArgument.c_str() ) )
 						bMatch = false;
 				}
 				else if ( cmd.RequireStatement == IORequirementStatements::IF_LESS_EQUAL )
 				{
-					if ( atoi( szValue.c_str() ) > atoi( pFunctionCall.InputCall.c_str() ) )
+					if ( atoi( szValue.c_str() ) > atoi( szArgument.c_str() ) )
 						bMatch = false;
 				}
 			}

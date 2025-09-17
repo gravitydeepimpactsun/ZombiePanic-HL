@@ -41,6 +41,8 @@ enum EStats
 	MAP_ZPH_SANTERIA,
 	MAP_ZPH_CONTINGENCY,
 
+	ZP_RESET_ALL, // If this stat is 1, reset all stats.
+
 	STAT_MAX
 };
 

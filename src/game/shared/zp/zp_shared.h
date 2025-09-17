@@ -228,12 +228,7 @@ namespace ZP
 		MAX_GAMEMODES
 	};
 	GameModeType_e IsValidGameModeMap(const char *szLevel);
-	static const char *GameModes[MAX_GAMEMODES] = {
-		"Development",
-		"Last Man Standing",
-		"Objective"
-	};
-	
+
 	namespace ColorGradient
 	{
 		class ColorBase

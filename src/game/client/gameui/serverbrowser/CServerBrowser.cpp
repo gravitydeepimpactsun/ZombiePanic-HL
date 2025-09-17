@@ -135,6 +135,24 @@ CDialogGameInfo *CServerBrowser::OpenGameInfoDialog( int serverIP, uint16 connPo
 	return gameDialog;
 }
 
+void CServerBrowser::MoveAllDialogsToFront()
+{
+	// Bring all game info dialogs to front, if they aren't closing already
+	for (int i = 0; i < m_GameInfoDialogs.Count(); i++)
+	{
+		CDialogGameInfo *dlg = m_GameInfoDialogs[i];
+		if ( dlg && !dlg->IsAlreadyClosing() )
+			dlg->MoveToFront();
+	}
+	// Now let's move all our children to front (that is a modal dialog)
+	for (int i = 0; i < GetChildCount(); i++)
+	{
+		vgui2::Panel *pChild = GetChild( i );
+		if ( pChild && pChild->IsVisible() && pChild->IsPopup() )
+			pChild->MoveToFront();
+	}
+}
+
 void CServerBrowser::CloseAllGameInfoDialogs()
 {
 	for (int i = 0; i < m_GameInfoDialogs.Count(); i++)

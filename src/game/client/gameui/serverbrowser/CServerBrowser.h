@@ -34,6 +34,9 @@ public:
 	CDialogGameInfo *OpenGameInfoDialog( CBaseTab *gameList, uint64 serverIndex );
 	CDialogGameInfo *OpenGameInfoDialog( int serverIP, uint16 connPort, uint16 queryPort );
 
+	// Bring all dialogs to front, such as the GameInfo, AddServer etc.
+	void MoveAllDialogsToFront();
+
 	// closes all the game info dialogs
 	void CloseAllGameInfoDialogs();
 	CDialogGameInfo *GetDialogGameInfoForFriend( uint64 ulSteamIDFriend );

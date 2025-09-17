@@ -301,4 +301,8 @@ void CBaseMenu::DoDialogHackFix()
 		if ( !V_stricmp( pChild->GetClassName(), "MessageBox" ) )
 			pChild->MoveToFront();
 	}
+
+	// Let's move our server browser dialogs to front as well.
+	if ( CGameUIViewport::Get()->GetServerBrowser() )
+		CGameUIViewport::Get()->GetServerBrowser()->MoveAllDialogsToFront();
 }

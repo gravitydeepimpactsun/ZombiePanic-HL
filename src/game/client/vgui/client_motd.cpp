@@ -33,6 +33,7 @@ CClientMOTD::CClientMOTD()
 	SetMoveable(false);
 	SetProportional(true);
 	SetSizeable(false);
+	SetCloseButtonVisible(false);
 
 	m_pMessage = new vgui2::RichText(this, "TextMessage");
 
@@ -103,7 +104,7 @@ void CClientMOTD::OnKeyCodeTyped(vgui2::KeyCode key)
 
 void CClientMOTD::OnCommand(const char *command)
 {
-	if (!Q_stricmp(command, "okay"))
+	if (!Q_stricmp(command, "okay") || !Q_stricmp(command, "Close") )
 	{
 		RemoveTempFile();
 		ShowPanel(false);
@@ -117,6 +118,7 @@ void CClientMOTD::OnCommand(const char *command)
 void CClientMOTD::Close()
 {
 	BaseClass::Close();
+	g_pViewport->ShowVGUIMenu( MENU_TEAM );
 	// FIXME: m_pViewport->ShowBackGround( false );
 }
 

@@ -3,6 +3,10 @@ add_subdirectory( sphl )
 
 add_sources(
 	CMakeLists.txt
+# Handles all client-side achievements code
+# so we don't bloat the chat.cpp file
+	steam_achievements.cpp
+	steam_achievements.h
 	bhlcfg.cpp
 	bhlcfg.h
 	camera.h

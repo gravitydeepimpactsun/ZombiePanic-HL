@@ -390,6 +390,11 @@ void CWorkshopSubUpload::SetUpdating( PublishedFileId_t nItem )
 	pAddonUpload->SetEnabled( false );
 	pProgress->SetVisible( false );
 	pProgressLabel->SetVisible( false );
+
+	// Apply the default image
+	char buffer[158];
+	Q_snprintf( buffer, sizeof( buffer ), "thumb_%llu", nItem );
+	pAddonImage->SetImage( vgui2::scheme()->GetImage( buffer, false ) );
 }
 
 static bool DoWeHaveTheTag( const std::vector<std::string> &seglist, const std::string &strInput )

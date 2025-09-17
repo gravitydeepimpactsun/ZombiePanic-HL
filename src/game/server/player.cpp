@@ -37,6 +37,7 @@
 #include "hltv.h"
 #include "zp/gamemodes/zp_gamemodebase.h"
 #include "zp/zp_shared.h"
+#include "zp/zp_spawnpoint_ent.h"
 
 // #define DUCKFIX
 
@@ -3312,6 +3313,18 @@ static SpawnPointValidity IsSpawnPointValid(CBaseEntity *pPlayer, CBaseEntity *p
 		return SpawnPointValidity::NonValid;
 	}
 
+	// Make sure this is a proper spawn point entity
+	CBasePlayerSpawnPoint *spawnPoint = dynamic_cast<CBasePlayerSpawnPoint *>(pSpot);
+	if ( spawnPoint )
+	{
+		// Disabled spawn point?
+		if ( !spawnPoint->IsEnabled() )
+			return SpawnPointValidity::NonValid;
+		// Has someone already spawned here?
+		if ( spawnPoint->HasSpawned() )
+			return SpawnPointValidity::NonValid;
+	}
+
 	PlayerLastSpawnPoint *item = GrabLastSpawn(pPlayer);
 	if ( FoundSpawnPoint( item, pSpot ) )
 		return SpawnPointValidity::NonValid;
@@ -3609,6 +3622,33 @@ static CBaseEntity *EntSelectSpawnPointZP(CBaseEntity *pPlayer)
 
 	int take = rand() % limit;
 
+	// If we are on the zombie team, pick a spawn that is closest to a survivor
+	if ( pPlayer->pev->team == ZP::TEAM_ZOMBIE && validSpots > 1 )
+	{
+		float closestDist = 99999;
+		int closestIndex = take;
+		for ( int i = 0; i < validSpots; i++ )
+		{
+			CBaseEntity *ent = nullptr;
+			float closestDistForThis = 99999;
+			while ( ( ent = UTIL_FindEntityInSphere( ent, spotInfos[i].pSpot->pev->origin, 3000 ) ) != NULL )
+			{
+				if ( ent->IsPlayer() && ent->pev->team == ZP::TEAM_SURVIVIOR )
+				{
+					float dist = ( ent->pev->origin - spotInfos[i].pSpot->pev->origin ).Length();
+					if ( dist < closestDistForThis )
+						closestDistForThis = dist;
+				}
+			}
+			if ( closestDistForThis < closestDist )
+			{
+				closestDist = closestDistForThis;
+				closestIndex = i;
+			}
+		}
+		take = closestIndex;
+	}
+
 	if (spotInfos[take].nValidity == SpawnPointValidity::HasPlayers)
 		ClearSpawn(spotInfos[take].pSpot, pPlayer->edict());
 
@@ -3655,6 +3695,11 @@ edict_t* EntSelectSpawnPoint(CBasePlayer* pPlayer)
 		ALERT(at_error, "PutClientInServer: no info_player_start on level");
 		return INDEXENT(0);
 	}
+
+	// mark spawn point as used
+	CBasePlayerSpawnPoint *spawnPoint = dynamic_cast<CBasePlayerSpawnPoint *>(pSpot);
+	if ( spawnPoint )
+		spawnPoint->SetOccupied( true );
 
 	g_pLastSpawn = pSpot;
 	return pSpot->edict();

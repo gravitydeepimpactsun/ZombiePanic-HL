@@ -61,6 +61,8 @@ static const char *s_EntitiesRestarts[] = {
 	"game_counter_set",
 	"game_timer",
 	"path_track",
+	"info_player_team1",
+	"info_player_team2",
 	"", // END Marker
 };
 

@@ -10,6 +10,8 @@ add_sources(
 	info_random_item.cpp
 	info_random_ammo.cpp
 	info_random_weapon.cpp
+	zp_spawnpoint_ent.cpp
+	zp_spawnpoint_ent.h
 	zp_gamerules.cpp
 	zp_gamerules.h
 	gamemodes/zp_gamemodebase.cpp

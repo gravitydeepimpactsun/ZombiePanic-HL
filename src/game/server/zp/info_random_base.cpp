@@ -225,6 +225,7 @@ static void CheckCurrentPlayers()
 		AvailableScripts_t::Angelscript,
 		OnScriptCallback,
 		"CalculatePlayerAmount",
+		2,
 		s_iCurrentPlayerAmount,
 		MAKE_STRING( gpGlobals->mapname )
 	);

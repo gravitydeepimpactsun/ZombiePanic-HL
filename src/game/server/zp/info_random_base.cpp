@@ -415,8 +415,6 @@ void OnScriptCallback( KeyValues *pData, AvailableScripts_t nScriptType )
 	// TODO: Make AvailableScripts_t::Angelscript call this callback if the function was a success
 }
 
-#include <tier2/tier2.h>
-
 // This is for I/O system
 void ZP::IO_CalculatePlayerAmount( KeyValues *pData )
 {

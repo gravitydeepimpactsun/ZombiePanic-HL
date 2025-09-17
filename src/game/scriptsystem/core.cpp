@@ -106,8 +106,8 @@ ScriptCallBackEnum ScriptSystem::CallScript(AvailableScripts_t nType, pOnScriptC
 			}
 			va_end(argptr);
 
-			bool bRet = pScript->OnCalled( pCallback, pItems, szFunctionName );
-			if ( !bRet )
+			ScriptCallBackEnum nScriptRet = pScript->OnCalled( pCallback, pItems, szFunctionName );
+			if ( nScriptRet != ScriptCall_OK )
 				bHasError = true;
 		}
 	}
@@ -130,7 +130,7 @@ ScriptCallBackEnum ScriptSystem::CallScriptArray(AvailableScripts_t nType, pOnSc
 			for ( size_t y = 0; y < nArray.size(); y++ )
 				pItems->SetString( UTIL_VarArgs( "arg%i", y ), nArray[y].c_str() );
 
-			pScript->OnCalled( pCallback, pItems, szFunctionName );
+			nRet = pScript->OnCalled( pCallback, pItems, szFunctionName );
 		}
 	}
 	return nRet;

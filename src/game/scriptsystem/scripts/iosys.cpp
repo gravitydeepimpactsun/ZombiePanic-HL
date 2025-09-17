@@ -30,6 +30,8 @@ static const char *g_IOCommands[IO_MAX] = {
 	"ASCall",
 	"Wait",
 	"if",
+	"elseif",
+	"else",
 	"end",
 	"PrintToConsole",
 	"PrintToChat",
@@ -147,8 +149,13 @@ ScriptCallBackEnum IOSystem::OnCalled(pOnScriptCallbackReturn pfnCallback, KeyVa
 			// Only call once.
 			if ( m_szScript && !bIsScriptCall )
 			{
-				m_szScript->OnCalled( szFunctionName, pData );
+				nRet = m_szScript->OnCalled( szFunctionName, pData );
 				bIsScriptCall = true;
+			}
+			else
+			{
+				// We found our function, return OK
+				nRet = ScriptCall_OK;
 			}
 			if ( ScriptFunction.Callback ) (*ScriptFunction.Callback)(pData);
 			if ( ScriptFunction.Entity )
@@ -179,8 +186,6 @@ ScriptCallBackEnum IOSystem::OnCalled(pOnScriptCallbackReturn pfnCallback, KeyVa
 					}
 				}
 			}
-			// We found our function, return OK
-			nRet = ScriptCall_OK;
 		}
 	}
 	if ( pfnCallback )
@@ -601,51 +606,51 @@ IOScriptFile::~IOScriptFile()
 	m_Functions.clear();
 }
 
-void IOScriptFile::OnCalled( const std::string &szFunction, KeyValues *pData )
+ScriptCallBackEnum IOScriptFile::OnCalled(const std::string &szFunction, KeyValues *pData)
 {
 	// Fire an output variable
-	if ( !pData ) return;
+	if ( !pData ) return ScriptCall_Error;
 	if ( FStrEq( pData->GetString( "arg0" ), "Function" ) )
-	{
-		CallData( szFunction, pData->GetString( "arg1" ) );
-		return;
-	}
+		return CallData( szFunction, pData->GetString( "arg1" ) );
 
 	CBaseEntity *pEnt = nullptr;
 	edict_t *pEdict = INDEXENT( atoi( pData->GetString( "arg0" ) ) );
 	if ( pEdict && !pEdict->free )
 		pEnt = CBaseEntity::Instance( pEdict );
 	if ( pData->GetBool( "IsInput" ) )
-		OnInput( pEnt, szFunction, pData->GetString( "arg1" ) );
+		return OnInput( pEnt, szFunction, pData->GetString( "arg1" ) );
 	else
-		OnOutput( pEnt, szFunction, pData->GetString( "arg1" ), atof( pData->GetString( "arg2" ) ) );
+		return OnOutput( pEnt, szFunction, pData->GetString( "arg1" ), atof( pData->GetString( "arg2" ) ) );
 }
 
-void IOScriptFile::OnOutput( CBaseEntity *pEnt, const std::string &szAction, const std::string &szValue, const float &szDelay )
+ScriptCallBackEnum IOScriptFile::OnOutput( CBaseEntity *pEnt, const std::string &szAction, const std::string &szValue, const float &szDelay )
 {
-	CallData( IO_ON_OUTPUT_SENT, UTIL_VarArgs( "%i, %s, %s, %s, %f", pEnt->entindex(), STRING( pEnt->pev->targetname ), szAction.c_str(), szValue.c_str(), szDelay ) );
+	if ( !pEnt ) return ScriptCall_Error;
+	return CallData( IO_ON_OUTPUT_SENT, UTIL_VarArgs( "%i, %s, %s, %s, %f", pEnt->entindex(), STRING( pEnt->pev->targetname ), szAction.c_str(), szValue.c_str(), szDelay ) );
 }
 
-void IOScriptFile::OnInput( CBaseEntity *pEnt, const std::string &szAction, const std::string &szValue )
+ScriptCallBackEnum IOScriptFile::OnInput( CBaseEntity *pEnt, const std::string &szAction, const std::string &szValue )
 {
-	if ( !pEnt ) return;
-	CallData( IO_ON_INPUT_RECEIVED, UTIL_VarArgs( "%i, %s, %s", pEnt->entindex(), szAction.c_str(), szValue.c_str() ) );
+	if ( !pEnt ) return ScriptCall_Error;
+	ScriptCallBackEnum nRet = CallData( IO_ON_INPUT_RECEIVED, UTIL_VarArgs( "%i, %s, %s", pEnt->entindex(), szAction.c_str(), szValue.c_str() ) );
 
 	KeyValues *pScriptCall = new KeyValues( "Items" );
 	pScriptCall->SetString( "Action", szAction.c_str() );
 	pScriptCall->SetString( "arg0", szValue.c_str() );
 	pEnt->ScriptCallback( pScriptCall );
 	pScriptCall->deleteThis();
+	return nRet;
 }
 
-void IOScriptFile::CallData( const std::string &szFunction )
+ScriptCallBackEnum IOScriptFile::CallData( const std::string &szFunction )
 {
 	// Let's call our function with no arguments.
-	CallData( szFunction, "" );
+	return CallData( szFunction, "" );
 }
 
-void IOScriptFile::CallData( const std::string &szFunction, const std::string &szArgs )
+ScriptCallBackEnum IOScriptFile::CallData( const std::string &szFunction, const std::string &szArgs )
 {
+	ScriptCallBackEnum nRet = ScriptCall_Warning;
 	// We need this if we have more than 1 wait command.
 	float flPreviousWait = 0.0f;
 	for ( size_t i = 0; i < m_Functions.size(); i++ )
@@ -686,12 +691,16 @@ void IOScriptFile::CallData( const std::string &szFunction, const std::string &s
 		}
 
 		m_Commands.push_back( IOCall );
+
+		// We found our function, return OK
+		nRet = ScriptCall_OK;
 	}
+	return nRet;
 }
 
-void IOScriptFile::CallData( const IOFunctions_t &nFunction, const std::string &szArgs )
+ScriptCallBackEnum IOScriptFile::CallData( const IOFunctions_t &nFunction, const std::string &szArgs )
 {
-	CallData( g_IOFunctions[ nFunction ], szArgs );
+	return CallData( g_IOFunctions[ nFunction ], szArgs );
 }
 
 void IOScriptFile::RunCommands( int nID )
@@ -701,7 +710,6 @@ void IOScriptFile::RunCommands( int nID )
 	if ( pFunctionCall.Commands.size() > 0 )
 	{
 		IOFunctionCommand cmd = pFunctionCall.Commands[ 0 ];
-		bool bAlreadyFiredSpecialIfCase = false;
 
 		// Not empty? check what we require
 		if ( !cmd.Require.empty() )
@@ -712,7 +720,7 @@ void IOScriptFile::RunCommands( int nID )
 				bMatch = false;
 
 			// Maybe it's a argument value?
-			if ( !bMatch )
+			if ( !bMatch && cmd.RequireStatement != IORequirementStatements::IF_EQUAL )
 			{
 				// Reset, and try again.
 				bMatch = true;
@@ -750,16 +758,45 @@ void IOScriptFile::RunCommands( int nID )
 				return;
 			}
 
-			// We match, but is this an ELSEIF or ELSE command?
-			if ( ( cmd.IsElseIf || cmd.IsElse ) && bAlreadyFiredSpecialIfCase )
+			// We match, but are we on the correct block?
+			switch ( pFunctionCall.InsideIfBlock )
 			{
-				// We already fired a special case, erase this command and return.
-				pFunctionCall.Commands.erase( pFunctionCall.Commands.begin() );
-				return;
+				case IOFunctionCallIfBlockStatements::IFBLOCK_IF:
+					// We are inside an if block, but is it the correct one?
+					if ( cmd.Type != IO_IF )
+					{
+						// Not the correct one, erase and return.
+						pFunctionCall.Commands.erase( pFunctionCall.Commands.begin() );
+						return;
+					}
+				break;
+				case IOFunctionCallIfBlockStatements::IFBLOCK_ELSEIF:
+					// We are inside an elseif block, but is it the correct one?
+					if ( cmd.Type != IO_ELSEIF )
+					{
+						// Not the correct one, erase and return.
+						pFunctionCall.Commands.erase( pFunctionCall.Commands.begin() );
+						return;
+					}
+				break;
+				case IOFunctionCallIfBlockStatements::IFBLOCK_ELSE:
+					// We are inside an else block, but is it the correct one?
+					if ( cmd.Type != IO_ELSE )
+					{
+						// Not the correct one, erase and return.
+						pFunctionCall.Commands.erase( pFunctionCall.Commands.begin() );
+						return;
+					}
+				break;
 			}
 
-			// Set this to true, so we don't fire any other ELSEIF or ELSE commands.
-			bAlreadyFiredSpecialIfCase = true;
+			// We are inside an if block now, let's check what type we are.
+			switch( cmd.Type )
+			{
+				case IO_IF: pFunctionCall.InsideIfBlock = IOFunctionCallIfBlockStatements::IFBLOCK_IF; break;
+				case IO_ELSE: pFunctionCall.InsideIfBlock = IOFunctionCallIfBlockStatements::IFBLOCK_ELSE; break;
+				case IO_ELSEIF: pFunctionCall.InsideIfBlock = IOFunctionCallIfBlockStatements::IFBLOCK_ELSEIF; break;
+			}
 		}
 
 		switch ( cmd.Type )
@@ -821,9 +858,10 @@ void IOScriptFile::RunCommands( int nID )
 				for ( size_t i = 0; i < s_SpawnListData.size(); i++ )
 			    {
 					ISpawnListData item = s_SpawnListData[i];
-					KeyValues *pItem = mySpawnItems->FindKey( item.ListName.c_str(), true );
+					KeyValuesAD pItem( item.ListName.c_str() );
 					pItem->SetString( "Classname", item.ItemName.c_str() );
 					pItem->SetInt( "Amount", item.Limit );
+					mySpawnItems->AddSubKey( pItem->MakeCopy() );
 			    }
 			    // Let's spawn our items now.
 				ZP::IO_CalculatePlayerAmount( mySpawnItems );
@@ -863,8 +901,8 @@ void IOScriptFile::RunCommands( int nID )
 
 			case IO_END:
 			{
-				// We reached the end of an if block, reset our special case flag.
-				bAlreadyFiredSpecialIfCase = false;
+				// We reached the end of the if block, reset it.
+			    pFunctionCall.InsideIfBlock = IOFunctionCallIfBlockStatements::IFBLOCK_NONE;
 			}
 			break;
 		}

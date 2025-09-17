@@ -365,6 +365,7 @@ void CRandomItemBase::SpawnItem(void)
 
 string_t CRandomItemBase::GetRandomClassname() const
 {
+	if ( s_SpawnList.size() == 0 ) return 0;
 	std::vector<SpawnList*> temp = s_SpawnList;
 	int idx = RANDOM_LONG( 0, temp.size() - 1 );
 	SpawnList *item = temp[ idx ];
@@ -414,48 +415,31 @@ void OnScriptCallback( KeyValues *pData, AvailableScripts_t nScriptType )
 	// TODO: Make AvailableScripts_t::Angelscript call this callback if the function was a success
 }
 
+#include <tier2/tier2.h>
+
 // This is for I/O system
 void ZP::IO_CalculatePlayerAmount( KeyValues *pData )
 {
-	// Loop through our ammo types
-	KeyValues *pSpawnItems = pData->FindKey( "Ammo" );
-	if ( pSpawnItems )
-	{
-		for ( KeyValues *pAmmo = pSpawnItems->GetFirstSubKey(); pAmmo; pAmmo = pAmmo->GetNextKey() )
-		{
-			const char *szClassname = pAmmo->GetString( "Classname" );
-			int nAmount = pAmmo->GetInt( "Amount", 0 );
-			if ( szClassname && szClassname[0] && nAmount > 0 )
-				s_SpawnList.push_back( new SpawnList( szClassname, nAmount, ItemType::TypeAmmo ) );
-		}
-	}
+	// Clear our spawn list first
+	for ( auto p : s_SpawnList )
+		delete p;
+	s_SpawnList.clear();
 
-	// Ditto, but for items.
-	pSpawnItems = pData->FindKey( "Items" );
-	if ( pSpawnItems )
+	// Loop through our types
+	for ( KeyValues *pSub = pData->GetFirstSubKey(); pSub; pSub = pSub->GetNextKey() )
 	{
-		// Loop through this ammo type
-		for ( KeyValues *pAmmo = pSpawnItems->GetFirstSubKey(); pAmmo; pAmmo = pAmmo->GetNextKey() )
-		{
-			const char *szClassname = pAmmo->GetString( "Classname" );
-			int nAmount = pAmmo->GetInt( "Amount", 0 );
-			if ( szClassname && szClassname[0] && nAmount > 0 )
-				s_SpawnList.push_back( new SpawnList( szClassname, nAmount, ItemType::TypeItem ) );
-		}
-	}
-
-	// Ditto, but for weapons.
-	pSpawnItems = pData->FindKey( "Weapons" );
-	if ( pSpawnItems )
-	{
-		// Loop through this ammo type
-		for ( KeyValues *pAmmo = pSpawnItems->GetFirstSubKey(); pAmmo; pAmmo = pAmmo->GetNextKey() )
-		{
-			const char *szClassname = pAmmo->GetString( "Classname" );
-			int nAmount = pAmmo->GetInt( "Amount", 0 );
-			if ( szClassname && szClassname[0] && nAmount > 0 )
-				s_SpawnList.push_back( new SpawnList( szClassname, nAmount, ItemType::TypeWeapon ) );
-		}
+		ItemType nType = ItemType::TypeNone;
+		const char *szType = pSub->GetName();
+		if ( FStrEq( szType, "Ammo" ) )
+			nType = ItemType::TypeAmmo;
+		else if ( FStrEq( szType, "Items" ) )
+			nType = ItemType::TypeItem;
+		else if ( FStrEq( szType, "Weapons" ) )
+			nType = ItemType::TypeWeapon;
+		const char *szClassname = pSub->GetString( "Classname" );
+		int nAmount = pSub->GetInt( "Amount", 0 );
+		if ( szClassname && szClassname[0] && nAmount > 0 && nType != ItemType::TypeNone )
+			s_SpawnList.push_back( new SpawnList( szClassname, nAmount, nType ) );
 	}
 
 	// Let's spawn our items now.
@@ -489,7 +473,7 @@ static void CheckCurrentPlayers()
 	);
 
 	// Let's also call our I/O, if we use that instead.
-	const std::string &szArg0( "SCall" );
+	const std::string &szArg0( "Function" );
 	ScriptCallBackEnum ret = ScriptSystem::CallScript(
 		AvailableScripts_t::InputOutput,
 		nullptr,

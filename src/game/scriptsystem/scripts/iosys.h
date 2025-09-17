@@ -77,12 +77,21 @@ struct IOFunctionData
 	std::vector<IOFunctionCommand> Commands; // The commands it will execute
 };
 
+enum IOFunctionCallIfBlockStatements
+{
+	IFBLOCK_NONE = 0,
+	IFBLOCK_IF,
+	IFBLOCK_ELSEIF,
+	IFBLOCK_ELSE,
+};
+
 struct IOFunctionCall
 {
 	uint ID; // Our ID for this function call
 	std::string InputCall; // Our function
 	std::vector<std::string> Arguments; // Our arguments
 	std::vector<IOFunctionCommand> Commands; // The commands it will execute
+	IOFunctionCallIfBlockStatements InsideIfBlock = IFBLOCK_NONE; // Are we inside an if block?
 };
 
 class IOScriptFile
@@ -91,22 +100,22 @@ public:
 	IOScriptFile( const std::string &szFile );
 	~IOScriptFile();
 
-	void OnCalled( const std::string &szFunction, KeyValues *pData );
+	ScriptCallBackEnum OnCalled(const std::string &szFunction, KeyValues *pData);
 	void OnThink();
 	void OnRoundRestart();
 
 private:
-	void OnOutput( CBaseEntity *pEnt, const std::string &szAction, const std::string &szValue, const float &szDelay );
-	void OnInput( CBaseEntity *pEnt, const std::string &szAction, const std::string &szValue );
+	ScriptCallBackEnum OnOutput( CBaseEntity *pEnt, const std::string &szAction, const std::string &szValue, const float &szDelay );
+	ScriptCallBackEnum OnInput( CBaseEntity *pEnt, const std::string &szAction, const std::string &szValue );
 
 	// Let's call our function with no arguments.
-	void CallData( const std::string &szFunction );
+	ScriptCallBackEnum CallData( const std::string &szFunction );
 
 	// Let's call our function with variable arguments.
-	void CallData( const std::string &szFunction, const std::string &szArgs );
+	ScriptCallBackEnum CallData( const std::string &szFunction, const std::string &szArgs );
 
 	// Let's call specific functions
-	void CallData( const IOFunctions_t &nFunction, const std::string &szArgs );
+	ScriptCallBackEnum CallData( const IOFunctions_t &nFunction, const std::string &szArgs );
 
 	// Runs the commands
 	void RunCommands( int nID );

@@ -163,10 +163,6 @@ void CCycler ::Restart(void)
 	ResetSequenceInfo();
 	pev->nextthink = gpGlobals->time + 0.1;
 
-	pev->solid = SOLID_SLIDEBOX;
-	pev->movetype = MOVETYPE_NONE;
-	pev->takedamage = DAMAGE_YES;
-
 	pev->renderfx = m_renderfx;
 	pev->rendermode = m_rendermode;
 	pev->renderamt = m_renderamt;

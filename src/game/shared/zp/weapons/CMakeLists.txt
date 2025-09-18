@@ -8,10 +8,16 @@ add_sources(
 	throwable_satchel.h
 	weapon_shotgun_remington.cpp
 	weapon_shotgun_remington.h
+	weapon_shotgun_doublebarrel.cpp
+	weapon_shotgun_doublebarrel.h
 	weapon_rifle_m16.cpp
 	weapon_rifle_m16.h
 	weapon_smg_mp5.cpp
 	weapon_smg_mp5.h
+	weapon_sidearm_ppk.cpp
+	weapon_sidearm_ppk.h
+	weapon_sidearm_glock17.cpp
+	weapon_sidearm_glock17.h
 	weapon_sidearm_sig.cpp
 	weapon_sidearm_sig.h
 	weapon_sidearm_revolver.cpp

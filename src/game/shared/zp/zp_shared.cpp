@@ -194,6 +194,9 @@ WeaponData CreateWeaponSlotData( ZPWeaponID WeaponID )
 		case WEAPON_SHOTGUN: szWeaponScriptFile = "weapon_shotgun"; break;
 		case WEAPON_HANDGRENADE: szWeaponScriptFile = "weapon_handgrenade"; break;
 		case WEAPON_SATCHEL: szWeaponScriptFile = "weapon_satchel"; break;
+		case WEAPON_DOUBLEBARREL: szWeaponScriptFile = "weapon_doublebarrel"; break;
+		case WEAPON_PPK: szWeaponScriptFile = "weapon_ppk"; break;
+		case WEAPON_GLOCK17: szWeaponScriptFile = "weapon_glock17"; break;
 		default: szWeaponScriptFile = "weapon_example"; break;
 	}
 #if defined( CLIENT_DLL )

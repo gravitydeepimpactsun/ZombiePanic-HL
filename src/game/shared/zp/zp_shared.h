@@ -27,15 +27,22 @@ enum ObjectiveState
 enum ZPWeaponID
 {
 	WEAPON_NONE = 0,
+
+	// Weapons from the original version
 	WEAPON_CROWBAR,
 	WEAPON_SWIPE,
 	WEAPON_SIG,
 	WEAPON_PYTHON,
-	WEAPON_MP5,
+	WEAPON_MP5,		// Was cut from original
 	WEAPON_556AR,
 	WEAPON_SHOTGUN,
 	WEAPON_HANDGRENADE,
 	WEAPON_SATCHEL,
+
+	// New weapons
+	WEAPON_DOUBLEBARREL,
+	WEAPON_PPK,
+	WEAPON_GLOCK17,
 
 	LAST_WEAPON_ID
 };

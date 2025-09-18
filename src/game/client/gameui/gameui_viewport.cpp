@@ -13,6 +13,7 @@
 #include "zp/ui/playerselection/C_PlayerSelection.h"
 #include "zp/ui/credits/C_ZPCredits.h"
 #include "zp/ui/workshop/CWorkshopDialog.h"
+#include "steam_achievements.h"
 #include "menu/CBaseMenu.h"
 #include <FileSystem.h>
 #include <filesystem>
@@ -27,71 +28,11 @@ CON_COMMAND(gameui_cl_open_test_panel, "Opens a test panel for client GameUI")
 }
 #endif
 
-#define _STAT_ID(id, max) { id, #id, 0, max }
-StatData_t g_SteamStats[] =
-{
-	// INVALID STAT, MUST BE INDEX 0
-	_STAT_ID(INVALID_STAT, 0),
-
-	_STAT_ID(ZP_KILLS_CROWBAR, 10),
-	_STAT_ID(ZP_KILLS_PISTOL, 40),
-	_STAT_ID(ZP_KILLS_REVOLVER, 25),
-	_STAT_ID(ZP_KILLS_RIFLE, 30),
-	_STAT_ID(ZP_KILLS_SHOTGUN, 25),
-	_STAT_ID(ZP_KILLS_SATCHEL, 5),
-	_STAT_ID(ZP_KILLS_TNT, 10),
-	_STAT_ID(ZP_KILLS_ZOMBIE, 20),
-	_STAT_ID(ZP_KILLS_MP5, 25),
-	_STAT_ID(ZP_FLEEESH, 50),
-	_STAT_ID(ZP_ITS_A_MASSACRE, 25),
-	_STAT_ID(ZP_PANIC_100, 100),
-	_STAT_ID(ZP_PUMPUPSHOTGUN, 777),
-	_STAT_ID(ZP_CHILDOFGRAVE, 666),
-	_STAT_ID(ZP_MMMWAP, 1000),
-	_STAT_ID(ZP_ESCAPE_ARTIST, 500),
-
-	_STAT_ID(MAP_ZP_SANTERIA, 1),
-	_STAT_ID(MAP_ZP_CLUBZOMBO, 1),
-	_STAT_ID(MAP_ZP_THELABS, 1),
-	_STAT_ID(MAP_ZP_EASTSIDE, 1),
-	_STAT_ID(MAP_ZP_INDUSTRY, 1),
-	_STAT_ID(MAP_ZP_CONTINGENCY, 1),
-	_STAT_ID(MAP_ZP_HAUNTED, 1),
-
-	_STAT_ID(MAP_ZPO_CONTINGENCY, 1),
-
-	_STAT_ID(MAP_ZPH_HAUNTED, 1),
-	_STAT_ID(MAP_ZPH_SANTERIA, 1),
-	_STAT_ID(MAP_ZPH_CONTINGENCY, 1),
-
-	_STAT_ID(ZP_RESET_ALL, 1),
-};
-
 enum HttpRequestTypes
 {
 	// Read our donator status from the API.
 	READ_DONATOR_STATUS = 0,
 };
-
-StatData_t GrabStat( EStats nID )
-{
-	for ( int i = 0; i < ARRAYSIZE(g_SteamStats); i++ )
-	{
-		StatData_t stat = g_SteamStats[i];
-		if ( stat.ID == nID ) return stat;
-	}
-	return g_SteamStats[0];
-}
-
-void SetStat( EStats nID, int32 value )
-{
-	for ( int i = 0; i < ARRAYSIZE(g_SteamStats); i++ )
-	{
-		StatData_t &stat = g_SteamStats[i];
-		if ( stat.ID == nID )
-			stat.Value = value;
-	}
-}
 
 CGameUIViewport::CGameUIViewport()
     : BaseClass(nullptr, "ClientGameUIViewport"),
@@ -160,16 +101,7 @@ void CGameUIViewport::OnUserStatsReceived( UserStatsReceived_t *pCallback )
 	// we may get callbacks for other games' stats arriving, ignore them
 	if (GetSteamAPI()->SteamUtils()->GetAppID() == pCallback->m_nGameID)
 	{
-		if (k_EResultOK != pCallback->m_eResult) return;
-
-		// Go through our stats
-		for ( int i = 0; i < ARRAYSIZE(g_SteamStats); i++ )
-		{
-			StatData_t stat = g_SteamStats[i];
-			int32 iData = 0;
-			GetSteamAPI()->SteamUserStats()->GetUserStat( pCallback->m_steamIDUser, stat.Name, &iData );
-			SetStat( stat.ID, iData );
-		}
+		STAT_OnUserStatsReceived( pCallback );
 	}
 }
 

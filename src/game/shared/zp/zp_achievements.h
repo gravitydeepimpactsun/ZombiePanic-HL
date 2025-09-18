@@ -23,6 +23,8 @@ enum EStats
 	ZP_KILLS_MP5,
 	ZP_MMMWAP,
 	ZP_ESCAPE_ARTIST,
+	ZP_REGEN_10K,
+	ZP_ILIVEAGAIN,
 
 	// Maps -- Survival
 	MAP_ZP_SANTERIA,
@@ -95,6 +97,8 @@ enum EAchievements
 	MMMWAP,
 	FIRST_ESCAPE,
 	ESCAPE_ARTIST,
+	REGEN_10K,
+	ILIVEAGAIN,
 
 	ACHV_MAX
 };

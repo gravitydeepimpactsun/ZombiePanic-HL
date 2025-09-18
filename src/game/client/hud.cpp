@@ -80,6 +80,7 @@
 #include "hud/strafeguide.h"
 
 #include "sphl/weather.h"
+#include "steam_achievements.h"
 
 #if USE_PARANOIA_RENDER
 	#include "paranoia/glmanager.h"
@@ -442,6 +443,8 @@ void CHud::Init(void)
 	{
 		RegisterHudElem<CHudDeathNoticePanel>();
 	}
+
+	RegisterHudElem<CHudAchievementNotification>();
 
 	ClientVoiceMgr_Init();
 

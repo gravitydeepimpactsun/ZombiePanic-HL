@@ -1,5 +1,8 @@
 //========= Copyright (c) 2022 Zombie Panic! Team, All rights reserved. ============//
 
+#ifndef ACHIEVEMENT_DIALOG_H
+#define ACHIEVEMENT_DIALOG_H
+
 #include "AchievementList.h"
  
 #include <vgui/VGUI2.h>
@@ -104,3 +107,5 @@ public:
 #define _ACH_ID_LIST( id, category, steamstat, list ) DialogAchievementData( id, #id, category, steamstat, list )
 
 DialogAchievementData GetAchievementByID( int eAchievement );
+
+#endif // ACHIEVEMENT_DIALOG_H

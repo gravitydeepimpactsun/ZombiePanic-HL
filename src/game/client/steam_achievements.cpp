@@ -1,7 +1,9 @@
 // ============== Copyright (c) 2025 Monochrome Games ============== \\
 
+#include <vgui/ISurface.h>
 #include "steam_achievements.h"
 #include "gameui/gameui_viewport.h"
+#include "vgui/client_viewport.h"
 
 // ================================================================= \\
 
@@ -30,6 +32,84 @@ static MapStatCheck_t g_MapStatChecks[] = {
 	_MAP_STAT(zph_santeria, MAPSTAT_HARDCORE, MAP_ZPH_SANTERIA),
 	_MAP_STAT(zph_contingency, MAPSTAT_HARDCORE, MAP_ZPH_CONTINGENCY),
 };
+
+// ================================================================= \\
+
+#define _STAT_ID(id, max) { id, #id, 0, max }
+StatData_t g_SteamStats[] = {
+	// INVALID STAT, MUST BE INDEX 0
+	_STAT_ID(INVALID_STAT, 0),
+
+	_STAT_ID(ZP_KILLS_CROWBAR, 10),
+	_STAT_ID(ZP_KILLS_PISTOL, 40),
+	_STAT_ID(ZP_KILLS_REVOLVER, 25),
+	_STAT_ID(ZP_KILLS_RIFLE, 30),
+	_STAT_ID(ZP_KILLS_SHOTGUN, 25),
+	_STAT_ID(ZP_KILLS_SATCHEL, 5),
+	_STAT_ID(ZP_KILLS_TNT, 10),
+	_STAT_ID(ZP_KILLS_ZOMBIE, 20),
+	_STAT_ID(ZP_KILLS_MP5, 25),
+	_STAT_ID(ZP_FLEEESH, 50),
+	_STAT_ID(ZP_ITS_A_MASSACRE, 25),
+	_STAT_ID(ZP_PANIC_100, 100),
+	_STAT_ID(ZP_PUMPUPSHOTGUN, 777),
+	_STAT_ID(ZP_CHILDOFGRAVE, 666),
+	_STAT_ID(ZP_MMMWAP, 1000),
+	_STAT_ID(ZP_ESCAPE_ARTIST, 500),
+	_STAT_ID(ZP_REGEN_10K, 10000),
+	_STAT_ID(ZP_ILIVEAGAIN, 10000),
+
+	_STAT_ID(MAP_ZP_SANTERIA, 1),
+	_STAT_ID(MAP_ZP_CLUBZOMBO, 1),
+	_STAT_ID(MAP_ZP_THELABS, 1),
+	_STAT_ID(MAP_ZP_EASTSIDE, 1),
+	_STAT_ID(MAP_ZP_INDUSTRY, 1),
+	_STAT_ID(MAP_ZP_CONTINGENCY, 1),
+	_STAT_ID(MAP_ZP_HAUNTED, 1),
+
+	_STAT_ID(MAP_ZPO_CONTINGENCY, 1),
+
+	_STAT_ID(MAP_ZPH_HAUNTED, 1),
+	_STAT_ID(MAP_ZPH_SANTERIA, 1),
+	_STAT_ID(MAP_ZPH_CONTINGENCY, 1),
+
+	_STAT_ID(ZP_RESET_ALL, 1),
+};
+
+// ================================================================= \\
+
+StatData_t GrabStat( EStats nID )
+{
+	for ( int i = 0; i < ARRAYSIZE(g_SteamStats); i++ )
+	{
+		StatData_t stat = g_SteamStats[i];
+		if ( stat.ID == nID ) return stat;
+	}
+	return g_SteamStats[0];
+}
+
+void SetStat( EStats nID, int32 value )
+{
+	for ( int i = 0; i < ARRAYSIZE(g_SteamStats); i++ )
+	{
+		StatData_t &stat = g_SteamStats[i];
+		if ( stat.ID == nID )
+			stat.Value = value;
+	}
+}
+
+void STAT_OnUserStatsReceived( UserStatsReceived_t *pCallback )
+{
+	if ( k_EResultOK != pCallback->m_eResult ) return;
+	// Go through our stats
+	for ( int i = 0; i < ARRAYSIZE(g_SteamStats); i++ )
+	{
+		StatData_t stat = g_SteamStats[i];
+		int32 iData = 0;
+		GetSteamAPI()->SteamUserStats()->GetUserStat( pCallback->m_steamIDUser, stat.Name, &iData );
+		SetStat( stat.ID, iData );
+	}
+}
 
 // ================================================================= \\
 
@@ -119,33 +199,11 @@ StatData_t GrabMapStat( MapStatCheck nCheck )
 // Similar to the IndicateAchievementProgress below,
 // but this is used for map progress and does not update
 // the actual achievement itself (or the stat).
-static bool NotifyMapProgress( int iAchievement )
+static void NotifyMapProgress( int iAchievement )
 {
-	if ( !GetSteamAPI() ) return false;
-	if ( !GetSteamAPI()->SteamUserStats() ) return false;
-
-	DialogAchievementData ach = GetAchievementByID( iAchievement );
-	int32 value = 0;
-	int32 maxvalue = ach.GetRequiredStepCount();
-	for ( size_t i = 0; i < maxvalue; i++ )
-	{
-		// Check if this step is completed.
-		if ( GrabStat( ach.GetRequiredStepID( i ).Stat ).Value == 1 )
-			value++;
-	}
-
-	// Check if we have enough.
-	if ( value < maxvalue )
-	{
-		GetSteamAPI()->SteamUserStats()->IndicateAchievementProgress(
-			ach.GetAchievementName(),
-			value,
-			maxvalue
-		);
-		return true;
-	}
-
-	return false;
+	if ( !GetSteamAPI() ) return;
+	if ( !GetSteamAPI()->SteamUserStats() ) return;
+	CHudAchievementNotification::Get()->ShowAchievement( iAchievement );
 }
 
 // Increase the map stat by one.
@@ -297,18 +355,12 @@ void CLIENT_UTIL_GiveAchievement( int iAchievement )
 			else if ( !bShouldDraw && value == int32(dValue * 0.5) ) bShouldDraw = true;
 			else if ( !bShouldDraw && value == int32(dValue * 0.9) ) bShouldDraw = true;
 			if ( bShouldDraw )
-				GetSteamAPI()->SteamUserStats()->IndicateAchievementProgress(
-					GetAchievementByID( iAchievement ).GetAchievementName(),
-					GetAchievementByID( iAchievement ).GetData().Value,
-					GetAchievementByID( iAchievement ).GetData().MaxValue
-				);
+				CHudAchievementNotification::Get()->ShowAchievement( iAchievement );
 			return;
 		}
 	}
 
-	// Because GoldSource don't want us to show our progress ingame, let's do some hacky shit instead.
-	// We can only do this before we execute SetAchievement function.
-	GetSteamAPI()->SteamUserStats()->IndicateAchievementProgress( GetAchievementByID( iAchievement ).GetAchievementName(), 0, 1 );
+	CHudAchievementNotification::Get()->ShowAchievement( iAchievement );
 
 	// Give the achievement.
 	GetSteamAPI()->SteamUserStats()->SetAchievement( GetAchievementByID( iAchievement ).GetAchievementName() );
@@ -316,3 +368,236 @@ void CLIENT_UTIL_GiveAchievement( int iAchievement )
 	// Tell the server, that we earned it!
 	gEngfuncs.pfnServerCmd( vgui2::VarArgs( "achearn %i", iAchievement ) );
 }
+
+// ================================================================= \\
+
+// Let's create our custom HUD element here, specifically for steam achievement progress
+// It's mainly used by the map notifications however, but can be used for many things too.
+
+DEFINE_HUD_ELEM( CHudAchievementNotification );
+
+#define NOTIFICATION_HEIGHT 80
+#define NOTIFICATION_WIDTH 400
+static ConVar cl_achievement_popupspeed( "cl_achievement_popupspeed", "4" );
+
+CHudAchievementNotification::CHudAchievementNotification()
+    : vgui2::Panel( NULL, "HudAchievementNotification" )
+{
+	SetParent( g_pViewport );
+	SetPaintBackgroundEnabled( false );
+
+	m_pIcon = new vgui2::ImagePanel( this, "IconImage" );
+	m_pLabel = new vgui2::Label( this, "LabelText", "" );
+	m_pLabelProgress = new vgui2::Label( this, "LabelProgress", "" );
+
+	// Make sure our size is set only once.
+	SetSize( NOTIFICATION_WIDTH, NOTIFICATION_HEIGHT );
+
+	ClearData();
+}
+
+void CHudAchievementNotification::Init()
+{
+	ClearData();
+}
+
+void CHudAchievementNotification::VidInit()
+{
+	ClearData();
+}
+
+void CHudAchievementNotification::Think()
+{
+	// if we should draw, make sure we move up from the bottom of the screen.
+	if ( m_bShowingAchievement )
+	{
+		// Hide after 6 seconds.
+		bool bShouldHide = ( gEngfuncs.GetClientTime() - m_flStartTime ) > 6.0f;
+		int wide, tall;
+		vgui2::surface()->GetScreenSize( wide, tall );
+		int targety = tall - NOTIFICATION_HEIGHT;
+
+		int x, y;
+		GetPos( x, y );
+
+		if ( bShouldHide )
+		{
+			// We overstayed our welcome, move down and hide.
+			targety = tall + NOTIFICATION_HEIGHT;
+			if ( y < targety )
+			{
+				y += cl_achievement_popupspeed.GetInt();
+				if ( y > targety ) y = targety;
+				SetPos( x, y );
+			}
+			else
+			{
+				// We're off the screen, clear data
+				ClearData();
+			}
+			return;
+		}
+
+		if ( y > targety )
+		{
+			y -= cl_achievement_popupspeed.GetInt();
+			if ( y < targety ) y = targety;
+			SetPos( x, y );
+		}
+	}
+}
+
+void CHudAchievementNotification::Paint()
+{
+	if ( !m_bShowingAchievement ) return;
+	// Paint our background first.
+	int wide, tall;
+	GetSize( wide, tall );
+	vgui2::surface()->DrawSetColor( 0, 0, 0, 200 );
+	vgui2::surface()->DrawFilledRect( 0, tall - NOTIFICATION_HEIGHT, wide, tall );
+	vgui2::surface()->DrawSetColor( 100, 100, 100, 255 );
+	vgui2::surface()->DrawOutlinedRect( 0, tall - NOTIFICATION_HEIGHT, wide, tall );
+
+	// Paint our icon.
+	if ( m_pIcon )
+	{
+		m_pIcon->SetPos( 10, 5 );
+		m_pIcon->SetSize( 64, 64 );
+	}
+
+	// Now, let's paint our text next to the icon.
+	if ( m_pLabel )
+	{
+		m_pLabel->SetPos( 80, 10 );
+		m_pLabel->SetSize( wide - 90, 24 );
+	}
+
+	// Let's paint our progress bar, and then the label after that.
+	// Since it needs to be drawn ontop of the bar.
+	if ( m_pLabelProgress && m_iMaxValue > 0 )
+	{
+		int barwide = wide - 90;
+		int barheight = 20;
+		int barx = 80;
+		int bary = 40;
+
+		// Progress bar background
+		vgui2::surface()->DrawSetColor( 25, 25, 25, 255 );
+		vgui2::surface()->DrawFilledRect( barx, bary, barx + barwide, bary + barheight );
+
+		float flPercent = float(m_iValue) / float(m_iMaxValue);
+		int fillwide = int(float(barwide) * flPercent);
+
+		// Our progress bar
+		vgui2::surface()->DrawSetColor( 160, 10, 10, 255 );
+		vgui2::surface()->DrawFilledRect( barx, bary, barx + fillwide, bary + barheight );
+
+		// Outline
+		vgui2::surface()->DrawSetColor( 100, 100, 100, 255 );
+		vgui2::surface()->DrawOutlinedRect( barx, bary, barx + barwide, bary + barheight );
+
+		// Now draw the label ontop of it.
+		m_pLabelProgress->SetPos( barx, bary );
+		m_pLabelProgress->SetSize( barwide, barheight );
+	}
+}
+
+void CHudAchievementNotification::ClearData()
+{
+	m_flStartTime = 0.0f;
+	m_iValue = 0;
+	m_iMaxValue = 0;
+	m_bShowingAchievement = false;
+
+	int wide, tall;
+	vgui2::surface()->GetScreenSize( wide, tall );
+	// Make sure we're at the bottom center of the screen.
+	wide = (wide / 2) - ( NOTIFICATION_WIDTH / 2);
+	SetPos( wide, tall + NOTIFICATION_HEIGHT );
+
+	// Process our queue.
+	if ( m_Queue.size() > 0 )
+	{
+		int iAchievement = m_Queue[0];
+		m_Queue.erase( m_Queue.begin() );
+		ShowAchievement( iAchievement );
+	}
+}
+
+void CHudAchievementNotification::ShowAchievement( int iAchievement )
+{
+	if ( m_bShowingAchievement )
+	{
+		// We already have an achievement showing?
+		// Add this to our queue instead.
+		// But let's not add duplicates.
+		for ( size_t i = 0; i < m_Queue.size(); i++ )
+		{
+			if ( m_Queue[i] == iAchievement ) return;
+		}
+		m_Queue.push_back( iAchievement );
+		return;
+	}
+
+	// Get our achievement data.
+	DialogAchievementData AchievementData = GetAchievementByID( iAchievement );
+
+	// Make sure we only daaw this for a few seconds.
+	m_flStartTime = gEngfuncs.GetClientTime();
+
+	// Set our icon image.
+	if ( m_pIcon )
+	{
+		char buffer[158];
+		Q_snprintf( buffer, sizeof( buffer ), "ui/achievements/%s", AchievementData.GetAchievementName() );
+		m_pIcon->SetImage( vgui2::scheme()->GetImage( buffer, false ) );
+	}
+
+	// Set our label text.
+	if ( m_pLabel )
+	{
+		char buffer[158];
+		Q_snprintf( buffer, sizeof( buffer ), "#ZP_ACH_%s_NAME", AchievementData.GetAchievementName() );
+		m_pLabel->SetText( buffer );
+	}
+
+	// Let's set our progress text with the format of "current / max"
+	if ( m_pLabelProgress )
+	{
+		m_iValue = 0;
+		m_pLabelProgress->SetVisible( true );
+		if ( AchievementData.HasStatID() )
+		{
+			m_iValue = GrabStat( AchievementData.GetData().ID ).Value;
+			m_iMaxValue = AchievementData.GetData().MaxValue;
+		}
+		else if ( AchievementData.HasRequiredSteps() )
+		{
+			m_iMaxValue = AchievementData.GetRequiredStepCount();
+			for ( size_t i = 0; i < m_iMaxValue; i++ )
+			{
+				// Check if this step is completed.
+				if ( GrabStat( AchievementData.GetRequiredStepID( i ).Stat ).Value == 1 )
+					m_iValue++;
+			}
+		}
+		else
+		{
+			m_pLabelProgress->SetVisible( false );
+			m_iMaxValue = 0;
+		}
+		char buffer[64];
+		Q_snprintf( buffer, sizeof(buffer), "%i / %i", m_iValue, m_iMaxValue );
+		m_pLabelProgress->SetText( buffer );
+		m_pLabelProgress->SetContentAlignment( vgui2::Label::a_center );
+	}
+
+	// Play the audio sound.
+	if ( m_iValue == m_iMaxValue && m_iMaxValue > 0 )
+		gEngfuncs.pfnPlaySoundByName( "ui/ach_earned.wav", 1.0f );
+	else
+		gEngfuncs.pfnPlaySoundByName( "ui/ach_progress.wav", 1.0f );
+
+	m_bShowingAchievement = true;
+}
+

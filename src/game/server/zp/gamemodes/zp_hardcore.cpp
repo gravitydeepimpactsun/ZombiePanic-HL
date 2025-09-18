@@ -91,4 +91,7 @@ void ZPGameMode_HardCore::GiveWeaponsOnRoundStart()
 				plr->m_iHideHUD |= HIDEHUD_WEAPONS;
 		}
 	}
+
+	// Make sure we update this!
+	UpdateZombieLifesForClient();
 }

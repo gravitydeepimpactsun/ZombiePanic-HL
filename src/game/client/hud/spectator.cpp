@@ -1000,6 +1000,11 @@ void CHudSpectator::HandleButtonsDown(int ButtonPressed)
 		newInsetMode = ToggleInset(true);
 	}
 
+	// If we press the duck button, we bring up the team selection menu
+	// We do the actual logic on the server side, not on the client because we can't trust them :P
+	if (ButtonPressed & IN_DUCK)
+		gEngfuncs.pfnServerCmd( "open_teammenu\n" );
+
 	// if not in HLTV mode, buttons are handled server side
 	if (gEngfuncs.IsSpectateOnly())
 	{

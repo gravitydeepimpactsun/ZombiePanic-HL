@@ -123,11 +123,56 @@ CSpectatorPanel::CSpectatorPanel()
 void CSpectatorPanel::ApplySchemeSettings(vgui2::IScheme *pScheme)
 {
 	BaseClass::ApplySchemeSettings(pScheme);
+	m_hHintFont = pScheme->GetFont( "Default", true );
 	SetPaintBackgroundEnabled(true);
 }
 
 void CSpectatorPanel::PaintBackground()
 {
+	// Tell the client we can press our crouch button to get back
+	// to our team menu.
+	CPlayerInfo *localplayer = GetPlayerInfo( gEngfuncs.GetLocalPlayer()->index );
+	if ( localplayer && localplayer->IsConnected() && localplayer->GetTeamNumber() == ZP::TEAM_OBSERVER )
+	{
+		// Get default font
+		vgui2::surface()->DrawSetTextFont( m_hHintFont );
+
+		// Make sure the text is translated, so we don't show a "#..."
+		wchar_t szCrouch[512];
+		szCrouch[0] = 0;
+		wchar_t *temp = g_pVGuiLocalize->Find( "#ZP_Spectator_CrouchHint" );
+		if ( temp )
+		{
+			// Found the text, copy it to our working buffer
+			// But we need to make sure we can't cause a buffer overflow
+			wcsncpy_s( szCrouch, temp, sizeof( szCrouch ) );
+		}
+		else
+		{
+			// Failed to find the text, so just use raw text as a fallback
+			g_pVGuiLocalize->ConvertANSIToUnicode( "Press \"Crouch\" to show the join screen.", szCrouch, sizeof( szCrouch ) );
+		}
+
+		// Make sure this is drawn at the top center of the screen
+		int wide, tall;
+		vgui2::surface()->GetScreenSize( wide, tall );
+
+		// Let's make sure the text is centered
+		int textwide, texttall;
+		vgui2::surface()->GetTextSize( m_hHintFont, szCrouch, textwide, texttall );
+		wide -= textwide;
+
+		// Draw a black outline
+		vgui2::surface()->DrawSetTextColor( 0, 0, 0, 255 );
+		vgui2::surface()->DrawSetTextPos( ( wide / 2 ) + 1, YRES( 10 ) + 1 );
+		vgui2::surface()->DrawPrintText( szCrouch, wcsnicmp( szCrouch, L"\n", 1 ) ? wcslen( szCrouch ) : wcslen( szCrouch ) - 1 );
+
+		// Draw the text
+		vgui2::surface()->DrawSetTextColor( 255, 255, 255, 255 );
+		vgui2::surface()->DrawSetTextPos( ( wide / 2 ), YRES( 10 ) );
+		vgui2::surface()->DrawPrintText( szCrouch, wcsnicmp( szCrouch, L"\n", 1 ) ? wcslen( szCrouch ) : wcslen( szCrouch ) - 1 );
+	}
+
 	// Paint inset border
 	if (m_Inset.bDraw)
 	{

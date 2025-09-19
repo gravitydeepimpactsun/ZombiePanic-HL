@@ -465,7 +465,14 @@ int CL_DLLEXPORT HUD_Key_Event(int down, int keynum, const char *pszCurrentBindi
 bool HasRoundBegun()
 {
 	// Do not move before the round starts
-	if ( gHUD.m_RoundState < ZP::RoundState::RoundState_RoundHasBegun ) return false;
+	if ( gHUD.m_RoundState < ZP::RoundState::RoundState_RoundHasBegun )
+	{
+		// If the local player is a spectator, allow movement.
+		CPlayerInfo *localplayer = GetPlayerInfo( gEngfuncs.GetLocalPlayer()->index );
+		if ( !localplayer->IsConnected() ) return false;
+		if ( localplayer->GetTeamNumber() == ZP::TEAM_OBSERVER ) return true;
+		return false;
+	}
 	// Do not move when the round is over.
 	if ( gHUD.m_RoundState >= ZP::RoundState::RoundState_RoundIsOver ) return false;
 	return true;

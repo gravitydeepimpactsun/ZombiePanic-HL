@@ -53,6 +53,7 @@ private:
 	PlayerData m_PlayerData[MAX_PLAYERS + 1];
 	CSpectatorInfoPanel *m_pInfoPanel = nullptr;
 	InsetData m_Inset;
+	vgui2::HFont m_hHintFont;
 
 	CPanelAnimationVar(Color, m_InsetColor, "avatar_border_color", "59 58 34 207");
 

@@ -53,6 +53,7 @@ void CTeamMenu::OnCommand(const char *pCommand)
 	}
 	else if (!V_stricmp(pCommand, "Spectate"))
 	{
+#if 0
 		if ( gHUD.m_RoundState >= ZP::RoundState_RoundHasBegun )
 		{
 			gEngfuncs.pfnServerCmd("spectate");
@@ -63,6 +64,12 @@ void CTeamMenu::OnCommand(const char *pCommand)
 			vgui2::MessageBox *pBox = new vgui2::MessageBox( "#ZP_GameTitle", "#ZP_MessageBox_Error_EarlySpec", this );
 			pBox->ShowWindow( this );
 		}
+#else
+		// Allow spectating at any time, since we now
+		// allow spectators to open up this menu if they press +duck button.
+		gEngfuncs.pfnServerCmd( "spectate" );
+		ShowPanel( false );
+#endif
 	}
 }
 

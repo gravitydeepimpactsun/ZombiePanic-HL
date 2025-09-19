@@ -52,6 +52,7 @@ extern DLL_GLOBAL ULONG g_ulFrameCount;
 
 extern int giPrecacheGrunt;
 extern int gmsgSayText;
+extern int gmsgVGUIMenu;
 
 unsigned short m_usResetDecals;
 
@@ -551,57 +552,26 @@ void ClientCommand(edict_t *pEntity)
 	{
 		pPlayer->SelectLastItem();
 	}
+	else if (FStrEq(pcmd, "open_teammenu"))
+	{
+		// Only allow this command if we're an actual observer
+		if ( pPlayer->pev->team == ZP::TEAM_OBSERVER && pPlayer->IsObserver() )
+		{
+			// Stop observing and start welcome cam again.
+			// We do this to prevent issues with the spectator mode
+			pPlayer->StopObserver();
+			pPlayer->StartWelcomeCam();
+
+			// Open up our team menu
+			MESSAGE_BEGIN(MSG_ONE, gmsgVGUIMenu, NULL, pPlayer->pev);
+				WRITE_BYTE(2);
+			MESSAGE_END();
+		}
+	}
 	else if (FStrEq(pcmd, "spectate"))
 	{
-		if ( pPlayer->pev->team == ZP::TEAM_OBSERVER )
-		{
-			// Block too offten spectator command usage
-			if (pPlayer->m_flNextSpectatorCommand < gpGlobals->time)
-			{
-				pPlayer->m_flNextSpectatorCommand = gpGlobals->time + (spectator_cmd_delay.value < 1.0 ? 1.0 : spectator_cmd_delay.value);
-				if (!pPlayer->IsObserver())
-				{
-					if ((pev->flags & FL_PROXY) || allow_spectators.value != 0.0)
-					{
-						pPlayer->StartObserver();
-
-						if (((int)mp_notify_player_status.value & 4) == 4)
-						{
-							// notify other clients of player switched to spectators
-							UTIL_ClientPrintAll(HUD_PRINTTALK, UTIL_VarArgs("* %s switched to spectator mode\n", (pPlayer->pev->netname && STRING(pPlayer->pev->netname)[0] != 0) ? STRING(pPlayer->pev->netname) : "unconnected"));
-						}
-
-						UTIL_LogPrintf("\"%s<%i><%s><%i>\" switched to spectator mode\n",
-							STRING(pPlayer->pev->netname),
-							GETPLAYERUSERID(pPlayer->edict()),
-							GETPLAYERAUTHID(pPlayer->edict()),
-							GETPLAYERUSERID(pPlayer->edict())
-						);
-					}
-					else
-					{
-						ClientPrint(pev, HUD_PRINTCONSOLE, UTIL_VarArgs("Spectator mode is disabled.\n"));
-					}
-				}
-				else
-				{
-					pPlayer->StopObserver();
-
-					if (((int)mp_notify_player_status.value & 4) == 4)
-					{
-						// notify other clients of player left spectators
-						UTIL_ClientPrintAll(HUD_PRINTTALK, UTIL_VarArgs("* %s has left spectator mode\n", (pPlayer->pev->netname && STRING(pPlayer->pev->netname)[0] != 0) ? STRING(pPlayer->pev->netname) : "unconnected"));
-					}
-
-					UTIL_LogPrintf("\"%s<%i><%s><%i>\" has left spectator mode\n",
-						STRING(pPlayer->pev->netname),
-						GETPLAYERUSERID(pPlayer->edict()),
-						GETPLAYERAUTHID(pPlayer->edict()),
-						GETPLAYERUSERID(pPlayer->edict())
-					);
-				}
-			}
-		}
+		if ( pPlayer->pev->team == ZP::TEAM_OBSERVER && !pPlayer->IsObserver() )
+			pPlayer->StartObserver();
 	}
 	else if (FStrEq(pcmd, "specmode"))
 	{

@@ -67,7 +67,47 @@ int fxcounter = 0;
 
 // 3 is the default, which is "High".
 static ConVar cl_weather_quality( "cl_weather_quality", "3", FCVAR_BHL_ARCHIVE );
+static ConVar cl_weather_deathheight_adjust( "cl_weather_deathheight_adjust", "50" );  // Fixes some issues with rain/snow going through the ground
 static ConVar cl_weather_rainsplash( "cl_weather_rainsplash", "0", FCVAR_BHL_ARCHIVE );
+
+#define DEBUG_WEATHER_TRACE 0
+
+#if DEBUG_WEATHER_TRACE
+struct DebugText_t
+{
+	float lifetime;
+	int index, y;
+};
+static int s_MaxDebugs = 10;
+static std::vector<DebugText_t> s_DebugText;
+
+void TryToAddDebugText( int index )
+{
+	if ( s_DebugText.size() >= s_MaxDebugs ) return;
+	for ( size_t i = 0; i < s_DebugText.size(); i++ )
+	{
+		if ( s_DebugText[i].index == index )
+			return;
+	}
+	DebugText_t newText;
+	newText.index = index;
+	newText.y = 4 + s_DebugText.size();
+	newText.lifetime = gEngfuncs.GetClientTime() + 1.0f;
+	s_DebugText.push_back( newText );
+}
+
+void DeleteDebugOldText()
+{
+	float curTime = gEngfuncs.GetClientTime();
+	for ( size_t i = 0; i < s_DebugText.size(); )
+	{
+		if ( s_DebugText[i].lifetime < curTime )
+			s_DebugText.erase( s_DebugText.begin() + i );
+		else
+			i++;
+	}
+}
+#endif
 
 /*
 =================================
@@ -76,6 +116,14 @@ Must think every frame.
 */
 void Weather::Process()
 {
+#if DEBUG_WEATHER_TRACE
+	DeleteDebugOldText();
+	for ( size_t i = 0; i < s_DebugText.size(); i++ )
+	{
+		gEngfuncs.Con_NPrintf( s_DebugText[i].y, "Weather: Hit entity %d", s_DebugText[i].index );
+	}
+#endif
+
 	rain_oldtime = rain_curtime; // save old time
 	rain_curtime = gEngfuncs.GetClientTime();
 	rain_timedelta = rain_curtime - rain_oldtime;
@@ -131,7 +179,7 @@ void Weather::Process()
 			if (nextDrip != NULL)
 				nextDrip->p_Prev = curDrip->p_Prev; 
 			delete curDrip;
-					
+
 			dripcounter--;
 		}
 
@@ -217,13 +265,27 @@ void Weather::Process()
 				deathHeight = pmtrace.endpos[2];
 			}
 
+			if ( pmtrace.ent )
+			{
+#if DEBUG_WEATHER_TRACE
+				TryToAddDebugText( pmtrace.ent );
+#endif
+
+				// Did we hit our perception blocker?
+				// If we did, don't spawn any rain.
+				cl_entity_t *pEnt = gEngfuncs.GetEntityByIndex( pmtrace.ent );
+				// We can't really check for classname here, or even the client class,
+				// so we use rendermode field for this. It's really stupid, but what can we do with engine limitations?
+				if ( pEnt && pEnt->curstate.rendermode == kRenderFxWeatherBlocker )
+					continue;
+			}
+
 			// just in case..
 			if (deathHeight > vecStart[2])
 			{
 				Msg( "Weather error: can't create drip in water\n" );
 				continue;
 			}
-
 
 			cl_drip *newClDrip = new cl_drip;
 			if (!newClDrip)
@@ -232,17 +294,17 @@ void Weather::Process()
 				Msg( "Weather error: failed to allocate object!\n" );
 				return;
 			}
-			
+
 			vecStart[2] -= gEngfuncs.pfnRandomFloat(0, maxDelta); // randomize a bit
-			
+
 			newClDrip->alpha = gEngfuncs.pfnRandomFloat(0.12, 0.2);
 			VectorCopy(vecStart, newClDrip->origin);
-			
+
 			newClDrip->xDelta = xDelta;
 			newClDrip->yDelta = yDelta;
-	
+
 			newClDrip->birthTime = rain_curtime; // store time when it was spawned
-			newClDrip->minHeight = deathHeight;
+			newClDrip->minHeight = deathHeight + cl_weather_deathheight_adjust.GetFloat();
 
 			if (contents == CONTENTS_WATER)
 				newClDrip->landInWater = 1;

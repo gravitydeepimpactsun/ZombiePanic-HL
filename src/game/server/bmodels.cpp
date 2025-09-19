@@ -208,6 +208,29 @@ void CFuncConveyor ::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE
 	UpdateSpeed(pev->speed);
 }
 
+// =================== FUNC_PERCIPITATIONBLOCKER ==============================================
+// A simple entity that blocks percipitation (rain/snow) in its area
+// Player's, NPC's and items can still go through it
+class CFuncPercipitationBlocker : public CBaseEntity
+{
+public:
+	void Spawn();
+	virtual int ObjectCaps() { return CBaseEntity ::ObjectCaps() & ~FCAP_ACROSS_TRANSITION; }
+};
+
+void CFuncPercipitationBlocker::Spawn()
+{
+	pev->angles = g_vecZero;
+	pev->movetype = MOVETYPE_PUSH; // so it doesn't get pushed by anything
+	pev->solid = SOLID_TRIGGER;
+	pev->renderfx = kRenderFxWeatherBlocker;
+	SET_MODEL(ENT(pev), STRING(pev->model));
+
+	pev->flags |= FL_WORLDBRUSH;
+}
+
+LINK_ENTITY_TO_CLASS( func_percipitationblocker, CFuncPercipitationBlocker );
+
 // =================== FUNC_ILLUSIONARY ==============================================
 
 /*QUAKED func_illusionary (0 .5 .8) ?

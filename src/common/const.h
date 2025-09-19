@@ -710,6 +710,7 @@ enum
 	kRenderFx3DSkyBox = 70, // 3D skybox entity
 	kRenderFxDynamicLight, // Light the model with dynamic lights
 #endif
+	kRenderFxWeatherBlocker = 80, // Weather blocker (not a render effect per se)
 };
 
 typedef unsigned int func_t;

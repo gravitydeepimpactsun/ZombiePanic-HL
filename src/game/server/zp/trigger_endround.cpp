@@ -37,4 +37,12 @@ void CTriggerEndRound::OnEndRoundTouch( CBaseEntity *pOther )
 	pPlayer->StartObserver();
 	pPlayer->GiveAchievement( EAchievements::FIRST_ESCAPE );
 	pPlayer->GiveAchievement( EAchievements::ESCAPE_ARTIST );
+
+	UTIL_ClientPrintAll(
+		HUD_PRINTTALK,
+		UTIL_VarArgs(
+			"^2%s ^0 has escaped!\n",
+			(pPlayer->pev->netname && STRING(pPlayer->pev->netname)[0] != 0) ? STRING(pPlayer->pev->netname) : "unconnected"
+		)
+	);
 }

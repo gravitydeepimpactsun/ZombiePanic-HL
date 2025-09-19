@@ -372,6 +372,11 @@ void CBaseGameMode::ShouldClearChoosenZombies()
 		m_LastChoosenZombies.clear();
 }
 
+void CBaseGameMode::ClearChoosenZombies()
+{
+	m_LastChoosenZombies.clear();
+}
+
 void CBaseGameMode::RemoveFromList( int entindex )
 {
 	int idx = -1;

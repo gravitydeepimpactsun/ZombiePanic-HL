@@ -443,6 +443,7 @@ void CZombiePanicGameRules::PickRandomVolunteer()
 	m_flRoundJustBegun = gpGlobals->time + 60;
 	if ( m_pGameMode->IsTestModeActive() ) return;
 	int iMoreRequired = 0;
+	bool bFirstTry = false;
 
 add_one_more_zombie:
 
@@ -457,9 +458,19 @@ add_one_more_zombie:
 		}
 	}
 
-	// Still zero? We must have disabled testmode here,
-	// and we found no player to grab. Just stop instead.
-	if ( m_Volunteers.size() == 0 ) return;
+	// Still zero? Reset the choosen list and try again.
+	// This happens if a player is still a spectator.
+	if ( m_Volunteers.size() == 0 )
+	{
+		if ( !bFirstTry )
+		{
+			bFirstTry = true;
+			m_pGameMode->ClearChoosenZombies();
+			// Try again.
+			goto add_one_more_zombie;
+		}
+		return;
+	}
 
 	int iVolunteers = m_Volunteers.size() - 1;
 	int iPlayerIndex = 0;

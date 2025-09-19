@@ -21,6 +21,7 @@ protected:
 	virtual WinState_e GetWinState() { return WinState_e::State_None; }
 	virtual bool WasAlreadyChoosenPreviously( CBasePlayer *pPlayer ) { return false; }
 	virtual void ShouldClearChoosenZombies() {}
+	virtual void ClearChoosenZombies() { }
 	virtual void GiveWeapons(CBasePlayer *pPlayer) {}
 };
 

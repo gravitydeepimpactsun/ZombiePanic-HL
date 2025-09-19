@@ -54,6 +54,7 @@ public:
 	virtual bool WasAlreadyChoosenPreviously( CBasePlayer *pPlayer ) = 0;
 	virtual void AddToChoosenList( CBasePlayer *pPlayer ) {}
 	virtual void ShouldClearChoosenZombies() = 0;
+	virtual void ClearChoosenZombies() = 0;
 
 	// Did the player leave mid round?
 	// If true, we will respawn as a zombie if they rejoin back.
@@ -96,6 +97,7 @@ protected:
 	bool WasAlreadyChoosenPreviously( CBasePlayer *pPlayer );
 	void AddToChoosenList( CBasePlayer *pPlayer );
 	void ShouldClearChoosenZombies();
+	void ClearChoosenZombies();
 
 private:
 	std::vector<int> m_LeftMidRoundList;

@@ -113,6 +113,9 @@ void CMenuItem::ApplySchemeSettings( vgui2::IScheme *pScheme )
 	hTextFont = pScheme->GetFont( "MenuItemHelp" );
 	if ( hTextFont != vgui2::INVALID_FONT )
 		m_pHelpText->SetFont( hTextFont );
+
+	m_pText->SetFgColor( COLOR_NOT_ACTIVE );
+	m_pHelpText->SetFgColor( COLOR_NOT_ACTIVE_HELP );
 }
 
 void CMenuItem::OnCursorEntered()

@@ -525,7 +525,7 @@ void CBasePlayer ::TraceAttack(entvars_t *pevAttacker, float flDamage, Vector ve
 	if (pev->takedamage)
 	{
 		bool bIsInHardcore = ( ZP::GetCurrentGameMode()->GetGameModeType() == ZP::GameModeType_e::GAMEMODE_HARDCORE );
-		bool bIsZombie = ( pev->team == ZP::TEAM_ZOMBIE );
+		bool bIsZombie = ( pevAttacker->team == ZP::TEAM_ZOMBIE );
 
 		m_LastHitGroup = ptr->iHitgroup;
 

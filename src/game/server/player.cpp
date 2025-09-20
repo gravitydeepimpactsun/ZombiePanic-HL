@@ -525,6 +525,7 @@ void CBasePlayer ::TraceAttack(entvars_t *pevAttacker, float flDamage, Vector ve
 	if (pev->takedamage)
 	{
 		bool bIsInHardcore = ( ZP::GetCurrentGameMode()->GetGameModeType() == ZP::GameModeType_e::GAMEMODE_HARDCORE );
+		bool bIsZombie = ( pev->team == ZP::TEAM_ZOMBIE );
 
 		m_LastHitGroup = ptr->iHitgroup;
 
@@ -533,8 +534,9 @@ void CBasePlayer ::TraceAttack(entvars_t *pevAttacker, float flDamage, Vector ve
 		case HITGROUP_GENERIC:
 			break;
 		case HITGROUP_HEAD:
-			if ( pevAttacker->team == ZP::TEAM_ZOMBIE )
-				flDamage *= gSkillData.plrHeadZombie;
+			// In hardcore, zombies have the same head multiplier as humans
+			if ( bIsZombie )
+				flDamage *= bIsInHardcore ? gSkillData.plrHead : gSkillData.plrHeadZombie;
 			else
 				flDamage *= gSkillData.plrHead;
 			break;
@@ -559,12 +561,16 @@ void CBasePlayer ::TraceAttack(entvars_t *pevAttacker, float flDamage, Vector ve
 		// Are we in hardcore mode?
 		if ( bIsInHardcore )
 		{
-			// In hardcore mode, headshots do double damage
-			// everything else is halved by 50%
+			// In hardcore mode, headshots do double damage (except zombies deal extra 10% more)
+			// everything else is halved by 50% (if human)
 			if ( ptr->iHitgroup == HITGROUP_HEAD )
-				flDamage *= 2.0f;
+				flDamage *= bIsZombie ? 3.0 : 2.0f;
 			else
-				flDamage *= 0.5f;
+			{
+				// Only humans deal reduced damage, not zombies
+				if ( pevAttacker->team == ZP::TEAM_SURVIVIOR )
+					flDamage *= 0.5f;
+			}
 		}
 
 		SpawnBlood(ptr->vecEndPos, BloodColor(), flDamage); // a little surface blood.

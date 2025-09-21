@@ -178,7 +178,6 @@ void ZP::SpawnItems()
 
 void ZP::SetupDefaultSpawnList()
 {
-#define ItemSpawner s_SpawnList
 	int nPlayers = s_iCurrentPlayerAmount;
 	int nAmmoToSpawn[5];
 	int nWeaponToSpawn[5];
@@ -319,24 +318,24 @@ void ZP::SetupDefaultSpawnList()
 	}
 
 	// Ammo
-	ItemSpawner.push_back( new SpawnList( "ammo_9mmclip", nAmmoToSpawn[0], ItemType::TypeAmmo ) );
-	ItemSpawner.push_back( new SpawnList( "ammo_mp5clip", nAmmoToSpawn[1], ItemType::TypeAmmo ) );
-	ItemSpawner.push_back( new SpawnList( "ammo_556AR", nAmmoToSpawn[2], ItemType::TypeAmmo ) );
-	ItemSpawner.push_back( new SpawnList( "ammo_buckshot", nAmmoToSpawn[3], ItemType::TypeAmmo ) );
-	ItemSpawner.push_back( new SpawnList( "ammo_357", nAmmoToSpawn[4], ItemType::TypeAmmo ) );
+	s_SpawnList.push_back( new SpawnList( "ammo_9mmclip", nAmmoToSpawn[0], ItemType::TypeAmmo ) );
+	s_SpawnList.push_back( new SpawnList( "ammo_mp5clip", nAmmoToSpawn[1], ItemType::TypeAmmo ) );
+	s_SpawnList.push_back( new SpawnList( "ammo_556AR", nAmmoToSpawn[2], ItemType::TypeAmmo ) );
+	s_SpawnList.push_back( new SpawnList( "ammo_buckshot", nAmmoToSpawn[3], ItemType::TypeAmmo ) );
+	s_SpawnList.push_back( new SpawnList( "ammo_357", nAmmoToSpawn[4], ItemType::TypeAmmo ) );
 
 	// Items
-	ItemSpawner.push_back( new SpawnList( "item_healthkit", nItemToSpawn[0], ItemType::TypeItem ) );
-	ItemSpawner.push_back( new SpawnList( "item_battery", nItemToSpawn[1], ItemType::TypeItem ) );
-	ItemSpawner.push_back( new SpawnList( "weapon_satchel", nItemToSpawn[2], ItemType::TypeItem ) );
-	ItemSpawner.push_back( new SpawnList( "weapon_handgrenade", nItemToSpawn[3], ItemType::TypeItem ) );
+	s_SpawnList.push_back( new SpawnList( "item_healthkit", nItemToSpawn[0], ItemType::TypeItem ) );
+	s_SpawnList.push_back( new SpawnList( "item_battery", nItemToSpawn[1], ItemType::TypeItem ) );
+	s_SpawnList.push_back( new SpawnList( "weapon_satchel", nItemToSpawn[2], ItemType::TypeItem ) );
+	s_SpawnList.push_back( new SpawnList( "weapon_handgrenade", nItemToSpawn[3], ItemType::TypeItem ) );
 
 	// Weapons
-	ItemSpawner.push_back( new SpawnList( "weapon_sig", nWeaponToSpawn[0], ItemType::TypeWeapon ) );
-	ItemSpawner.push_back( new SpawnList( "weapon_357", nWeaponToSpawn[1], ItemType::TypeWeapon ) );
-	ItemSpawner.push_back( new SpawnList( "weapon_556ar", nWeaponToSpawn[2], ItemType::TypeWeapon ) );
-	ItemSpawner.push_back( new SpawnList( "weapon_mp5", nWeaponToSpawn[3], ItemType::TypeWeapon ) );
-	ItemSpawner.push_back( new SpawnList( "weapon_shotgun", nWeaponToSpawn[4], ItemType::TypeWeapon ) );
+	s_SpawnList.push_back( new SpawnList( "weapon_sig", nWeaponToSpawn[0], ItemType::TypeWeapon ) );
+	s_SpawnList.push_back( new SpawnList( "weapon_357", nWeaponToSpawn[1], ItemType::TypeWeapon ) );
+	s_SpawnList.push_back( new SpawnList( "weapon_556ar", nWeaponToSpawn[2], ItemType::TypeWeapon ) );
+	s_SpawnList.push_back( new SpawnList( "weapon_mp5", nWeaponToSpawn[3], ItemType::TypeWeapon ) );
+	s_SpawnList.push_back( new SpawnList( "weapon_shotgun", nWeaponToSpawn[4], ItemType::TypeWeapon ) );
 }
 
 void CRandomItemBase::SpawnItem(void)
@@ -484,9 +483,13 @@ static void CheckCurrentPlayers()
 	// Function was not found or failed to call?
 	// Setup default spawn list then.
 	if ( ret != ScriptCallBackEnum::ScriptCall_OK )
+	{
 		ZP::SetupDefaultSpawnList();
+		ZP::SpawnItems();
+	}
 #else
 	ZP::SetupDefaultSpawnList();
+	ZP::SpawnItems();
 #endif
 }
 
@@ -512,9 +515,6 @@ void ZP::OnGameModeRoundStart()
 
 	// Check all players first
 	CheckCurrentPlayers();
-
-	// Now, let's spawn our items
-	SpawnItems();
 
 	// Now, let's start our beacons (if Start On spawnflags is set)
 	CInfoBeacon *pBeacon = (CInfoBeacon *)UTIL_FindEntityByClassname( nullptr, "info_beacon" );

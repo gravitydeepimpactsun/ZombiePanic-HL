@@ -36,8 +36,10 @@
 #include "zp/weapons/weapon_smg_mp5.h"
 #include "zp/weapons/weapon_rifle_m16.h"
 #include "zp/weapons/weapon_shotgun_remington.h"
+#include "zp/weapons/weapon_shotgun_doublebarrel.h"
 #include "zp/weapons/weapon_melee_swipe.h"
 #include "zp/weapons/weapon_melee_crowbar.h"
+#include "zp/weapons/weapon_melee_leadpipe.h"
 #include "zp/weapons/weapon_explosive_frag.h"
 #include "zp/weapons/weapon_explosive_satchel.h"
 
@@ -64,11 +66,13 @@ Vector previousorigin;
 // Weapon entities.
 CWeaponSideArmSig g_Sig;
 CWeaponMeleeCrowbar g_Crowbar;
+CWeaponMeleeLeadPipe g_LeadPipe;
 CWeaponMeleeSwipe g_Swipe;
 CWeaponSideArmRevolver g_Python;
 CWeaponSMGMP5 g_Mp5;
 CWeaponRifleM16 g_M16;
 CWeaponShotgunRemington g_Shotgun;
+CWeaponShotgunDoubleBarrel g_Dbarrel;
 CWeaponExplosiveFrag g_HandGren;
 CWeaponExplosiveSatchel g_Satchel;
 
@@ -621,11 +625,13 @@ void HUD_InitClientWeapons(void)
 	// Allocate slot(s) for each weapon that we are going to be predicting
 	HUD_PrepEntity(&g_Sig, &player);
 	HUD_PrepEntity(&g_Crowbar, &player);
+	HUD_PrepEntity(&g_LeadPipe, &player);
 	HUD_PrepEntity(&g_Swipe, &player);
 	HUD_PrepEntity(&g_Python, &player);
 	HUD_PrepEntity(&g_Mp5, &player);
 	HUD_PrepEntity(&g_M16, &player);
 	HUD_PrepEntity(&g_Shotgun, &player);
+	HUD_PrepEntity(&g_Dbarrel, &player);
 	HUD_PrepEntity(&g_HandGren, &player);
 	HUD_PrepEntity(&g_Satchel, &player);
 }
@@ -697,6 +703,10 @@ void HUD_WeaponsPostThink(local_state_s *from, local_state_s *to, usercmd_t *cmd
 		pWeapon = &g_Crowbar;
 		break;
 
+	case WEAPON_LEADPIPE:
+		pWeapon = &g_LeadPipe;
+		break;
+
 	case WEAPON_SWIPE:
 		pWeapon = &g_Swipe;
 		break;
@@ -719,6 +729,10 @@ void HUD_WeaponsPostThink(local_state_s *from, local_state_s *to, usercmd_t *cmd
 
 	case WEAPON_SHOTGUN:
 		pWeapon = &g_Shotgun;
+		break;
+
+	case WEAPON_DOUBLEBARREL:
+		pWeapon = &g_Dbarrel;
 		break;
 
 	case WEAPON_HANDGRENADE:

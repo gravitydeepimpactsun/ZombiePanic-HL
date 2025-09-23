@@ -50,6 +50,7 @@ extern ConVar mp_rpg_fix;
 extern ConVar mp_blastradius;
 
 extern cvar_t mp_dmg_crowbar;
+extern cvar_t mp_dmg_leadpipe;
 extern cvar_t mp_dmg_swipe;
 extern cvar_t mp_dmg_sig;
 extern cvar_t mp_dmg_357;

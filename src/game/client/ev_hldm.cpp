@@ -56,6 +56,7 @@ extern "C"
 	// HLDM
 	void EV_FireGlock1(struct event_args_s *args);
 	void EV_FireGlock2(struct event_args_s *args);
+	void EV_FireDBarrel(struct event_args_s *args);
 	void EV_FireShotGunSingle(struct event_args_s *args);
 	void EV_FireShotGunDouble(struct event_args_s *args);
 	void EV_FireM16(struct event_args_s *args);
@@ -66,6 +67,7 @@ extern "C"
 	void EV_SpinGauss(struct event_args_s *args);
 	void EV_Swipe(struct event_args_s *args);
 	void EV_Crowbar(struct event_args_s *args);
+	void EV_LeadPipe(struct event_args_s *args);
 	void EV_FireCrossbow(struct event_args_s *args);
 	void EV_FireCrossbow2(struct event_args_s *args);
 	void EV_FireRpg(struct event_args_s *args);
@@ -645,6 +647,44 @@ void EV_FireShotGunSingle(event_args_t *args)
 
 	EV_HLDM_FireBullets(idx, forward, right, up, data.Bullets, vecSrc, vecAiming, 2048, BULLET_PLAYER_BUCKSHOT, 0, NULL, data.WeaponSpread[0], data.WeaponSpread[0]);
 }
+
+void EV_FireDBarrel(event_args_t *args)
+{
+	int idx;
+	Vector origin;
+	Vector angles;
+	Vector velocity;
+
+	Vector vecSrc, vecAiming;
+	Vector vecSpread;
+	Vector up, right, forward;
+	float flSpread = 0.01;
+
+	idx = args->entindex;
+	VectorCopy(args->origin, origin);
+	VectorCopy(args->angles, angles);
+	VectorCopy(args->velocity, velocity);
+
+	AngleVectors(angles, forward, right, up);
+
+	if (EV_IsLocal(idx))
+	{
+		// Add muzzle flash to current weapon model
+		EV_MuzzleFlash();
+		gEngfuncs.pEventAPI->EV_WeaponAnimation(SHOTGUN_FIRE, 2);
+
+		V_PunchAxis(0, -5.0);
+	}
+
+	gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, "weapons/db_fire.wav", gEngfuncs.pfnRandomFloat(0.95, 1.0), ATTN_NORM, 0, 93 + gEngfuncs.pfnRandomLong(0, 0x1f));
+
+	EV_GetGunPosition(args, vecSrc, origin);
+	VectorCopy(forward, vecAiming);
+
+	WeaponData data = GetWeaponSlotInfo( WEAPON_SHOTGUN );
+
+	EV_HLDM_FireBullets(idx, forward, right, up, data.Bullets, vecSrc, vecAiming, 2048, BULLET_PLAYER_BUCKSHOT, 0, NULL, data.WeaponSpread[0], data.WeaponSpread[0]);
+}
 //======================
 //	   SHOTGUN END
 //======================
@@ -1196,6 +1236,37 @@ void EV_Crowbar(event_args_t *args)
 
 	//Play Swing sound
 	gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, "weapons/cbar_miss1.wav", 1, ATTN_NORM, 0, PITCH_NORM);
+
+	if (EV_IsLocal(idx))
+	{
+		switch ((g_iSwing++) % 3)
+		{
+		case 0:
+			gEngfuncs.pEventAPI->EV_WeaponAnimation(CROWBAR_ATTACK1MISS, 1);
+			break;
+		case 1:
+			gEngfuncs.pEventAPI->EV_WeaponAnimation(CROWBAR_ATTACK2MISS, 1);
+			break;
+		case 2:
+			gEngfuncs.pEventAPI->EV_WeaponAnimation(CROWBAR_ATTACK3MISS, 1);
+			break;
+		}
+	}
+}
+
+// Same as crowbar, but we use the lead pipe sound
+void EV_LeadPipe(event_args_t *args)
+{
+	int idx;
+	Vector origin;
+	Vector angles;
+	Vector velocity;
+
+	idx = args->entindex;
+	VectorCopy(args->origin, origin);
+
+	//Play Swing sound
+	gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, "weapons/pipe_miss1.wav", 1, ATTN_NORM, 0, PITCH_NORM);
 
 	if (EV_IsLocal(idx))
 	{

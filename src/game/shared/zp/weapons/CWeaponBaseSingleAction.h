@@ -11,7 +11,7 @@ class CWeaponBaseSingleAction : public CWeaponBase
 
 public:
 	bool IsAutomaticWeapon() const override { return false; }
-	bool PumpIsRequired() const { return m_bRequirePumping; }
+	virtual bool PumpIsRequired() const { return m_bRequirePumping; }
 	virtual void WeaponIdle( void );
 	virtual void ItemPostFrame( void );
 	void WeaponPump();

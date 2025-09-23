@@ -294,12 +294,18 @@ void EXPORT W_Precache(void)
 	UTIL_PrecacheOther("item_security");
 	UTIL_PrecacheOther("item_longjump");
 
+	// Double barrel shotgun
+	//UTIL_PrecacheOtherWeapon("weapon_doublebarrel");
+
 	// shotgun
 	UTIL_PrecacheOtherWeapon("weapon_shotgun");
 	UTIL_PrecacheOther("ammo_buckshot");
 
 	// crowbar
 	UTIL_PrecacheOtherWeapon("weapon_crowbar");
+
+	// lead pipe
+	UTIL_PrecacheOtherWeapon("weapon_leadpipe");
 
 	// zombie crowbar
 	UTIL_PrecacheOtherWeapon("weapon_swipe");

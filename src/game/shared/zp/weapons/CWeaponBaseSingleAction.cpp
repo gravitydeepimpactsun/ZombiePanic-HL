@@ -79,8 +79,8 @@ void CWeaponBaseSingleAction::Reload( void )
 	{
 		OnRequestedAnimation( ANIM_RELOAD_START);
 		m_fInSpecialReload = 1;
-		m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 0.6;
-		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.6;
+		m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 0.55;
+		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.55;
 		m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + 1.0;
 		m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + 1.0;
 		return;

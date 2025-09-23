@@ -22,6 +22,8 @@
 #include "GameStudioModelRenderer.h"
 #include "opengl.h"
 
+#include "zp/zp_shared.h"
+
 // Bones that used in gait animation
 #define NUM_LEGS_BONES 8
 const char *legs_bones[NUM_LEGS_BONES] = {
@@ -60,6 +62,9 @@ extern ConVar cl_righthand;
 ConVar player_glow_style("player_glow_style", "0", FCVAR_BHL_ARCHIVE, "ZVision glow state");
 ConVar player_glow1("player_glow1", "0 0 255", FCVAR_BHL_ARCHIVE, "Survivor Team Glow [ZVision]");
 ConVar player_glow2("player_glow2", "255 0 0", FCVAR_BHL_ARCHIVE, "Zombie Team Glow [ZVision]");
+ConVar player_gaitspeed_walk( "player_gaitspeed_walk", "0.8", 0, "Gait speed tweak multiplier for Zombie Panic!" );
+ConVar player_gaitspeed_run( "player_gaitspeed_run", "0.45", 0, "Gait speed tweak multiplier for Zombie Panic!" );
+ConVar player_gaitspeed_panic( "player_gaitspeed_panic", "1", 0, "Gait speed tweak multiplier for Zombie Panic!" );
 
 static void ParseGlowColor( const int &iTeam, color24 &clr )
 {
@@ -1322,6 +1327,17 @@ int CStudioModelRenderer::StudioDrawModel(int flags)
 	return 1;
 }
 
+float CStudioModelRenderer::GetGaitSpeedTweak( const int &iState )
+{
+	switch ( iState )
+	{
+		case PlayerGaitState::GAIT_STATE_RUN: return player_gaitspeed_run.GetFloat();
+		case PlayerGaitState::GAIT_STATE_WALK: return player_gaitspeed_walk.GetFloat();
+		case PlayerGaitState::GAIT_STATE_PANIC: return player_gaitspeed_panic.GetFloat();
+	}
+	return 1.0f;
+}
+
 /*
 ====================
 StudioEstimateGait
@@ -1350,6 +1366,7 @@ void CStudioModelRenderer::StudioEstimateGait(entity_state_t *pplayer)
 	{
 		VectorSubtract(m_pCurrentEntity->origin, m_pPlayerInfo->prevgaitorigin, est_velocity);
 		VectorCopy(m_pCurrentEntity->origin, m_pPlayerInfo->prevgaitorigin);
+
 		m_flGaitMovement = Length(est_velocity);
 		if (dt <= 0 || m_flGaitMovement / dt < 5)
 		{
@@ -1357,6 +1374,11 @@ void CStudioModelRenderer::StudioEstimateGait(entity_state_t *pplayer)
 			est_velocity[0] = 0;
 			est_velocity[1] = 0;
 		}
+
+		// Make sure we tweak our walk, run and panic speed, so we don't look like an idiot.
+		float flGaitTweak = GetGaitSpeedTweak( std::round( std::hypot( est_velocity[0], est_velocity[1] ) ) );
+		if ( flGaitTweak > 0 )
+			m_flGaitMovement *= flGaitTweak;
 	}
 	else
 	{

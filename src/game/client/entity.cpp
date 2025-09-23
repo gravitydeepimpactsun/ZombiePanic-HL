@@ -195,6 +195,7 @@ void CL_DLLEXPORT HUD_ProcessPlayerState(struct entity_state_s *dst, const struc
 	dst->playerclass = src->playerclass;
 	dst->team = src->team;
 	dst->colormap = src->colormap;
+	dst->iuser4 = src->iuser4;
 
 #if defined(_TFC)
 	dst->fuser1 = src->fuser1;

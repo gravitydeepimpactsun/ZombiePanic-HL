@@ -119,6 +119,9 @@ public:
 	// Determine pitch and blending amounts for players
 	virtual void StudioPlayerBlend(mstudioseqdesc_t *pseqdesc, int *pBlend, float *pPitch);
 
+	// Get the gait speed for the current drawn player entity
+	virtual float GetGaitSpeedTweak( const int &iState );
+
 	// Estimate gait frame for player
 	virtual void StudioEstimateGait(entity_state_t *pplayer);
 

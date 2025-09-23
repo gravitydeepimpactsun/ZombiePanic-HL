@@ -1386,7 +1386,9 @@ int AddToFullPack(struct entity_state_s *state, int e, edict_t *ent, edict_t *ho
 		state->usehull = (ent->v.flags & FL_DUCKING) ? 1 : 0;
 		state->health = ent->v.health;
 		state->fuser4 = ent->v.fuser4;
+		state->iuser4 = ent->v.iuser4;
 		state->vuser3.x = ent->v.vuser3.x;
+		state->vuser4.z = ent->v.vuser4.z;
 	}
 
 	if (ent->v.renderfx == kRenderFxDeadPlayer)
@@ -1837,8 +1839,11 @@ void UpdateClientData(const struct edict_s *ent, int sendweapons, struct clientd
 	cd->iuser1 = ent->v.iuser1;
 	cd->iuser2 = ent->v.iuser2;
 
+	cd->iuser4 = ent->v.iuser4;
+
 	cd->fuser4 = ent->v.fuser4;
 	cd->vuser3.x = ent->v.vuser3.x;
+	cd->vuser4.z = ent->v.vuser4.z;
 
 #if defined(CLIENT_WEAPONS)
 	if (sendweapons)

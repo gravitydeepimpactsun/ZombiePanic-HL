@@ -223,6 +223,7 @@ public:
 	virtual void PreThink(void);
 	virtual void PostThink(void);
 	virtual float GetAmmoWeight( const char *szAmmo );
+	virtual float GetTotalWeight(void);
 	virtual void UpdatePlayerMaxSpeed();
 	virtual Vector GetGunPosition(void);
 	virtual int TakeHealth(float flHealth, int bitsDamageType);
@@ -461,6 +462,19 @@ public:
 
 	int m_iWeaponKillCount = 0;
 	PlayerCharacter m_iCharacter = PlayerCharacter::ANY;
+
+	// Achievement trigger
+	void InAchievementTrigger( string_t iszAchievementID );
+	float m_flLastKillCheck = 0; // When we last checked for a kill (for achievements)
+
+	// Achievement participation tracking.
+	// Not all achievements use this, only the ones that need to track.
+	// And since it's an array, we can easily add more achievements that need this.
+	void Participated( EAchievements eAchivement ) { m_bParticipated[eAchivement] = true; }
+	bool HasParticipated( EAchievements eAchivement ) const { return m_bParticipated[eAchivement]; }
+	void ResetParticipation() { memset( m_bParticipated, 0, sizeof(m_bParticipated) ); }
+	bool m_bParticipated[ACHV_MAX] = { false };
+
 #endif
 
 	//-----------------------------------------------------

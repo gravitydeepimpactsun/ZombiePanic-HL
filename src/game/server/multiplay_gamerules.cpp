@@ -33,6 +33,8 @@
 
 #include <CBugfixedServer.h>
 
+#include "zp/gamemodes/zp_gamemodebase.h"
+
 extern DLL_GLOBAL CGameRules *g_pGameRules;
 extern DLL_GLOBAL BOOL g_fGameOver;
 extern int gmsgDeathMsg; // client dll messages
@@ -157,6 +159,7 @@ void CHalfLifeMultiplay::RefreshSkillData(void)
 
 	// Crowbar whack
 	gSkillData.plrDmgCrowbar = mp_dmg_crowbar.value;
+	gSkillData.plrDmgLeadPipe = mp_dmg_leadpipe.value;
 
 	// Swipe whack
 	gSkillData.plrDmgSwipe = mp_dmg_swipe.value;
@@ -777,7 +780,33 @@ void CHalfLifeMultiplay::DeathNotice(CBasePlayer *pVictim, entvars_t *pKiller, e
 	{
 		if (pevInflictor)
 		{
-			killer_weapon_name = STRING(pevInflictor->classname);
+			killer_weapon_name = STRING( pevInflictor->classname );
+			// Don't do this if we are a weapon
+			if (strncmp(killer_weapon_name, "weapon_", 7) != 0)
+			{
+				// not killed by a player, let's only check the damage type
+				if ( pVictim->m_bitsDamageType & DMG_CRUSH )
+					killer_weapon_name = "crush";
+				else if ( pVictim->m_bitsDamageType & DMG_FALL )
+					killer_weapon_name = "fall";
+				else if ( pVictim->m_bitsDamageType & DMG_BLAST )
+					killer_weapon_name = "blast";
+				else if ( pVictim->m_bitsDamageType & DMG_BURN || pVictim->m_bitsDamageType & DMG_SLOWBURN )
+					killer_weapon_name = "fire";
+				else if ( pVictim->m_bitsDamageType & DMG_FREEZE || pVictim->m_bitsDamageType & DMG_SLOWFREEZE )
+					killer_weapon_name = "freeze";
+				else if ( pVictim->m_bitsDamageType & DMG_DROWN )
+					killer_weapon_name = "drown";
+				else if ( pVictim->m_bitsDamageType & DMG_SHOCK || pVictim->m_bitsDamageType & DMG_ENERGYBEAM || pVictim->m_bitsDamageType & DMG_SONIC )
+					killer_weapon_name = "electric";
+				else if ( pVictim->m_bitsDamageType & DMG_ACID || pVictim->m_bitsDamageType & DMG_RADIATION )
+					killer_weapon_name = "toxic";
+				else if ( pVictim->m_bitsDamageType & DMG_NERVEGAS || pVictim->m_bitsDamageType & DMG_POISON || pVictim->m_bitsDamageType & DMG_PARALYZE )
+					killer_weapon_name = "gas";
+			}
+			// If we got killed by a func_train, let's just say "train"
+			else if (strncmp(killer_weapon_name, "func_train", 10) == 0)
+				killer_weapon_name = "train";
 		}
 	}
 
@@ -872,7 +901,15 @@ void CHalfLifeMultiplay::DeathNotice(CBasePlayer *pVictim, entvars_t *pKiller, e
 		CBasePlayer *pAttacker = (CBasePlayer *)UTIL_PlayerByIndex( killer_index );
 		if ( pAttacker )
 		{
-			if (!strcmp(killer_weapon_name, "crowbar")) pAttacker->GiveAchievement( KILLS_CROWBAR );
+			if (!strcmp(killer_weapon_name, "crowbar"))
+			{
+				pAttacker->GiveAchievement( KILLS_CROWBAR );
+				IGameModeBase *pGameMode = ZP::GetCurrentGameMode();
+				// If hardcore mode, and we managed to get a crowbar kill while over encumbered. (150 Lb)
+				if ( pGameMode && pGameMode->GetGameModeType() == ZP::GAMEMODE_HARDCORE && pAttacker->GetTotalWeight() > 150 )
+					pAttacker->GiveAchievement( HC_OVERWEIGHTKILLER );
+			}
+			else if (!strcmp(killer_weapon_name, "leadpipe")) pAttacker->GiveAchievement( KILLS_LEADPIPE );
 			else if (!strcmp(killer_weapon_name, "sig")) pAttacker->GiveAchievement( KILLS_PISTOL );
 			else if (!strcmp(killer_weapon_name, "357"))
 			{
@@ -887,6 +924,7 @@ void CHalfLifeMultiplay::DeathNotice(CBasePlayer *pVictim, entvars_t *pKiller, e
 			}
 			else if (!strcmp(killer_weapon_name, "556ar")) pAttacker->GiveAchievement( KILLS_RIFLE );
 			else if (!strcmp(killer_weapon_name, "mp5")) pAttacker->GiveAchievement( KILLS_MP5 );
+			else if (!strcmp(killer_weapon_name, "doublebarrel")) pAttacker->GiveAchievement( KILLS_DBARREL );
 			else if (!strcmp(killer_weapon_name, "shotgun"))
 			{
 				pAttacker->GiveAchievement( KILLS_SHOTGUN );
@@ -918,12 +956,17 @@ void CHalfLifeMultiplay::DeathNotice(CBasePlayer *pVictim, entvars_t *pKiller, e
 			}
 			else if (!strcmp(killer_weapon_name, "swipe"))
 			{
-				pAttacker->GiveAchievement( KILLS_ZOMBIE );
 				if ( pVictim->pev->team == ZP::TEAM_SURVIVIOR )
+				{
+					pAttacker->GiveAchievement( KILLS_ZOMBIE );
 					pAttacker->GiveAchievement( FLEEESH );
-				pAttacker->m_iWeaponKillCount++;
-				if ( pAttacker->m_iWeaponKillCount == 3 )
-					pAttacker->GiveAchievement( RABBITBEAST );
+					IGameModeBase *pGameMode = ZP::GetCurrentGameMode();
+					if ( pGameMode && pGameMode->GetGameModeType() == ZP::GAMEMODE_HARDCORE )
+						pAttacker->GiveAchievement( HC_SNACKTIME );
+					pAttacker->m_iWeaponKillCount++;
+					if ( pAttacker->m_iWeaponKillCount == 3 )
+						pAttacker->GiveAchievement( RABBITBEAST );
+				}
 			}
 
 			pAttacker->GiveAchievement( JACKOFTRADES );

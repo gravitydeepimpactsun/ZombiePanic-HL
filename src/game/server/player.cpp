@@ -942,14 +942,29 @@ void CBasePlayer::Killed(entvars_t *pevAttacker, int iGib)
 		Vector headpos = pev->origin + Vector( 0, 0, 13 );
 		CGib::SpawnStickyGibs( pev, headpos, RANDOM_LONG( 4, 8 ) );
 	}
+
 	// Is our attacker valid, and also dead?
 	CBasePlayer *pKiller = (CBasePlayer *)CBaseEntity::Instance( pevAttacker );
-	if ( pKiller && !pKiller->IsAlive() )
-		m_iDeathFlags |= PLR_DEATH_FLAG_BEYOND_GRAVE;
+	if ( pKiller )
+	{
+		if ( !pKiller->IsAlive() )
+			m_iDeathFlags |= PLR_DEATH_FLAG_BEYOND_GRAVE;
+		else
+			pKiller->m_flLastKillCheck = gpGlobals->time + 0.55f;
+	}
 
 	g_pGameRules->PlayerKilled(this, pevAttacker, g_pevLastInflictor);
 
 	GiveAchievement( EAchievements::CHILDOFGRAVE );
+
+	bool bIsTeamKiller = false;
+	if ( ( m_iDeathFlags & PLR_DEATH_FLAG_TEAMKILLER ) != 0 )
+		bIsTeamKiller = true;
+
+	// Don't allow this if this was a team kill,
+	// and make sure we are on the zombie team.
+	if ( pKiller && !bIsTeamKiller && pev->team == ZP::TEAM_ZOMBIE )
+		pKiller->GiveAchievement( EAchievements::GENOCIDESTEP3 );
 
 	if (m_pTank != NULL)
 	{
@@ -1495,7 +1510,10 @@ void CBasePlayer::PlayerDeathThink(void)
 		if ( m_bNoLives )
 			StartObserver();
 		else
+		{
 			Spawn();
+			GiveAchievement( EAchievements::ILIVEAGAIN );
+		}
 	}
 	else
 	{ // restart the entire server
@@ -1648,6 +1666,9 @@ void CBasePlayer::StartWelcomeCam(void)
 	pev->health = 1; // Let player stay vertically, not lie on a side
 	pev->deadflag = DEAD_RESPAWNABLE;
 	pev->effects = EF_NODRAW; // Hide model. This is used instead of pev->modelindex = 0
+
+	// Reset on new round and/or new map.
+	ResetParticipation();
 }
 
 void CBasePlayer::StopWelcomeCam(void)
@@ -2130,7 +2151,7 @@ void CBasePlayer::UpdateHealthRegen()
 	if ( m_bRegenUpdated )
 	{
 		bool bIsInHardcore = ( ZP::GetCurrentGameMode()->GetGameModeType() == ZP::GameModeType_e::GAMEMODE_HARDCORE );
-		m_flRegenTime = bIsInHardcore ? 1.5f : 3.0f;
+		m_flRegenTime = bIsInHardcore ? 1.0f : 3.0f;
 		m_flLastRegen = gpGlobals->time + m_flRegenTime;
 		m_bRegenUpdated = false;
 		return;
@@ -2146,6 +2167,7 @@ void CBasePlayer::UpdateHealthRegen()
 	if ( flHP >= flHPMax ) return;
 	flHP += 5;
 	pev->health = clamp( flHP, 1, flHPMax );
+	GiveAchievement( EAchievements::REGEN_10K );
 }
 
 void CBasePlayer::GiveAchievement( EAchievements eAchivement )
@@ -2213,6 +2235,29 @@ PlayerCharacter CBasePlayer::GetCharacter( const char *szType )
 			return g_CharacterTypes[i].Type;
 	}
 	return PlayerCharacter::ANY;
+}
+
+void CBasePlayer::InAchievementTrigger( string_t iszAchievementID )
+{
+	if ( !IsAlive() ) return;
+	const char *szAchievementID = STRING( iszAchievementID );
+	if ( !szAchievementID || !szAchievementID[0] ) return;
+	if ( FStrEq( szAchievementID, "DANCE_FLOOR" ) )
+	{
+		// Did we manage to kill a zombie while on the dance floor?
+		if ( m_flLastKillCheck - gpGlobals->time > 0 )
+			GiveAchievement( EAchievements::DANCE_FLOOR );
+	}
+	else if ( FStrEq( szAchievementID, "HOUSEOFHORRORS" ) )
+	{
+		// Give the achievement to all players who participated in finding them.
+		for ( int i = 1; i <= gpGlobals->maxClients; i++ )
+		{
+			CBasePlayer *pPlayer = (CBasePlayer *)UTIL_PlayerByIndex( i );
+			if ( pPlayer && pPlayer->IsConnected() && pPlayer->HasParticipated( EAchievements::HOUSEOFHORRORS ) )
+				pPlayer->GiveAchievement( EAchievements::HOUSEOFHORRORS );
+		}
+	}
 }
 
 #define CLIMB_SHAKE_FREQUENCY 22 // how many frames in between screen shakes when climbing
@@ -2996,6 +3041,17 @@ void CBasePlayer::PostThink()
 		{ // they've moved off the platform
 			m_pTank->Use(this, this, USE_OFF, 0);
 		}
+	}
+
+	// Check & Set our PlayerGaitState
+	if ( IsInPanic() )
+		pev->iuser4 = PlayerGaitState::GAIT_STATE_PANIC;
+	else
+	{
+		if ( pev->maxspeed > 100 )
+			pev->iuser4 = PlayerGaitState::GAIT_STATE_RUN;
+		else
+			pev->iuser4 = PlayerGaitState::GAIT_STATE_WALK;
 	}
 
 	// do weapon stuff

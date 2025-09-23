@@ -24,6 +24,8 @@ add_sources(
 	weapon_sidearm_revolver.h
 	weapon_melee_crowbar.cpp
 	weapon_melee_crowbar.h
+	weapon_melee_leadpipe.cpp
+	weapon_melee_leadpipe.h
 	weapon_melee_swipe.cpp
 	weapon_melee_swipe.h
 	weapon_explosive_frag.cpp

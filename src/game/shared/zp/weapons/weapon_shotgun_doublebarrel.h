@@ -3,22 +3,23 @@
 #ifndef SHARED_WEAPON_SHOTGUN_DOUBLEBARREL_H
 #define SHARED_WEAPON_SHOTGUN_DOUBLEBARREL_H
 
-#include "CWeaponBase.h"
+#include "CWeaponBaseSingleAction.h"
 
-class CWeaponShotgunDoubleBarrel : public CWeaponBase
+class CWeaponShotgunDoubleBarrel : public CWeaponBaseSingleAction
 {
-	DECLARE_CLASS_SIMPLE( CWeaponShotgunDoubleBarrel, CWeaponBase );
+	DECLARE_CLASS_SIMPLE( CWeaponShotgunDoubleBarrel, CWeaponBaseSingleAction );
 
 public:
 	ZPWeaponID GetWeaponID() override { return WEAPON_DOUBLEBARREL; }
-	bool IsAutomaticWeapon() const override { return false; }
+	BOOL PlayEmptySound() override;
+	bool PumpIsRequired() const override { return false; }
 	void Spawn( void );
 	void Precache( void );
 	int AddToPlayer( CBasePlayer *pPlayer );
 	BOOL Deploy();
-	void Reload( void );
-	void PrimaryAttack( void );
-	void WeaponIdle( void );
+	void Holster( int skiplocal = 0 );
+	void OnRequestedAnimation( SingleActionAnimReq act );
+	void OnWeaponPrimaryAttack();
 };
 
 #endif

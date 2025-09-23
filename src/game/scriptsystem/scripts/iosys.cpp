@@ -17,7 +17,7 @@
 // A simple static list of our I/O IOFunctions_t
 static const char *g_IOFunctions[IO_ON_MAX] = {
 	"OnMapStart",
-	"OnRoundRestart",
+	"OnRoundStart",
 	"OnMapEnd",
 	"OnPlayerSpawned",
 	"OnInputReceived",
@@ -36,6 +36,7 @@ static const char *g_IOCommands[IO_MAX] = {
 	"PrintToConsole",
 	"PrintToChat",
 	"GiveItem",
+	"Participated",
 	"AddToSpawnList",
 	"SpawnItems",
 };
@@ -199,7 +200,7 @@ void IOSystem::OnLevelInit( bool bPostLoad )
 	{
 		bAvailableToCall = true;
 		OnLoadMapScriptFile();
-		ScriptSystem::CallScript( AvailableScripts_t::InputOutput, nullptr, g_IOFunctions[ IO_ON_MAP_START ], 0 );
+		ScriptSystem::CallScriptDelay( AvailableScripts_t::InputOutput, nullptr, g_IOFunctions[ IO_ON_MAP_START ], 5.0f, 0 );
 	}
 }
 
@@ -494,6 +495,11 @@ IOScriptFile::IOScriptFile( const std::string &szFile )
 							inIf = MessageCleanup( args[2] );
 						    currentRequirement = IORequirementStatements::IF_EQUAL;
 						}
+					    else if (args[1] == "!=" || args[1] == "not" || args[1] == "isnot")
+						{
+							inIf = MessageCleanup( args[2] );
+						    currentRequirement = IORequirementStatements::IF_NOT_EQUAL;
+						}
 					    else if (args[1] == ">=")
 						{
 							inIf = MessageCleanup( args[2] );
@@ -555,6 +561,20 @@ IOScriptFile::IOScriptFile( const std::string &szFile )
 					cmd.Message = ReplaceScriptArgs( MessageCleanup( args[1] ), currentFunction.Parameters );
 				    break;
 				}
+				case IO_HAS_PARTICIPATED:
+				{
+					// Example: Participated 0 "ID_Name"
+					// arg0 = Player ID (0 for all players)
+					// arg1 = ID Name
+					const std::string msg = ReplaceScriptArgs( restOfLine, currentFunction.Parameters );
+				    auto args = Split(msg, ' ');
+					if ( args.size() < 2 ) break;
+					// We will store player ID in EntFire.
+					cmd.EntFire = args[0];
+				    // Replace {param} with %sN%
+					cmd.Message = ReplaceScriptArgs( MessageCleanup( args[1] ), currentFunction.Parameters );
+					break;
+			    }
 				case IO_ADD_TO_SPAWN_LIST:
 				{
 				    // Example: AddToSpawnList Ammo "item_name" 5
@@ -573,6 +593,7 @@ IOScriptFile::IOScriptFile( const std::string &szFile )
 				case IO_PRINT_TO_CHAT:
 				{
 					// Example: PrintToConsole "Message here"
+					// Example: PrintToChat "Message here"
 					// Replace {param} with %sN%
 					cmd.Message = ReplaceScriptArgs( restOfLine, currentFunction.Parameters );
 					break;
@@ -749,6 +770,13 @@ void IOScriptFile::RunCommands( int nID )
 					if ( atoi( szValue.c_str() ) > atoi( szArgument.c_str() ) )
 						bMatch = false;
 				}
+				else if ( cmd.RequireStatement == IORequirementStatements::IF_NOT_EQUAL )
+				{
+					if ( szValue == szArgument )
+						bMatch = false;
+					else if ( cmd.Require == szArgument )
+						bMatch = false;
+				}
 			}
 
 			// If we don't match, erase this command and return.
@@ -842,6 +870,30 @@ void IOScriptFile::RunCommands( int nID )
 					}
 			    }
 			break;
+
+			case IO_HAS_PARTICIPATED:
+			{
+				std::string szPlayer = GetArgValues( cmd.EntFire, pFunctionCall.Arguments );
+				int nPlayerID = atoi( szPlayer.c_str() );
+				std::string szIDName = GetArgValues( cmd.Message, pFunctionCall.Arguments );
+				DialogAchievementData ach = GetAchievementByID( szIDName.c_str() );
+				if ( nPlayerID == 0 )
+				{
+					for ( int i = 1; i <= gpGlobals->maxClients; i++ )
+					{
+						CBasePlayer *pPlayer = (CBasePlayer *)UTIL_PlayerByIndex( i );
+						if ( pPlayer )
+							pPlayer->Participated( ach.GetAchievementID() );
+					}
+				}
+				else
+				{
+					CBasePlayer *pPlayer = (CBasePlayer *)UTIL_PlayerByIndex( nPlayerID );
+					if ( pPlayer )
+						pPlayer->Participated( ach.GetAchievementID() );
+				}
+		    }
+		    break;
 
 			case IO_ADD_TO_SPAWN_LIST:
 			{

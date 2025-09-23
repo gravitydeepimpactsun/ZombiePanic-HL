@@ -1113,19 +1113,6 @@ void CBaseButton::ButtonUse(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_T
 
 	m_hActivator = pActivator;
 
-#ifdef SCRIPT_SYSTEM
-	const std::string &szOutput( "OnUse" );
-	ScriptSystem::CallScriptDelay(
-		AvailableScripts_t::InputOutput,
-		nullptr,
-		szOutput,
-		0.0f,
-		2,
-		std::to_string( entindex() ),
-		std::to_string( pActivator->entindex() )
-	);
-#endif
-
 	if (m_toggle_state == TS_AT_TOP)
 	{
 		if (!m_fStayPushed && FBitSet(pev->spawnflags, SF_BUTTON_TOGGLE))
@@ -1225,6 +1212,19 @@ void CBaseButton::ButtonActivate()
 		// button is unlocked, play unlocked sound
 		PlayLockSounds(pev, &m_ls, FALSE, TRUE);
 	}
+
+#ifdef SCRIPT_SYSTEM
+	const std::string &szOutput( "OnUse" );
+	ScriptSystem::CallScriptDelay(
+		AvailableScripts_t::InputOutput,
+		nullptr,
+		szOutput,
+		0.0f,
+		2,
+		std::to_string( entindex() ),
+		std::to_string( m_hActivator->entindex() )
+	);
+#endif
 
 	ASSERT(m_toggle_state == TS_AT_BOTTOM);
 	m_toggle_state = TS_GOING_UP;

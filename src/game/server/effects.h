@@ -228,6 +228,7 @@ class CClientFog : public CBaseEntity
 public:
 	virtual void Spawn();
 	virtual void KeyValue(KeyValueData *pkvd);
+	void OnScriptCallBack( KeyValues *pData );
 
     void    SendInitMessages( CBaseEntity* pPlayer = NULL );
     void    UpdateFog( bool isOn, bool doBlend, CBaseEntity* pPlayer );

@@ -127,6 +127,15 @@ void CBaseGameMode::OnGameModeThink()
 		    ZP::OnGameModeRoundStart();
 			// Tell the clients that we have a new round timer!
 			UpdateClientTimer();
+#ifdef SCRIPT_SYSTEM
+			ScriptSystem::CallScript(
+				AvailableScripts_t::InputOutput,
+				nullptr,
+				"OnRoundStart",
+				1,
+				IO_FUNCTION
+			);
+#endif
 		}
 	    break;
 	}
@@ -175,13 +184,6 @@ void CBaseGameMode::RestartRound()
 {
 #ifdef SCRIPT_SYSTEM
 	ScriptSystem::OnRoundRestart();
-	ScriptSystem::CallScript(
-		AvailableScripts_t::InputOutput,
-		nullptr,
-		"OnRoundRestart",
-		1,
-	    IO_FUNCTION
-	);
 #endif
 	SetRoundState( ZP::RoundState::RoundState_WaitingForPlayers );
 	SetWinState( WinState_e::State_None );

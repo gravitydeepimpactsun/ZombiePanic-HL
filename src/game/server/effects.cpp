@@ -22,6 +22,9 @@
 #include "decals.h"
 #include "func_break.h"
 #include "shake.h"
+#ifdef SCRIPT_SYSTEM
+#include "core.h"
+#endif
 
 #define SF_GIBSHOOTER_REPEATABLE 1 // allows a gibshooter to be refired
 
@@ -1842,6 +1845,7 @@ public:
 	void Spawn(void);
 	void Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
 	void KeyValue(KeyValueData *pkvd);
+	void OnScriptCallBack( KeyValues *pData );
 
 	inline float Amplitude(void) { return pev->scale; }
 	inline float Frequency(void) { return pev->dmg_save; }
@@ -1879,6 +1883,21 @@ void CShake::Spawn(void)
 
 	if (pev->spawnflags & SF_SHAKE_EVERYONE)
 		pev->dmg = 0;
+
+#ifdef SCRIPT_SYSTEM
+	// Inputs
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "StartShake" );
+	SetEntityScriptCallback( &CShake::OnScriptCallBack );
+#endif
+}
+
+void CShake::OnScriptCallBack( KeyValues *pData )
+{
+	const char *szAction = pData->GetString( "Action" );
+	const char *szValue = pData->GetString( "arg0" );
+	// Check what kind of action we got
+	if ( FStrEq( szAction, "StartShake" ) )
+		Use( NULL, NULL, USE_ON, 0 );
 }
 
 void CShake::KeyValue(KeyValueData *pkvd)

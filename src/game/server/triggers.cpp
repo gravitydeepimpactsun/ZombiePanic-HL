@@ -29,6 +29,9 @@
 #include "effects.h" // fog
 #include "gamerules.h"
 #include "triggers.h"
+#ifdef SCRIPT_SYSTEM
+#include "core.h"
+#endif
 
 #define SF_TRIGGER_PUSH_START_OFF       2 //spawnflag that makes trigger_push spawn turned OFF
 #define SF_TRIGGER_HURT_TARGETONCE      1 // Only fire hurt target once
@@ -546,6 +549,36 @@ void CBaseTrigger::InitTrigger()
 	SET_MODEL(ENT(pev), STRING(pev->model)); // set size and link into world
 	if (CVAR_GET_FLOAT("showtriggers") == 0)
 		SetBits(pev->effects, EF_NODRAW);
+
+#ifdef SCRIPT_SYSTEM
+	// Outputs
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "OnTrigger" );
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "OnTurnOn" );
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "OnTurnOff" );
+
+	// Inputs
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "TurnOn" );
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "TurnOff" );
+
+	SetEntityScriptCallback( &CBaseTrigger::OnScriptCallBack );
+#endif
+}
+
+void CBaseTrigger::OnScriptCallBack( KeyValues *pData )
+{
+	const char *szAction = pData->GetString( "Action" );
+	const char *szValue = pData->GetString( "arg0" );
+	// Check what kind of action we got
+	if ( FStrEq( szAction, "TurnOn" ) )
+	{
+		pev->solid = SOLID_TRIGGER;
+		FireEntityOutput( this, "OnTurnOn" );
+	}
+	else if ( FStrEq( szAction, "TurnOff" ) )
+	{
+		pev->solid = SOLID_NOT;
+		FireEntityOutput( this, "OnTurnOff" );
+	}
 }
 
 //
@@ -1108,6 +1141,85 @@ void CTriggerMultiple::Restart()
 	SetTouch(&CTriggerMultiple::MultiTouch);
 }
 
+// ======================== ACHIEVEMENT TRIGGER =====================================
+
+class CAchievementTrigger : public CBaseTrigger
+{
+public:
+	void Spawn(void);
+	void Restart(void);
+	void EXPORT AchievementTrigger(CBaseEntity *pOther);
+	void EXPORT AchievementUse(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
+	void OnScriptCallBack( KeyValues *pData );
+};
+
+LINK_ENTITY_TO_CLASS( trigger_achievement, CAchievementTrigger );
+
+void CAchievementTrigger::Spawn(void)
+{
+	pev->nextthink = gpGlobals->time + 0.2;
+	InitTrigger();
+	SetTouch(&CAchievementTrigger::AchievementTrigger);
+	SetUse(&CAchievementTrigger::AchievementUse);
+
+#ifdef SCRIPT_SYSTEM
+	// Inputs
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "GiveAchievement" );
+	SetEntityScriptCallback( &CAchievementTrigger::OnScriptCallBack );
+#endif
+}
+
+void CAchievementTrigger::OnScriptCallBack( KeyValues *pData )
+{
+	const char *szAction = pData->GetString( "Action" );
+	const char *szValue = pData->GetString( "arg0" );
+	// Check what kind of action we got
+	if ( FStrEq( szAction, "GiveAchievement" ) )
+		AchievementUse( NULL, NULL, USE_TOGGLE, 0 );
+	else
+		CBaseTrigger::OnScriptCallBack( pData );
+}
+
+void CAchievementTrigger::Restart()
+{
+	pev->nextthink = gpGlobals->time + 0.2;
+	SetTouch(&CAchievementTrigger::AchievementTrigger);
+	SetUse(&CAchievementTrigger::AchievementUse);
+}
+
+void CAchievementTrigger::AchievementUse(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value)
+{
+	if ( FStringNull( pev->message ) ) return;
+	for ( int i = 1; i <= gpGlobals->maxClients; i++ )
+	{
+		CBasePlayer *pPlayer = (CBasePlayer *)UTIL_PlayerByIndex( i );
+		if ( pPlayer )
+			pPlayer->InAchievementTrigger( pev->message );
+	}
+}
+
+void CAchievementTrigger::AchievementTrigger(CBaseEntity *pOther)
+{
+	// Wait for next activation
+	if ( pev->nextthink > gpGlobals->time ) return;
+	if ( !IsFilterValid( pOther ) ) return;
+
+	entvars_t *pevToucher;
+	pevToucher = pOther->pev;
+
+	// Only client can activate achievement triggers
+	if ( !(pevToucher->flags & FL_CLIENT) ) return;
+	CBasePlayer *pPlayer = (CBasePlayer *)pOther;
+	if ( !pPlayer ) return;
+	if ( FStringNull( pev->message ) ) return;
+
+	// Tell the player about the achievement
+	pPlayer->InAchievementTrigger( pev->message );
+
+	// Don't call again for a little while
+	pev->nextthink = gpGlobals->time + 0.2;
+}
+
 /*QUAKED trigger_once (.5 .5 .5) ? notouch
 Variable sized trigger. Triggers once, then removes itself.  You must set the key "target" to the name of another object in the level that has a matching
 "targetname".  If "health" is set, the trigger must be killed to activate.
@@ -1195,6 +1307,19 @@ void CBaseTrigger ::ActivateMultiTrigger(CBaseEntity *pActivator)
 
 	m_hActivator = pActivator;
 	SUB_UseTargets(m_hActivator, USE_TOGGLE, 0);
+
+#ifdef SCRIPT_SYSTEM
+	const std::string &szOutput( "OnTrigger" );
+	ScriptSystem::CallScriptDelay(
+		AvailableScripts_t::InputOutput,
+		nullptr,
+		szOutput,
+		0.0f,
+		2,
+		std::to_string( entindex() ),
+		std::to_string( pActivator->entindex() )
+	);
+#endif
 
 	if (pev->message && pActivator->IsPlayer())
 	{
@@ -2465,6 +2590,24 @@ void CClientFog::Spawn()
 		m_bActive = true;
 	else
 		m_bActive = false;
+
+#ifdef SCRIPT_SYSTEM
+	// Inputs
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "StartFog" );
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "StopFog" );
+	SetEntityScriptCallback( &CClientFog::OnScriptCallBack );
+#endif
+}
+
+void CClientFog::OnScriptCallBack( KeyValues *pData )
+{
+	const char *szAction = pData->GetString( "Action" );
+	const char *szValue = pData->GetString( "arg0" );
+	// Check what kind of action we got
+	if ( FStrEq( szAction, "StartFog" ) )
+		Use( NULL, NULL, USE_ON, 0 );
+	else if ( FStrEq( szAction, "StopFog" ) )
+		Use( NULL, NULL, USE_OFF, 0 );
 }
 
 

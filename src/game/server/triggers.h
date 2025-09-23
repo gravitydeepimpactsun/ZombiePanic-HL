@@ -15,6 +15,7 @@ public:
 	void EXPORT CounterUse(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
 	void EXPORT ToggleUse(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
 	void InitTrigger(void);
+	void OnScriptCallBack( KeyValues *pData );
 
 	virtual int ObjectCaps(void) { return CBaseToggle ::ObjectCaps() & ~FCAP_ACROSS_TRANSITION; }
 };

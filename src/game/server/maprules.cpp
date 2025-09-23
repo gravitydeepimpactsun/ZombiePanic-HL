@@ -29,6 +29,9 @@
 #include "maprules.h"
 #include "cbase.h"
 #include "player.h"
+#ifdef SCRIPT_SYSTEM
+#include "core.h"
+#endif
 
 class CRuleEntity : public CBaseEntity
 {
@@ -792,6 +795,7 @@ public:
 	void Spawn(void);
 	void Restart();
 	void Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
+	void OnScriptCallBack( KeyValues *pData );
 	inline BOOL RemoveOnFire(void) { return (pev->spawnflags & SF_GAMECOUNT_FIREONCE) ? TRUE : FALSE; }
 	inline BOOL ResetOnFire(void) { return (pev->spawnflags & SF_GAMECOUNT_RESET) ? TRUE : FALSE; }
 
@@ -816,6 +820,26 @@ void CGameCounter::Spawn(void)
 	// Save off the initial count
 	SetInitialValue(CountValue());
 	CRulePointEntity::Spawn();
+#ifdef SCRIPT_SYSTEM
+	// Inputs
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "IncreaseValue" );
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "DecreaseValue" );
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "SetValue" );
+	SetEntityScriptCallback( &CGameCounter::OnScriptCallBack );
+#endif
+}
+
+void CGameCounter::OnScriptCallBack( KeyValues *pData )
+{
+	const char *szAction = pData->GetString( "Action" );
+	const char *szValue = pData->GetString( "arg0" );
+	// Check what kind of action we got
+	if ( FStrEq( szAction, "IncreaseValue" ) )
+		Use( NULL, NULL, USE_TOGGLE, 0 );
+	else if ( FStrEq( szAction, "DecreaseValue" ) )
+		Use( NULL, NULL, USE_OFF, 0 );
+	else if ( FStrEq( szAction, "SetValue" ) )
+		Use( NULL, NULL, USE_SET, atoi( szValue ) );
 }
 
 void CGameCounter::Restart()

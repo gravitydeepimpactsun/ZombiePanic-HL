@@ -6,6 +6,7 @@
 
 #if defined(CLIENT_DLL)
 #include "strtools.h"
+#include "steam_achievements.h"
 #else
 #include "decals.h"
 #include "func_break.h"
@@ -19,6 +20,121 @@
 #include "player.h"
 
 #include "zp_shared.h"
+
+// =========================================================
+// Achievements Data Class
+// =========================================================
+
+std::vector<RequiredStepsTable> m_MarathonSteps = {
+	RequiredStepsTable( MAP_ZP_SANTERIA, 1 ),
+	RequiredStepsTable( MAP_ZP_CLUBZOMBO, 1 ),
+	RequiredStepsTable( MAP_ZP_THELABS, 1 ),
+	RequiredStepsTable( MAP_ZP_EASTSIDE, 1 ),
+	RequiredStepsTable( MAP_ZP_INDUSTRY, 1 ),
+	RequiredStepsTable( MAP_ZP_CONTINGENCY, 1 ),
+	RequiredStepsTable( MAP_ZP_HAUNTED, 1 ),
+	RequiredStepsTable( MAP_ZP_RUINS, 1 ),
+	RequiredStepsTable( MAP_ZP_HOTEL, 1 ),
+	RequiredStepsTable( MAP_ZP_TOWN, 1 ),
+	RequiredStepsTable( MAP_ZP_MANSION, 1 ),
+	RequiredStepsTable( MAP_ZPO_CONTINGENCY, 1 ),
+	RequiredStepsTable( MAP_ZPH_HAUNTED, 1 ),
+	RequiredStepsTable( MAP_ZPH_SANTERIA, 1 ),
+	RequiredStepsTable( MAP_ZPH_CONTINGENCY, 1 )
+};
+
+std::vector<RequiredStepsTable> m_MapsSurvivalSteps = {
+	RequiredStepsTable( MAP_ZP_SANTERIA, 1 ),
+	RequiredStepsTable( MAP_ZP_CLUBZOMBO, 1 ),
+	RequiredStepsTable( MAP_ZP_THELABS, 1 ),
+	RequiredStepsTable( MAP_ZP_EASTSIDE, 1 ),
+	RequiredStepsTable( MAP_ZP_INDUSTRY, 1 ),
+	RequiredStepsTable( MAP_ZP_CONTINGENCY, 1 ),
+	RequiredStepsTable( MAP_ZP_HAUNTED, 1 ),
+	RequiredStepsTable( MAP_ZP_RUINS, 1 ),
+	RequiredStepsTable( MAP_ZP_HOTEL, 1 ),
+	RequiredStepsTable( MAP_ZP_TOWN, 1 ),
+	RequiredStepsTable( MAP_ZP_MANSION, 1 )
+};
+
+std::vector<RequiredStepsTable> m_MapsObjectiveSteps = {
+	RequiredStepsTable( MAP_ZPO_CONTINGENCY, 1 )
+};
+
+// We only need to check for one single kill for each
+std::vector<RequiredStepsTable> m_JackOfTradesSteps = {
+	RequiredStepsTable( ZP_KILLS_CROWBAR, 1 ),
+	RequiredStepsTable( ZP_KILLS_PISTOL, 1 ),
+	RequiredStepsTable( ZP_KILLS_REVOLVER, 1 ),
+	RequiredStepsTable( ZP_KILLS_RIFLE, 1 ),
+	RequiredStepsTable( ZP_KILLS_MP5, 1 ),
+	RequiredStepsTable( ZP_KILLS_SHOTGUN, 1 ),
+	RequiredStepsTable( ZP_KILLS_SATCHEL, 1 ),
+	RequiredStepsTable( ZP_KILLS_TNT, 1 )
+};
+
+static DialogAchievementData g_DAchievements[] =
+{
+	_ACH_ADD_ID(KILLS_CROWBAR,					CATEGORY_KILLS,			ZP_KILLS_CROWBAR),
+	_ACH_ADD_ID(KILLS_LEADPIPE,					CATEGORY_KILLS,			ZP_KILLS_LEADPIPE),
+	_ACH_ADD_ID(KILLS_PISTOL,					CATEGORY_KILLS,			ZP_KILLS_PISTOL),
+	_ACH_ADD_ID(KILLS_REVOLVER,					CATEGORY_KILLS,			ZP_KILLS_REVOLVER),
+	_ACH_ADD_ID(KILLS_RIFLE,					CATEGORY_KILLS,			ZP_KILLS_RIFLE),
+	_ACH_ADD_ID(KILLS_MP5,						CATEGORY_KILLS,			ZP_KILLS_MP5),
+	_ACH_ADD_ID(KILLS_SHOTGUN,					CATEGORY_KILLS,			ZP_KILLS_SHOTGUN),
+	_ACH_ADD_ID(KILLS_DBARREL,					CATEGORY_KILLS,			ZP_KILLS_DBARREL),
+	_ACH_ADD_ID(KILLS_SATCHEL,					CATEGORY_KILLS,			ZP_KILLS_SATCHEL),
+	_ACH_ADD_ID(KILLS_TNT,						CATEGORY_KILLS,			ZP_KILLS_TNT),
+	_ACH_ADD_ID(KILLS_ZOMBIE,					CATEGORY_KILLS,			ZP_KILLS_ZOMBIE),
+	_ACH_ADD_ID(YOU_WILL_DIE_WITH_ME,			CATEGORY_KILLS,			INVALID_STAT),
+	_ACH_ADD_ID(UNSAFE_HANDLING,				CATEGORY_KILLS,			INVALID_STAT),
+	_ACH_ADD_ID_LIST(JACKOFTRADES,				CATEGORY_KILLS,			INVALID_STAT, m_JackOfTradesSteps),
+	_ACH_ADD_ID(PANICRUSH,						CATEGORY_KILLS,			INVALID_STAT),
+	_ACH_ADD_ID(FLEEESH,						CATEGORY_KILLS,			ZP_FLEEESH),
+	_ACH_ADD_ID(ZOMBIEDESSERT,					CATEGORY_KILLS,			INVALID_STAT),
+	_ACH_ADD_ID(SCREAM4ME,						CATEGORY_KILLS,			INVALID_STAT),
+	_ACH_ADD_ID(INLINEP2,						CATEGORY_KILLS,			INVALID_STAT),
+	_ACH_ADD_ID(CUTYOUDOWN,						CATEGORY_KILLS,			INVALID_STAT),
+	_ACH_ADD_ID(RABBITBEAST,					CATEGORY_KILLS,			INVALID_STAT),
+	_ACH_ADD_ID(ITS_A_MASSACRE,					CATEGORY_KILLS,			ZP_ITS_A_MASSACRE),
+	_ACH_ADD_ID(HC_SNACKTIME,					CATEGORY_KILLS,			ZP_HC_SNACKTIME),
+	_ACH_ADD_ID(HC_OVERWEIGHTKILLER,			CATEGORY_KILLS,			INVALID_STAT),
+	_ACH_ADD_ID(GENOCIDESTEP3,					CATEGORY_KILLS,			ZP_GENOCIDESTEP3),
+	_ACH_ADD_ID(DANCE_FLOOR,					CATEGORY_KILLS,			INVALID_STAT),
+
+	_ACH_ADD_ID(FIRST_SURVIVAL,					CATEGORY_MAPS,			INVALID_STAT),
+	_ACH_ADD_ID(FIRST_OBJECTIVE,				CATEGORY_MAPS,			INVALID_STAT),
+	_ACH_ADD_ID(PARTOFHORDE,					CATEGORY_MAPS,			INVALID_STAT),
+	_ACH_ADD_ID(CLOCKOUT,						CATEGORY_MAPS,			INVALID_STAT),
+	_ACH_ADD_ID(THE_ATEAM,						CATEGORY_MAPS,			INVALID_STAT),
+	_ACH_ADD_ID(PARTNERINCRIME,					CATEGORY_MAPS,			INVALID_STAT),
+	_ACH_ADD_ID(LASTMANSTAND,					CATEGORY_MAPS,			INVALID_STAT),
+
+	_ACH_ADD_ID_LIST(MARATHON,					CATEGORY_MAPS,			INVALID_STAT, m_MarathonSteps),
+	_ACH_ADD_ID_LIST(PLAY_ALL_SURVIVAL,			CATEGORY_MAPS,			INVALID_STAT, m_MapsSurvivalSteps),
+	_ACH_ADD_ID_LIST(PLAY_ALL_OBJECTIVE,		CATEGORY_MAPS,			INVALID_STAT, m_MapsObjectiveSteps),
+
+	_ACH_ADD_ID(FIRST_ESCAPE,					CATEGORY_GENERAL,		INVALID_STAT),
+	_ACH_ADD_ID(ESCAPE_ARTIST,					CATEGORY_GENERAL,		ZP_ESCAPE_ARTIST),
+	_ACH_ADD_ID(PANIC_ATTACK,					CATEGORY_GENERAL,		INVALID_STAT),
+	_ACH_ADD_ID(PANIC_100,						CATEGORY_GENERAL,		ZP_PANIC_100),
+	_ACH_ADD_ID(MMMWAP,							CATEGORY_GENERAL,		ZP_MMMWAP),
+	_ACH_ADD_ID(I_FELL,							CATEGORY_GENERAL,		INVALID_STAT),
+	_ACH_ADD_ID(ONE_OF_US,						CATEGORY_GENERAL,		INVALID_STAT),
+	_ACH_ADD_ID(FIRST_TO_DIE,					CATEGORY_GENERAL,		INVALID_STAT),
+	_ACH_ADD_ID(TABLE_FLIP,						CATEGORY_GENERAL,		INVALID_STAT),
+	_ACH_ADD_ID(ZMASH,							CATEGORY_GENERAL,		INVALID_STAT),
+	_ACH_ADD_ID(DIE_BY_DOOR,					CATEGORY_GENERAL,		INVALID_STAT),
+	_ACH_ADD_ID(PUMPUPSHOTGUN,					CATEGORY_GENERAL,		ZP_PUMPUPSHOTGUN),
+	_ACH_ADD_ID(CHILDOFGRAVE,					CATEGORY_GENERAL,		ZP_CHILDOFGRAVE),
+	_ACH_ADD_ID(REGEN_10K,						CATEGORY_GENERAL,		ZP_REGEN_10K),
+	_ACH_ADD_ID(ILIVEAGAIN,						CATEGORY_GENERAL,		ZP_ILIVEAGAIN),
+	_ACH_ADD_ID(HOUSEOFHORRORS,					CATEGORY_GENERAL,		INVALID_STAT),
+};
+
+// =========================================================
+// Weapon Script
+// =========================================================
 
 #define WEAPON_SCRIPT_PATH "scripts/"
 #define WEAPON_SCRIPT_FILE ".txt"
@@ -41,6 +157,7 @@ static AmmoData sAmmoDataList[] = {
 static WeaponInfo sWeaponInfoList[] = {
 	// { const char *szWeapon, ZPWeaponID WeaponID, bool Hidden }
 	{ "crowbar", WEAPON_CROWBAR, false },
+	{ "leadpipe", WEAPON_LEADPIPE, false },
 	{ "swipe", WEAPON_SWIPE, true },
 	{ "sig", WEAPON_SIG, false },
 	{ "357", WEAPON_PYTHON, false },
@@ -50,6 +167,7 @@ static WeaponInfo sWeaponInfoList[] = {
 	{ "handgrenade", WEAPON_HANDGRENADE, false },
 	{ "satchel", WEAPON_SATCHEL, false },
 };
+
 
 WeaponData CreateWeaponSlotData( const char *szClassname )
 {
@@ -186,6 +304,7 @@ WeaponData CreateWeaponSlotData( ZPWeaponID WeaponID )
 	switch ( WeaponID )
 	{
 		case WEAPON_CROWBAR: szWeaponScriptFile = "weapon_crowbar"; break;
+		case WEAPON_LEADPIPE: szWeaponScriptFile = "weapon_leadpipe"; break;
 		case WEAPON_SWIPE: szWeaponScriptFile = "weapon_swipe"; break;
 		case WEAPON_SIG: szWeaponScriptFile = "weapon_sig"; break;
 		case WEAPON_PYTHON: szWeaponScriptFile = "weapon_357"; break;
@@ -394,22 +513,26 @@ float CBasePlayer::GetAmmoWeight( const char *szAmmo )
 	return amount * ammo.WeightPerBullet;
 }
 
-void CBasePlayer::UpdatePlayerMaxSpeed()
+float CBasePlayer::GetTotalWeight()
 {
 	int i;
-	int iHowFatAmI = 0;
-
+	float flWeight = 0.0f;
 	// Count our ammo
-	iHowFatAmI += GetAmmoWeight( "9mm" );
-	iHowFatAmI += GetAmmoWeight( "357" );
-	iHowFatAmI += GetAmmoWeight( "buckshot" );
-	iHowFatAmI += GetAmmoWeight( "556ar" );
-
+	flWeight += GetAmmoWeight( "9mm" );
+	flWeight += GetAmmoWeight( "357" );
+	flWeight += GetAmmoWeight( "buckshot" );
+	flWeight += GetAmmoWeight( "556ar" );
 	for ( i = 0; i < MAX_ITEM_TYPES; i++ )
 	{
 		if ( m_rgpPlayerItems[i] )
-			iHowFatAmI += m_rgpPlayerItems[i]->iWeight();
+			flWeight += m_rgpPlayerItems[i]->iWeight();
 	}
+	return flWeight;
+}
+
+void CBasePlayer::UpdatePlayerMaxSpeed()
+{
+	int iHowFatAmI = GetTotalWeight();
 
 #if !defined( CLIENT_DLL )
 	// If we are in panic, ignore our weight
@@ -418,7 +541,8 @@ void CBasePlayer::UpdatePlayerMaxSpeed()
 #endif
 
 	// Now check the weapons we got.
-	float flNewSpeed = ZP::MaxSpeeds[0] - iHowFatAmI - pev->fuser4;
+	bool bUseZombieSpeed = ( pev->team == ZP::TEAM_ZOMBIE );
+	float flNewSpeed = ZP::MaxSpeeds[bUseZombieSpeed ? 1 : 0] - iHowFatAmI - pev->fuser4;
 	if ( flNewSpeed < 50 )
 		flNewSpeed = 50;
 
@@ -429,4 +553,61 @@ void CBasePlayer::UpdatePlayerMaxSpeed()
 #endif
 
 	pev->maxspeed = flNewSpeed;
+}
+
+// =========================================================
+// Achievements Data Class
+// =========================================================
+
+DialogAchievementData GetAchievementByID( int eAchievement )
+{
+	for ( int i = 0; i < ARRAYSIZE( g_DAchievements ); i++ )
+	{
+		DialogAchievementData item = g_DAchievements[ i ];
+		if ( item.GetAchievementID() == eAchievement )
+			return item;
+	}
+	return g_DAchievements[0];
+}
+
+DialogAchievementData GetAchievementByID( const char *szAchievementID )
+{
+	if ( !szAchievementID || !szAchievementID[0] ) return g_DAchievements[0];
+	for ( int i = 0; i < ARRAYSIZE( g_DAchievements ); i++ )
+	{
+		DialogAchievementData item = g_DAchievements[ i ];
+		if ( FStrEq( szAchievementID, item.GetAchievementName() ) )
+			return item;
+	}
+	return g_DAchievements[0];
+}
+
+DialogAchievementData::DialogAchievementData( EAchievements nID, const char *szName, int nCategory, EStats nStatID )
+{
+	Q_snprintf( m_pchAchievementID, sizeof(m_pchAchievementID), "%s", szName );
+	m_bAchieved = false;
+	m_iIconImage = 0;
+	m_eCategory = nCategory;
+	m_eAchievementID = nID;
+	m_nStat = nStatID;
+}
+
+DialogAchievementData::DialogAchievementData( EAchievements nID, const char *szName, int nCategory, EStats nStatID, std::vector<RequiredStepsTable> nRequiredSteps )
+{
+	Q_snprintf( m_pchAchievementID, sizeof(m_pchAchievementID), "%s", szName );
+	m_bAchieved = false;
+	m_iIconImage = 0;
+	m_eCategory = nCategory;
+	m_eAchievementID = nID;
+	m_nStat = nStatID;
+	m_RequiredSteps = nRequiredSteps;
+}
+
+StatData_t DialogAchievementData::GetData()
+{
+#if defined( CLIENT_DLL )
+	return GrabStat( m_nStat );
+#else
+	return StatData_t();
+#endif
 }

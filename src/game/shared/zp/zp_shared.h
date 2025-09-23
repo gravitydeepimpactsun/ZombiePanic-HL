@@ -40,6 +40,7 @@ enum ZPWeaponID
 	WEAPON_SATCHEL,
 
 	// New weapons
+	WEAPON_LEADPIPE,
 	WEAPON_DOUBLEBARREL,
 	WEAPON_PPK,
 	WEAPON_GLOCK17,
@@ -160,6 +161,14 @@ enum BeaconDrawTypes
 	BEACON_DRAW_COLLUDED, // Only draw when colluded
 };
 
+// Our gait state, so we set the movment speed correctly for the clients.
+enum PlayerGaitState
+{
+	GAIT_STATE_IDLE = 0,
+	GAIT_STATE_WALK,
+	GAIT_STATE_RUN,
+	GAIT_STATE_PANIC,
+};
 
 namespace ZP
 {
@@ -209,7 +218,7 @@ namespace ZP
 
 	static int MaxSpeeds[2] = {
 		230,	// Human Max Speed
-		180		// Zombie Max Speed
+		200		// Zombie Max Speed
 	};
 
 	static int MaxHealth[2] = {

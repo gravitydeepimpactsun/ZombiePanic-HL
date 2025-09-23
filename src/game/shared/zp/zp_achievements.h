@@ -4,10 +4,26 @@
 #define SHARED_ZOMBIEPANIC_ACHIEVEMENTS
 #pragma once
 
+// ===================================
+// Achievement categories (Used by VGUI)
+enum
+{
+	CATEGORY_SHOWALL = 0,
+	CATEGORY_GENERAL,
+	CATEGORY_MAPS,
+	CATEGORY_KILLS,
+
+	MAX_CATEGORIES
+};
+
+// ===================================
+// Stats
 enum EStats
 {
 	INVALID_STAT = -1,
 	ZP_KILLS_CROWBAR = 0,
+	ZP_KILLS_DBARREL,
+	ZP_KILLS_LEADPIPE,
 	ZP_KILLS_PISTOL,
 	ZP_KILLS_REVOLVER,
 	ZP_KILLS_RIFLE,
@@ -25,6 +41,8 @@ enum EStats
 	ZP_ESCAPE_ARTIST,
 	ZP_REGEN_10K,
 	ZP_ILIVEAGAIN,
+	ZP_HC_SNACKTIME,
+	ZP_GENOCIDESTEP3,
 
 	// Maps -- Survival
 	MAP_ZP_SANTERIA,
@@ -52,6 +70,8 @@ enum EStats
 	STAT_MAX
 };
 
+// ===================================
+// Achievements
 enum EAchievements
 {
 	ONE_OF_US = 0,
@@ -99,10 +119,19 @@ enum EAchievements
 	ESCAPE_ARTIST,
 	REGEN_10K,
 	ILIVEAGAIN,
+	HC_SNACKTIME,
+	HC_OVERWEIGHTKILLER,
+	GENOCIDESTEP3,
+	DANCE_FLOOR,
+	HOUSEOFHORRORS,
+	KILLS_LEADPIPE,
+	KILLS_DBARREL,
 
 	ACHV_MAX
 };
 
+// ===================================
+// Stats data structure
 struct StatData_t
 {
 	EStats ID;
@@ -110,5 +139,66 @@ struct StatData_t
 	int32 Value;
 	int32 MaxValue;
 };
+
+// ===================================
+// Achievement required steps structure
+struct RequiredStepsTable
+{
+	EStats Stat;
+	int32 MaxValue; // Overrides the required value
+	RequiredStepsTable( EStats nStat )
+	{
+		Stat = nStat;
+		MaxValue = 0;
+	}
+	RequiredStepsTable( EStats nStat, int32 nMax )
+	{
+		Stat = nStat;
+		MaxValue = nMax;
+	}
+};
+
+
+// ===================================
+// Achievement data structure
+class DialogAchievementData
+{
+private:
+	EAchievements m_eAchievementID;
+	char m_pchAchievementID[64];
+	bool m_bAchieved;
+	int m_iIconImage;
+	int m_eCategory;
+	EStats m_nStat;
+	std::vector<RequiredStepsTable> m_RequiredSteps;
+
+public:
+	DialogAchievementData( EAchievements nID, const char *szName, int nCategory, EStats nStatID );
+	DialogAchievementData( EAchievements nID, const char *szName, int nCategory, EStats nStatID, std::vector<RequiredStepsTable> nRequiredSteps );
+
+	StatData_t GetData();
+	const bool HasStatID() { return (m_nStat > INVALID_STAT) ? true : false; }
+	const bool HasRequiredSteps() { return (m_RequiredSteps.size() > 0) ? true : false; }
+
+	size_t GetRequiredStepCount() { return m_RequiredSteps.size(); }
+	RequiredStepsTable GetRequiredStepID( int iIdx ) { return m_RequiredSteps[iIdx]; }
+
+	const bool IsAchieved() { return m_bAchieved; }
+	void SetAchieved( bool bState ) { m_bAchieved = bState; }
+
+	int GetIconImage() { return m_iIconImage; }
+	void SetIconImage( int iImage ) { m_iIconImage = iImage; }
+
+	const EAchievements GetAchievementID() { return m_eAchievementID; }
+	const char *GetAchievementName() { return m_pchAchievementID; }
+	const int GetCategoryID() { return m_eCategory; }
+};
+
+#define _ACH_ADD_ID( id, category, steamstat ) DialogAchievementData( id, #id, category, steamstat )
+#define _ACH_ADD_ID_LIST( id, category, steamstat, list ) DialogAchievementData( id, #id, category, steamstat, list )
+
+// Get Achievement by ID
+DialogAchievementData GetAchievementByID( int eAchievement );
+DialogAchievementData GetAchievementByID( const char *szAchievementID );
 
 #endif

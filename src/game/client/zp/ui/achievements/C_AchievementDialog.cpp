@@ -8,128 +8,12 @@
 #include "gameui/gameui_viewport.h"
 #include "IBaseUI.h"
 #include "zp/zp_achievements.h"
+#include "steam_achievements.h"
 
 using namespace vgui2;
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
-
-// ===================================
-// SETUP
-// ===================================
-
-enum
-{
-	CATEGORY_SHOWALL = 0,
-	CATEGORY_GENERAL,
-	CATEGORY_MAPS,
-	CATEGORY_KILLS,
-
-	MAX_CATEGORIES
-};
-
-std::vector<RequiredStepsTable> m_MarathonSteps = {
-	RequiredStepsTable( MAP_ZP_SANTERIA, 1 ),
-	RequiredStepsTable( MAP_ZP_CLUBZOMBO, 1 ),
-	RequiredStepsTable( MAP_ZP_THELABS, 1 ),
-	RequiredStepsTable( MAP_ZP_EASTSIDE, 1 ),
-	RequiredStepsTable( MAP_ZP_INDUSTRY, 1 ),
-	RequiredStepsTable( MAP_ZP_CONTINGENCY, 1 ),
-	RequiredStepsTable( MAP_ZP_HAUNTED, 1 ),
-	RequiredStepsTable( MAP_ZP_RUINS, 1 ),
-	RequiredStepsTable( MAP_ZP_HOTEL, 1 ),
-	RequiredStepsTable( MAP_ZP_TOWN, 1 ),
-	RequiredStepsTable( MAP_ZP_MANSION, 1 ),
-	RequiredStepsTable( MAP_ZPO_CONTINGENCY, 1 ),
-	RequiredStepsTable( MAP_ZPH_HAUNTED, 1 ),
-	RequiredStepsTable( MAP_ZPH_SANTERIA, 1 ),
-	RequiredStepsTable( MAP_ZPH_CONTINGENCY, 1 )
-};
-
-std::vector<RequiredStepsTable> m_MapsSurvivalSteps = {
-	RequiredStepsTable( MAP_ZP_SANTERIA, 1 ),
-	RequiredStepsTable( MAP_ZP_CLUBZOMBO, 1 ),
-	RequiredStepsTable( MAP_ZP_THELABS, 1 ),
-	RequiredStepsTable( MAP_ZP_EASTSIDE, 1 ),
-	RequiredStepsTable( MAP_ZP_INDUSTRY, 1 ),
-	RequiredStepsTable( MAP_ZP_CONTINGENCY, 1 ),
-	RequiredStepsTable( MAP_ZP_HAUNTED, 1 ),
-	RequiredStepsTable( MAP_ZP_RUINS, 1 ),
-	RequiredStepsTable( MAP_ZP_HOTEL, 1 ),
-	RequiredStepsTable( MAP_ZP_TOWN, 1 ),
-	RequiredStepsTable( MAP_ZP_MANSION, 1 )
-};
-
-std::vector<RequiredStepsTable> m_MapsObjectiveSteps = {
-	RequiredStepsTable( MAP_ZPO_CONTINGENCY, 1 )
-};
-
-// We only need to check for one single kill for each
-std::vector<RequiredStepsTable> m_JackOfTradesSteps = {
-	RequiredStepsTable( ZP_KILLS_CROWBAR, 1 ),
-	RequiredStepsTable( ZP_KILLS_PISTOL, 1 ),
-	RequiredStepsTable( ZP_KILLS_REVOLVER, 1 ),
-	RequiredStepsTable( ZP_KILLS_RIFLE, 1 ),
-	RequiredStepsTable( ZP_KILLS_MP5, 1 ),
-	RequiredStepsTable( ZP_KILLS_SHOTGUN, 1 ),
-	RequiredStepsTable( ZP_KILLS_SATCHEL, 1 ),
-	RequiredStepsTable( ZP_KILLS_TNT, 1 )
-};
-
-DialogAchievementData g_DAchievements[] =
-{
-	_ACH_ID(KILLS_CROWBAR,					CATEGORY_KILLS,			ZP_KILLS_CROWBAR),
-	_ACH_ID(KILLS_PISTOL,					CATEGORY_KILLS,			ZP_KILLS_PISTOL),
-	_ACH_ID(KILLS_REVOLVER,					CATEGORY_KILLS,			ZP_KILLS_REVOLVER),
-	_ACH_ID(KILLS_RIFLE,					CATEGORY_KILLS,			ZP_KILLS_RIFLE),
-	_ACH_ID(KILLS_MP5,						CATEGORY_KILLS,			ZP_KILLS_MP5),
-	_ACH_ID(KILLS_SHOTGUN,					CATEGORY_KILLS,			ZP_KILLS_SHOTGUN),
-	_ACH_ID(KILLS_SATCHEL,					CATEGORY_KILLS,			ZP_KILLS_SATCHEL),
-	_ACH_ID(KILLS_TNT,						CATEGORY_KILLS,			ZP_KILLS_TNT),
-	_ACH_ID(KILLS_ZOMBIE,					CATEGORY_KILLS,			ZP_KILLS_ZOMBIE),
-	_ACH_ID(YOU_WILL_DIE_WITH_ME,			CATEGORY_KILLS,			INVALID_STAT),
-	_ACH_ID(UNSAFE_HANDLING,				CATEGORY_KILLS,			INVALID_STAT),
-	_ACH_ID_LIST(JACKOFTRADES,				CATEGORY_KILLS,			INVALID_STAT, m_JackOfTradesSteps),
-	_ACH_ID(PANICRUSH,						CATEGORY_KILLS,			INVALID_STAT),
-	_ACH_ID(FLEEESH,						CATEGORY_KILLS,			ZP_FLEEESH),
-	_ACH_ID(ZOMBIEDESSERT,					CATEGORY_KILLS,			INVALID_STAT),
-	_ACH_ID(SCREAM4ME,						CATEGORY_KILLS,			INVALID_STAT),
-	_ACH_ID(INLINEP2,						CATEGORY_KILLS,			INVALID_STAT),
-	_ACH_ID(CUTYOUDOWN,						CATEGORY_KILLS,			INVALID_STAT),
-	_ACH_ID(RABBITBEAST,					CATEGORY_KILLS,			INVALID_STAT),
-	_ACH_ID(ITS_A_MASSACRE,					CATEGORY_KILLS,			ZP_ITS_A_MASSACRE),
-
-	_ACH_ID(FIRST_SURVIVAL,					CATEGORY_MAPS,			INVALID_STAT),
-	_ACH_ID(FIRST_OBJECTIVE,				CATEGORY_MAPS,			INVALID_STAT),
-	_ACH_ID(PARTOFHORDE,					CATEGORY_MAPS,			INVALID_STAT),
-	_ACH_ID(CLOCKOUT,						CATEGORY_MAPS,			INVALID_STAT),
-	_ACH_ID(THE_ATEAM,						CATEGORY_MAPS,			INVALID_STAT),
-	_ACH_ID(PARTNERINCRIME,					CATEGORY_MAPS,			INVALID_STAT),
-	_ACH_ID(LASTMANSTAND,					CATEGORY_MAPS,			INVALID_STAT),
-
-	_ACH_ID_LIST(MARATHON,					CATEGORY_MAPS,			INVALID_STAT, m_MarathonSteps),
-	_ACH_ID_LIST(PLAY_ALL_SURVIVAL,			CATEGORY_MAPS,			INVALID_STAT, m_MapsSurvivalSteps),
-	_ACH_ID_LIST(PLAY_ALL_OBJECTIVE,		CATEGORY_MAPS,			INVALID_STAT, m_MapsObjectiveSteps),
-
-	_ACH_ID(FIRST_ESCAPE,					CATEGORY_GENERAL,		INVALID_STAT),
-	_ACH_ID(ESCAPE_ARTIST,					CATEGORY_GENERAL,		ZP_ESCAPE_ARTIST),
-	_ACH_ID(PANIC_ATTACK,					CATEGORY_GENERAL,		INVALID_STAT),
-	_ACH_ID(PANIC_100,						CATEGORY_GENERAL,		ZP_PANIC_100),
-	_ACH_ID(MMMWAP,							CATEGORY_GENERAL,		ZP_MMMWAP),
-	_ACH_ID(I_FELL,							CATEGORY_GENERAL,		INVALID_STAT),
-	_ACH_ID(ONE_OF_US,						CATEGORY_GENERAL,		INVALID_STAT),
-	_ACH_ID(FIRST_TO_DIE,					CATEGORY_GENERAL,		INVALID_STAT),
-	_ACH_ID(TABLE_FLIP,						CATEGORY_GENERAL,		INVALID_STAT),
-	_ACH_ID(ZMASH,							CATEGORY_GENERAL,		INVALID_STAT),
-	_ACH_ID(DIE_BY_DOOR,					CATEGORY_GENERAL,		INVALID_STAT),
-	_ACH_ID(PUMPUPSHOTGUN,					CATEGORY_GENERAL,		ZP_PUMPUPSHOTGUN),
-	_ACH_ID(CHILDOFGRAVE,					CATEGORY_GENERAL,		ZP_CHILDOFGRAVE),
-	_ACH_ID(REGEN_10K,						CATEGORY_GENERAL,		ZP_REGEN_10K),
-	_ACH_ID(ILIVEAGAIN,						CATEGORY_GENERAL,		ZP_ILIVEAGAIN),
-};
-
-extern StatData_t GrabStat( EStats nID );
-extern void SetStat( EStats nID, int32 value );
 
 // ===================================
 // Achievements
@@ -138,10 +22,7 @@ extern void SetStat( EStats nID, int32 value );
 class CSteamAchievementsDialog
 {
 public:
-	CSteamAchievementsDialog(DialogAchievementData *Achievements, int NumAchievements);
-
-	DialogAchievementData *m_pAchievements;		// Achievements data
-	int m_iNumAchievements;				// The number of Achievements
+	CSteamAchievementsDialog();
 	bool RequestStats();
 	void GetStat( UserStatsReceived_t *pCallback, EStats id );
 
@@ -149,11 +30,9 @@ public:
 		m_CallbackUserStatsReceived);
 };
 
-CSteamAchievementsDialog::CSteamAchievementsDialog(DialogAchievementData *Achievements, int NumAchievements) :
+CSteamAchievementsDialog::CSteamAchievementsDialog() :
 	m_CallbackUserStatsReceived(this, &CSteamAchievementsDialog::OnUserStatsReceived)
 {
-	m_pAchievements = Achievements;
-	m_iNumAchievements = NumAchievements;
 	RequestStats();
 }
 
@@ -212,7 +91,7 @@ C_AchievementDialog::C_AchievementDialog(vgui2::Panel *pParent)
 
 	bool bRet = GetSteamAPI()->Init();
 	if ( bRet && !g_DSteamAchievements )
-		g_DSteamAchievements = new CSteamAchievementsDialog(g_DAchievements, ACHV_MAX);
+		g_DSteamAchievements = new CSteamAchievementsDialog();
 
 	SetScheme(vgui2::scheme()->LoadSchemeFromFile(VGUI2_ROOT_DIR "resource/ClientSourceScheme.res", "ClientSourceScheme"));
 
@@ -283,9 +162,9 @@ void C_AchievementDialog::OnTick()
 	miTotalAchievements = 0;
 	miCompletedAchievements = 0;
 
-	for (int iAch = 0; iAch < g_DSteamAchievements->m_iNumAchievements; ++iAch)
+	for ( int iAch = 0; iAch < EAchievements::ACHV_MAX; ++iAch )
 	{
-		DialogAchievementData &ach = g_DSteamAchievements->m_pAchievements[iAch];
+		DialogAchievementData ach = GetAchievementByID( iAch );
 
 		// Total achievements
 		miTotalAchievements++;
@@ -324,9 +203,9 @@ void C_AchievementDialog::OnTick()
 void C_AchievementDialog::LoadAchievements()
 {
 ReadAchievement:
-	if ( iAchievement >= g_DSteamAchievements->m_iNumAchievements )
+	if ( iAchievement >= EAchievements::ACHV_MAX )
 		return;
-	
+
 	// Fonts
 	vgui2::HFont hTextFont;
 	vgui2::IScheme *pScheme = vgui2::scheme()->GetIScheme(vgui2::scheme()->LoadSchemeFromFile(VGUI2_ROOT_DIR "resource/ClientSourceScheme.res", "ClientSourceScheme"));
@@ -335,7 +214,7 @@ ReadAchievement:
 	if ( iAchievement == 0 )
 		ui_AchvPList->DeleteAllItems();
 
-	DialogAchievementData &ach = g_DSteamAchievements->m_pAchievements[ iAchievement ];
+	DialogAchievementData ach = GetAchievementByID( iAchievement );
 
 	// Increase
 	iAchievement++;
@@ -481,41 +360,4 @@ void C_AchievementDialog::OnCommand(const char* pcCommand)
 	{
 		BaseClass::OnCommand(pcCommand);
 	}
-}
-
-DialogAchievementData GetAchievementByID( int eAchievement )
-{
-	for ( int i = 0; i < ARRAYSIZE( g_DAchievements ); i++ )
-	{
-		DialogAchievementData item = g_DAchievements[ i ];
-		if ( item.GetAchievementID() == eAchievement )
-			return item;
-	}
-	return g_DAchievements[0];
-}
-
-DialogAchievementData::DialogAchievementData( EAchievements nID, const char *szName, int nCategory, EStats nStatID )
-{
-	Q_snprintf( m_pchAchievementID, sizeof(m_pchAchievementID), "%s", szName );
-	m_bAchieved = false;
-	m_iIconImage = 0;
-	m_eCategory = nCategory;
-	m_eAchievementID = nID;
-	m_nStat = nStatID;
-}
-
-DialogAchievementData::DialogAchievementData( EAchievements nID, const char *szName, int nCategory, EStats nStatID, std::vector<RequiredStepsTable> nRequiredSteps )
-{
-	Q_snprintf( m_pchAchievementID, sizeof(m_pchAchievementID), "%s", szName );
-	m_bAchieved = false;
-	m_iIconImage = 0;
-	m_eCategory = nCategory;
-	m_eAchievementID = nID;
-	m_nStat = nStatID;
-	m_RequiredSteps = nRequiredSteps;
-}
-
-StatData_t DialogAchievementData::GetData()
-{
-	return GrabStat( m_nStat );
 }

@@ -61,7 +61,8 @@ StatData_t g_SteamStats[] = {
 	_STAT_ID(ZP_REGEN_10K, 10000),
 	_STAT_ID(ZP_ILIVEAGAIN, 10000),
 	_STAT_ID(ZP_HC_SNACKTIME, 200),
-	_STAT_ID(ZP_GENOCIDESTEP3, 66666),
+	_STAT_ID(ZP_GENOCIDESTEP3, 6666),
+	_STAT_ID(ZP_KILLYOSELF, 100),
 
 	_STAT_ID(MAP_ZP_SANTERIA, 1),
 	_STAT_ID(MAP_ZP_CLUBZOMBO, 1),
@@ -112,6 +113,15 @@ void STAT_OnUserStatsReceived( UserStatsReceived_t *pCallback )
 		int32 iData = 0;
 		GetSteamAPI()->SteamUserStats()->GetUserStat( pCallback->m_steamIDUser, stat.Name, &iData );
 		SetStat( stat.ID, iData );
+	}
+
+	// Go through our achievements, and apply their state.
+	for ( int i = 0; i < ACHV_MAX; i++ )
+	{
+		DialogAchievementData ach = GetAchievementByID( i );
+		bool bIsAchieved = ach.IsAchieved();
+		GetSteamAPI()->SteamUserStats()->GetAchievement( ach.GetAchievementName(), &bIsAchieved );
+		SetAchievementCompletedByID( ach, bIsAchieved );
 	}
 }
 
@@ -365,6 +375,9 @@ void CLIENT_UTIL_GiveAchievement( int iAchievement )
 	}
 
 	CHudAchievementNotification::Get()->ShowAchievement( iAchievement );
+
+	// For our dialog
+	SetAchievementCompletedByID( GetAchievementByID( iAchievement ), true );
 
 	// Give the achievement.
 	GetSteamAPI()->SteamUserStats()->SetAchievement( GetAchievementByID( iAchievement ).GetAchievementName() );

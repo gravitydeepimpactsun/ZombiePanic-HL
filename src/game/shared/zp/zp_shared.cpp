@@ -130,6 +130,7 @@ static DialogAchievementData g_DAchievements[] =
 	_ACH_ADD_ID(REGEN_10K,						CATEGORY_GENERAL,		ZP_REGEN_10K),
 	_ACH_ADD_ID(ILIVEAGAIN,						CATEGORY_GENERAL,		ZP_ILIVEAGAIN),
 	_ACH_ADD_ID(HOUSEOFHORRORS,					CATEGORY_GENERAL,		INVALID_STAT),
+	_ACH_ADD_ID(KILLYOSELF,						CATEGORY_GENERAL,		ZP_KILLYOSELF),
 };
 
 // =========================================================
@@ -580,6 +581,19 @@ DialogAchievementData GetAchievementByID( const char *szAchievementID )
 			return item;
 	}
 	return g_DAchievements[0];
+}
+
+void SetAchievementCompletedByID( DialogAchievementData nAch, bool bState )
+{
+	for ( int i = 0; i < ARRAYSIZE( g_DAchievements ); i++ )
+	{
+		DialogAchievementData &item = g_DAchievements[ i ];
+		if ( item.GetAchievementID() == nAch.GetAchievementID() )
+		{
+			item.SetAchieved( bState );
+			break;
+		}
+	}
 }
 
 DialogAchievementData::DialogAchievementData( EAchievements nID, const char *szName, int nCategory, EStats nStatID )

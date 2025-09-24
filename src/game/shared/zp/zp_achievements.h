@@ -43,6 +43,7 @@ enum EStats
 	ZP_ILIVEAGAIN,
 	ZP_HC_SNACKTIME,
 	ZP_GENOCIDESTEP3,
+	ZP_KILLYOSELF,
 
 	// Maps -- Survival
 	MAP_ZP_SANTERIA,
@@ -126,6 +127,7 @@ enum EAchievements
 	HOUSEOFHORRORS,
 	KILLS_LEADPIPE,
 	KILLS_DBARREL,
+	KILLYOSELF,
 
 	ACHV_MAX
 };
@@ -200,5 +202,7 @@ public:
 // Get Achievement by ID
 DialogAchievementData GetAchievementByID( int eAchievement );
 DialogAchievementData GetAchievementByID( const char *szAchievementID );
+
+void SetAchievementCompletedByID( DialogAchievementData nAch, bool bState );
 
 #endif

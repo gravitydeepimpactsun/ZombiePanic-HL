@@ -753,6 +753,7 @@ void CHalfLifeMultiplay::DeathNotice(CBasePlayer *pVictim, entvars_t *pKiller, e
 	// Hack to fix name change
 	char *tau = "tau_cannon";
 	char *gluon = "gluon gun";
+	bool bKilledSelf = false;
 
 	if (pKiller->flags & FL_CLIENT)
 	{
@@ -769,6 +770,9 @@ void CHalfLifeMultiplay::DeathNotice(CBasePlayer *pVictim, entvars_t *pKiller, e
 				{
 					killer_weapon_name = pPlayer->m_pActiveItem->pszName();
 				}
+
+				// Congratz, you killed yourself
+				bKilledSelf = true;
 			}
 			else
 			{
@@ -901,6 +905,11 @@ void CHalfLifeMultiplay::DeathNotice(CBasePlayer *pVictim, entvars_t *pKiller, e
 		CBasePlayer *pAttacker = (CBasePlayer *)UTIL_PlayerByIndex( killer_index );
 		if ( pAttacker )
 		{
+			// The player killed themselves, give em this stupid ass achievement.
+			// But make sure that "kill" command does not add to this.
+			if ( bKilledSelf && ( pAttacker->m_flSuicideTimer == -1 ) )
+				pAttacker->GiveAchievement( KILLYOSELF );
+
 			if (!strcmp(killer_weapon_name, "crowbar"))
 			{
 				pAttacker->GiveAchievement( KILLS_CROWBAR );

@@ -219,11 +219,6 @@ ReadAchievement:
 	// Increase
 	iAchievement++;
 
-	// Grab achievement
-	bool bIsAchieved = ach.IsAchieved();
-	GetSteamAPI()->SteamUserStats()->GetAchievement( ach.GetAchievementName(), &bIsAchieved );
-	ach.SetAchieved( bIsAchieved );
-
 	// Wrong category!
 	// If its not on (Show All)
 	if ( CATEGORY_SHOWALL != ui_AchvList->GetActiveItem() )

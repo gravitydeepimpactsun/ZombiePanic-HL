@@ -96,9 +96,10 @@ void CFog::RenderFog( Vector& color )
 	// If FOG is disabled.
 	if ( !bFog )
 	{
-		gEngfuncs.pTriAPI->Fog( Vector(0, 0, 0), 0, 0, FALSE );
 #if WIN32
 		glDisable( GL_FOG );
+#else
+		gEngfuncs.pTriAPI->Fog( Vector(0, 0, 0), 0, 0, FALSE );
 #endif
 		return;
 	}

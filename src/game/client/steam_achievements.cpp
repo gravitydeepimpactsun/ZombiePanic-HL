@@ -4,6 +4,7 @@
 #include "steam_achievements.h"
 #include "gameui/gameui_viewport.h"
 #include "vgui/client_viewport.h"
+#include "client_vgui.h"
 
 // ================================================================= \\
 
@@ -46,7 +47,7 @@ StatData_t g_SteamStats[] = {
 	_STAT_ID(ZP_KILLS_PISTOL, 40),
 	_STAT_ID(ZP_KILLS_REVOLVER, 25),
 	_STAT_ID(ZP_KILLS_RIFLE, 30),
-	_STAT_ID(ZP_KILLS_SHOTGUN, 25),
+	_STAT_ID(ZP_KILLS_SHOTGUN, 35),
 	_STAT_ID(ZP_KILLS_SATCHEL, 5),
 	_STAT_ID(ZP_KILLS_TNT, 10),
 	_STAT_ID(ZP_KILLS_ZOMBIE, 20),
@@ -103,6 +104,18 @@ void SetStat( EStats nID, int32 value )
 	}
 }
 
+// Resets all stats to 0 if ZP_RESET_ALL is 1 (or 0 in debug mode)
+void STAT_ResetAllStats()
+{
+	// We will restet ZP_RESET_ALL locally as well,
+	// but we never read it so who cares.
+	for ( int i = 0; i < ARRAYSIZE(g_SteamStats); i++ )
+	{
+		StatData_t &stat = g_SteamStats[i];
+		stat.Value = 0;
+	}
+}
+
 void STAT_OnUserStatsReceived( UserStatsReceived_t *pCallback )
 {
 	if ( k_EResultOK != pCallback->m_eResult ) return;
@@ -123,6 +136,40 @@ void STAT_OnUserStatsReceived( UserStatsReceived_t *pCallback )
 		GetSteamAPI()->SteamUserStats()->GetAchievement( ach.GetAchievementName(), &bIsAchieved );
 		SetAchievementCompletedByID( ach, bIsAchieved );
 	}
+
+	// Don't reset stats in debug mode, only in release.
+#if !defined( _DEBUG )
+	// Check if our stat ZP_RESET_ALL is 1. If it is, reset all stats.
+	StatData_t statReset = GrabStat( ZP_RESET_ALL );
+	if ( statReset.Value == 1 )
+	{
+		// Reset our local stats.
+		STAT_ResetAllStats();
+		// Reset everything, even our achievements.
+		GetSteamAPI()->SteamUserStats()->ResetAllStats( true );
+		// Make sure this is set to 0, so we don't reset again.
+		GetSteamAPI()->SteamUserStats()->SetStat( statReset.Name, 0 );
+		// Reset all our achievements.
+		for ( int i = 0; i < ACHV_MAX; i++ )
+			SetAchievementCompletedByID( GetAchievementByID( i ), false );
+	}
+#else
+	// Ditto, but inverted for debug mode.
+	// Check if our stat ZP_RESET_ALL is 0. If it is, reset all stats.
+	StatData_t statReset = GrabStat( ZP_RESET_ALL );
+	if ( statReset.Value == 0 )
+	{
+		// Reset our local stats.
+		STAT_ResetAllStats();
+		// Reset everything, even our achievements.
+		GetSteamAPI()->SteamUserStats()->ResetAllStats( true );
+		// Make sure this is set to 0, so we don't reset again.
+		GetSteamAPI()->SteamUserStats()->SetStat( statReset.Name, 1 );
+		// Reset all our achievements.
+		for ( int i = 0; i < ACHV_MAX; i++ )
+			SetAchievementCompletedByID( GetAchievementByID( i ), false );
+	}
+#endif
 }
 
 // ================================================================= \\
@@ -398,10 +445,14 @@ DEFINE_HUD_ELEM( CHudAchievementNotification );
 static ConVar cl_achievement_popupspeed( "cl_achievement_popupspeed", "4" );
 
 CHudAchievementNotification::CHudAchievementNotification()
-    : vgui2::Panel( NULL, "HudAchievementNotification" )
+    : BaseClass( NULL, "HudAchievementNotification" )
 {
 	SetParent( g_pViewport );
-	SetPaintBackgroundEnabled( false );
+	SetProportional( true );
+
+	vgui2::HScheme scheme = vgui2::scheme()->LoadSchemeFromFile( VGUI2_ROOT_DIR "resource/ChatScheme.res", "ChatScheme" );
+	SetScheme( scheme );
+	SetPaintBackgroundEnabled( true );
 
 	m_pIcon = new vgui2::ImagePanel( this, "IconImage" );
 	m_pLabel = new vgui2::Label( this, "LabelText", "" );
@@ -411,6 +462,26 @@ CHudAchievementNotification::CHudAchievementNotification()
 	SetSize( NOTIFICATION_WIDTH, NOTIFICATION_HEIGHT );
 
 	ClearData();
+}
+
+void CHudAchievementNotification::ApplySchemeSettings( vgui2::IScheme *pScheme )
+{
+	// Use the chat scheme
+	LoadControlSettings( VGUI2_ROOT_DIR "resource/Chat.res" );
+	BaseClass::ApplySchemeSettings( pScheme );
+
+	// Setup the background painting style
+	SetPaintBackgroundType( 2 );
+	SetPaintBorderEnabled( true );
+	SetPaintBackgroundEnabled( true );
+
+	// Set the background color
+	Color cColor = pScheme->GetColor("ChatBgColor", GetBgColor());
+	SetBgColor( Color( cColor.r(), cColor.g(), cColor.b(), 64 ) );
+
+	// Set our text color
+	m_pLabel->SetFgColor( pScheme->GetColor( "ChatTextColor", NoTeamColor::Orange ) );
+	m_pLabel->SetPaintBackgroundEnabled( false ); // No background for our label
 }
 
 void CHudAchievementNotification::Init()
@@ -470,10 +541,6 @@ void CHudAchievementNotification::Paint()
 	// Paint our background first.
 	int wide, tall;
 	GetSize( wide, tall );
-	vgui2::surface()->DrawSetColor( 0, 0, 0, 200 );
-	vgui2::surface()->DrawFilledRect( 0, tall - NOTIFICATION_HEIGHT, wide, tall );
-	vgui2::surface()->DrawSetColor( 100, 100, 100, 255 );
-	vgui2::surface()->DrawOutlinedRect( 0, tall - NOTIFICATION_HEIGHT, wide, tall );
 
 	// Paint our icon.
 	if ( m_pIcon )
@@ -618,3 +685,16 @@ void CHudAchievementNotification::ShowAchievement( int iAchievement )
 	m_bShowingAchievement = true;
 }
 
+CON_COMMAND( cl_debug_show_achievement, "Show the achievements dialog." )
+{
+	static ConVarRef sv_cheats( "sv_cheats" );
+	if ( !sv_cheats.GetBool() )
+	{
+		gEngfuncs.Con_Printf( "Cheats must be enabled to use this command.\n" );
+		return;
+	}
+	const char *pszCommand = gEngfuncs.Cmd_Argv( 1 );
+	if ( !pszCommand ) return;
+	int iAchievement = Q_atoi( pszCommand );
+	CHudAchievementNotification::Get()->ShowAchievement( iAchievement );
+}

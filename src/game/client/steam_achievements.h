@@ -8,7 +8,7 @@
 #include "steam/steam_api.h"
 
 // Used by our custom achievements notification system.
-#include <vgui_controls/Panel.h>
+#include <vgui_controls/EditablePanel.h>
 #include <vgui_controls/ImagePanel.h>
 #include <vgui_controls/Label.h>
 #include "hud/base.h"
@@ -39,12 +39,13 @@ struct MapStatCheck_t
 StatData_t GrabMapStat( MapStatCheck nCheck );
 
 // Let's construct our class for our HUD element for our achievements notification.
-class CHudAchievementNotification : public CHudElemBase<CHudAchievementNotification>, public vgui2::Panel
+class CHudAchievementNotification : public CHudElemBase<CHudAchievementNotification>, public vgui2::EditablePanel
 {
-	DECLARE_CLASS_SIMPLE( CHudAchievementNotification, vgui2::Panel );
+	DECLARE_CLASS_SIMPLE( CHudAchievementNotification, vgui2::EditablePanel );
 
 public:
 	CHudAchievementNotification();
+	void ApplySchemeSettings( vgui2::IScheme *pScheme ) override;
 	void Init( void ) override;
 	void VidInit( void ) override;
 	void Think( void ) override;

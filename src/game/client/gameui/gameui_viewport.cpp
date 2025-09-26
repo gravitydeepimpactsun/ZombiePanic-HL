@@ -75,19 +75,6 @@ CGameUIViewport::CGameUIViewport()
 	m_hMenu->MakePopup( false, false );
 	m_hMenu->SetMenuBounds( 0, 0, w, t );
 	m_hMenu->LoadPage( MenuPagesTable_t::PAGE_MAIN );
-
-	// Don't reset stats in debug mode, only in release.
-#if !defined( _DEBUG )
-	// Check if our stat ZP_RESET_ALL is 1. If it is, reset all stats.
-	StatData_t statReset = GrabStat( ZP_RESET_ALL );
-	if ( statReset.Value == 1 )
-	{
-		// Reset everything, even our achievements.
-		GetSteamAPI()->SteamUserStats()->ResetAllStats( true );
-		// Make sure this is set to 0, so we don't reset again.
-		GetSteamAPI()->SteamUserStats()->SetStat( statReset.Name, 0 );
-	}
-#endif
 }
 
 CGameUIViewport::~CGameUIViewport()

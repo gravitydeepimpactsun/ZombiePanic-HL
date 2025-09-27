@@ -145,7 +145,7 @@ void CSpectatorPanel::PaintBackground()
 		{
 			// Found the text, copy it to our working buffer
 			// But we need to make sure we can't cause a buffer overflow
-			wcsncpy_s( szCrouch, temp, sizeof( szCrouch ) );
+			wcsncpy( szCrouch, temp, sizeof( szCrouch ) );
 		}
 		else
 		{

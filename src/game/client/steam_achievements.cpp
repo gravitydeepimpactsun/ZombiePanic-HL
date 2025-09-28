@@ -441,7 +441,7 @@ void CLIENT_UTIL_GiveAchievement( int iAchievement )
 DEFINE_HUD_ELEM( CHudAchievementNotification );
 
 #define NOTIFICATION_HEIGHT 80
-#define NOTIFICATION_WIDTH 400
+#define NOTIFICATION_WIDTH 200
 static ConVar cl_achievement_popupspeed( "cl_achievement_popupspeed", "4" );
 
 CHudAchievementNotification::CHudAchievementNotification()
@@ -459,7 +459,7 @@ CHudAchievementNotification::CHudAchievementNotification()
 	m_pLabelProgress = new vgui2::Label( this, "LabelProgress", "" );
 
 	// Make sure our size is set only once.
-	SetSize( NOTIFICATION_WIDTH, NOTIFICATION_HEIGHT );
+	SetSize( GetScaledValue( NOTIFICATION_WIDTH ), GetScaledValue( NOTIFICATION_HEIGHT ) );
 
 	ClearData();
 }
@@ -474,6 +474,9 @@ void CHudAchievementNotification::ApplySchemeSettings( vgui2::IScheme *pScheme )
 	SetPaintBackgroundType( 2 );
 	SetPaintBorderEnabled( true );
 	SetPaintBackgroundEnabled( true );
+
+	// Fix our size for larger resolutions.
+	SetSize( GetScaledValue( NOTIFICATION_WIDTH ), GetScaledValue( NOTIFICATION_HEIGHT ) );
 
 	// Set the background color
 	Color cColor = pScheme->GetColor("ChatBgColor", GetBgColor());
@@ -596,7 +599,7 @@ void CHudAchievementNotification::ClearData()
 	int wide, tall;
 	vgui2::surface()->GetScreenSize( wide, tall );
 	// Make sure we're at the bottom center of the screen.
-	wide = (wide / 2) - ( NOTIFICATION_WIDTH / 2);
+	wide = (wide / 2) - ( GetScaledValue( NOTIFICATION_WIDTH ) / 2);
 	SetPos( wide, tall + NOTIFICATION_HEIGHT );
 
 	// Process our queue.

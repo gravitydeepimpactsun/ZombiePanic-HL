@@ -14,7 +14,7 @@ public:
 
 protected:
 	virtual void RestartRound();
-	virtual GameModeType_e GetGameModeType() { return GameModeType_e::GM_HARDCORE; }
+	virtual ZP::GameModeType_e GetGameModeType() { return ZP::GameModeType_e::GAMEMODE_HARDCORE; }
 	virtual void GiveWeapons(CBasePlayer *pPlayer);
 	virtual void GiveWeaponsOnRoundStart();
 };

@@ -11,7 +11,7 @@ public:
 	ZPGameMode_Objective();
 
 protected:
-	virtual GameModeType_e GetGameModeType() { return GameModeType_e::GM_OBJECTIVE; }
+	virtual ZP::GameModeType_e GetGameModeType() { return ZP::GameModeType_e::GAMEMODE_OBJECTIVE; }
 	virtual void OnHUDInit(CBasePlayer *pPlayer);
 	virtual WinState_e GetWinState();
 	virtual void SetWinState(WinState_e state) override

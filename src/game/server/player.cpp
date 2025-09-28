@@ -561,10 +561,10 @@ void CBasePlayer ::TraceAttack(entvars_t *pevAttacker, float flDamage, Vector ve
 		// Are we in hardcore mode?
 		if ( bIsInHardcore )
 		{
-			// In hardcore mode, headshots do double damage (except zombies deal extra 10% more)
+			// In hardcore mode, headshots do double damage (except zombies deal extra 80% more)
 			// everything else is halved by 50% (if human)
-			if ( ptr->iHitgroup == HITGROUP_HEAD )
-				flDamage *= bIsZombie ? 3.0 : 2.0f;
+			if ( m_LastHitGroup == HITGROUP_HEAD )
+				flDamage *= bIsZombie ? 8.0 : 2.0f;
 			else
 			{
 				// Only humans deal reduced damage, not zombies
@@ -2151,7 +2151,7 @@ void CBasePlayer::UpdateHealthRegen()
 	if ( m_bRegenUpdated )
 	{
 		bool bIsInHardcore = ( ZP::GetCurrentGameMode()->GetGameModeType() == ZP::GameModeType_e::GAMEMODE_HARDCORE );
-		m_flRegenTime = bIsInHardcore ? 1.0f : 3.0f;
+		m_flRegenTime = bIsInHardcore ? 1.75f : 3.0f;
 		m_flLastRegen = gpGlobals->time + m_flRegenTime;
 		m_bRegenUpdated = false;
 		return;

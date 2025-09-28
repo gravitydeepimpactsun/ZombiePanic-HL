@@ -910,8 +910,8 @@ void CHalfLifeMultiplay::DeathNotice(CBasePlayer *pVictim, entvars_t *pKiller, e
 			{
 				pAttacker->GiveAchievement( KILLS_CROWBAR );
 				IGameModeBase *pGameMode = ZP::GetCurrentGameMode();
-				// If hardcore mode, and we managed to get a crowbar kill while over encumbered. (150 Lb)
-				if ( pGameMode && pGameMode->GetGameModeType() == ZP::GAMEMODE_HARDCORE && pAttacker->GetTotalWeight() > 150 )
+				// If hardcore mode, and we managed to get a crowbar kill while over encumbered. (90 Lb)
+				if ( pGameMode && pGameMode->GetGameModeType() == ZP::GAMEMODE_HARDCORE && pAttacker->GetTotalWeight() > 90 )
 					pAttacker->GiveAchievement( HC_OVERWEIGHTKILLER );
 			}
 			else if (!strcmp(killer_weapon_name, "leadpipe")) pAttacker->GiveAchievement( KILLS_LEADPIPE );

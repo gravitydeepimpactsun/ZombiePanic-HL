@@ -11,7 +11,7 @@ public:
 	ZPGameMode_Survival();
 
 protected:
-	virtual GameModeType_e GetGameModeType() { return GameModeType_e::GM_SURVIVAL; }
+	virtual ZP::GameModeType_e GetGameModeType() { return ZP::GameModeType_e::GAMEMODE_SURVIVAL; }
 	virtual void OnHUDInit(CBasePlayer *pPlayer);
 	virtual void GetZombieLifeData( int &current, int &max ) override;
 	virtual void OnZombieLifeUpdated( bool bIncreased ) override;

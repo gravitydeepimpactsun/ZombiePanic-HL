@@ -10,7 +10,7 @@ public:
 	ZPGameMode_Dev();
 
 protected:
-	virtual GameModeType_e GetGameModeType() { return GameModeType_e::GM_DEV; }
+	virtual ZP::GameModeType_e GetGameModeType() { return ZP::GameModeType_e::GAMEMODE_NONE; }
 	virtual bool IsTestModeActive() const { return false; };
 	virtual void OnHUDInit(CBasePlayer *pPlayer);
 	virtual void OnGameModeThink() {}

@@ -237,8 +237,7 @@ void CZombiePanicGameRules::ChangePlayerTeam(CBasePlayer *pPlayer, const char *p
 		m_DisableDeathPenalty = TRUE;
 
 		int damageFlags = DMG_GENERIC | (bGib ? DMG_ALWAYSGIB : DMG_NEVERGIB);
-		entvars_t *pevWorld = VARS(INDEXENT(0));
-		pPlayer->TakeDamage(pevWorld, pevWorld, 10000, damageFlags);
+		pPlayer->TakeDamage(pPlayer->pev, pPlayer->pev, 10000, damageFlags);
 
 		m_DisableDeathMessages = FALSE;
 		m_DisableDeathPenalty = FALSE;
@@ -321,7 +320,7 @@ void CZombiePanicGameRules::ResetRound()
 					plr->GiveAchievement( EAchievements::PARTNERINCRIME ); // Only give this if we are actually winning
 					switch ( m_pGameMode->GetGameModeType() )
 					{
-						case GameModeType_e::GM_SURVIVAL:
+						case ZP::GameModeType_e::GAMEMODE_SURVIVAL:
 						{
 							if ( m_pGameMode->HasTimeRanOut() )
 								plr->GiveAchievement( EAchievements::CLOCKOUT );
@@ -329,7 +328,7 @@ void CZombiePanicGameRules::ResetRound()
 						}
 						break;
 
-						case GameModeType_e::GM_OBJECTIVE: plr->GiveAchievement( EAchievements::FIRST_OBJECTIVE ); break;
+						case ZP::GameModeType_e::GAMEMODE_OBJECTIVE: plr->GiveAchievement( EAchievements::FIRST_OBJECTIVE ); break;
 					}
 				}
 				else if ( iTeam == ZP::TEAM_ZOMBIE && winner == IGameModeBase::WinState_e::State_ZombieWin )
@@ -688,14 +687,12 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 			}
 			else if ( FStrEq( pSetCommand, "explode" ) )
 			{
-				entvars_t *pevWorld = VARS(INDEXENT(0));
-				pPlayer->TakeDamage(pevWorld, pevWorld, 10000, DMG_ALWAYSGIB);
+				pPlayer->TakeDamage(pPlayer->pev, pPlayer->pev, 10000, DMG_ALWAYSGIB);
 			}
 			else if ( FStrEq( pSetCommand, "die_h" ) )
 			{
-				entvars_t *pevWorld = VARS(INDEXENT(0));
 				pPlayer->m_LastHitGroup = 1; // HITGROUP_HEAD
-				pPlayer->TakeDamage(pevWorld, pevWorld, 10000, DMG_NEVERGIB);
+				pPlayer->TakeDamage(pPlayer->pev, pPlayer->pev, 10000, DMG_NEVERGIB);
 				pPlayer->m_LastHitGroup = 0;
 			}
 		}

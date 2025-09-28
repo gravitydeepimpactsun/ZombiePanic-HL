@@ -11,15 +11,6 @@ extern int gmsgZombieLives;
 extern int gmsgRoundState;
 extern int gmsgRoundTime;
 
-enum GameModeType_e
-{
-	GM_DEV = 0,
-	GM_SURVIVAL,
-	GM_OBJECTIVE,
-	GM_DM,
-	GM_HARDCORE
-};
-
 class IGameModeBase
 {
 public:
@@ -31,7 +22,7 @@ public:
 		State_SurvivorWin
 	};
 
-	virtual GameModeType_e GetGameModeType() = 0;
+	virtual ZP::GameModeType_e GetGameModeType() = 0;
 	virtual bool IsTestModeActive() const = 0;
 	virtual void OnHUDInit(CBasePlayer *pPlayer) = 0;
 	virtual void GetZombieLifeData( int &current, int &max ) { current = max = 0; };

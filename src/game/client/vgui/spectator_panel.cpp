@@ -145,7 +145,7 @@ void CSpectatorPanel::PaintBackground()
 		{
 			// Found the text, copy it to our working buffer
 			// But we need to make sure we can't cause a buffer overflow
-			wcsncpy( szCrouch, temp, sizeof( szCrouch ) );
+			V_wcsncpy( szCrouch, temp, sizeof( szCrouch ) );
 		}
 		else
 		{
@@ -165,12 +165,12 @@ void CSpectatorPanel::PaintBackground()
 		// Draw a black outline
 		vgui2::surface()->DrawSetTextColor( 0, 0, 0, 255 );
 		vgui2::surface()->DrawSetTextPos( ( wide / 2 ) + 1, YRES( 10 ) + 1 );
-		vgui2::surface()->DrawPrintText( szCrouch, wcsncmp( szCrouch, L"\n", 1 ) ? wcslen( szCrouch ) : wcslen( szCrouch ) - 1 );
+		vgui2::surface()->DrawPrintText( szCrouch, wcsnicmp( szCrouch, L"\n", 1 ) ? wcslen( szCrouch ) : wcslen( szCrouch ) - 1 );
 
 		// Draw the text
 		vgui2::surface()->DrawSetTextColor( 255, 255, 255, 255 );
 		vgui2::surface()->DrawSetTextPos( ( wide / 2 ), YRES( 10 ) );
-		vgui2::surface()->DrawPrintText( szCrouch, wcsncmp( szCrouch, L"\n", 1 ) ? wcslen( szCrouch ) : wcslen( szCrouch ) - 1 );
+		vgui2::surface()->DrawPrintText( szCrouch, wcsnicmp( szCrouch, L"\n", 1 ) ? wcslen( szCrouch ) : wcslen( szCrouch ) - 1 );
 	}
 
 	// Paint inset border

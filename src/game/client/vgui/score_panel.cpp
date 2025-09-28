@@ -586,8 +586,12 @@ void CScorePanel::UpdateClientInfo(int client)
 
 		//gEngfuncs.PlayerInfo_ValueForKey( client, "donor_type" );
 		//gEngfuncs.PlayerInfo_ValueForKey( client, "donor_tier" );
+		const char *donorTier = gEngfuncs.PlayerInfo_ValueForKey( client, "donor_tier" );
+		// Make sure donorTier is a valid number between 0 and k_eSupporterTier_100
+		if ( !donorTier || !*donorTier || atoi(donorTier) < 0 || atoi(donorTier) > eSupporterTierExport::k_eSupporterTier_100 )
+			donorTier = "0";
 
-		int iDonorIcon = MAX_PLAYERS + 1 + atoi( gEngfuncs.PlayerInfo_ValueForKey( client, "donor_tier" ) );
+		int iDonorIcon = MAX_PLAYERS + 1 + atoi( donorTier );
 		playerKv->SetInt("donator", iDonorIcon );
 
 		// Name

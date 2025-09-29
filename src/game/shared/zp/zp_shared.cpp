@@ -64,11 +64,28 @@ std::vector<RequiredStepsTable> m_MapsObjectiveSteps = {
 // We only need to check for one single kill for each
 std::vector<RequiredStepsTable> m_JackOfTradesSteps = {
 	RequiredStepsTable( ZP_KILLS_CROWBAR, 1 ),
+	RequiredStepsTable( ZP_KILLS_LEADPIPE, 1 ),
+//	RequiredStepsTable( ZP_KILLS_PLANK, 1 ),
+//	RequiredStepsTable( ZP_KILLS_SLEDGEHAMMER, 1 ),
+//	RequiredStepsTable( ZP_KILLS_AXE, 1 ),
+//	RequiredStepsTable( ZP_KILLS_MACHETE, 1 ),
+//	RequiredStepsTable( ZP_KILLS_SHOVEL, 1 ),
+//	RequiredStepsTable( ZP_KILLS_GOLFCLUB, 1 ),
+//	RequiredStepsTable( ZP_KILLS_GUITAR, 1 ),
+//	RequiredStepsTable( ZP_KILLS_GUITAR_BASE, 1 ),
+//	RequiredStepsTable( ZP_KILLS_GUITAR_ELECTRIC, 1 ),
+//	RequiredStepsTable( ZP_KILLS_WINEBOTTLE, 1 ),
+//	RequiredStepsTable( ZP_KILLS_CHAIR, 1 ),
+//	RequiredStepsTable( ZP_KILLS_KEYBOARD, 1 ),
+//	RequiredStepsTable( ZP_KILLS_BASEBALLBAT, 1 ),
+//	RequiredStepsTable( ZP_KILLS_BASEBALLBAT_METAL, 1 ),
 	RequiredStepsTable( ZP_KILLS_PISTOL, 1 ),
+//	RequiredStepsTable( ZP_KILLS_PPK, 1 ),
 	RequiredStepsTable( ZP_KILLS_REVOLVER, 1 ),
 	RequiredStepsTable( ZP_KILLS_RIFLE, 1 ),
 	RequiredStepsTable( ZP_KILLS_MP5, 1 ),
 	RequiredStepsTable( ZP_KILLS_SHOTGUN, 1 ),
+	RequiredStepsTable( ZP_KILLS_DBARREL, 1 ),
 	RequiredStepsTable( ZP_KILLS_SATCHEL, 1 ),
 	RequiredStepsTable( ZP_KILLS_TNT, 1 )
 };

@@ -474,6 +474,9 @@ void CHud::Init(void)
 	bhlcfg::Init();
 	CResults::Get().Init();
 
+	// Make sure it's cleared
+	gFog.ClearFog();
+
 #if USE_UPDATER
 	CHttpClient::Get();
 	CUpdateChecker::Get().Init();

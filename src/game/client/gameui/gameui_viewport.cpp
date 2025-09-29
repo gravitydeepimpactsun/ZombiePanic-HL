@@ -75,6 +75,10 @@ CGameUIViewport::CGameUIViewport()
 	m_hMenu->MakePopup( false, false );
 	m_hMenu->SetMenuBounds( 0, 0, w, t );
 	m_hMenu->LoadPage( MenuPagesTable_t::PAGE_MAIN );
+
+	// Don't start with maxplayers set to 1.
+	// Default should be 16.
+	gEngfuncs.pfnClientCmd("maxplayers 16\n");
 }
 
 CGameUIViewport::~CGameUIViewport()

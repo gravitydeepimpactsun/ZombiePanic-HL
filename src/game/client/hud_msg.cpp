@@ -219,9 +219,6 @@ int CHud::MsgFunc_Fog(const char *pszName, int iSize, void *pbuf)
 {
 	FogParams fogParams;
 
-	// Reset fog parameters
-	gFog.ClearFog();
-
 	BEGIN_READ(pbuf, iSize);
 
 	int startdist = READ_COORD();

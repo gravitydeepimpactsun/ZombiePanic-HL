@@ -440,7 +440,7 @@ void CLIENT_UTIL_GiveAchievement( int iAchievement )
 
 DEFINE_HUD_ELEM( CHudAchievementNotification );
 
-#define NOTIFICATION_HEIGHT 80
+#define NOTIFICATION_HEIGHT 33
 #define NOTIFICATION_WIDTH 200
 static ConVar cl_achievement_popupspeed( "cl_achievement_popupspeed", "4" );
 
@@ -455,6 +455,7 @@ CHudAchievementNotification::CHudAchievementNotification()
 	SetPaintBackgroundEnabled( true );
 
 	m_pIcon = new vgui2::ImagePanel( this, "IconImage" );
+	m_pIcon->SetShouldScaleImage( true );
 	m_pLabel = new vgui2::Label( this, "LabelText", "" );
 	m_pLabelProgress = new vgui2::Label( this, "LabelProgress", "" );
 
@@ -506,7 +507,7 @@ void CHudAchievementNotification::Think()
 		bool bShouldHide = ( gEngfuncs.GetClientTime() - m_flStartTime ) > 6.0f;
 		int wide, tall;
 		vgui2::surface()->GetScreenSize( wide, tall );
-		int targety = tall - NOTIFICATION_HEIGHT;
+		int targety = tall - GetScaledValue( NOTIFICATION_HEIGHT );
 
 		int x, y;
 		GetPos( x, y );
@@ -514,7 +515,7 @@ void CHudAchievementNotification::Think()
 		if ( bShouldHide )
 		{
 			// We overstayed our welcome, move down and hide.
-			targety = tall + NOTIFICATION_HEIGHT;
+			targety = tall + GetScaledValue( NOTIFICATION_HEIGHT );
 			if ( y < targety )
 			{
 				y += cl_achievement_popupspeed.GetInt();
@@ -545,28 +546,31 @@ void CHudAchievementNotification::Paint()
 	int wide, tall;
 	GetSize( wide, tall );
 
+	// We use GetScaledValue so that it scales with resolution.
+	int iIconSize = GetScaledValue( 30 );
+
 	// Paint our icon.
 	if ( m_pIcon )
 	{
 		m_pIcon->SetPos( 10, 5 );
-		m_pIcon->SetSize( 64, 64 );
+		m_pIcon->SetSize( iIconSize, iIconSize );
 	}
 
 	// Now, let's paint our text next to the icon.
 	if ( m_pLabel )
 	{
-		m_pLabel->SetPos( 80, 10 );
-		m_pLabel->SetSize( wide - 90, 24 );
+		m_pLabel->SetPos( GetScaledValue( 37 ), 10 );
+		m_pLabel->SetSize( wide - GetScaledValue( 50 ), GetScaledValue( 8 ) );
 	}
 
 	// Let's paint our progress bar, and then the label after that.
 	// Since it needs to be drawn ontop of the bar.
 	if ( m_pLabelProgress && m_iMaxValue > 0 )
 	{
-		int barwide = wide - 90;
-		int barheight = 20;
-		int barx = 80;
-		int bary = 40;
+		int barwide = wide - GetScaledValue( 45 );
+		int barheight = GetScaledValue( 10 );
+		int barx = GetScaledValue( 37 );
+		int bary = GetScaledValue( 15 );
 
 		// Progress bar background
 		vgui2::surface()->DrawSetColor( 25, 25, 25, 255 );
@@ -600,7 +604,7 @@ void CHudAchievementNotification::ClearData()
 	vgui2::surface()->GetScreenSize( wide, tall );
 	// Make sure we're at the bottom center of the screen.
 	wide = (wide / 2) - ( GetScaledValue( NOTIFICATION_WIDTH ) / 2);
-	SetPos( wide, tall + NOTIFICATION_HEIGHT );
+	SetPos( wide, tall + GetScaledValue( NOTIFICATION_HEIGHT ) );
 
 	// Process our queue.
 	if ( m_Queue.size() > 0 )

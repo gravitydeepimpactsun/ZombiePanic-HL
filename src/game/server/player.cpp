@@ -5005,11 +5005,12 @@ void CBasePlayer ::UpdateClientData(void)
 			}
 
 			// Send fog message
-			CBaseEntity *pEntity = UTIL_FindEntityByClassname(nullptr, "env_fog");
-			if ( pEntity )
+			CClientFog *pFog = (CClientFog *)UTIL_FindEntityByClassname( nullptr, "env_fog" );
+			while ( pFog )
 			{
-				CClientFog *pFog = static_cast<CClientFog *>(pEntity);
-				pFog->SendInitMessages( this );
+				if ( pFog->m_bActive )
+					pFog->SendInitMessages( this );
+				pFog = (CClientFog *)UTIL_FindEntityByClassname( pFog, "env_fog" );
 			}
 
 			g_pGameRules->InitHUD(this);

@@ -31,6 +31,7 @@ static const char *s_EntitiesRestarts[] = {
 	"func_door",
 	"func_button",
 	"func_rot_button",
+	"env_fog",
 	"env_render",
 	"env_spark",
 	"trigger_push",

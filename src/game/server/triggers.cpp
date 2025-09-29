@@ -2599,6 +2599,17 @@ void CClientFog::Spawn()
 #endif
 }
 
+void CClientFog::Restart()
+{
+	if ( FBitSet(pev->spawnflags, SF_FOG_ACTIVE) || FStringNull(pev->targetname) )
+		m_bActive = true;
+	else
+		m_bActive = false;
+
+	if ( m_bActive )
+		UpdateFog( true, false, NULL );
+}
+
 void CClientFog::OnScriptCallBack( KeyValues *pData )
 {
 	const char *szAction = pData->GetString( "Action" );

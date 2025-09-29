@@ -227,6 +227,7 @@ class CClientFog : public CBaseEntity
 {
 public:
 	virtual void Spawn();
+	virtual void Restart();
 	virtual void KeyValue(KeyValueData *pkvd);
 	void OnScriptCallBack( KeyValues *pData );
 

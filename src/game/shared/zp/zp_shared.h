@@ -28,7 +28,7 @@ enum ZPWeaponID
 {
 	WEAPON_NONE = 0,
 
-	// Weapons from the original version
+	// Weapons from the prototype
 	WEAPON_CROWBAR,
 	WEAPON_SWIPE,
 	WEAPON_SIG,
@@ -36,7 +36,7 @@ enum ZPWeaponID
 	WEAPON_MP5,		// Was cut from original
 	WEAPON_556AR,
 	WEAPON_SHOTGUN,
-	WEAPON_HANDGRENADE,
+	WEAPON_HANDGRENADE, // Change to WEAPON_TNT when we add a proper frag grenade?
 	WEAPON_SATCHEL,
 
 	// New weapons
@@ -44,6 +44,11 @@ enum ZPWeaponID
 	WEAPON_DOUBLEBARREL,
 	WEAPON_PPK,
 	WEAPON_GLOCK17,
+
+	// Misc stuff, should be last
+	WEAPON_BACKPACK,	// Not really a weapon, but used to give extra slots in Hardcore mode,
+						// Does nothing other gamemodes.
+	WEAPON_SUIT,		// HUD related
 
 	LAST_WEAPON_ID
 };
@@ -122,6 +127,7 @@ struct WeaponData
 	int Bullets = 1;
 	int Flags;
 	float Weight;
+	bool DoubleSlots = false; // Does this weapon take 2 slots?
 	float WeaponSpread[2]; // 0 - Primary, 1 - Secondary
 	float FireRate[2]; // 0 - Primary, 1 - Secondary
 };

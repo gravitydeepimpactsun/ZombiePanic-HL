@@ -20,7 +20,6 @@
 
 class CBasePlayer;
 extern int gmsgAmmoPickup;
-extern int gmsgWeapPickup;
 
 void DeactivateSatchels(CBasePlayer *pOwner);
 
@@ -69,8 +68,6 @@ public:
 #define ITEM_BATTERY   4
 
 #define WEAPON_ALLWEAPONS (~(1 << WEAPON_SUIT))
-
-#define WEAPON_SUIT 31 // ?????
 
 #define MAX_WEAPONS 32
 
@@ -133,6 +130,7 @@ typedef struct
 	int iWeight;
 	float flWeaponSpread[2]; // 0 - Primary, 1 - Secondary
 	float flFireRate[2]; // 0 - Primary, 1 - Secondary
+	bool bDoubleSlot; // weapon will use 2 slots
 } ItemInfo;
 
 // Items that the player has in their inventory that they can use
@@ -215,6 +213,7 @@ public:
 	const char *pszName(void) { return ItemInfoArray[GetWeaponID()].pszName; }
 	int iMaxClip(void) { return GetData().MaxClip; }
 	int iWeight(void) { return GetData().Weight; }
+	int bDoubleSlot(void) { return GetData().DoubleSlots; }
 	int iFlags(void) { return GetData().Flags; }
 	int iBullets(void) { return GetData().Bullets; }
 
@@ -250,6 +249,9 @@ public:
 
 	virtual int AddWeapon(void)
 	{
+#ifdef SERVER_DLL
+		ResetAssignedSlot();
+#endif
 		ExtractAmmo(this);
 		return TRUE;
 	}; // Return TRUE if you want to add yourself to the player
@@ -265,6 +267,7 @@ public:
 		p->iPosition = slot.Position;
 		p->iFlags = slot.Flags;
 		p->iWeight = slot.Weight;
+		p->bDoubleSlot = slot.DoubleSlots;
 		p->iId = GetWeaponID();
 		p->flFireRate[0] = slot.FireRate[0];
 		p->flFireRate[1] = slot.FireRate[1];
@@ -284,6 +287,7 @@ public:
 	    // attack key(s)
 	virtual BOOL PlayEmptySound(void);
 	virtual void ResetEmptySound(void);
+	virtual const char *GetEmptySound() const { return "weapons/revolver/dryfire.wav"; }
 
 	virtual void SendWeaponAnim(int iAnim, int skiplocal = 1, int body = 0); // skiplocal is 1 if client is predicting weapon animations
 
@@ -326,6 +330,11 @@ public:
 	int m_fInReload; // Are we in the middle of a reload;
 
 	int m_iDefaultAmmo; // how much ammo you get when you pick up this weapon as placed by a level designer.
+
+#ifdef SERVER_DLL
+	void ResetAssignedSlot() { m_iAssignedSlotPosition = -1; }
+	int m_iAssignedSlotPosition = -1; // slot position that the weapon was assigned to (1-5)
+#endif
 
 protected:
 	void SendWeaponPickup(CBasePlayer *pPlayer);

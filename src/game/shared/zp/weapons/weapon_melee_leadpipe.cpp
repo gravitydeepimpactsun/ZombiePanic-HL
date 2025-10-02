@@ -37,12 +37,12 @@ void CWeaponMeleeLeadPipe::Precache(void)
 	PRECACHE_MODEL("models/v_leadpipe.mdl");
 	PRECACHE_MODEL("models/w_leadpipe.mdl");
 	PRECACHE_MODEL("models/p_leadpipe.mdl");
-	PRECACHE_SOUND("weapons/pipe_hit1.wav");
-	PRECACHE_SOUND("weapons/pipe_hit2.wav");
-	PRECACHE_SOUND("weapons/pipe_hitbod1.wav");
-	PRECACHE_SOUND("weapons/pipe_hitbod2.wav");
-	PRECACHE_SOUND("weapons/pipe_hitbod3.wav");
-	PRECACHE_SOUND("weapons/pipe_miss1.wav");
+	PRECACHE_SOUND("weapons/melee/leadpipe/hit1.wav");
+	PRECACHE_SOUND("weapons/melee/leadpipe/hit2.wav");
+	PRECACHE_SOUND("weapons/melee/leadpipe/hitbod1.wav");
+	PRECACHE_SOUND("weapons/melee/leadpipe/hitbod2.wav");
+	PRECACHE_SOUND("weapons/melee/leadpipe/hitbod3.wav");
+	PRECACHE_SOUND("weapons/melee/miss1.wav");
 
 	m_nEventPrimary = PRECACHE_EVENT(1, "events/leadpipe.sc");
 }
@@ -190,13 +190,13 @@ int CWeaponMeleeLeadPipe::Swing(int fFirst)
 				switch (RANDOM_LONG(0, 2))
 				{
 				case 0:
-					EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/pipe_hitbod1.wav", 1, ATTN_NORM);
+					EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/melee/leadpipe/hitbod1.wav", 1, ATTN_NORM);
 					break;
 				case 1:
-					EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/pipe_hitbod2.wav", 1, ATTN_NORM);
+					EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/melee/leadpipe/hitbod2.wav", 1, ATTN_NORM);
 					break;
 				case 2:
-					EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/pipe_hitbod3.wav", 1, ATTN_NORM);
+					EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/melee/leadpipe/hitbod3.wav", 1, ATTN_NORM);
 					break;
 				}
 				m_pPlayer->m_iWeaponVolume = LEADPIPE_BODYHIT_VOLUME;
@@ -228,10 +228,10 @@ int CWeaponMeleeLeadPipe::Swing(int fFirst)
 			switch (RANDOM_LONG(0, 1))
 			{
 			case 0:
-				EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/pipe_hit1.wav", fvolbar, ATTN_NORM, 0, 98 + RANDOM_LONG(0, 3));
+				EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/melee/leadpipe/hit1.wav", fvolbar, ATTN_NORM, 0, 98 + RANDOM_LONG(0, 3));
 				break;
 			case 1:
-				EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/pipe_hit2.wav", fvolbar, ATTN_NORM, 0, 98 + RANDOM_LONG(0, 3));
+				EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/melee/leadpipe/hit2.wav", fvolbar, ATTN_NORM, 0, 98 + RANDOM_LONG(0, 3));
 				break;
 			}
 

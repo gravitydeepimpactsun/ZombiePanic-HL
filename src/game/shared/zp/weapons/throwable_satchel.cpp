@@ -231,9 +231,9 @@ void CThrowableSatchelCharge::IEDExplode()
 void CThrowableSatchelCharge ::Precache(void)
 {
 	PRECACHE_MODEL("models/w_satchel.mdl");
-	PRECACHE_SOUND("weapons/g_bounce1.wav");
-	PRECACHE_SOUND("weapons/g_bounce2.wav");
-	PRECACHE_SOUND("weapons/g_bounce3.wav");
+	PRECACHE_SOUND("weapons/ied/bounce1.wav");
+	PRECACHE_SOUND("weapons/ied/bounce2.wav");
+	PRECACHE_SOUND("weapons/ied/bounce3.wav");
 }
 
 void CThrowableSatchelCharge ::BounceSound(void)
@@ -241,13 +241,13 @@ void CThrowableSatchelCharge ::BounceSound(void)
 	switch (RANDOM_LONG(0, 2))
 	{
 	case 0:
-		EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/g_bounce1.wav", 1, ATTN_NORM);
+		EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/ied/bounce1.wav", 1, ATTN_NORM);
 		break;
 	case 1:
-		EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/g_bounce2.wav", 1, ATTN_NORM);
+		EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/ied/bounce2.wav", 1, ATTN_NORM);
 		break;
 	case 2:
-		EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/g_bounce3.wav", 1, ATTN_NORM);
+		EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/ied/bounce3.wav", 1, ATTN_NORM);
 		break;
 	}
 }

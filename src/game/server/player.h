@@ -475,6 +475,33 @@ public:
 	void ResetParticipation() { memset( m_bParticipated, 0, sizeof(m_bParticipated) ); }
 	bool m_bParticipated[ACHV_MAX] = { false };
 
+	// Select weapon from slot (1-5)
+	// This is used for the weapon selection menu (brought up by pressing the weapon slot keys)
+	// This is also used by the client when they press the weapon slot keys
+	// This replaces the old HL1 client side weapon selection code
+	void SelectWeaponFromSlot( int iSlot );
+	bool HasAvailableWeaponSlots( bool bIsDoubleSlot );
+	int GetBestSlotPosition();
+
+	void SelectWeapon( CBasePlayerWeapon *pWeapon );
+
+	void WeaponSlotSet( CBasePlayerWeapon *pWeapon, bool bState );
+	bool WeaponSlots[MAX_WEAPON_SLOTS] = { false };
+
+	// Drop all weapons and ammo, except the primary weapon.
+	// It's very similar to Zombie Panic Source's panic drop.
+	void DropEverything( bool bDontDropPrimary );
+	void DropWeapon( CBasePlayerWeapon *pWeapon, bool pukevel = false );
+
+	void SetBackpackState( bool bState );
+	bool HasBackpack() const { return m_bBackpack; }
+
+	bool m_bBackpack = false;
+
+	// Get an available weapon from our weapon ID
+	CBasePlayerWeapon *GetWeaponFromID( int iID );
+	void NotifyOfWeaponPickup( CBasePlayerWeapon *pWeapon );
+
 #endif
 
 	//-----------------------------------------------------

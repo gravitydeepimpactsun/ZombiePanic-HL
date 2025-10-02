@@ -24,7 +24,7 @@ class WeaponsResource
 {
 private:
 	// Information about weapons & ammo
-	WEAPON rgWeapons[MAX_WEAPONS]; // Weapons Array
+	WEAPON rgWeapons[LAST_WEAPON_ID]; // Weapons Array
 
 	// counts of weapons * ammo
 	WEAPON *rgSlots[MAX_WEAPON_SLOTS][MAX_WEAPON_POSITIONS]; // The slots currently in use by weapons. The value is a pointer to the weapon; if it's NULL, no weapon is there
@@ -54,27 +54,41 @@ public:
 		LoadWeaponSprites(&rgWeapons[wp->iId]);
 	}
 
-	void PickupWeapon(WEAPON *wp)
+	void UpdateWeaponData( int iID, WeaponData nData );
+	void UpdatedWeaponSlotPos( int iID, int iNewSlotPos );
+	void UpdateWeaponVisibility(int iID, bool bState);
+
+	WEAPON* GetWeaponBySlot(int iSlot)
+	{
+		for ( int i = 0; i < LAST_WEAPON_ID; i++ )
+		{
+			if ( rgWeapons[i].iSlot == iSlot )
+				return &rgWeapons[i];
+		}
+		return nullptr;
+	}
+
+	void PickupWeapon(WEAPON *wp, int iID)
 	{
 		if (wp->iSlot >= MAX_WEAPON_SLOTS || wp->iSlotPos >= MAX_WEAPON_POSITIONS)
 			return;
 		rgSlots[wp->iSlot][wp->iSlotPos] = wp;
+		UpdateWeaponVisibility( iID, true );
 	}
 
-	void DropWeapon(WEAPON *wp)
+	void DropWeapon(WEAPON *wp, int iID)
 	{
 		if (wp->iSlot >= MAX_WEAPON_SLOTS || wp->iSlotPos >= MAX_WEAPON_POSITIONS)
 			return;
 		rgSlots[wp->iSlot][wp->iSlotPos] = NULL;
+		UpdateWeaponVisibility( iID, false );
+		UpdatedWeaponSlotPos( iID, -1 );
 	}
 
 	void DropAllWeapons(void)
 	{
-		for (int i = 0; i < MAX_WEAPONS; i++)
-		{
-			if (rgWeapons[i].iId)
-				DropWeapon(&rgWeapons[i]);
-		}
+		for (int i = 0; i < LAST_WEAPON_ID; i++)
+			DropWeapon(&rgWeapons[i], i);
 	}
 
 	WEAPON *GetWeaponSlot(int slot, int pos)

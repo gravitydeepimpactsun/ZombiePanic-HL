@@ -11,6 +11,7 @@ class CWeaponShotgunDoubleBarrel : public CWeaponBaseSingleAction
 
 public:
 	ZPWeaponID GetWeaponID() override { return WEAPON_DOUBLEBARREL; }
+	const char *GetEmptySound() const override { return "weapons/doublebarrel/dryfire.wav"; }
 	BOOL PlayEmptySound() override;
 	bool PumpIsRequired() const override { return false; }
 	void Spawn( void );

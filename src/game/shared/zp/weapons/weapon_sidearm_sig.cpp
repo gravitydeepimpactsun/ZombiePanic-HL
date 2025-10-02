@@ -43,9 +43,8 @@ void CWeaponSideArmSig::Precache(void)
 	PRECACHE_SOUND("items/9mmclip1.wav");
 	PRECACHE_SOUND("items/9mmclip2.wav");
 
-	PRECACHE_SOUND("weapons/pl_gun1.wav"); //silenced handgun
-	PRECACHE_SOUND("weapons/pl_gun2.wav"); //silenced handgun
-	PRECACHE_SOUND("weapons/pl_gun3.wav"); //handgun
+	PRECACHE_SOUND("weapons/sig/dryfire.wav"); //handgun
+	PRECACHE_SOUND("weapons/sig/fire.wav"); //handgun
 
 	m_nEventPrimary = PRECACHE_EVENT(1, "events/sig.sc");
 }
@@ -62,8 +61,7 @@ int CWeaponSideArmSig::AddToPlayer(CBasePlayer *pPlayer)
 
 BOOL CWeaponSideArmSig::Deploy()
 {
-	// pev->body = 1;
-	return DefaultDeploy("models/v_9mmhandgun.mdl", "models/p_9mmhandgun.mdl", SIG_DRAW, "onehanded", /*UseDecrement() ? 1 : 0*/ 0);
+	return DefaultDeploy("models/v_9mmhandgun.mdl", "models/p_9mmhandgun.mdl", SIG_DRAW, "onehanded");
 }
 
 void CWeaponSideArmSig::PrimaryAttack(void)

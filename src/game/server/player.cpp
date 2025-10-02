@@ -296,7 +296,7 @@ void LinkUserMessages(void)
 	gmsgHtmlMOTD = REG_USER_MSG("HtmlMOTD", -1);
 	gmsgServerName = REG_USER_MSG("ServerName", -1);
 	gmsgAmmoPickup = REG_USER_MSG("AmmoPickup", 2);
-	gmsgWeapPickup = REG_USER_MSG("WeapPickup", 1);
+	gmsgWeapPickup = REG_USER_MSG("WeapPickup", -1);
 	gmsgItemPickup = REG_USER_MSG("ItemPickup", -1);
 	gmsgHideWeapon = REG_USER_MSG("HideWeapon", 1);
 	gmsgSetFOV = REG_USER_MSG("SetFOV", 1);
@@ -768,7 +768,7 @@ void CBasePlayer::PackDeadPlayerItems(void)
 				CBasePlayerWeapon *pWeapon = (CBasePlayerWeapon *)pPlayerItem;
 				bool bValidWeaponToDrop = true;
 				// Check if this is the crowbar, if so, do not pack it!
-				if ( FStrEq( STRING( pPlayerItem->pev->classname ), "weapon_crowbar" ) || FStrEq( STRING( pPlayerItem->pev->classname ), "weapon_swipe" ) )
+				if ( FStrEq( STRING( pPlayerItem->pev->classname ), "weapon_swipe" ) )
 					bValidWeaponToDrop = false;
 				// If throwable, don't pack em up if they are active!
 				ThrowableDropState throwablestate = IsThrowableAndActive( pWeapon, false );
@@ -846,7 +846,6 @@ void CBasePlayer::PackDeadPlayerItems(void)
 		pev->weapons |= (1 << WEAPON_SUIT);
 		// Reset our HUD back to default
 		m_iHideHUD = 0;
-		GiveNamedItem( "weapon_crowbar" );
 	}
 }
 
@@ -937,7 +936,8 @@ void CBasePlayer::Killed(entvars_t *pevAttacker, int iGib)
 			EMIT_SOUND(ENT(pev), CHAN_AUTO, "player/pl_headshot2.wav", 1, ATTN_NORM);
 			break;
 		}
-		SetBodygroup( BGROUP_HEAD, BGROUP_HEAD_HEADSHOT );
+		if ( pev->team == ZP::TEAM_ZOMBIE )
+			SetBodygroup( BGROUP_HEAD, BGROUP_HEAD_HEADSHOT );
 		// Now create some blood n' shit!
 		Vector headpos = pev->origin + Vector( 0, 0, 13 );
 		CGib::SpawnStickyGibs( pev, headpos, RANDOM_LONG( 4, 8 ) );
@@ -1140,10 +1140,21 @@ void CBasePlayer::SetAnimation(PLAYER_ANIM playerAnim)
 		return;
 
 	case ACT_RANGE_ATTACK1:
-		if (FBitSet(pev->flags, FL_DUCKING)) // crouching
-			UTIL_strcpy(szAnim, "crouch_shoot_");
+		// If m_szAnimExtention is empty, then we change it to use "empty"
+		if ( m_szAnimExtention[0] == 0 )
+		{
+			if (FBitSet(pev->flags, FL_DUCKING)) // crouching
+				UTIL_strcpy(szAnim, "crouch_shoot_empty");
+			else
+				UTIL_strcpy(szAnim, "ref_shoot_empty");
+		}
 		else
-			UTIL_strcpy(szAnim, "ref_shoot_");
+		{
+			if (FBitSet(pev->flags, FL_DUCKING)) // crouching
+				UTIL_strcpy(szAnim, "crouch_aim_");
+			else
+				UTIL_strcpy(szAnim, "ref_aim_");
+		}
 		strcat(szAnim, m_szAnimExtention);
 		animDesired = LookupSequence(szAnim);
 		if (animDesired == -1)
@@ -1168,10 +1179,21 @@ void CBasePlayer::SetAnimation(PLAYER_ANIM playerAnim)
 	case ACT_WALK:
 		if (m_Activity != ACT_RANGE_ATTACK1 || m_fSequenceFinished)
 		{
-			if (FBitSet(pev->flags, FL_DUCKING)) // crouching
-				UTIL_strcpy(szAnim, "crouch_aim_");
+			// If m_szAnimExtention is empty, then we change it to use "empty"
+			if (m_szAnimExtention[0] == 0)
+			{
+				if (FBitSet(pev->flags, FL_DUCKING)) // crouching
+					UTIL_strcpy(szAnim, "crouch_aim_empty");
+				else
+					UTIL_strcpy(szAnim, "ref_aim_empty");
+			}
 			else
-				UTIL_strcpy(szAnim, "ref_aim_");
+			{
+				if (FBitSet(pev->flags, FL_DUCKING)) // crouching
+					UTIL_strcpy(szAnim, "crouch_aim_");
+				else
+					UTIL_strcpy(szAnim, "ref_aim_");
+			}
 			strcat(szAnim, m_szAnimExtention);
 			animDesired = LookupSequence(szAnim);
 			if (animDesired == -1)
@@ -1392,14 +1414,14 @@ void CBasePlayer::PlayerDeathThink(void)
 			pev->velocity = flForward * pev->velocity.Normalized();
 	}
 
-	if (HasWeapons())
+	if ( HasWeapons() )
 	{
 		// we drop the guns here because weapons that have an area effect and can kill their user
 		// will sometimes crash coming back from CBasePlayer::Killed() if they kill their owner because the
 		// player class sometimes is freed. It's safer to manipulate the weapons once we know
 		// we aren't calling into any of their code anymore through the player pointer.
 		if ( pev->team == ZP::TEAM_SURVIVIOR )
-			PackDeadPlayerItems();
+			DropEverything( false );
 
 		// Clear our items
 		RemoveAllItems( TRUE );
@@ -2258,6 +2280,193 @@ void CBasePlayer::InAchievementTrigger( string_t iszAchievementID )
 				pPlayer->GiveAchievement( EAchievements::HOUSEOFHORRORS );
 		}
 	}
+}
+
+void CBasePlayer::SelectWeaponFromSlot( int iSlot )
+{
+	// Selects the weapon from the slot they were assigned
+	CBasePlayerWeapon *pWeapon = nullptr;
+	for (int i = 0; i < MAX_ITEM_TYPES; i++)
+	{
+		if (m_rgpPlayerItems[i])
+		{
+			pWeapon = (CBasePlayerWeapon *)m_rgpPlayerItems[i];
+			while (pWeapon)
+			{
+				if ( pWeapon->m_iAssignedSlotPosition == iSlot )
+				{
+					// Select this weapon
+					SelectWeapon( pWeapon );
+					return;
+				}
+				pWeapon = (CBasePlayerWeapon *)pWeapon->m_pNext;
+			}
+		}
+	}
+}
+
+bool CBasePlayer::HasAvailableWeaponSlots( bool bIsDoubleSlot )
+{
+	bool bIsInHardcore = ( ZP::GetCurrentGameMode()->GetGameModeType() == ZP::GameModeType_e::GAMEMODE_HARDCORE );
+	int iAvailableSlot = bIsInHardcore ? MAX_WEAPON_SLOTS_HARDCORE : MAX_WEAPON_SLOTS;
+	if ( bIsInHardcore && m_bBackpack )
+		iAvailableSlot += BACKPACK_EXTRA_SLOTS;
+	// Now check how many we have used
+	CBasePlayerWeapon *pWeapon = nullptr;
+	for (int i = 0; i < MAX_ITEM_TYPES; i++)
+	{
+		if (m_rgpPlayerItems[i])
+		{
+			pWeapon = (CBasePlayerWeapon *)m_rgpPlayerItems[i];
+			while (pWeapon)
+			{
+				if ( pWeapon->bDoubleSlot() )
+					iAvailableSlot -= 2;
+				else
+					iAvailableSlot--;
+				pWeapon = (CBasePlayerWeapon *)pWeapon->m_pNext;
+			}
+		}
+	}
+	// If we need a double slot, we need at least 2 available.
+	if ( bIsDoubleSlot )
+		return ( iAvailableSlot > 1 ) ? true : false;
+	else
+		return ( iAvailableSlot > 0 ) ? true : false;
+}
+
+int CBasePlayer::GetBestSlotPosition()
+{
+	bool bIsInHardcore = ( ZP::GetCurrentGameMode()->GetGameModeType() == ZP::GameModeType_e::GAMEMODE_HARDCORE );
+	int iMaxSlots = bIsInHardcore ? MAX_WEAPON_SLOTS_HARDCORE : MAX_WEAPON_SLOTS;
+	if ( bIsInHardcore && m_bBackpack )
+		iMaxSlots += BACKPACK_EXTRA_SLOTS;
+	int iAvailableSlot = 0;
+	for ( int i = 0; i < iMaxSlots; i++ )
+	{
+		if ( !WeaponSlots[i] )
+		{
+			iAvailableSlot = i;
+			break;
+		}
+	}
+	return iAvailableSlot;
+}
+
+void CBasePlayer::SelectWeapon( CBasePlayerWeapon *pWeapon )
+{
+	if ( pWeapon == m_pActiveItem ) return;
+
+	ResetAutoaim();
+
+	// FIX, this needs to queue them up and delay
+	if (m_pActiveItem)
+	{
+		// If throwable and active, get rid of it.
+		IsThrowableAndActive( (CBasePlayerWeapon *)m_pActiveItem, false );
+		m_pActiveItem->Holster();
+	}
+
+	m_pLastItem = m_pActiveItem;
+	m_pActiveItem = pWeapon;
+
+	if ( m_pActiveItem )
+	{
+		EMIT_SOUND(ENT(pev), CHAN_ITEM, "common/wpn_select.wav", 1, ATTN_NORM);
+		m_pActiveItem->Deploy();
+		m_pActiveItem->UpdateItemInfo();
+	}
+}
+
+void CBasePlayer::WeaponSlotSet( CBasePlayerWeapon *pWeapon, bool bState )
+{
+	WeaponSlots[pWeapon->m_iAssignedSlotPosition] = bState;
+}
+
+void CBasePlayer::DropEverything( bool bDontDropPrimary )
+{
+	// Remember our active weapon so we can switch back to it.
+	CBasePlayerWeapon *pActive = (CBasePlayerWeapon *)m_pActiveItem;
+	for (int i = 0; i < MAX_ITEM_TYPES; i++)
+	{
+		if (m_rgpPlayerItems[i])
+		{
+			CBasePlayerWeapon *pWeapon = (CBasePlayerWeapon *)m_rgpPlayerItems[i];
+			while (pWeapon)
+			{
+				CBasePlayerWeapon *pNext = (CBasePlayerWeapon *)pWeapon->m_pNext;
+				bool bCanDrop = true;
+				if ( bDontDropPrimary && pWeapon == m_pActiveItem )
+					bCanDrop = false;
+				if ( bCanDrop )
+					DropWeapon( pWeapon, true );
+				pWeapon = pNext;
+			}
+		}
+	}
+	// Switch back to our active weapon if we didn't drop it.
+	if ( bDontDropPrimary )
+		SwitchWeapon( pActive );
+	// Now drop all ammo types we no longer need.
+	DropUnuseableAmmo();
+}
+
+void CBasePlayer::DropWeapon( CBasePlayerWeapon *pWeapon, bool pukevel )
+{
+	if ( ZP::GetCurrentRoundState() < ZP::RoundState::RoundState_RoundHasBegun ) return;
+	if ( !pWeapon ) return;
+	m_flLastWeaponDrop = gpGlobals->time + 0.5f;
+
+	// You ain't allowed to drop shit.
+	if ( pWeapon->IsThrowable() && m_rgAmmo[pWeapon->m_iPrimaryAmmoType] == 0 ) return;
+
+	// Check if this is an explosive, and if armed, decrease the value if we have ammo for it.
+	// If not, delete and explode.
+	ThrowableDropState throwablestate = IsThrowableAndActive( pWeapon, true );
+
+	string_t weaponname = pWeapon->pev->classname;
+	int nClipWeHad1 = pWeapon->m_iClip;
+	int nDefAmmo = pWeapon->m_iDefaultAmmo;
+
+	g_pGameRules->GetNextBestWeapon( this, pWeapon );
+	// Remove from the player
+	WeaponSlotSet( pWeapon, false );
+	RemovePlayerItem( pWeapon );
+	UTIL_Remove( pWeapon );
+
+	// Don't create a new weapon, we go boom!
+	if ( throwablestate == DELETE_ITEM_AND_ACTIVE ) return;
+
+	// Make sure the v_forward is from us!
+	UTIL_MakeVectors(pev->angles);
+	Vector vecDir = gpGlobals->v_forward;
+
+	CBasePlayerWeapon *pNewWeapon = (CBasePlayerWeapon *)CBaseEntity::Create((char *)STRING(weaponname), pev->origin + vecDir * 10, pev->angles, nullptr);
+	if ( !pNewWeapon ) return;
+
+	pNewWeapon->DisallowPickupFor( 2.5f );
+	if ( throwablestate == ThrowableDropState::NOT_ACTIVE )
+	{
+		pNewWeapon->m_iDefaultAmmo = nDefAmmo;
+		pNewWeapon->m_iClip = nClipWeHad1;
+	}
+	pNewWeapon->pev->angles.x = 0;
+	pNewWeapon->pev->angles.z = 0;
+	if ( pukevel )
+		pNewWeapon->pev->velocity = vecDir * 10 + RandomVector( -200, 200 );
+	else
+		pNewWeapon->pev->velocity = vecDir * 300 + vecDir * 100;
+
+	// Play drop sound
+	EMIT_SOUND(ENT(pNewWeapon->pev), CHAN_VOICE, "player/pl_drop_weapon.wav", 1, ATTN_NORM);
+}
+
+void CBasePlayer::SetBackpackState( bool bState )
+{
+	// Bodygroup 1 is the backpack on the player model,
+	// so we simply reuse the head bodygroup for this.
+	SetBodygroup( BGROUP_HEAD, bState ? BGROUP_HEAD_HEADSHOT : BGROUP_HEAD_DEFAULT );
+	m_bBackpack = bState;
 }
 
 #define CLIMB_SHAKE_FREQUENCY 22 // how many frames in between screen shakes when climbing
@@ -3157,6 +3366,10 @@ void CBasePlayer::PostThink()
 	// select the proper animation for the player character
 	if (IsAlive())
 	{
+		// Got no active weapon? Clear animation extension
+		if ( !m_pActiveItem )
+			m_szAnimExtention[0] = 0;
+
 		if (!pev->velocity.x && !pev->velocity.y)
 			SetAnimation(PLAYER_IDLE);
 		else if ((pev->velocity.x || pev->velocity.y) && (FBitSet(pev->flags, FL_ONGROUND)))
@@ -3896,6 +4109,10 @@ void CBasePlayer::Spawn(void)
 	m_fWeapon = FALSE;
 	m_pClientActiveItem = NULL;
 	m_iClientBattery = -1;
+
+	// Reset all the weapon slots
+	for ( int x = 0; x < MAX_WEAPON_SLOTS; x++ )
+		WeaponSlots[x] = false;
 
 	// reset all ammo values to 0
 	for (int i = 0; i < ZPAmmoTypes::AMMO_MAX; i++)
@@ -4923,11 +5140,11 @@ void CBasePlayer::ItemPostFrame()
 
 int CBasePlayer::AmmoInventory(int iAmmoIndex)
 {
-	if (iAmmoIndex == -1)
+	if ( iAmmoIndex < 0 || iAmmoIndex >= ZPAmmoTypes::AMMO_MAX )
 	{
+		ALERT(at_console, "Bad Ammo Index %d requested\n", iAmmoIndex);
 		return -1;
 	}
-
 	return m_rgAmmo[iAmmoIndex];
 }
 
@@ -5237,10 +5454,11 @@ void CBasePlayer ::UpdateClientData(void)
 			WRITE_BYTE(GetAmmoIndex(II.pszAmmo1)); // byte		Ammo Type
 			WRITE_BYTE(GetAmmoIndex(II.pszAmmo2)); // byte		Ammo2 Type
 			WRITE_BYTE(II.iSlot); // byte		bucket
-			WRITE_BYTE(II.iPosition); // byte		bucket pos
+			//WRITE_BYTE(II.iPosition); // byte		bucket pos
 			WRITE_BYTE(II.iId); // byte		id (bit index into pev->weapons)
 			WRITE_BYTE(II.iFlags); // byte		Flags
-			WRITE_BYTE(II.iWeight); // byte		Flags
+			WRITE_BYTE(II.iWeight); // byte		Weight
+			WRITE_BYTE(II.bDoubleSlot ? 1 : 0); // byte		Double Slot
 			MESSAGE_END();
 		}
 	}
@@ -5313,6 +5531,29 @@ void CBasePlayer ::UpdateClientData(void)
 		UpdateStatusBar();
 		m_flNextSBarUpdateTime = gpGlobals->time + 0.01;
 	}
+}
+
+CBasePlayerWeapon *CBasePlayer::GetWeaponFromID( int iID )
+{
+	for (int i = 0; i < MAX_ITEM_TYPES; i++)
+	{
+		CBasePlayerItem *pItem = m_rgpPlayerItems[i];
+		while ( pItem )
+		{
+			if ( pItem->GetWeaponID() == iID )
+				return (CBasePlayerWeapon *)pItem;
+			pItem = pItem->m_pNext;
+		}
+	}
+	return nullptr;
+}
+
+void CBasePlayer::NotifyOfWeaponPickup(CBasePlayerWeapon *pWeapon)
+{
+	MESSAGE_BEGIN(MSG_ONE, gmsgWeapPickup, NULL, pev);
+	WRITE_BYTE(pWeapon->GetWeaponID());
+	WRITE_BYTE(pWeapon->m_iAssignedSlotPosition);
+	MESSAGE_END();
 }
 
 void CBasePlayer ::SetPrefsFromUserinfo(char *infobuffer)
@@ -5717,65 +5958,10 @@ void CBasePlayer::DropPlayerItem(char *pszItemName)
 
 void CBasePlayer::DropActiveWeapon()
 {
-	if ( ZP::GetCurrentRoundState() < ZP::RoundState::RoundState_RoundHasBegun ) return;
 	if ( ( m_flLastWeaponDrop - gpGlobals->time > 0 ) ) return;
 	if ( !m_pActiveItem ) return;
 	m_flLastWeaponDrop = gpGlobals->time + 0.5f;
-
-	// Check if this is the crowbar, if so, do not drop it!
-	if ( FStrEq( STRING( m_pActiveItem->pev->classname ), "weapon_crowbar" ) ) return;
-
-	CBasePlayerWeapon *pWeapon = (CBasePlayerWeapon *)m_pActiveItem;
-	// You ain't allowed to drop shit.
-	if ( pWeapon->IsThrowable() && m_rgAmmo[pWeapon->m_iPrimaryAmmoType] == 0 ) return;
-
-	// Check if this is an explosive, and if armed, decrease the value if we have ammo for it.
-	// If not, delete and explode.
-	ThrowableDropState throwablestate = IsThrowableAndActive( pWeapon, true );
-
-	string_t weaponname = pWeapon->pev->classname;
-	int nClipWeHad1 = pWeapon->m_iClip;
-	int nDefAmmo = pWeapon->m_iDefaultAmmo;
-
-	switch ( throwablestate )
-	{
-		case ThrowableDropState::NOT_ACTIVE:
-		case ThrowableDropState::DELETE_ITEM:
-		case ThrowableDropState::DELETE_ITEM_AND_ACTIVE:
-		{
-			g_pGameRules->GetNextBestWeapon( this, pWeapon );
-			// Remove from the player
-			RemovePlayerItem( pWeapon );
-			UTIL_Remove( pWeapon );
-		}
-		break;
-	    default:
-		    pWeapon->Deploy();
-		break;
-	}
-
-	// Don't create a new weapon, we go boom!
-	if ( throwablestate == DELETE_ITEM_AND_ACTIVE ) return;
-
-	// Make sure the v_forward is from us!
-	UTIL_MakeVectors(pev->angles);
-	Vector vecDir = gpGlobals->v_forward;
-
-	CBasePlayerWeapon *pNewWeapon = (CBasePlayerWeapon *)CBaseEntity::Create((char *)STRING(weaponname), pev->origin + vecDir * 10, pev->angles, nullptr);
-	if ( !pNewWeapon ) return;
-
-	pNewWeapon->DisallowPickupFor( 2.5f );
-	if ( throwablestate == ThrowableDropState::NOT_ACTIVE )
-	{
-		pNewWeapon->m_iDefaultAmmo = nDefAmmo;
-		pNewWeapon->m_iClip = nClipWeHad1;
-	}
-	pNewWeapon->pev->angles.x = 0;
-	pNewWeapon->pev->angles.z = 0;
-	pNewWeapon->pev->velocity = vecDir * 300 + vecDir * 100;
-
-	// Play drop sound
-	EMIT_SOUND(ENT(pNewWeapon->pev), CHAN_VOICE, "player/pl_drop_weapon.wav", 1, ATTN_NORM);
+	DropWeapon( (CBasePlayerWeapon *)m_pActiveItem );
 }
 
 int CBasePlayer::AmmoIndexToDrop( int ammoindex )
@@ -6066,7 +6252,7 @@ void CBasePlayer::DoPanic()
 	}
 
 	// Drop everything in a backpack.
-	PackDeadPlayerItems();
+	DropEverything( true );
 
 	// Give our achievements
 	GiveAchievement( EAchievements::PANIC_ATTACK );
@@ -6149,6 +6335,8 @@ BOOL CBasePlayer::HasPlayerItemFromID(int nID)
 //=========================================================
 BOOL CBasePlayer ::SwitchWeapon(CBasePlayerItem *pWeapon)
 {
+	// We got nothing to switch to
+	if (!pWeapon) return FALSE;
 	if (!pWeapon->CanDeploy())
 	{
 		return FALSE;

@@ -442,6 +442,95 @@ int CHud::DrawHudNumberCentered(int x, int y, int number, int r, int g, int b)
 	return DrawHudNumber(x - (digit_width * digit_count) / 2, y, number, r, g, b);
 }
 
+int CHud::DrawHudNumberSmall(int x, int y, int iFlags, int iNumber, int r, int g, int b)
+{
+	int iWidth = GetSpriteRect(m_HUD_number_small_0).right - GetSpriteRect(m_HUD_number_small_0).left;
+	int k;
+
+	if (iNumber > 0)
+	{
+		if (iNumber > 999)
+			iNumber = 999;
+
+		// SPR_Draw 100's
+		if (iNumber >= 100)
+		{
+			k = iNumber / 100;
+			SPR_Set(GetSprite(m_HUD_number_small_0 + k), r, g, b);
+			SPR_DrawAdditive(0, x, y, &GetSpriteRect(m_HUD_number_small_0 + k));
+			x += iWidth;
+		}
+		else if (iFlags & (DHN_3DIGITS))
+		{
+			//SPR_DrawAdditive( 0, x, y, &rc );
+			x += iWidth;
+		}
+
+		// SPR_Draw 10's
+		if (iNumber >= 10)
+		{
+			k = (iNumber % 100) / 10;
+			SPR_Set(GetSprite(m_HUD_number_small_0 + k), r, g, b);
+			SPR_DrawAdditive(0, x, y, &GetSpriteRect(m_HUD_number_small_0 + k));
+			x += iWidth;
+		}
+		else if (iFlags & (DHN_3DIGITS | DHN_2DIGITS))
+		{
+			//SPR_DrawAdditive( 0, x, y, &rc );
+			x += iWidth;
+		}
+
+		// SPR_Draw ones
+		k = iNumber % 10;
+		SPR_Set(GetSprite(m_HUD_number_small_0 + k), r, g, b);
+		SPR_DrawAdditive(0, x, y, &GetSpriteRect(m_HUD_number_small_0 + k));
+		x += iWidth;
+	}
+	else if (iFlags & DHN_DRAWZERO)
+	{
+		SPR_Set(GetSprite(m_HUD_number_small_0), r, g, b);
+
+		// SPR_Draw 100's
+		if (iFlags & (DHN_3DIGITS))
+		{
+			//SPR_DrawAdditive( 0, x, y, &rc );
+			x += iWidth;
+		}
+
+		if (iFlags & (DHN_3DIGITS | DHN_2DIGITS))
+		{
+			//SPR_DrawAdditive( 0, x, y, &rc );
+			x += iWidth;
+		}
+
+		// SPR_Draw ones
+
+		SPR_DrawAdditive(0, x, y, &GetSpriteRect(m_HUD_number_small_0));
+		x += iWidth;
+	}
+
+	return x;
+}
+
+int CHud::DrawHudNumberSmall(int x, int y, int number, int r, int g, int b)
+{
+	auto digit_width = GetSpriteRect(m_HUD_number_small_0).right - GetSpriteRect(m_HUD_number_small_0).left;
+	auto digit_count = number > 9 ? (int)log10((double)number) + 1 : 1;
+
+	for (int i = digit_count; i > 0; --i)
+	{
+		int digit = number / s_TenPowers[i - 1];
+
+		SPR_Set(GetSprite(m_HUD_number_small_0 + digit), r, g, b);
+		SPR_DrawAdditive(0, x, y, &GetSpriteRect(m_HUD_number_small_0 + digit));
+		x += digit_width;
+
+		number -= digit * s_TenPowers[i - 1];
+	}
+
+	return x;
+}
+
 int CHud::GetNumWidth(int iNumber, int iFlags)
 {
 	if (iFlags & (DHN_3DIGITS))

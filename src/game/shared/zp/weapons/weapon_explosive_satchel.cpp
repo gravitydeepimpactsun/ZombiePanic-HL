@@ -71,21 +71,18 @@ int CWeaponExplosiveSatchel::AddDuplicate(CBasePlayerItem *pOriginal)
 		}
 	}
 
-	return CBasePlayerWeapon::AddDuplicate(pOriginal);
+	return BaseClass::AddDuplicate( pOriginal );
 }
 
 //=========================================================
 //=========================================================
 int CWeaponExplosiveSatchel::AddToPlayer(CBasePlayer *pPlayer)
 {
-	int bResult = CBasePlayerItem::AddToPlayer(pPlayer);
-
-	pPlayer->pev->weapons |= (1 << GetWeaponID());
 	m_chargeReady = SATCHEL_IDLE; // this satchel charge weapon now forgets that any satchels are deployed by it.
-
-	if (bResult)
+	if ( BaseClass::AddToPlayer( pPlayer ) )
 	{
-		return AddWeapon();
+		BaseClass::SendWeaponPickup( pPlayer );
+		return TRUE;
 	}
 	return FALSE;
 }
@@ -166,6 +163,9 @@ void CWeaponExplosiveSatchel::Holster(int skiplocal /* = 0 */)
 
 	if (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0 && m_chargeReady != SATCHEL_READY)
 	{
+#ifndef CLIENT_DLL
+		m_pPlayer->WeaponSlotSet( this, false );
+#endif
 		DestroyItem();
 	}
 }

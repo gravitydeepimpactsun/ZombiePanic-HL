@@ -42,10 +42,14 @@ void CWeaponShotgunRemington::Precache( void )
 	PRECACHE_SOUND( "weapons/reload1.wav" ); // shotgun reload
 	PRECACHE_SOUND( "weapons/reload3.wav" ); // shotgun reload
 
-	PRECACHE_SOUND( "weapons/357_cock1.wav" ); // gun empty sound
-	PRECACHE_SOUND( "weapons/scock1.wav" ); // cock gun
+	PRECACHE_SOUND( "weapons/shotgun/dryfire.wav" );
+	PRECACHE_SOUND( "weapons/shotgun/fire.wav" );
+	PRECACHE_SOUND( "weapons/shotgun/pump.wav" );
+	PRECACHE_SOUND( "weapons/shotgun/reload1.wav" );
+	PRECACHE_SOUND( "weapons/shotgun/reload2.wav" );
 
 	m_nEventPrimary = PRECACHE_EVENT( 1, "events/shotgun1.sc" );
+	m_nEventPump = PRECACHE_EVENT(1, "events/shotgun_pump.sc");
 }
 
 int CWeaponShotgunRemington::AddToPlayer( CBasePlayer *pPlayer )
@@ -86,7 +90,7 @@ void CWeaponShotgunRemington::OnRequestedAnimation( SingleActionAnimReq act )
 			// reload debounce has timed out
 			SendWeaponAnim( SHOTGUN_PUMP );
 			// play cocking sound
-			EMIT_SOUND_DYN( ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/scock1.wav", 1, ATTN_NORM, 0, 105 );
+			EMIT_SOUND_DYN( ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/shotgun/pump.wav", 1, ATTN_NORM, 0, 105 );
 			m_flTimeWeaponIdle = m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + 0.66f;
 		}
 		break;
@@ -94,9 +98,9 @@ void CWeaponShotgunRemington::OnRequestedAnimation( SingleActionAnimReq act )
 		case CWeaponBaseSingleAction::ANIM_RELOAD:
 		{
 		    if (RANDOM_LONG(0, 1))
-			    EMIT_SOUND_DYN( ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/reload1.wav", 1, ATTN_NORM, 0, 85 + RANDOM_LONG(0, 0x1f) );
+			    EMIT_SOUND_DYN( ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/shotgun/reload1.wav", 1, ATTN_NORM, 0, 85 + RANDOM_LONG(0, 0x1f) );
 		    else
-			    EMIT_SOUND_DYN( ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/reload3.wav", 1, ATTN_NORM, 0, 85 + RANDOM_LONG(0, 0x1f) );
+			    EMIT_SOUND_DYN( ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/shotgun/reload2.wav", 1, ATTN_NORM, 0, 85 + RANDOM_LONG(0, 0x1f) );
 
 		    SendWeaponAnim( SHOTGUN_RELOAD );
 
@@ -111,7 +115,7 @@ void CWeaponShotgunRemington::OnRequestedAnimation( SingleActionAnimReq act )
 		case CWeaponBaseSingleAction::ANIM_RELOAD_END:
 		{
 			SendWeaponAnim( SHOTGUN_RELOAD_END );
-			EMIT_SOUND_DYN( ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/scock1.wav", 1, ATTN_NORM, 0, 105 );
+			EMIT_SOUND_DYN( ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/shotgun/pump.wav", 1, ATTN_NORM, 0, 105 );
 			m_flNextReload = UTIL_WeaponTimeBase() + 0.8;
 			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.8;
 		}

@@ -266,12 +266,19 @@ void CBaseGameMode::GiveWeapons( CBasePlayer *pPlayer )
 
 	if ( addDefault )
 	{
-		pPlayer->GiveNamedItem( "weapon_crowbar" );
 		if ( !pPlayer->m_bPunishLateJoiner )
 		{
+			int randWep = RANDOM_LONG(0, 1);
+			switch (randWep)
+			{
+				case 0: pPlayer->GiveNamedItem( "weapon_crowbar" ); break;
+				case 1: pPlayer->GiveNamedItem( "weapon_leadpipe" ); break;
+			}
 			pPlayer->GiveNamedItem( "weapon_sig" );
 			pPlayer->GiveAmmo( 14, ZPAmmoTypes::AMMO_PISTOL );
 		}
+		else
+			pPlayer->GiveNamedItem( "weapon_crowbar" );
 		pPlayer->m_bPunishLateJoiner = false;
 	}
 }

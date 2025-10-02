@@ -32,6 +32,7 @@
 #define DAMAGE_NAME "sprites/%d_dmg.spr"
 
 int giDmgHeight, giDmgWidth;
+int giHealthXPos = 0;
 
 int giDmgFlags[NUM_DMG_TYPES] = {
 	DMG_POISON,
@@ -213,36 +214,19 @@ void CHudHealth::Draw(float flTime)
 		int CrossWidth = m_rcCross.right - m_rcCross.left;
 		int iOffset = (m_rcCross.bottom - m_rcCross.top - gHUD.m_iFontHeight) / 2;
 
-		y = ScreenHeight - gHUD.m_iFontHeight - gHUD.m_iFontHeight / 2;
-		x = gHUD.m_iFontHeight / 2 - iOffset;
+		y = gHUD.m_iFontHeight - gHUD.m_iFontHeight / 2;
+		int xOffset = gHUD.GetSpriteRect(gHUD.m_HUD_number_0).GetWidth() * 5 + 2;
+		x = ScreenWidth - gHUD.m_iFontHeight - xOffset - 8;
 
 		SPR_Set(gHUD.GetSprite(m_HUD_cross), r, g, b);
 		SPR_DrawAdditive(0, x, y - iOffset, &m_rcCross);
 
-		x = CrossWidth + HealthWidth / 2;
+		giHealthXPos = x + CrossWidth + HealthWidth / 2;
 
 		if (m_iHealth < 1000)
-			x = gHUD.DrawHudNumber(x, y, DHN_3DIGITS | DHN_DRAWZERO, m_iHealth, r, g, b);
+			gHUD.DrawHudNumber(giHealthXPos, y, DHN_3DIGITS | DHN_DRAWZERO, m_iHealth, r, g, b);
 		else
-			x = gHUD.DrawHudNumber(x, y, m_iHealth, r, g, b);
-
-		// Don't draw the divider if we are on the zombie team.
-		if ( gEngfuncs.GetLocalPlayer()->curstate.team != ZP::TEAM_ZOMBIE )
-		{
-			x += HealthWidth / 2;
-
-			int iHeight = gHUD.m_iFontHeight;
-			int iWidth = HealthWidth / 10;
-
-			if (!hud_dim.GetBool())
-				a = MIN_ALPHA + ALPHA_POINTS_MAX;
-			else
-				a = MIN_ALPHA;
-			a *= gHUD.GetHudTransparency();
-			gHUD.GetHudColor(HudPart::Common, 0, r, g, b);
-
-			FillRGBA(x, y, iWidth, iHeight, r, g, b, a);
-		}
+			gHUD.DrawHudNumber(giHealthXPos, y, m_iHealth, r, g, b);
 	}
 
 	DrawDamage(flTime);

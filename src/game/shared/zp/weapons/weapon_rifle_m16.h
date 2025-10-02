@@ -11,6 +11,7 @@ class CWeaponRifleM16 : public CWeaponBase
 
 public:
 	ZPWeaponID GetWeaponID() override { return WEAPON_556AR; }
+	const char *GetEmptySound() const override { return "weapons/556ar/dryfire.wav"; }
 	void Spawn( void );
 	void Precache( void );
 	int AddToPlayer( CBasePlayer *pPlayer );

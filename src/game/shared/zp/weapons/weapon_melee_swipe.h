@@ -17,7 +17,8 @@ public:
 	void EXPORT Smack( void );
 	int AddToPlayer( CBasePlayer *pPlayer );
 
-	void PrimaryAttack( void );
+	void PrimaryAttack(void);
+	void WeaponIdle();
 	int Swing( int fFirst );
 	BOOL Deploy( void );
 	void Holster( int skiplocal = 0 );

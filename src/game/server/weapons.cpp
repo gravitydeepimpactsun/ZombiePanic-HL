@@ -360,9 +360,9 @@ void EXPORT W_Precache(void)
 	PRECACHE_SOUND("weapons/debris2.wav"); // explosion aftermaths
 	PRECACHE_SOUND("weapons/debris3.wav"); // explosion aftermaths
 
-	PRECACHE_SOUND("weapons/grenade_hit1.wav"); //grenade
-	PRECACHE_SOUND("weapons/grenade_hit2.wav"); //grenade
-	PRECACHE_SOUND("weapons/grenade_hit3.wav"); //grenade
+	PRECACHE_SOUND("weapons/tnt/hit1.wav"); //grenade
+	PRECACHE_SOUND("weapons/tnt/hit2.wav"); //grenade
+	PRECACHE_SOUND("weapons/tnt/hit3.wav"); //grenade
 
 	PRECACHE_SOUND("weapons/bullet_hit1.wav"); // hit by bullet
 	PRECACHE_SOUND("weapons/bullet_hit2.wav"); // hit by bullet
@@ -686,7 +686,7 @@ void CBasePlayerWeapon::ItemPostFrame(void)
 		else
 		{
 			// weapon is useable. Reload if empty and weapon has waited as long as it has to after firing
-			if (m_iClip == 0 && !(iFlags() & ITEM_FLAG_NOAUTORELOAD) && m_flNextPrimaryAttack < (UseDecrement() ? 0.0 : gpGlobals->time))
+			if ((pPlayer->pev->button & (IN_RELOAD)) && m_iClip == 0 && m_flNextPrimaryAttack < (UseDecrement() ? 0.0 : gpGlobals->time))
 			{
 				Reload();
 				return;
@@ -714,6 +714,9 @@ void CBasePlayerItem::DestroyItem(void)
 int CBasePlayerItem::AddToPlayer(CBasePlayer *pPlayer)
 {
 	if ( m_flDisallowPickup != -1 && m_flDisallowPickup - gpGlobals->time > 0 ) return FALSE;
+
+	// Make sure the player has available slots
+	if ( !pPlayer->HasAvailableWeaponSlots( bDoubleSlot() ) ) return FALSE;
 
 	m_pPlayer = pPlayer;
 
@@ -781,7 +784,16 @@ int CBasePlayerWeapon::AddToPlayer(CBasePlayer *pPlayer)
 	}
 
 	if (bResult)
-		return AddWeapon();
+	{
+		int iRet = AddWeapon();
+		// Assign a slot for this weapon.
+		if ( iRet == TRUE )
+		{
+			m_iAssignedSlotPosition = pPlayer->GetBestSlotPosition();
+			pPlayer->WeaponSlotSet( this, true );
+		}
+		return iRet;
+	}
 	return FALSE;
 }
 
@@ -992,7 +1004,7 @@ BOOL CBasePlayerWeapon ::PlayEmptySound(void)
 {
 	if (m_iPlayEmptySound)
 	{
-		EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_WEAPON, "weapons/357_cock1.wav", 0.8, ATTN_NORM);
+		EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_WEAPON, GetEmptySound(), 1.0, ATTN_NORM);
 		m_iPlayEmptySound = 0;
 		return 0;
 	}
@@ -1027,10 +1039,7 @@ void CBasePlayerWeapon::Holster(int skiplocal /* = 0 */)
 
 void CBasePlayerWeapon::SendWeaponPickup(CBasePlayer *pPlayer)
 {
-	int iWepID = GetWeaponID();
-	MESSAGE_BEGIN(MSG_ONE, gmsgWeapPickup, NULL, pPlayer->pev);
-	WRITE_BYTE(iWepID);
-	MESSAGE_END();
+	pPlayer->NotifyOfWeaponPickup( this );
 
 	if (!pPlayer->m_fInitHUD)
 	{
@@ -1042,9 +1051,7 @@ void CBasePlayerWeapon::SendWeaponPickup(CBasePlayer *pPlayer)
 			if (!plr || plr->pev->iuser1 != OBS_IN_EYE || plr->m_hObserverTarget != pPlayer)
 				continue;
 
-			MESSAGE_BEGIN(MSG_ONE, gmsgWeapPickup, NULL, plr->pev);
-			WRITE_BYTE(iWepID);
-			MESSAGE_END();
+			pPlayer->NotifyOfWeaponPickup( this );
 		}
 	}
 }

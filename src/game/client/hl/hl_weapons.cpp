@@ -267,10 +267,10 @@ void CBasePlayerWeapon::SendWeaponAnim(int iAnim, int skiplocal, int body)
 
 void CBasePlayerWeapon::SendWeaponPickup(CBasePlayer *pPlayer)
 {
-	int iWepID = GetWeaponID();
-	MESSAGE_BEGIN(MSG_ONE, gmsgWeapPickup, NULL, pPlayer->pev);
-	WRITE_BYTE(iWepID);
-	MESSAGE_END();
+	//int iWepID = GetWeaponID();
+	//MESSAGE_BEGIN(MSG_ONE, gmsgWeapPickup, NULL, pPlayer->pev);
+	//WRITE_BYTE(iWepID);
+	//MESSAGE_END();
 }
 
 /*

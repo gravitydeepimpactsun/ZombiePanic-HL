@@ -37,6 +37,7 @@ public:
 	
 protected:
 	float m_flNextReload = 0.0f;
+	unsigned short m_nEventPump;
 
 private:
 	bool m_bRequirePumping = false;

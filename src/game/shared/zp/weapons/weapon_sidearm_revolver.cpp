@@ -51,10 +51,10 @@ void CWeaponSideArmRevolver::Precache(void)
 	PRECACHE_MODEL("models/w_357ammobox.mdl");
 	PRECACHE_SOUND("items/9mmclip1.wav");
 
-	PRECACHE_SOUND("weapons/357_reload1.wav");
-	PRECACHE_SOUND("weapons/357_cock1.wav");
-	PRECACHE_SOUND("weapons/357_shot1.wav");
-	PRECACHE_SOUND("weapons/357_shot2.wav");
+	PRECACHE_SOUND("weapons/revolver/reload.wav");
+	PRECACHE_SOUND("weapons/revolver/dryfire.wav");
+	PRECACHE_SOUND("weapons/revolver/fire1.wav");
+	PRECACHE_SOUND("weapons/revolver/fire2.wav");
 
 	m_nEventPrimary = PRECACHE_EVENT(1, "events/python.sc");
 }
@@ -65,7 +65,7 @@ BOOL CWeaponSideArmRevolver::Deploy()
 	if ( m_pPlayer )
 		m_pPlayer->m_iWeaponKillCount = 0;
 #endif
-	return DefaultDeploy("models/v_357.mdl", "models/p_357.mdl", PYTHON_DRAW, "python", UseDecrement());
+	return DefaultDeploy("models/v_357.mdl", "models/p_357.mdl", PYTHON_DRAW, "python");
 }
 
 void CWeaponSideArmRevolver::Holster(int skiplocal /* = 0 */)

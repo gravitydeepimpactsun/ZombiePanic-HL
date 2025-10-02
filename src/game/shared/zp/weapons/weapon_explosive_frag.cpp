@@ -1,6 +1,7 @@
 // ============== Copyright (c) 2025 Monochrome Games ============== \\
 
 #include "weapon_explosive_frag.h"
+#include "gamerules.h"
 
 enum
 {
@@ -32,12 +33,22 @@ void CWeaponExplosiveFrag::Spawn()
 	FallInit(); // get ready to fall down.
 }
 
+int CWeaponExplosiveFrag::AddToPlayer( CBasePlayer *pPlayer )
+{
+	if ( BaseClass::AddToPlayer( pPlayer ) )
+	{
+		BaseClass::SendWeaponPickup( pPlayer );
+		return TRUE;
+	}
+	return FALSE;
+}
+
 void CWeaponExplosiveFrag::Precache(void)
 {
 	PRECACHE_MODEL("models/w_grenade.mdl");
 	PRECACHE_MODEL("models/v_grenade.mdl");
 	PRECACHE_MODEL("models/p_grenade.mdl");
-	PRECACHE_SOUND("weapons/fuse.wav");
+	PRECACHE_SOUND("weapons/tnt/fuse.wav");
 }
 
 BOOL CWeaponExplosiveFrag::Deploy()
@@ -59,14 +70,7 @@ void CWeaponExplosiveFrag::Holster(int skiplocal /* = 0 */)
 
 	EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_WEAPON, "common/null.wav", 1.0, ATTN_NORM);
 
-	if (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] > 0)
-	{
-		SendWeaponAnim(HANDGRENADE_HOLSTER);
-	}
-	else
-	{
-		DestroyItem();
-	}
+	SendWeaponAnim(HANDGRENADE_HOLSTER);
 }
 
 void CWeaponExplosiveFrag::PrimaryAttack()
@@ -145,6 +149,11 @@ void CWeaponExplosiveFrag::WeaponIdle(void)
 			// set attack times in the future, and weapon idle in the future so we can see the whole throw
 			// animation, weapon idle will automatically retire the weapon for us.
 			m_flTimeWeaponIdle = m_flNextSecondaryAttack = m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + 0.5; // ensure that the animation can finish playing
+#ifndef CLIENT_DLL
+			// Auto switch to next best weapon if we have no more grenades.
+			m_pPlayer->WeaponSlotSet( this, false );
+			DestroyItem();
+#endif
 		}
 		return;
 	}

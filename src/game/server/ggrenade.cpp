@@ -304,13 +304,13 @@ void CGrenade ::BounceSound(void)
 	switch (RANDOM_LONG(0, 2))
 	{
 	case 0:
-		EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/grenade_hit1.wav", 0.25, ATTN_NORM);
+		EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/tnt/hit1.wav", 0.25, ATTN_NORM);
 		break;
 	case 1:
-		EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/grenade_hit2.wav", 0.25, ATTN_NORM);
+		EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/tnt/hit2.wav", 0.25, ATTN_NORM);
 		break;
 	case 2:
-		EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/grenade_hit3.wav", 0.25, ATTN_NORM);
+		EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/tnt/hit3.wav", 0.25, ATTN_NORM);
 		break;
 	}
 }

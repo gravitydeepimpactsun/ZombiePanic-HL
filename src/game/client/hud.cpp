@@ -685,6 +685,11 @@ void CHud::VidInit(void)
 	if (m_HUD_number_0 == -1)
 		HUD_FatalError("Failed to find sprite 'number_0' in the sprite list.\nYour game is corrupted.");
 
+	// Only used for small numbers for our HUD (such as the weapon slots)
+	m_HUD_number_small_0 = GetSpriteIndex("number_small_0");
+	if (m_HUD_number_small_0 == -1)
+		HUD_FatalError("Failed to find sprite 'number_small_0' in the sprite list.\nYour game is corrupted.");
+
 	m_iFontHeight = m_rgrcRects[m_HUD_number_0].bottom - m_rgrcRects[m_HUD_number_0].top;
 
 	gFog.ClearFog();

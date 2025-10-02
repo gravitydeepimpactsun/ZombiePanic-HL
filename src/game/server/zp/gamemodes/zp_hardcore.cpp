@@ -41,14 +41,18 @@ void ZPGameMode_HardCore::GiveWeapons(CBasePlayer *pPlayer)
 
 	if ( addDefault )
 	{
-		pPlayer->GiveNamedItem( "weapon_crowbar" );
 		if ( !pPlayer->m_bPunishLateJoiner )
 		{
-			pPlayer->GiveNamedItem( "weapon_sig" );
-			pPlayer->GiveAmmo( 14, ZPAmmoTypes::AMMO_PISTOL );
+			// Randomly give a melee weapon
+			int randWep = RANDOM_LONG(0, 1);
+			switch (randWep)
+			{
+				case 0: pPlayer->GiveNamedItem( "weapon_crowbar" ); break;
+				case 1: pPlayer->GiveNamedItem( "weapon_leadpipe" ); break;
+			}
 
 			// Randomly give a secondary weapon
-			int randWep = RANDOM_LONG(0, 3);
+			randWep = RANDOM_LONG(0, 4);
 			switch (randWep)
 			{
 				case 0:
@@ -67,8 +71,14 @@ void ZPGameMode_HardCore::GiveWeapons(CBasePlayer *pPlayer)
 					pPlayer->GiveNamedItem( "weapon_mp5" );
 					pPlayer->GiveAmmo( 30, ZPAmmoTypes::AMMO_PISTOL );
 				break;
+				case 4:
+					pPlayer->GiveNamedItem( "weapon_sig" );
+					pPlayer->GiveAmmo( 14, ZPAmmoTypes::AMMO_PISTOL );
+				break;
 			}
 		}
+		else
+			pPlayer->GiveNamedItem( "weapon_crowbar" );
 		pPlayer->m_bPunishLateJoiner = false;
 	}
 }

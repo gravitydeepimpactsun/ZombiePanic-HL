@@ -17,7 +17,9 @@ enum
 	SWIPE_ATTACK2MISS,
 	SWIPE_ATTACK2HIT,
 	SWIPE_ATTACK3MISS,
-	SWIPE_ATTACK3HIT
+	SWIPE_ATTACK3HIT,
+	SWIPE_IDLE2,
+	SWIPE_IDLE3
 };
 
 #define SWIPE_BODYHIT_VOLUME 128
@@ -38,11 +40,11 @@ void CWeaponMeleeSwipe::Precache(void)
 	PRECACHE_MODEL("models/v_swipe.mdl");
 	PRECACHE_MODEL("models/w_swipe.mdl");
 	PRECACHE_MODEL("models/p_swipe.mdl");
-	PRECACHE_SOUND("weapons/claw_strike1.wav");
-	PRECACHE_SOUND("weapons/claw_strike2.wav");
-	PRECACHE_SOUND("weapons/claw_strike3.wav");
-	PRECACHE_SOUND("weapons/claw_miss1.wav");
-	PRECACHE_SOUND("weapons/claw_miss2.wav");
+	PRECACHE_SOUND("weapons/melee/zarm/strike1.wav");
+	PRECACHE_SOUND("weapons/melee/zarm/strike2.wav");
+	PRECACHE_SOUND("weapons/melee/zarm/strike3.wav");
+	PRECACHE_SOUND("weapons/melee/miss1.wav");
+	PRECACHE_SOUND("weapons/melee/miss2.wav");
 
 	m_nEventPrimary = PRECACHE_EVENT(1, "events/swipe.sc");
 }
@@ -65,7 +67,7 @@ int CWeaponMeleeSwipe::AddToPlayer( CBasePlayer *pPlayer )
 
 BOOL CWeaponMeleeSwipe::Deploy()
 {
-	return DefaultDeploy("models/v_swipe.mdl", "models/p_swipe.mdl", SWIPE_DRAW, "crowbar");
+	return DefaultDeploy("models/v_swipe.mdl", "models/p_swipe.mdl", SWIPE_DRAW, "swipe");
 }
 
 void CWeaponMeleeSwipe::Holster(int skiplocal /* = 0 */)
@@ -139,6 +141,7 @@ int CWeaponMeleeSwipe::Swing(int fFirst)
 		{
 			// miss
 			m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + 0.5;
+			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + PrimaryFireRate() + 1.0f;
 
 			// player "shoot" animation
 			m_pPlayer->SetAnimation(PLAYER_ATTACK1);
@@ -196,13 +199,13 @@ int CWeaponMeleeSwipe::Swing(int fFirst)
 				switch (RANDOM_LONG(0, 2))
 				{
 				case 0:
-					EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/claw_strike1.wav", 1, ATTN_NORM);
+					EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/melee/zarm/strike1.wav", 1, ATTN_NORM);
 					break;
 				case 1:
-					EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/claw_strike2.wav", 1, ATTN_NORM);
+					EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/melee/zarm/strike2.wav", 1, ATTN_NORM);
 					break;
 				case 2:
-					EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/claw_strike3.wav", 1, ATTN_NORM);
+					EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/melee/zarm/strike3.wav", 1, ATTN_NORM);
 					break;
 				}
 				m_pPlayer->m_iWeaponVolume = SWIPE_BODYHIT_VOLUME;
@@ -234,13 +237,13 @@ int CWeaponMeleeSwipe::Swing(int fFirst)
 			switch (RANDOM_LONG(0, 1))
 			{
 			case 0:
-				EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/claw_strike1.wav", fvolbar, ATTN_NORM, 0, 98 + RANDOM_LONG(0, 3));
+				EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/melee/zarm/strike1.wav", fvolbar, ATTN_NORM, 0, 98 + RANDOM_LONG(0, 3));
 				break;
 			case 1:
-				EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/claw_strike2.wav", fvolbar, ATTN_NORM, 0, 98 + RANDOM_LONG(0, 3));
+				EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/melee/zarm/strike2.wav", fvolbar, ATTN_NORM, 0, 98 + RANDOM_LONG(0, 3));
 				break;
 			case 2:
-				EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/claw_strike3.wav", fvolbar, ATTN_NORM, 0, 98 + RANDOM_LONG(0, 3));
+				EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/melee/zarm/strike3.wav", fvolbar, ATTN_NORM, 0, 98 + RANDOM_LONG(0, 3));
 				break;
 			}
 
@@ -251,9 +254,35 @@ int CWeaponMeleeSwipe::Swing(int fFirst)
 		m_pPlayer->m_iWeaponVolume = flVol * SWIPE_WALLHIT_VOLUME;
 #endif
 		m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + PrimaryFireRate();
+		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + PrimaryFireRate() + 1.0f;
 
 		SetThink(&CWeaponMeleeSwipe::Smack);
 		pev->nextthink = gpGlobals->time + 0.2;
 	}
 	return fDidHit;
+}
+
+void CWeaponMeleeSwipe::WeaponIdle()
+{
+	if ( m_flTimeWeaponIdle > UTIL_WeaponTimeBase() ) return;
+	int iAnim;
+	float flTime = 1.0f;
+	switch ( RANDOM_LONG(0, 4) )
+	{
+		default:
+		case 0:
+			iAnim = SWIPE_IDLE;
+		    flTime = 3.0f;
+		break;
+		case 2:
+		    iAnim = SWIPE_IDLE2;
+		    flTime = 1.0f;
+		break;
+		case 4:
+		    iAnim = SWIPE_IDLE3;
+		    flTime = 1.06f;
+		break;
+	}
+	SendWeaponAnim( iAnim );
+	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + flTime; // how long till we do this again.
 }

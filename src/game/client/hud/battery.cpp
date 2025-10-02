@@ -25,6 +25,8 @@
 #include "parsemsg.h"
 #include "battery.h"
 
+extern int giHealthXPos;
+
 DEFINE_HUD_ELEM(CHudBattery);
 
 void CHudBattery::Init(void)
@@ -74,6 +76,9 @@ void CHudBattery::Draw(float flTime)
 	if ( gEngfuncs.GetLocalPlayer()->curstate.team == ZP::TEAM_ZOMBIE )
 		return;
 
+	// We got no armor, don't draw either.
+	if ( m_iBat == 0 ) return;
+
 	int r, g, b, x, y;
 	float a;
 	wrect_t rc;
@@ -101,12 +106,13 @@ void CHudBattery::Draw(float flTime)
 	gHUD.GetHudColor(HudPart::Armor, m_iBat, r, g, b);
 	ScaleColors(r, g, b, a);
 
+	int BatteryWidth = gHUD.GetSpriteRect(gHUD.m_HUD_number_0).right - gHUD.GetSpriteRect(gHUD.m_HUD_number_0).left;
+	int ArmorWidth = m_rc1.right - m_rc1.left;
 	int iOffset = (m_rc1.bottom - m_rc1.top) / 6;
 
-	y = ScreenHeight - gHUD.m_iFontHeight - gHUD.m_iFontHeight / 2;
-
-	// this used to just be ScreenWidth/5 but that caused real issues at higher resolutions. Instead, base it on the width of digit 0
-	x = 10 * gHUD.GetSpriteRect(gHUD.m_HUD_number_0).GetWidth();
+	y = ( gHUD.m_iFontHeight - gHUD.m_iFontHeight / 2 ) + gHUD.GetSpriteRect(gHUD.m_HUD_number_0).GetHeight() + 20;
+	int xOffset = gHUD.GetSpriteRect(gHUD.m_HUD_number_0).GetWidth() * 5 + 2;
+	x = ScreenWidth - gHUD.m_iFontHeight - xOffset - 15;
 
 	// make sure we have the right sprite handles
 	if (!m_hSprite1)
@@ -123,10 +129,10 @@ void CHudBattery::Draw(float flTime)
 		SPR_DrawAdditive(0, x, y - iOffset + (rc.top - m_rc2.top), &rc);
 	}
 
-	x += m_rc1.GetWidth();
+	x = giHealthXPos;
 
 	if (m_iBat < 1000)
-		x = gHUD.DrawHudNumber(x, y, DHN_3DIGITS | DHN_DRAWZERO, m_iBat, r, g, b);
+		gHUD.DrawHudNumber(x, y, DHN_3DIGITS | DHN_DRAWZERO, m_iBat, r, g, b);
 	else
-		x = gHUD.DrawHudNumber(x, y, m_iBat, r, g, b);
+		gHUD.DrawHudNumber(x, y, m_iBat, r, g, b);
 }

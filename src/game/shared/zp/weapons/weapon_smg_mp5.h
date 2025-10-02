@@ -11,6 +11,7 @@ class CWeaponSMGMP5 : public CWeaponBase
 
 public:
 	ZPWeaponID GetWeaponID() override { return WEAPON_MP5; }
+	const char *GetEmptySound() const override { return "weapons/mp5/dryfire.wav"; }
 	void Spawn( void );
 	void Precache( void );
 	int AddToPlayer( CBasePlayer *pPlayer );

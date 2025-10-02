@@ -28,13 +28,15 @@ struct WEAPON
 	int iAmmo2Type;
 	int iMax1;
 	int iMax2;
-	int iSlot;
+	int iSlot = -1;
 	int iSlotPos;
 	int iFlags;
 	int iId;
 	int iClip;
 	int iMaxClip;
 	int iWeight;
+	bool bDoubleSlot;
+	bool bHasWeapon = false;
 
 	int iCount; // # of itesm in plist
 
@@ -59,9 +61,12 @@ public:
 	void Think();
 	void Reset();
 	int DrawWList(float flTime);
+	void DrawWeaponSlots();
+	void DrawWeaponSlot( WEAPON *pWeapon, int slot, int x, int y, int wide, int tall );
 	void DrawCrosshair();
 	void DrawCrosshair(CHud::RegisteredIcon icon, int x, int y, Color clr);
 	void DrawBackgroundSlot(const Color &clr, int x, int y, CHud::RegisteredIcon icon);
+	void DrawBackgroundSlot(const Color &clr, int x, int y, int wide, int tall);
 	int MsgFunc_CurWeapon(const char *pszName, int iSize, void *pbuf);
 	int MsgFunc_WeaponList(const char *pszName, int iSize, void *pbuf);
 	int MsgFunc_AmmoX(const char *pszName, int iSize, void *pbuf);

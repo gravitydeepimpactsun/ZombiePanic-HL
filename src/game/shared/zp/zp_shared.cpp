@@ -262,6 +262,7 @@ WeaponData CreateWeaponSlotData( const char *szClassname )
 	}
 
 	slot.Weight = pWeaponScript->GetFloat( "Weight", 0 );
+	slot.DoubleSlots = pWeaponScript->GetBool( "DoubleSlots", false );
 
 	// Primary Attack stuff
 	KeyValues *pPrimaryAttack = pWeaponScript->FindKey( "Primary" );
@@ -543,7 +544,14 @@ float CBasePlayer::GetTotalWeight()
 	for ( i = 0; i < MAX_ITEM_TYPES; i++ )
 	{
 		if ( m_rgpPlayerItems[i] )
-			flWeight += m_rgpPlayerItems[i]->iWeight();
+		{
+			CBasePlayerWeapon *pWeapon = (CBasePlayerWeapon *)m_rgpPlayerItems[i];
+			while (pWeapon)
+			{
+				flWeight += pWeapon->iWeight();
+				pWeapon = (CBasePlayerWeapon *)pWeapon->m_pNext;
+			}
+		}
 	}
 	return flWeight;
 }

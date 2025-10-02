@@ -645,6 +645,13 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 		ZP::CheckHowManySpawnedItems( pPlayer );
 		return TRUE;
 	}
+	else if (FStrEq(pcmd, "slot"))
+	{
+		const char *pSelectedWeaponSlot = CMD_ARGV(1);
+		if ( pSelectedWeaponSlot && pSelectedWeaponSlot[0] )
+			pPlayer->SelectWeaponFromSlot( atoi( pSelectedWeaponSlot ) );
+		return TRUE;
+	}
 	else if (FStrEq(pcmd, "ent_fire"))
 	{
 		const char *pSetCommand = CMD_ARGV(1);
@@ -731,26 +738,35 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 	{
 		if (FStrEq(pcmd, "dev_spec"))
 		{
+			pPlayer->RemoveAllItems( FALSE );
 			ChangePlayerTeam(pPlayer, ZP::Teams[ZP::TEAM_OBSERVER], FALSE, FALSE);
 			pPlayer->StartObserver();
 			return TRUE;
 		}
 		else if (FStrEq(pcmd, "dev_zombie"))
 		{
+			pPlayer->RemoveAllItems( FALSE );
 			ChangePlayerTeam(pPlayer, ZP::Teams[ZP::TEAM_ZOMBIE], FALSE, FALSE);
 			if ( pPlayer->IsObserver() )
 				pPlayer->StopObserver();
 			else
 				pPlayer->StopWelcomeCam();
+			// Give the player their arms.
+			OnWeaponGive( pPlayer, "weapon_swipe" );
 			return TRUE;
 		}
 		else if (FStrEq(pcmd, "dev_human"))
 		{
+			pPlayer->RemoveAllItems( FALSE );
 			ChangePlayerTeam(pPlayer, ZP::Teams[ZP::TEAM_SURVIVIOR], FALSE, FALSE);
 			if ( pPlayer->IsObserver() )
 				pPlayer->StopObserver();
 			else
 				pPlayer->StopWelcomeCam();
+			// No longer a late joiner since we forced to spawn as a human.
+			pPlayer->m_bPunishLateJoiner = false;
+			// Give the player their default weapons.
+			m_pGameMode->GiveWeapons( pPlayer );
 			return TRUE;
 		}
 		else if (FStrEq(pcmd, "dev_nolives"))

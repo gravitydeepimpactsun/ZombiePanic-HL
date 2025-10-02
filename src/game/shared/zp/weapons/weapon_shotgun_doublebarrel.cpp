@@ -50,12 +50,12 @@ void CWeaponShotgunDoubleBarrel::Precache(void)
 
 	PRECACHE_MODEL("models/shotgunshell.mdl");
 
-	PRECACHE_SOUND("weapons/db_dryfire.wav");
-	PRECACHE_SOUND("weapons/db_fire.wav");
-	PRECACHE_SOUND("weapons/db_open.wav");
-	PRECACHE_SOUND("weapons/db_reload1.wav");
-	PRECACHE_SOUND("weapons/db_reload2.wav");
-	PRECACHE_SOUND("weapons/db_close.wav");
+	PRECACHE_SOUND("weapons/doublebarrel/dryfire.wav");
+	PRECACHE_SOUND("weapons/doublebarrel/fire.wav");
+	PRECACHE_SOUND("weapons/doublebarrel/open.wav");
+	PRECACHE_SOUND("weapons/doublebarrel/reload1.wav");
+	PRECACHE_SOUND("weapons/doublebarrel/reload2.wav");
+	PRECACHE_SOUND("weapons/doublebarrel/close.wav");
 
 	m_nEventPrimary = PRECACHE_EVENT(1, "events/dbarrel.sc");
 }

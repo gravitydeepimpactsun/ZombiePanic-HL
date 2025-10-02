@@ -24,8 +24,12 @@
 #define MAX_WEAPON_NAME 128
 
 #define MAX_WEAPON_POSITIONS 10 // this is the max number of weapon items in each bucket on a client
-#define MAX_WEAPON_SLOTS     6 // hud item selection slots on a client
 #define MAX_ITEM_TYPES       6 // weapont item slots on a server
+
+// How many weapon can we have?
+#define MAX_WEAPON_SLOTS          5
+#define MAX_WEAPON_SLOTS_HARDCORE 3 // In hardcore mode, we only allow 3 weapon slots.
+#define BACKPACK_EXTRA_SLOTS      2 // In hardcore mode, we allow 2 extra slots if you have a backpack.
 
 #define MAX_ITEMS 5 // hard coded item types
 
@@ -38,8 +42,6 @@
 #define HUD_PRINTCONSOLE 2
 #define HUD_PRINTTALK    3
 #define HUD_PRINTCENTER  4
-
-#define WEAPON_SUIT 31
 
 enum
 {

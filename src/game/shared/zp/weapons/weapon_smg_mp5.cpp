@@ -40,9 +40,8 @@ void CWeaponSMGMP5::Precache(void)
 	PRECACHE_SOUND("items/clipinsert1.wav");
 	PRECACHE_SOUND("items/cliprelease1.wav");
 
-	PRECACHE_SOUND("weapons/mp5-fire.wav");
-
-	PRECACHE_SOUND("weapons/357_cock1.wav");
+	PRECACHE_SOUND("weapons/mp5/dryfire.wav");
+	PRECACHE_SOUND("weapons/mp5/fire.wav");
 
 	m_nEventPrimary = PRECACHE_EVENT(1, "events/mp5.sc");
 }

@@ -10,7 +10,7 @@ void CWeaponBaseSingleAction::WeaponIdle( void )
 
 	if ( m_flTimeWeaponIdle < UTIL_WeaponTimeBase() )
 	{
-		if ( m_iClip == 0 && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] || m_fInSpecialReload != 0 )
+		if ( m_iClip == 0 && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] && (m_pPlayer->pev->button & (IN_RELOAD)) || m_fInSpecialReload != 0 )
 			Reload();
 		else
 		{
@@ -39,7 +39,7 @@ void CWeaponBaseSingleAction::ItemPostFrame( void )
 		return;
 	}
 
-	CBasePlayerWeapon::ItemPostFrame();
+	BaseClass::ItemPostFrame();
 }
 
 void CWeaponBaseSingleAction::WeaponPump()
@@ -49,6 +49,14 @@ void CWeaponBaseSingleAction::WeaponPump()
 
 	// reload debounce has timed out
 	OnRequestedAnimation( ANIM_PUMP );
+
+#if defined( CLIENT_WEAPONS )
+	int flags = FEV_NOTHOST;
+#else
+	int flags = 0;
+#endif
+	if ( m_nEventPump > 0 )
+		PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_nEventPump, 0.2, (float *)&g_vecZero, (float *)&g_vecZero, 0.0f, 0.0f, 0, 0, 0, 0 );
 
 	m_fInSpecialReload = 0;
 }
@@ -159,7 +167,6 @@ bool CWeaponBaseSingleAction::CanPrimaryAttack()
 	// If we got no bullets, then reload.
 	if ( m_iClip == 0 )
 	{
-		Reload();
 		PlayEmptySound();
 		return false;
 	}

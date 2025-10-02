@@ -169,7 +169,7 @@ void CWeaponSideArmRevolver::WeaponIdle(void)
 	// ALERT( at_console, "%.2f\n", gpGlobals->time - m_flSoundDelay );
 	if (m_flSoundDelay != 0 && m_flSoundDelay <= UTIL_WeaponTimeBase())
 	{
-		EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_WEAPON, "weapons/357_reload1.wav", RANDOM_FLOAT(0.8, 0.9), ATTN_NORM);
+		EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_WEAPON, "weapons/revolver/reload.wav", RANDOM_FLOAT(0.8, 0.9), ATTN_NORM);
 		m_flSoundDelay = 0;
 	}
 

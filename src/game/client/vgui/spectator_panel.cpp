@@ -12,6 +12,11 @@
 #include "avatar_image.h"
 #include "spectator_panel.h"
 
+#ifndef _WIN32
+// Linux doesn't have this function, and wcsncmp is close enough for our purposes
+#define wcsnicmp wcsncmp
+#endif
+
 class CSpectatorInfoPanel : public vgui2::EditablePanel
 {
 public:

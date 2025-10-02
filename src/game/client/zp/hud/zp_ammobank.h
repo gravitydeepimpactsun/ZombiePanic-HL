@@ -47,8 +47,8 @@ private:
 	CPanelAnimationVar( int, m_pAmmoBank_left_x2, "x2_left", "25" );
 	CPanelAnimationVar( int, m_pAmmoBank_left_x4, "x4_left", "25" );
 	
-	vgui2::Label			*m_pAmmoCount[4];
-	vgui2::Label			*m_pAmmoName[4];
+	vgui2::Label			*m_pAmmoCount[5];
+	vgui2::Label			*m_pAmmoName[5];
 	vgui2::Label			*m_pWeightText;
 	vgui2::Label			*m_pWeightStatus;
 

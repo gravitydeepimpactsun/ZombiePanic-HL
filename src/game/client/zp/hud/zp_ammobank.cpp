@@ -52,7 +52,7 @@ CHudAmmoBank::CHudAmmoBank()
 	m_pWeightStatus->SetContentAlignment( vgui2::Label::a_northeast );
 
 	char TempBuffer[32];
-	for ( int index = 0; index < 4; index++ )
+	for ( int index = 0; index < 5; index++ )
 	{
 		Q_snprintf( TempBuffer, sizeof( TempBuffer ), "ammo_label%d", index + 1 );
 		m_pAmmoCount[index] = new vgui2::Label( m_pBackground, TempBuffer, "999" );
@@ -86,7 +86,7 @@ void CHudAmmoBank::ApplySchemeSettings(vgui2::IScheme *pScheme)
 	vgui2::HFont fontNormal = pScheme->GetFont( "Default" );
 	vgui2::HFont fontSmall = pScheme->GetFont( "DefaultSmall" );
 
-	for ( int index = 0; index < 4; index++ )
+	for ( int index = 0; index < 5; index++ )
 	{
 		m_pAmmoCount[index]->SetFont( fontNormal );
 		m_pAmmoName[index]->SetFont( fontNormal );
@@ -144,7 +144,7 @@ void CHudAmmoBank::Paint()
 	int TextTall = YRES( m_pText_tall );
 
 	// Draw our stuff
-	for ( int index = 0; index < 4; index++ )
+	for ( int index = 0; index < 5; index++ )
 	{
 		int iAmmoCount = gWR.CountAmmo( AmmoDropToAmmoIndex( index ) );
 
@@ -262,6 +262,8 @@ int CHudAmmoBank::AmmoDropToAmmoIndex( int index )
 	    case 2: return ZPAmmoTypes::AMMO_SHOTGUN;
 		// 556ar
 	    case 3: return ZPAmmoTypes::AMMO_RIFLE;
+		// longrifle
+	    case 4: return ZPAmmoTypes::AMMO_LONGRIFLE;
 	}
 	return 0;
 }
@@ -274,6 +276,7 @@ std::string CHudAmmoBank::GetAmmoName(int index)
 		case 1: return "Magnum";
 		case 2: return "Shotgun";
 		case 3: return "Rifle";
+		case 4: return "Long Rifle";
 	}
 	return "null";
 }
@@ -296,12 +299,9 @@ float CHudAmmoBank::GetCarry()
 
 	for ( int slot = 0; slot < MAX_WEAPON_SLOTS; slot++ )
 	{
-		for ( int pos = 0; pos < MAX_WEAPON_POSITIONS; pos++ )
-		{
-			WEAPON *pWeapon = gWR.GetWeaponSlot( slot, pos );
-			if ( pWeapon )
-				flWeight += pWeapon->iWeight;
-		}
+		WEAPON *pWeapon = gWR.GetWeaponBySlot( slot );
+		if ( pWeapon )
+			flWeight += pWeapon->iWeight;
 	}
 
 	return flWeight;
@@ -316,7 +316,7 @@ float CHudAmmoBank::GetMaxCarry()
 
 void CHudAmmoBank::UpdateVisibility( bool state )
 {
-	for ( int index = 0; index < 4; index++ )
+	for ( int index = 0; index < 5; index++ )
 	{
 		m_pAmmoName[index]->SetVisible( state );
 		m_pAmmoCount[index]->SetVisible( state );

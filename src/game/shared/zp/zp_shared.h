@@ -47,7 +47,7 @@ enum ZPWeaponID
 
 	// Misc stuff, should be last
 	WEAPON_BACKPACK,	// Not really a weapon, but used to give extra slots in Hardcore mode,
-						// Does nothing other gamemodes.
+						// Does nothing in other gamemodes.
 	WEAPON_SUIT,		// HUD related
 
 	LAST_WEAPON_ID

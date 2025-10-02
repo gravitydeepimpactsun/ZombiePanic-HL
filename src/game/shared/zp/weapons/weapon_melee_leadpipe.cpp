@@ -2,6 +2,7 @@
 
 #include "weapon_melee_leadpipe.h"
 #ifndef CLIENT_DLL
+#include "game.h"
 #include "gamerules.h"
 #endif
 
@@ -169,12 +170,12 @@ int CWeaponMeleeLeadPipe::Swing(int fFirst)
 		if ((m_flNextPrimaryAttack + 1.0f <= UTIL_WeaponTimeBase()) || g_pGameRules->IsMultiplayer())
 		{
 			// first swing does full damage
-			pEntity->TraceAttack(m_pPlayer->pev, gSkillData.plrDmgLeadPipe, gpGlobals->v_forward, &tr, DMG_CLUB);
+			pEntity->TraceAttack(m_pPlayer->pev, mp_dmg_leadpipe.value, gpGlobals->v_forward, &tr, DMG_CLUB);
 		}
 		else
 		{
 			// subsequent swings do half
-			pEntity->TraceAttack(m_pPlayer->pev, gSkillData.plrDmgLeadPipe / 2, gpGlobals->v_forward, &tr, DMG_CLUB);
+			pEntity->TraceAttack(m_pPlayer->pev, mp_dmg_leadpipe.value / 2, gpGlobals->v_forward, &tr, DMG_CLUB);
 		}
 		ApplyMultiDamage(m_pPlayer->pev, m_pPlayer->pev);
 

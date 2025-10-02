@@ -160,13 +160,6 @@ void DecalGunshot(TraceResult *pTrace, const Vector &vDir, int iBulletType)
 		int iDmgDecal = -1;
 		switch (iBulletType)
 		{
-		case BULLET_PLAYER_9MM:
-		case BULLET_MONSTER_9MM:
-		case BULLET_PLAYER_MP5:
-		case BULLET_MONSTER_MP5:
-		case BULLET_PLAYER_BUCKSHOT:
-		case BULLET_PLAYER_357:
-		case BULLET_MONSTER_12MM:
 		default:
 			iDmgDecal = DamageDecal(pEntity, DMG_BULLET);
 			break;

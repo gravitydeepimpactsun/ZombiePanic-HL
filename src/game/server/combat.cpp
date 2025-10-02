@@ -1520,25 +1520,33 @@ Vector CBaseEntity::FireBulletsPlayer(ULONG cShots, Vector vecSrc, Vector vecDir
 				switch (iBulletType)
 				{
 				default:
-				case BULLET_PLAYER_9MM:
-					pEntity->TraceAttack(pevAttacker, gSkillData.plrDmg9MM, vecDir, &tr, DMG_BULLET);
+				case BULLET_PLAYER_SIG:
+					pEntity->TraceAttack(pevAttacker, mp_dmg_sig.value, vecDir, &tr, DMG_BULLET);
+					break;
+
+				case BULLET_PLAYER_PPK:
+					pEntity->TraceAttack(pevAttacker, mp_dmg_ppk.value, vecDir, &tr, DMG_BULLET);
+					break;
+
+				case BULLET_PLAYER_GLOCK:
+					pEntity->TraceAttack(pevAttacker, mp_dmg_glock.value, vecDir, &tr, DMG_BULLET);
 					break;
 
 				case BULLET_PLAYER_MP5:
-					pEntity->TraceAttack(pevAttacker, gSkillData.plrDmgMP5, vecDir, &tr, DMG_BULLET);
+					pEntity->TraceAttack(pevAttacker, mp_dmg_mp5.value, vecDir, &tr, DMG_BULLET);
 					break;
 
 				case BULLET_PLAYER_M16:
-					pEntity->TraceAttack(pevAttacker, gSkillData.plrDmgM16, vecDir, &tr, DMG_BULLET);
+					pEntity->TraceAttack(pevAttacker, mp_dmg_m16.value, vecDir, &tr, DMG_BULLET);
 					break;
 
 				case BULLET_PLAYER_BUCKSHOT:
 					// make distance based!
-					pEntity->TraceAttack(pevAttacker, gSkillData.plrDmgBuckshot, vecDir, &tr, DMG_BULLET);
+					pEntity->TraceAttack(pevAttacker, mp_dmg_shotgun.value, vecDir, &tr, DMG_BULLET);
 					break;
 
 				case BULLET_PLAYER_357:
-					pEntity->TraceAttack(pevAttacker, gSkillData.plrDmg357, vecDir, &tr, DMG_BULLET);
+					pEntity->TraceAttack(pevAttacker, mp_dmg_357.value, vecDir, &tr, DMG_BULLET);
 					break;
 
 				case BULLET_NONE: // FIX

@@ -83,6 +83,7 @@ private:
 	CPanelAnimationVar(Color, m_ColorNameDeath, "default_name_color_death", "Orange");
 
 	int m_iRowTall = 0;
+	int m_iStartYPos = 0;
 
 	int GetEntryContentWide(const Entry &e);
 	int GetColoredTextWide(const wchar_t *str, int len);

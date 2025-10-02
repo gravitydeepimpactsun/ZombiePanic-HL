@@ -15,6 +15,7 @@ ConVar hud_deathnotice_time_self("hud_deathnotice_time_self", "12", FCVAR_BHL_AR
 
 static constexpr int KILLFEED_COUNT = 6;
 static constexpr int SKULL_SPRITE_HEIGHT = 16;
+static constexpr int FEED_START_Y = 80;
 
 DEFINE_HUD_ELEM(CHudDeathNoticePanel);
 
@@ -42,9 +43,9 @@ void CHudDeathNoticePanel::VidInit()
 	{
 		default:
 		case 320:
-		case 640: m_iIconHeight = 16; break;
-		case 1280: m_iIconHeight = 32; break;
-		case 2560: m_iIconHeight = 48; break;
+		case 640: m_iIconHeight = 16; m_iStartYPos = FEED_START_Y; break;
+		case 1280: m_iIconHeight = 32; m_iStartYPos = ( FEED_START_Y * 2 ); break;
+		case 2560: m_iIconHeight = 48; m_iStartYPos = ( FEED_START_Y * 3 );break;
 	}
 
 	int cornerWide, cornerTall;
@@ -255,7 +256,7 @@ void CHudDeathNoticePanel::PaintBackground()
 	// HACK ALERT: See Paint()
 	auto &entries = m_EntryList[m_nActiveList];
 	int panelWide = GetWide();
-	int y = 0;
+	int y = m_iStartYPos;
 
 	// Draw background
 	for (int i = 0; i < m_iEntryCount; i++)
@@ -279,7 +280,7 @@ void CHudDeathNoticePanel::PaintBackground()
 	}
 
 	// Draw sprites
-	y = 0;
+	y = m_iStartYPos;
 
 	for (int i = 0; i < m_iEntryCount; i++)
 	{
@@ -337,7 +338,7 @@ void CHudDeathNoticePanel::Paint()
 	// (called internally during rendering) disables alpha-blending at the end.
 	// This causes transparent background to be drawn opaque.
 	int panelWide = GetWide();
-	int y = 0;
+	int y = m_iStartYPos;
 	int fontTall = vgui2::surface()->GetFontTall(m_TextFont);
 	int textY = (m_iRowTall - fontTall) / 2;
 

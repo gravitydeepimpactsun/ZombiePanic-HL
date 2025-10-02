@@ -527,7 +527,7 @@ void EV_FireSig(event_args_t *args)
 	if (EV_IsLocal(idx))
 	{
 		EV_MuzzleFlash();
-		gEngfuncs.pEventAPI->EV_WeaponAnimation(empty ? GLOCK_SHOOT_EMPTY : GLOCK_SHOOT, 2);
+		gEngfuncs.pEventAPI->EV_WeaponAnimation(empty ? SIG_SHOOT_EMPTY : SIG_SHOOT, 2);
 
 		V_PunchAxis(0, -2.0);
 	}

@@ -24,6 +24,20 @@ typedef enum
 	BULLET_MONSTER_12MM,
 } Bullet;
 
+enum sig_e
+{
+	SIG_IDLE = 0,
+	SIG_IDLE_EMPTY,
+	SIG_SHOOT,
+	SIG_SHOOT_EMPTY,
+	SIG_RELOAD,
+	SIG_RELOAD_EMPTY,
+	SIG_DRAW,
+	SIG_HOLSTER,
+	SIG_DRAW_EMPTY,
+	SIG_HOLSTER_EMPTY,
+};
+
 enum glock_e
 {
 	GLOCK_IDLE1 = 0,

@@ -35,6 +35,8 @@ public:
 #endif
 	}
 
+	virtual bool IsEmpty( void ) const { return ( m_iClip <= 0 ); }
+
 protected:
 	bool CanAttack( float attack_time, float curtime, bool isPredicted );
 

@@ -26,6 +26,12 @@ public:
 
 	virtual void ItemPostFrame( void );
 
+	/// <summary>
+	/// Used to play audio, such as delayed reload sounds or other sounds that need to be played
+	/// </summary>
+	/// <param name=""></param>
+	virtual void DoAudioFrame( void );
+
 	virtual BOOL UseDecrement( void )
 	{
 #if defined(CLIENT_WEAPONS)
@@ -36,12 +42,22 @@ public:
 	}
 
 	virtual bool IsEmpty( void ) const { return ( m_iClip <= 0 ); }
+	void AddWeaponSound( const char *szSoundFile, float volume = 1.0f, float attenuation = ATTN_NORM, float delay = 0.0f );
 
 protected:
 	bool CanAttack( float attack_time, float curtime, bool isPredicted );
 
 	unsigned short m_nEventPrimary;
 	unsigned short m_nEventSecondary;
+
+	struct WeaponSoundData
+	{
+		const char *File; // Path to sound file
+		float Volume; // Volume of sound
+		float Attenuation; // Attenuation of sound
+		float Delay; // Delay before playing sound
+	};
+	std::vector<WeaponSoundData> m_vecWeaponSoundData;
 };
 
 #endif

@@ -45,7 +45,7 @@ void CHudDeathNoticePanel::VidInit()
 		case 320:
 		case 640: m_iIconHeight = 16; m_iStartYPos = FEED_START_Y; break;
 		case 1280: m_iIconHeight = 32; m_iStartYPos = ( FEED_START_Y * 2 ); break;
-		case 2560: m_iIconHeight = 48; m_iStartYPos = ( FEED_START_Y * 3 );break;
+		case 2560: m_iIconHeight = 48; m_iStartYPos = ( FEED_START_Y * 3 ); break;
 	}
 
 	int cornerWide, cornerTall;

@@ -163,6 +163,7 @@ static AmmoData sAmmoDataList[] = {
 	{ AMMO_MAGNUM, "357", 30, 0.65f },
 	{ AMMO_SHOTGUN, "buckshot", 24, 1.35f },
 	{ AMMO_RIFLE, "556ar", 150, 0.35f },
+	{ AMMO_LONGRIFLE, "longrifle", 100, 0.48f },
 
 	{ AMMO_GRENADE, "Hand Grenade", 3, 0.1f },
 	{ AMMO_SATCHEL, "Satchel Charge", 5, 0.5f },
@@ -178,6 +179,7 @@ static WeaponInfo sWeaponInfoList[] = {
 	{ "leadpipe", WEAPON_LEADPIPE, false },
 	{ "swipe", WEAPON_SWIPE, true },
 	{ "sig", WEAPON_SIG, false },
+	{ "ppk", WEAPON_PPK, false },
 	{ "357", WEAPON_PYTHON, false },
 	{ "mp5", WEAPON_MP5, false },
 	{ "556ar", WEAPON_556AR, false },

@@ -1254,6 +1254,7 @@ void CBasePlayer::TabulateAmmo()
 {
 	ammo_9mm = AmmoInventory(GetAmmoIndex("9mm"));
 	ammo_556ar = AmmoInventory(GetAmmoIndex("556ar"));
+	ammo_longrifle = AmmoInventory(GetAmmoIndex("longrifle"));
 	ammo_357 = AmmoInventory(GetAmmoIndex("357"));
 	ammo_argrens = AmmoInventory(GetAmmoIndex("ARgrenades"));
 	ammo_bolts = AmmoInventory(GetAmmoIndex("bolts"));
@@ -5091,6 +5092,9 @@ Called every frame by the player PreThink
 */
 void CBasePlayer::ItemPreFrame()
 {
+	if ( m_pActiveItem )
+		m_pActiveItem->DoAudioFrame();
+
 #if defined(CLIENT_WEAPONS)
 	if (m_flNextAttack > 0)
 #else
@@ -5132,9 +5136,7 @@ void CBasePlayer::ItemPostFrame()
 
 	ImpulseCommands();
 
-	if (!m_pActiveItem)
-		return;
-
+	if ( !m_pActiveItem ) return;
 	m_pActiveItem->ItemPostFrame();
 }
 
@@ -5975,6 +5977,7 @@ int CBasePlayer::AmmoIndexToDrop( int ammoindex )
 		case 1: return ZPAmmoTypes::AMMO_MAGNUM;
 		case 2: return ZPAmmoTypes::AMMO_SHOTGUN;
 		case 3: return ZPAmmoTypes::AMMO_RIFLE;
+		case 4: return ZPAmmoTypes::AMMO_LONGRIFLE;
 	}
 	return 0;
 }
@@ -5991,6 +5994,8 @@ int CBasePlayer::AmmoIndexToDropArray( int ammoindex )
 	    case ZPAmmoTypes::AMMO_SHOTGUN: return 2;
 		// Buckshot
 		case ZPAmmoTypes::AMMO_RIFLE: return 3;
+		// Long Rifle
+		case ZPAmmoTypes::AMMO_LONGRIFLE: return 4;
 	}
 	return 0;
 }
@@ -6003,7 +6008,8 @@ int CBasePlayer::DefaultAmmoToDrop(int ammoindex)
 		case AMMO_PISTOL: return 17;
 		case AMMO_MAGNUM: return 6;
 		case AMMO_SHOTGUN: return 8;
-		case AMMO_RIFLE: return 30;
+		case AMMO_RIFLE: return 20;
+		case AMMO_LONGRIFLE: return 10;
 		case AMMO_GRENADE:
 		case AMMO_SATCHEL: return 1;
 		case AMMO_NONE:
@@ -6023,6 +6029,8 @@ const char *CBasePlayer::szAmmoToDropClassnames(int ammoindex)
 		case ZPAmmoTypes::AMMO_SHOTGUN: return "ammo_buckshot";
 		// 556ar
 	    case ZPAmmoTypes::AMMO_RIFLE: return "ammo_556AR";
+		// 55lrbox
+	    case ZPAmmoTypes::AMMO_LONGRIFLE: return "ammo_22lrbox";
 	}
 	return "ammo_9mmclip";
 }

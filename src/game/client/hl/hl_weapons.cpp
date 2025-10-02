@@ -32,6 +32,7 @@
 #include "../demo.h"
 
 #include "zp/weapons/weapon_sidearm_sig.h"
+#include "zp/weapons/weapon_sidearm_ppk.h"
 #include "zp/weapons/weapon_sidearm_revolver.h"
 #include "zp/weapons/weapon_smg_mp5.h"
 #include "zp/weapons/weapon_rifle_m16.h"
@@ -65,6 +66,7 @@ Vector previousorigin;
 
 // Weapon entities.
 CWeaponSideArmSig g_Sig;
+CWeaponSideArmPPK g_PPK;
 CWeaponMeleeCrowbar g_Crowbar;
 CWeaponMeleeLeadPipe g_LeadPipe;
 CWeaponMeleeSwipe g_Swipe;
@@ -624,6 +626,7 @@ void HUD_InitClientWeapons(void)
 
 	// Allocate slot(s) for each weapon that we are going to be predicting
 	HUD_PrepEntity(&g_Sig, &player);
+	HUD_PrepEntity(&g_PPK, &player);
 	HUD_PrepEntity(&g_Crowbar, &player);
 	HUD_PrepEntity(&g_LeadPipe, &player);
 	HUD_PrepEntity(&g_Swipe, &player);
@@ -713,6 +716,10 @@ void HUD_WeaponsPostThink(local_state_s *from, local_state_s *to, usercmd_t *cmd
 
 	case WEAPON_SIG:
 		pWeapon = &g_Sig;
+		break;
+
+	case WEAPON_PPK:
+		pWeapon = &g_PPK;
 		break;
 
 	case WEAPON_PYTHON:
@@ -921,6 +928,7 @@ void HUD_WeaponsPostThink(local_state_s *from, local_state_s *to, usercmd_t *cmd
 	to->client.ammo_cells = player.ammo_uranium;
 	to->client.vuser2[0] = player.ammo_hornets;
 	to->client.vuser2[1] = player.ammo_556ar;
+	to->client.vuser2[2] = player.ammo_longrifle;
 	to->client.ammo_rockets = player.ammo_rockets;
 
 #if 0

@@ -138,6 +138,33 @@ void CWeaponBase::ItemPostFrame( void )
 	}
 }
 
+void CWeaponBase::DoAudioFrame( void )
+{
+	for ( int x = 0; x < (int)m_vecWeaponSoundData.size(); x++ )
+	{
+		WeaponSoundData &soundData = m_vecWeaponSoundData[x];
+		if ( soundData.Delay - gpGlobals->time <= 0 )
+		{
+			// Time to play the sound
+			if ( m_pPlayer )
+				EMIT_SOUND( ENT(m_pPlayer->pev), CHAN_WEAPON, soundData.File, soundData.Volume, soundData.Attenuation );
+			// Remove it from the list
+			m_vecWeaponSoundData.erase( m_vecWeaponSoundData.begin() + x );
+			break; // Only play one sound per frame
+		}
+	}
+}
+
+void CWeaponBase::AddWeaponSound( const char *szSoundFile, float volume, float attenuation, float delay )
+{
+	WeaponSoundData newSound;
+	newSound.File = szSoundFile;
+	newSound.Volume = volume;
+	newSound.Attenuation = attenuation;
+	newSound.Delay = gpGlobals->time + delay;
+	m_vecWeaponSoundData.push_back( newSound );
+}
+
 /// <summary>
 /// Checks if we can attack or not
 /// </summary>

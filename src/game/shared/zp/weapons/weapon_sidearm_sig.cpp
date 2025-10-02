@@ -133,7 +133,14 @@ void CWeaponSideArmSig::Reload(void)
 
 	int iResult = DefaultReload( IsEmpty() ? SIG_RELOAD_EMPTY : SIG_RELOAD, 1.84f );
 	if ( iResult )
+	{
+		// play reload sound
+		if ( IsEmpty() )
+			AddWeaponSound( "weapons/sig/reload2.wav", 1, ATTN_NORM, 0.28f );
+		else
+			AddWeaponSound( "weapons/sig/reload1.wav", 1, ATTN_NORM, 0.28f );
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15);
+	}
 }
 
 void CWeaponSideArmSig::WeaponIdle(void)

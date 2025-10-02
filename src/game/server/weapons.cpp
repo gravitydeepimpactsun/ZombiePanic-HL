@@ -310,7 +310,11 @@ void EXPORT W_Precache(void)
 	// zombie crowbar
 	UTIL_PrecacheOtherWeapon("weapon_swipe");
 
-	// glock
+	// ppk
+	UTIL_PrecacheOtherWeapon("weapon_ppk");
+	UTIL_PrecacheOther("ammo_22lrbox");
+
+	// sig
 	UTIL_PrecacheOtherWeapon("weapon_sig");
 	UTIL_PrecacheOther("ammo_9mmclip");
 	UTIL_PrecacheOther("ammo_9mmAR");

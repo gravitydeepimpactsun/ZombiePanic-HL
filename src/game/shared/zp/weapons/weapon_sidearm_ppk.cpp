@@ -6,15 +6,16 @@
 
 enum
 {
-	SIG_IDLE1 = 0,
-	SIG_IDLE2,
-	SIG_IDLE3,
+	SIG_IDLE = 0,
+	SIG_IDLE_EMPTY,
 	SIG_SHOOT,
 	SIG_SHOOT_EMPTY,
 	SIG_RELOAD,
-	SIG_RELOAD_NOT_EMPTY,
+	SIG_RELOAD_EMPTY,
 	SIG_DRAW,
-	SIG_HOLSTER
+	SIG_HOLSTER,
+	SIG_DRAW_EMPTY,
+	SIG_HOLSTER_EMPTY,
 };
 
 LINK_ENTITY_TO_CLASS( weapon_ppk, CWeaponSideArmPPK );
@@ -23,7 +24,7 @@ LINK_ENTITY_TO_CLASS( weapon_ppk, CWeaponSideArmPPK );
 void CWeaponSideArmPPK::Spawn()
 {
 	Precache();
-	SET_MODEL(ENT(pev), "models/w_9mmhandgun.mdl");
+	SET_MODEL(ENT(pev), "models/w_ppk.mdl");
 
 	WeaponData slot = GetWeaponSlotInfo( GetWeaponID() );
 	m_iDefaultAmmo = slot.DefaultAmmo;
@@ -33,9 +34,9 @@ void CWeaponSideArmPPK::Spawn()
 
 void CWeaponSideArmPPK::Precache(void)
 {
-	PRECACHE_MODEL("models/v_9mmhandgun.mdl");
-	PRECACHE_MODEL("models/w_9mmhandgun.mdl");
-	PRECACHE_MODEL("models/p_9mmhandgun.mdl");
+	PRECACHE_MODEL("models/v_ppk.mdl");
+	PRECACHE_MODEL("models/w_ppk.mdl");
+	PRECACHE_MODEL("models/p_ppk.mdl");
 
 	PRECACHE_MODEL("models/shell.mdl"); // brass shell
 
@@ -44,6 +45,10 @@ void CWeaponSideArmPPK::Precache(void)
 
 	PRECACHE_SOUND("weapons/ppk/dryfire.wav"); //handgun
 	PRECACHE_SOUND("weapons/ppk/fire.wav"); //handgun
+	PRECACHE_SOUND("weapons/ppk/fire_to_empty.wav"); //handgun
+	PRECACHE_SOUND("weapons/ppk/clipin.wav"); //handgun
+	PRECACHE_SOUND("weapons/ppk/clipout.wav"); //handgun
+	PRECACHE_SOUND("weapons/ppk/slideforward.wav"); //handgun
 
 	m_nEventPrimary = PRECACHE_EVENT(1, "events/ppk.sc");
 }
@@ -60,19 +65,18 @@ int CWeaponSideArmPPK::AddToPlayer(CBasePlayer *pPlayer)
 
 BOOL CWeaponSideArmPPK::Deploy()
 {
-	return DefaultDeploy("models/v_9mmhandgun.mdl", "models/p_9mmhandgun.mdl", SIG_DRAW, "onehanded");
+	return DefaultDeploy("models/v_ppk.mdl", "models/p_ppk.mdl", IsEmpty() ? SIG_DRAW_EMPTY : SIG_DRAW, "onehanded");
 }
 
 void CWeaponSideArmPPK::PrimaryAttack(void)
 {
-	if (m_iClip <= 0)
+	if ( IsEmpty() )
 	{
 		if (m_fFireOnEmpty)
 		{
 			PlayEmptySound();
 			m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + 0.2;
 		}
-
 		return;
 	}
 
@@ -112,7 +116,7 @@ void CWeaponSideArmPPK::PrimaryAttack(void)
 	Vector vecDir;
 	vecDir = m_pPlayer->FireBulletsPlayer(iBullets(), vecSrc, vecAiming, Vector(PrimaryWeaponSpread(), PrimaryWeaponSpread(), PrimaryWeaponSpread()), 8192, BULLET_PLAYER_9MM, 0, 0, m_pPlayer->pev, m_pPlayer->random_seed);
 
-	PLAYBACK_EVENT_FULL(flags, m_pPlayer->edict(), m_nEventPrimary, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, 0, 0, (m_iClip == 0) ? 1 : 0, 0);
+	PLAYBACK_EVENT_FULL(flags, m_pPlayer->edict(), m_nEventPrimary, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, 0, 0, IsEmpty() ? 1 : 0, 0);
 
 	m_flNextPrimaryAttack = m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + PrimaryFireRate();
 
@@ -125,13 +129,16 @@ void CWeaponSideArmPPK::PrimaryAttack(void)
 
 void CWeaponSideArmPPK::Reload(void)
 {
-	if (m_pPlayer->ammo_9mm <= 0)
+	if (m_pPlayer->ammo_longrifle <= 0)
 		return;
 
-	int iResult = DefaultReload(m_iClip > 0 ? SIG_RELOAD_NOT_EMPTY : SIG_RELOAD, 1.5);
-
-	if (iResult)
+	int iResult = DefaultReload( IsEmpty() ? SIG_RELOAD_EMPTY : SIG_RELOAD, 1.84f );
+	if ( iResult )
 	{
+		AddWeaponSound( "weapons/ppk/clipout.wav", 1, ATTN_NORM, 0.28f );
+		AddWeaponSound( "weapons/ppk/clipin.wav", 1, ATTN_NORM, 0.96f );
+		if ( IsEmpty() )
+			AddWeaponSound( "weapons/ppk/slideforward.wav", 1, ATTN_NORM, 1.28f );
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15);
 	}
 }
@@ -146,26 +153,34 @@ void CWeaponSideArmPPK::WeaponIdle(void)
 		return;
 
 	// only idle if the slid isn't back
-	if (m_iClip != 0)
+	if ( IsEmpty() )
 	{
-		int iAnim;
-		float flRand = UTIL_SharedRandomFloat(m_pPlayer->random_seed, 0.0, 1.0);
-
-		if (flRand <= 0.3 + 0 * 0.75)
-		{
-			iAnim = SIG_IDLE3;
-			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 49.0 / 16;
-		}
-		else if (flRand <= 0.6 + 0 * 0.875)
-		{
-			iAnim = SIG_IDLE1;
-			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 60.0 / 16.0;
-		}
-		else
-		{
-			iAnim = SIG_IDLE2;
-			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 40.0 / 16.0;
-		}
-		SendWeaponAnim(iAnim, 1);
+		SendWeaponAnim( SIG_IDLE_EMPTY, 1 );
+		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 3.8f;
+	}
+	else
+	{
+		SendWeaponAnim( SIG_IDLE, 1 );
+		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 3.8f;
 	}
 }
+
+class CLongRifleAmmoBox : public CBasePlayerAmmo
+{
+	void Spawn(void)
+	{
+		Precache();
+		SET_MODEL(ENT(pev), "models/w_22lrbox.mdl");
+		CBasePlayerAmmo::Spawn();
+		WeaponData slot = GetWeaponSlotInfo( ZPWeaponID::WEAPON_PPK );
+		m_iAmountLeft = m_iAmmoToGive = slot.AmmoBox;
+		m_AmmoType = ZPAmmoTypes::AMMO_LONGRIFLE;
+		strncpy(m_szSound, "items/9mmclip1.wav", 32);
+	}
+	void Precache(void)
+	{
+		PRECACHE_MODEL("models/w_22lrbox.mdl");
+		PRECACHE_SOUND("items/9mmclip1.wav");
+	}
+};
+LINK_ENTITY_TO_CLASS(ammo_22lrbox, CLongRifleAmmoBox);

@@ -24,6 +24,7 @@ bool CRandomItemAmmo::IsLimited( SpawnList *item ) const
 	else if ( FStrEq( item->Classname, "ammo_556AR" ) ) szEntToCheck = "weapon_556ar";
 	else if ( FStrEq( item->Classname, "ammo_buckshot" ) ) szEntToCheck = "weapon_shotgun";
 	else if ( FStrEq( item->Classname, "ammo_357" ) ) szEntToCheck = "weapon_357";
+	else if ( FStrEq( item->Classname, "ammo_22lrbox" ) ) szEntToCheck = "weapon_ppk";
 
 	if ( !szEntToCheck ) return true;
 	// We only need to find one instance of this classname

@@ -100,7 +100,7 @@ int CHudFlashlight::MsgFunc_Flashlight(const char *pszName, int iSize, void *pbu
 
 void CHudFlashlight::Draw(float flTime)
 {
-	if (gHUD.m_iHideHUDDisplay & (HIDEHUD_FLASHLIGHT | HIDEHUD_ALL))
+	if (gHUD.m_iHideHUDDisplay & HIDEHUD_HEALTH)
 		return;
 
 	int r, g, b, x, y;

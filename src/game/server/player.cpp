@@ -1151,9 +1151,9 @@ void CBasePlayer::SetAnimation(PLAYER_ANIM playerAnim)
 		else
 		{
 			if (FBitSet(pev->flags, FL_DUCKING)) // crouching
-				UTIL_strcpy(szAnim, "crouch_aim_");
+				UTIL_strcpy(szAnim, "crouch_shoot_");
 			else
-				UTIL_strcpy(szAnim, "ref_aim_");
+				UTIL_strcpy(szAnim, "ref_shoot_");
 		}
 		strcat(szAnim, m_szAnimExtention);
 		animDesired = LookupSequence(szAnim);

@@ -44,12 +44,11 @@ void CWeaponRifleM16::Precache(void)
 	PRECACHE_MODEL("models/w_556ARclip.mdl");
 	PRECACHE_SOUND("items/556clip1.wav");
 
-	PRECACHE_SOUND("items/clipinsert1.wav");
-	PRECACHE_SOUND("items/cliprelease1.wav");
-
 	PRECACHE_SOUND("weapons/556ar/fire1.wav"); // H to the K
 	PRECACHE_SOUND("weapons/556ar/fire2.wav"); // H to the K
 	PRECACHE_SOUND("weapons/556ar/dryfire.wav");
+	PRECACHE_SOUND("weapons/556ar/clipinsert.wav");
+	PRECACHE_SOUND("weapons/556ar/cliprelease.wav");
 
 	m_nEventPrimary = PRECACHE_EVENT(1, "events/m16.sc");
 }

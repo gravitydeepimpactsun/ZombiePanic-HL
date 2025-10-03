@@ -1421,7 +1421,7 @@ void CHudAmmo::DrawWeaponSlot( WEAPON *pWeapon, int slot, int x, int y, int wide
 		ItemBG.SetColor( r, g, b, a );
 		DrawBackgroundSlot( ItemBG, x, y + tall - smallfontHeight, wide, smallfontHeight );
 
-		int iAmmo = gWR.CountAmmo( pWeapon->iAmmoType );
+		int iAmmo = pWeapon->iClip;// gWR.CountAmmo( pWeapon->iAmmoType );
 		if ( iAmmo < 0 ) iAmmo = 0;
 
 		r = g = b = 255 * gHUD.GetHudTransparency();

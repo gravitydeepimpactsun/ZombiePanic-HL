@@ -6206,15 +6206,9 @@ void CBasePlayer::DropUnuseableAmmo()
 	if ( ( m_flLastUnusedDrop - gpGlobals->time > 0 ) ) return;
 	m_flLastUnusedDrop = gpGlobals->time + 1.0f;
 
-	// Goldsrc does not use a propper Ammotable array.
-	// The ammo gets registered dynamically, which means
-	// we have to make this hacky shit.
-	// TODO: Re-write the entire ammo table to use our 4 ammo types (+ the AR grenades if used? if not, ignore it)
-	int iAmmoThatShouldBeDropped[4];
-	iAmmoThatShouldBeDropped[0] = AmmoIndexToDrop(0);
-	iAmmoThatShouldBeDropped[1] = AmmoIndexToDrop(1);
-	iAmmoThatShouldBeDropped[2] = AmmoIndexToDrop(2);
-	iAmmoThatShouldBeDropped[3] = AmmoIndexToDrop(3);
+	int iAmmoThatShouldBeDropped[ZPAmmoTypes::AMMO_MAX];
+	for ( int i = 0; i < ZPAmmoTypes::AMMO_MAX; i++ )
+		iAmmoThatShouldBeDropped[i] = AmmoIndexToDrop( i );
 
 	for ( int i = 0; i < MAX_ITEM_TYPES; i++ )
 	{
@@ -6228,7 +6222,7 @@ void CBasePlayer::DropUnuseableAmmo()
 		}
 	}
 
-	for ( int i = 0; i < 4; i++ )
+	for ( int i = 0; i < ZPAmmoTypes::AMMO_MAX; i++ )
 	{
 		int iAmmoIndex = iAmmoThatShouldBeDropped[i];
 		if ( iAmmoIndex == -1 ) continue;

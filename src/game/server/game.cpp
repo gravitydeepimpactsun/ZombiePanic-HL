@@ -588,6 +588,8 @@ void GameDLLInit(void)
 	CVAR_REGISTER(&mp_dmg_leadpipe);
 	CVAR_REGISTER(&mp_dmg_swipe);
 	CVAR_REGISTER(&mp_dmg_sig);
+	CVAR_REGISTER(&mp_dmg_ppk);
+	CVAR_REGISTER(&mp_dmg_glock);
 	CVAR_REGISTER(&mp_dmg_357);
 	CVAR_REGISTER(&mp_dmg_mp5);
 	CVAR_REGISTER(&mp_dmg_m16);

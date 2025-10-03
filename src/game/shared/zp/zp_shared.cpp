@@ -261,6 +261,7 @@ WeaponData CreateWeaponSlotData( const char *szClassname )
 		if ( pWeaponFlags->GetBool( "LIMITINWORLD" ) ) slot.Flags |= ITEM_FLAG_LIMITINWORLD;
 		if ( pWeaponFlags->GetBool( "EXHAUSTIBLE" ) ) slot.Flags |= ITEM_FLAG_EXHAUSTIBLE;
 		if ( pWeaponFlags->GetBool( "NOAUTOSWITCHTO" ) ) slot.Flags |= ITEM_FLAG_NOAUTOSWITCHTO;
+		if ( pWeaponFlags->GetBool( "ALLOWDUPLICATE" ) ) slot.Flags |= ITEM_FLAG_ALLOWDUPLICATE;
 	}
 
 	slot.Weight = pWeaponScript->GetFloat( "Weight", 0 );

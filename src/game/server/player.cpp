@@ -69,6 +69,8 @@ PlayerCharacterType g_CharacterTypes[] = {
 	{ SURVIVOR2, "marcus" },
 };
 
+static ConVar sv_allow_player_decals( "sv_allow_player_decals", "1", FCVAR_SERVER, "Whether player decals are allowed" );
+
 #define TRAIN_ACTIVE  0x80
 #define TRAIN_NEW     0xc0
 #define TRAIN_OFF     0x00
@@ -4738,6 +4740,9 @@ void CBasePlayer::ImpulseCommands()
 			break;
 		}
 
+		// Do we allow player decals?
+		if ( !sv_allow_player_decals.GetBool() ) break;
+
 		UTIL_MakeVectors(pev->v_angle);
 		UTIL_TraceLine(pev->origin + pev->view_ofs, pev->origin + pev->view_ofs + gpGlobals->v_forward * 128, ignore_monsters, ENT(pev), &tr);
 
@@ -4875,13 +4880,8 @@ void CBasePlayer::CheatImpulseCommands(int iImpulse)
 
 bool CBasePlayer::AlreadyOwnWeapon( CBasePlayerItem *pWeapon )
 {
+	if ( pWeapon->iFlags() & ITEM_FLAG_ALLOWDUPLICATE ) return false;
 	int iWepID = pWeapon->GetWeaponID();
-	// Allow duplicates of grenades and satchels.
-	switch ( iWepID )
-	{
-		case WEAPON_HANDGRENADE:
-		case WEAPON_SATCHEL: return false;
-	}
 	int iFlag = (1 << iWepID);
 	if (pev->weapons & iFlag)
 		return true;

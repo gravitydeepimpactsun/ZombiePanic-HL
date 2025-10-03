@@ -110,12 +110,13 @@ typedef enum
 	BULLET_MONSTER_12MM,
 } Bullet;
 
-#define ITEM_FLAG_SELECTONEMPTY     1
-#define ITEM_FLAG_NOAUTORELOAD      2
-#define ITEM_FLAG_NOAUTOSWITCHEMPTY 4
-#define ITEM_FLAG_LIMITINWORLD      8
-#define ITEM_FLAG_EXHAUSTIBLE       16 // A player can totally exhaust their ammo supply and lose this weapon
-#define ITEM_FLAG_NOAUTOSWITCHTO    32
+#define ITEM_FLAG_SELECTONEMPTY     (1<<0)
+#define ITEM_FLAG_NOAUTORELOAD      (1<<1)
+#define ITEM_FLAG_NOAUTOSWITCHEMPTY (1<<2)
+#define ITEM_FLAG_LIMITINWORLD      (1<<3)
+#define ITEM_FLAG_EXHAUSTIBLE       (1<<4) // A player can totally exhaust their ammo supply and lose this weapon
+#define ITEM_FLAG_NOAUTOSWITCHTO    (1<<5)
+#define ITEM_FLAG_ALLOWDUPLICATE    (1<<5)
 
 #define WEAPON_IS_ONTARGET 0x40
 

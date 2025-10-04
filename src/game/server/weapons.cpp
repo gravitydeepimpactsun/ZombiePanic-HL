@@ -787,7 +787,7 @@ int CBasePlayerWeapon::AddToPlayer(CBasePlayer *pPlayer)
 		// Assign a slot for this weapon.
 		if ( iRet == TRUE )
 		{
-			m_iAssignedSlotPosition = pPlayer->GetBestSlotPosition();
+			m_iAssignedSlotPosition = pPlayer->GetBestSlotPosition( bDoubleSlot() );
 			pPlayer->WeaponSlotSet( this, true );
 		}
 		return iRet;

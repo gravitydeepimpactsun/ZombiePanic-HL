@@ -481,7 +481,7 @@ public:
 	// This replaces the old HL1 client side weapon selection code
 	void SelectWeaponFromSlot( int iSlot );
 	bool HasAvailableWeaponSlots( bool bIsDoubleSlot );
-	int GetBestSlotPosition();
+	int GetBestSlotPosition( bool bIsDoubleSlot );
 
 	bool CanSelectNewWeapon( bool bPrintMsg );
 	bool CanDropWeapon( bool bPrintMsg );

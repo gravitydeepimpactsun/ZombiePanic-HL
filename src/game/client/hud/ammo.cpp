@@ -1309,19 +1309,22 @@ void CHudAmmo::DrawWeaponSlots()
 	DEBUG_PRINT_POS = 5;
 #endif
 
+	// Check if we have a double slot weapon in this slot
+	bool bHasDoubleSlot = false;
+
 	for ( int i = 0; i < iMaxSlots; i++ )
 	{
-		// Check if we have a double slot weapon in this slot
-		bool bHasDoubleSlot = false;
+		// Skip this slot, since the previous weapon used 2 slots
+		if ( bHasDoubleSlot )
+		{
+			bHasDoubleSlot = false;
+			continue;
+		}
 
 		// Get the weapon in this slot
 		WEAPON *pWeapon = gWR.GetWeaponBySlot( i );
 		if ( pWeapon && pWeapon->bHasWeapon )
-		{
 			bHasDoubleSlot = pWeapon->bDoubleSlot;
-			if ( bHasDoubleSlot )
-				iMaxSlots--; // Decrease max if we are double
-		}
 
 		// Set our width
 		wide = bHasDoubleSlot ? WEAPON_SLOT_WIDE_DOUBLE : WEAPON_SLOT_WIDE;

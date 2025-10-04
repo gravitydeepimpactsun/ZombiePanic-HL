@@ -2313,34 +2313,33 @@ void CBasePlayer::SelectWeaponFromSlot( int iSlot )
 bool CBasePlayer::HasAvailableWeaponSlots( bool bIsDoubleSlot )
 {
 	bool bIsInHardcore = ( ZP::GetCurrentGameMode()->GetGameModeType() == ZP::GameModeType_e::GAMEMODE_HARDCORE );
-	int iAvailableSlot = bIsInHardcore ? MAX_WEAPON_SLOTS_HARDCORE : MAX_WEAPON_SLOTS;
+	int iMaxSlots = bIsInHardcore ? MAX_WEAPON_SLOTS_HARDCORE : MAX_WEAPON_SLOTS;
 	if ( bIsInHardcore && HasBackpack() )
-		iAvailableSlot += BACKPACK_EXTRA_SLOTS;
+		iMaxSlots += BACKPACK_EXTRA_SLOTS;
+	bool bHasAvailableSlot = false;
 	// Now check how many we have used
-	CBasePlayerWeapon *pWeapon = nullptr;
-	for (int i = 0; i < MAX_ITEM_TYPES; i++)
+	for ( int i = 0; i < iMaxSlots; i++ )
 	{
-		if (m_rgpPlayerItems[i])
+		if ( bIsDoubleSlot )
 		{
-			pWeapon = (CBasePlayerWeapon *)m_rgpPlayerItems[i];
-			while (pWeapon)
+			if ( i+1 == iMaxSlots ) break; // No space for double slot here
+			if ( !WeaponSlots[i] && !WeaponSlots[i+1] )
 			{
-				if ( pWeapon->bDoubleSlot() )
-					iAvailableSlot -= 2;
-				else
-					iAvailableSlot--;
-				pWeapon = (CBasePlayerWeapon *)pWeapon->m_pNext;
+				bHasAvailableSlot = true;
+			    break;
 			}
 		}
+		else
+			if ( !WeaponSlots[i] )
+			{
+				bHasAvailableSlot = true;
+			    break;
+			}
 	}
-	// If we need a double slot, we need at least 2 available.
-	if ( bIsDoubleSlot )
-		return ( iAvailableSlot > 1 ) ? true : false;
-	else
-		return ( iAvailableSlot > 0 ) ? true : false;
+	return bHasAvailableSlot;
 }
 
-int CBasePlayer::GetBestSlotPosition()
+int CBasePlayer::GetBestSlotPosition( bool bIsDoubleSlot )
 {
 	bool bIsInHardcore = ( ZP::GetCurrentGameMode()->GetGameModeType() == ZP::GameModeType_e::GAMEMODE_HARDCORE );
 	int iMaxSlots = bIsInHardcore ? MAX_WEAPON_SLOTS_HARDCORE : MAX_WEAPON_SLOTS;
@@ -2349,10 +2348,21 @@ int CBasePlayer::GetBestSlotPosition()
 	int iAvailableSlot = 0;
 	for ( int i = 0; i < iMaxSlots; i++ )
 	{
-		if ( !WeaponSlots[i] )
+		if ( bIsDoubleSlot )
 		{
-			iAvailableSlot = i;
-			break;
+			if ( !WeaponSlots[i] && !WeaponSlots[i+1] )
+			{
+				iAvailableSlot = i;
+				break;
+			}
+		}
+		else
+		{
+			if ( !WeaponSlots[i] )
+			{
+				iAvailableSlot = i;
+				break;
+			}
 		}
 	}
 	return iAvailableSlot;
@@ -2405,6 +2415,8 @@ void CBasePlayer::SelectWeapon( CBasePlayerWeapon *pWeapon )
 void CBasePlayer::WeaponSlotSet( CBasePlayerWeapon *pWeapon, bool bState )
 {
 	WeaponSlots[pWeapon->m_iAssignedSlotPosition] = bState;
+	if ( pWeapon->bDoubleSlot() )
+		WeaponSlots[pWeapon->m_iAssignedSlotPosition + 1] = bState;
 }
 
 void CBasePlayer::DropEverything( bool bDontDropPrimary )

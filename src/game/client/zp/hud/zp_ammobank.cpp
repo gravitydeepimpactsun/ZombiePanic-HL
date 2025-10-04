@@ -304,6 +304,10 @@ float CHudAmmoBank::GetCarry()
 			flWeight += pWeapon->iWeight;
 	}
 
+	// If we got a backpack, add 10 punds.
+	if (gHUD.m_iWeaponBits & (1 << WEAPON_BACKPACK))
+		flWeight += 10.0f;
+
 	return flWeight;
 }
 

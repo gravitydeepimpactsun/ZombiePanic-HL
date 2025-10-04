@@ -5058,8 +5058,13 @@ int CBasePlayer::RemovePlayerItem(CBasePlayerItem *pItem)
 int CBasePlayer::GiveAmmo( int iAmount, ZPAmmoTypes ammotype )
 {
 	AmmoData data = GetAmmoByAmmoID( ammotype );
+	int iMaxCarry = data.MaxCarry;
+	bool bIsInHardcore = ( ZP::GetCurrentGameMode()->GetGameModeType() == ZP::GameModeType_e::GAMEMODE_HARDCORE );
+	// If in hardcore mode and don't have a backpack, halve the max carry.
+	if ( bIsInHardcore && !HasBackpack() )
+		iMaxCarry = (int)( (float)iMaxCarry * 0.5f );
 
-	if (!g_pGameRules->CanHaveAmmo( this, data.AmmoName, data.MaxCarry ) )
+	if (!g_pGameRules->CanHaveAmmo( this, data.AmmoName, iMaxCarry ) )
 	{
 		// game rules say I can't have any more of this ammo type.
 		return -1;
@@ -5072,7 +5077,7 @@ int CBasePlayer::GiveAmmo( int iAmount, ZPAmmoTypes ammotype )
 	if (i < 0 || i >= ZPAmmoTypes::AMMO_MAX)
 		return -1;
 
-	int iAdd = min(iAmount, data.MaxCarry - m_rgAmmo[i]);
+	int iAdd = min(iAmount, iMaxCarry - m_rgAmmo[i]);
 	if (iAdd < 1)
 		return i;
 

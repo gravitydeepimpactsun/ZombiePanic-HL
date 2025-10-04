@@ -5,6 +5,7 @@
 #include "cbase.h"
 
 #if defined(CLIENT_DLL)
+#include "hud.h"
 #include "strtools.h"
 #include "steam_achievements.h"
 #else
@@ -556,6 +557,12 @@ float CBasePlayer::GetTotalWeight()
 			}
 		}
 	}
+#if defined( CLIENT_DLL )
+	if ( (gHUD.m_iWeaponBits & (1 << WEAPON_BACKPACK)) )
+#else
+	if ( HasBackpack() )
+#endif
+		flWeight += 10.0f; // Backpack adds 10 pounds of weight
 	return flWeight;
 }
 

@@ -62,9 +62,9 @@ void CWeaponShotgunDoubleBarrel::Precache(void)
 
 int CWeaponShotgunDoubleBarrel::AddToPlayer(CBasePlayer *pPlayer)
 {
-	if (CBasePlayerWeapon::AddToPlayer(pPlayer))
+	if (BaseClass::AddToPlayer(pPlayer))
 	{
-		CBasePlayerWeapon::SendWeaponPickup(pPlayer);
+		BaseClass::SendWeaponPickup(pPlayer);
 		return TRUE;
 	}
 	return FALSE;

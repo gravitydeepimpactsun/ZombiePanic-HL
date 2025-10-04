@@ -48,9 +48,9 @@ void CWeaponSMGMP5::Precache(void)
 
 int CWeaponSMGMP5::AddToPlayer(CBasePlayer *pPlayer)
 {
-	if (CBasePlayerWeapon::AddToPlayer(pPlayer))
+	if (BaseClass::AddToPlayer(pPlayer))
 	{
-		CBasePlayerWeapon::SendWeaponPickup(pPlayer);
+		BaseClass::SendWeaponPickup(pPlayer);
 		return TRUE;
 	}
 	return FALSE;

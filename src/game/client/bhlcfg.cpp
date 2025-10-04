@@ -75,7 +75,7 @@ void bhlcfg::SaveConfig(const char *cfgname)
 	}
 
 	// Header
-	file << "// BugfixedHL v" << APP_VERSION << " config file\n";
+	file << "// Zombie Panic v" << APP_VERSION << " config file\n";
 	file << "// The first part is generated automatically.\n";
 	file << "// The second part can be modified manually.\n";
 	file << "// Look for a huge block of comments below.\n";

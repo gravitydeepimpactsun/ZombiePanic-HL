@@ -2287,6 +2287,8 @@ void CBasePlayer::InAchievementTrigger( string_t iszAchievementID )
 
 void CBasePlayer::SelectWeaponFromSlot( int iSlot )
 {
+	if ( !CanSelectNewWeapon( true ) ) return;
+
 	// Selects the weapon from the slot they were assigned
 	CBasePlayerWeapon *pWeapon = nullptr;
 	for (int i = 0; i < MAX_ITEM_TYPES; i++)
@@ -2356,11 +2358,30 @@ int CBasePlayer::GetBestSlotPosition()
 	return iAvailableSlot;
 }
 
+bool CBasePlayer::CanSelectNewWeapon( bool bPrintMsg )
+{
+	bool bCanSwitch = (m_flNextWeaponSwitch - gpGlobals->time <= 0) ? true : false;
+	if ( !bCanSwitch && bPrintMsg )
+		UTIL_SayText( "#ZP_Deny_Switching", this );
+	return bCanSwitch;
+}
+
+bool CBasePlayer::CanDropWeapon( bool bPrintMsg )
+{
+	bool bCanSwitch = (m_flLastWeaponDrop - gpGlobals->time <= 0) ? true : false;
+	if ( !bCanSwitch && bPrintMsg )
+		UTIL_SayText( "#ZP_DenyDrop_Sorting", this );
+	return bCanSwitch;
+}
+
 void CBasePlayer::SelectWeapon( CBasePlayerWeapon *pWeapon )
 {
 	if ( pWeapon == m_pActiveItem ) return;
 
 	ResetAutoaim();
+
+	// Wait a little longer before the player can switch weapons again
+	m_flNextWeaponSwitch = gpGlobals->time + 1.0f;
 
 	// FIX, this needs to queue them up and delay
 	if (m_pActiveItem)
@@ -4130,6 +4151,7 @@ void CBasePlayer::Spawn(void)
 	m_flNextFullupdate[1] = gpGlobals->time;
 
 	// Just to make sure we can't spam the crap
+	m_flNextWeaponSwitch = gpGlobals->time;
 	m_flLastWeaponDrop = gpGlobals->time;
 	m_flLastAmmoDrop = gpGlobals->time;
 	m_flLastPanic = gpGlobals->time;
@@ -4303,6 +4325,8 @@ void CBasePlayer::SelectNextItem(int iItem)
 	if (!pItem)
 		return;
 
+	if ( !CanSelectNewWeapon( true ) ) return;
+
 	if (pItem == m_pActiveItem)
 	{
 		// select the next one in the chain
@@ -4344,8 +4368,8 @@ void CBasePlayer::SelectNextItem(int iItem)
 
 void CBasePlayer::SelectItem(const char *pstr)
 {
-	if (!pstr)
-		return;
+	if (!pstr) return;
+	if ( !CanSelectNewWeapon( true ) ) return;
 
 	CBasePlayerItem *pItem = NULL;
 
@@ -4404,6 +4428,8 @@ void CBasePlayer::SelectLastItem(void)
 	{
 		return;
 	}
+
+	if ( !CanSelectNewWeapon( true ) ) return;
 
 	ResetAutoaim();
 
@@ -5959,7 +5985,7 @@ void CBasePlayer::DropPlayerItem(char *pszItemName)
 
 void CBasePlayer::DropActiveWeapon()
 {
-	if ( ( m_flLastWeaponDrop - gpGlobals->time > 0 ) ) return;
+	if ( !CanDropWeapon( true ) ) return;
 	if ( !m_pActiveItem ) return;
 	m_flLastWeaponDrop = gpGlobals->time + 0.5f;
 	DropWeapon( (CBasePlayerWeapon *)m_pActiveItem, true );
@@ -6237,7 +6263,23 @@ void CBasePlayer::DoPanic()
 	if ( !IsAlive() ) return;
 	if ( ZP::GetCurrentRoundState() < ZP::RoundState::RoundState_RoundHasBegun ) return;
 	if ( IsInPanic() ) return;
-	if ( !CanPanicSinceLastTime() ) return;
+	if ( !CanSelectNewWeapon( false ) )
+	{
+		UTIL_SayText( "#ZP_Deny_Panic_WeaponSwitch", this );
+		return;
+	}
+	if ( !CanPanicSinceLastTime() )
+	{
+		UTIL_SayText( "#ZP_Deny_Panic", this );
+		return;
+	}
+	/*
+	if ( RoundJustBegun() )
+	{
+		UTIL_SayText( "#ZP_Deny_Panic_OnRoundStart", this );
+		return;
+	}
+	*/
 
 	m_flLastPanic = gpGlobals->time + 30;
 	m_flPanicTime = gpGlobals->time + 3.5;

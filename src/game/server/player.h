@@ -483,6 +483,9 @@ public:
 	bool HasAvailableWeaponSlots( bool bIsDoubleSlot );
 	int GetBestSlotPosition();
 
+	bool CanSelectNewWeapon( bool bPrintMsg );
+	bool CanDropWeapon( bool bPrintMsg );
+
 	void SelectWeapon( CBasePlayerWeapon *pWeapon );
 
 	void WeaponSlotSet( CBasePlayerWeapon *pWeapon, bool bState );
@@ -501,6 +504,9 @@ public:
 	// Get an available weapon from our weapon ID
 	CBasePlayerWeapon *GetWeaponFromID( int iID );
 	void NotifyOfWeaponPickup( CBasePlayerWeapon *pWeapon );
+
+	// When we can next switch weapon
+	float m_flNextWeaponSwitch;
 
 #endif
 

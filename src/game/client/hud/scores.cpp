@@ -26,9 +26,14 @@
 #include "vgui/client_viewport.h"
 #include "hud/ag/ag_global.h"
 
+// Does not work with the current system, use vgui2 scoreboard instead
+#define ALLOW_OLD_SCOREBOARD 0
+
+#if ALLOW_OLD_SCOREBOARD
 ConVar hud_scores("hud_scores", "0", FCVAR_BHL_ARCHIVE, "Maximum number of lines for HUD scoreboard, 0 to disable");
-ConVar hud_scores_pos("hud_scores_pos", "30 50", FCVAR_BHL_ARCHIVE, "Position of HUD scoreboard, 'x y' in pixels");
+ConVar hud_scores_pos("hud_scores_pos", "30 120", FCVAR_BHL_ARCHIVE, "Position of HUD scoreboard, 'x y' in pixels");
 ConVar hud_scores_alpha("hud_scores_alpha", "20", FCVAR_BHL_ARCHIVE, "Alpha of HUD scoreboard");
+#endif
 
 DEFINE_HUD_ELEM(CHudScores);
 
@@ -45,6 +50,7 @@ void CHudScores::VidInit()
 
 void CHudScores::Draw(float flTime)
 {
+#if ALLOW_OLD_SCOREBOARD
 	if (hud_scores.GetInt() < 1)
 		return;
 
@@ -61,7 +67,7 @@ void CHudScores::Draw(float flTime)
 
 	int xpos, ypos;
 	xpos = 30;
-	ypos = 50;
+	ypos = 120;
 	sscanf(hud_scores_pos.GetString(), "%i %i", &xpos, &ypos);
 
 	for (int iLine = 0; iLine < m_iLines && iLine < hud_scores.GetInt(); iLine++)
@@ -81,10 +87,12 @@ void CHudScores::Draw(float flTime)
 		m_iOverLay = max(ixposnew - xpos + 20, m_iOverLay);
 		ypos += gHUD.m_scrinfo.iCharHeight * 0.9;
 	}
+#endif
 }
 
 void CHudScores::Update()
 {
+#if ALLOW_OLD_SCOREBOARD
 	char buf[128];
 	int iMaxLines = hud_scores.GetInt();
 	m_iLines = 0;
@@ -213,4 +221,5 @@ void CHudScores::Update()
 			m_iLines++;
 		}
 	}
+#endif
 }

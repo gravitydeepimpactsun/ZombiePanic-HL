@@ -35,7 +35,7 @@ private:
 	vgui2::ComboBox *m_pSizeBox = nullptr;
 	int m_SizeItems[3];
 
-	CCvarTextEntry *m_pShowInHud = nullptr;
+	//CCvarTextEntry *m_pShowInHud = nullptr;
 
 	void ApplyMouse();
 	void ApplySize();

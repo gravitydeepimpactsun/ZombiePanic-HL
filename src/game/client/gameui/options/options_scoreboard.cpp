@@ -29,7 +29,7 @@ CScoreboardSubOptions::CScoreboardSubOptions(vgui2::Panel *parent)
 	m_SizeItems[1] = m_pSizeBox->AddItem("#ZP_AdvOptions_Scores_Size1", new KeyValues("Large", "value", 1));
 	m_SizeItems[2] = m_pSizeBox->AddItem("#ZP_AdvOptions_Scores_Size2", new KeyValues("Compact", "value", 2));
 
-	m_pShowInHud = new CCvarTextEntry(this, "ShowInHud", "hud_scores", CCvarTextEntry::CvarType::Int);
+	//m_pShowInHud = new CCvarTextEntry(this, "ShowInHud", "hud_scores", CCvarTextEntry::CvarType::Int);
 
 	LoadControlSettings(VGUI2_ROOT_DIR "resource/options/ScoreboardSubOptions.res");
 }
@@ -39,7 +39,7 @@ void CScoreboardSubOptions::OnResetData()
 	m_pShowAvatars->ResetData();
 	m_pShowSteamId->ResetData();
 	m_pShowPacketLoss->ResetData();
-	m_pShowInHud->ResetData();
+	//m_pShowInHud->ResetData();
 	m_pShowDeaths->ResetData();
 
 	int type = gEngfuncs.pfnGetCvarFloat("hud_scoreboard_mousebtn");
@@ -56,7 +56,7 @@ void CScoreboardSubOptions::OnApplyChanges()
 	m_pShowAvatars->ApplyChanges();
 	m_pShowSteamId->ApplyChanges();
 	m_pShowPacketLoss->ApplyChanges();
-	m_pShowInHud->ApplyChanges();
+	//m_pShowInHud->ApplyChanges();
 	m_pShowDeaths->ApplyChanges();
 	ApplyMouse();
 	ApplySize();

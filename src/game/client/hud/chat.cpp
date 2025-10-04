@@ -1181,8 +1181,21 @@ int CHudChat::MsgFunc_SayText(const char *pszName, int iSize, void *pbuf)
 	int client = READ_BYTE(); // the client who spoke the message
 	const char *szString = READ_STRING();
 
+	// Check if the szString starts with #
+	if ( szString[0] == '#' )
+	{
+		wchar_t *pTranslation = g_pVGuiLocalize->Find( szString );
+		if ( pTranslation )
+		{
+			char ansi[128];
+			g_pVGuiLocalize->ConvertUnicodeToANSI( pTranslation, ansi, sizeof( ansi ) );
+			ChatPrintf( client, "%s", ansi );
+			return 1;
+		}
+	}
+
 	// print raw chat text
-	ChatPrintf(client, "%s", szString);
+	ChatPrintf( client, "%s", szString );
 
 	return 1;
 }

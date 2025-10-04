@@ -2399,22 +2399,19 @@ void CBasePlayer::DropEverything( bool bDontDropPrimary )
 			{
 				CBasePlayerWeapon *pNext = (CBasePlayerWeapon *)pWeapon->m_pNext;
 				bool bCanDrop = true;
-				if ( bDontDropPrimary && pWeapon == m_pActiveItem )
+				if ( bDontDropPrimary && pWeapon->GetWeaponID() == m_pActiveItem->GetWeaponID() )
 					bCanDrop = false;
 				if ( bCanDrop )
-					DropWeapon( pWeapon, true );
+					DropWeapon( pWeapon, false, true );
 				pWeapon = pNext;
 			}
 		}
 	}
-	// Switch back to our active weapon if we didn't drop it.
-	if ( bDontDropPrimary )
-		SwitchWeapon( pActive );
 	// Now drop all ammo types we no longer need.
 	DropUnuseableAmmo();
 }
 
-void CBasePlayer::DropWeapon( CBasePlayerWeapon *pWeapon, bool pukevel )
+void CBasePlayer::DropWeapon( CBasePlayerWeapon *pWeapon, bool bAutoSwitch, bool pukevel )
 {
 	if ( ZP::GetCurrentRoundState() < ZP::RoundState::RoundState_RoundHasBegun ) return;
 	if ( !pWeapon ) return;
@@ -2431,7 +2428,8 @@ void CBasePlayer::DropWeapon( CBasePlayerWeapon *pWeapon, bool pukevel )
 	int nClipWeHad1 = pWeapon->m_iClip;
 	int nDefAmmo = pWeapon->m_iDefaultAmmo;
 
-	g_pGameRules->GetNextBestWeapon( this, pWeapon );
+	if ( bAutoSwitch )
+		g_pGameRules->GetNextBestWeapon( this, pWeapon );
 	// Remove from the player
 	WeaponSlotSet( pWeapon, false );
 	RemovePlayerItem( pWeapon );
@@ -5555,6 +5553,7 @@ void CBasePlayer::NotifyOfWeaponPickup(CBasePlayerWeapon *pWeapon)
 	MESSAGE_BEGIN(MSG_ONE, gmsgWeapPickup, NULL, pev);
 	WRITE_BYTE(pWeapon->GetWeaponID());
 	WRITE_BYTE(pWeapon->m_iAssignedSlotPosition);
+	WRITE_BYTE(pWeapon->m_iClip); // Fixes the clip value being maxed out
 	MESSAGE_END();
 }
 
@@ -5963,7 +5962,7 @@ void CBasePlayer::DropActiveWeapon()
 	if ( ( m_flLastWeaponDrop - gpGlobals->time > 0 ) ) return;
 	if ( !m_pActiveItem ) return;
 	m_flLastWeaponDrop = gpGlobals->time + 0.5f;
-	DropWeapon( (CBasePlayerWeapon *)m_pActiveItem );
+	DropWeapon( (CBasePlayerWeapon *)m_pActiveItem, true );
 }
 
 int CBasePlayer::AmmoIndexToDrop( int ammoindex )
@@ -6005,9 +6004,9 @@ int CBasePlayer::DefaultAmmoToDrop(int ammoindex)
 	AmmoData ammo = GetAmmoByAmmoID( ammoindex );
 	switch ( ammo.AmmoType )
 	{
-		case AMMO_PISTOL: return 17;
+		case AMMO_PISTOL: return 7;
 		case AMMO_MAGNUM: return 6;
-		case AMMO_SHOTGUN: return 8;
+		case AMMO_SHOTGUN: return 6;
 		case AMMO_RIFLE: return 20;
 		case AMMO_LONGRIFLE: return 10;
 		case AMMO_GRENADE:
@@ -6029,7 +6028,7 @@ const char *CBasePlayer::szAmmoToDropClassnames(int ammoindex)
 		case ZPAmmoTypes::AMMO_SHOTGUN: return "ammo_buckshot";
 		// 556ar
 	    case ZPAmmoTypes::AMMO_RIFLE: return "ammo_556AR";
-		// 55lrbox
+		// Long Rifle
 	    case ZPAmmoTypes::AMMO_LONGRIFLE: return "ammo_22lrbox";
 	}
 	return "ammo_9mmclip";

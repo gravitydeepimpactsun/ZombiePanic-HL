@@ -491,7 +491,7 @@ public:
 	// Drop all weapons and ammo, except the primary weapon.
 	// It's very similar to Zombie Panic Source's panic drop.
 	void DropEverything( bool bDontDropPrimary );
-	void DropWeapon( CBasePlayerWeapon *pWeapon, bool pukevel = false );
+	void DropWeapon( CBasePlayerWeapon *pWeapon, bool bAutoSwitch, bool pukevel = false );
 
 	void SetBackpackState( bool bState );
 	bool HasBackpack() const { return m_bBackpack; }

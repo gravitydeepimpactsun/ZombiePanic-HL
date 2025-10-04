@@ -113,6 +113,12 @@ void WeaponsResource::UpdateWeaponVisibility( int iID, bool bState )
 	rgWeapons[iID].bHasWeapon = bState;
 }
 
+void WeaponsResource::UpdateWeaponClip(int iID, int iClip)
+{
+	if (iID < WEAPON_NONE || iID >= LAST_WEAPON_ID) return;
+	rgWeapons[iID].iClip = iClip;
+}
+
 void WeaponsResource::LoadWeaponSprites(WEAPON *pWeapon)
 {
 	int i = 0;
@@ -419,6 +425,7 @@ int CHudAmmo::MsgFunc_WeapPickup(const char *pszName, int iSize, void *pbuf)
 	BEGIN_READ(pbuf, iSize);
 	int iIndex = READ_BYTE();
 	int iAssignedSlot = READ_BYTE();
+	int iClipFix = READ_BYTE();
 
 	// Update the weapon slot position
 	gWR.UpdatedWeaponSlotPos( iIndex, iAssignedSlot );
@@ -426,6 +433,9 @@ int CHudAmmo::MsgFunc_WeapPickup(const char *pszName, int iSize, void *pbuf)
 	// Weapon Index
 	WeaponData data = GetWeaponSlotInfo( (ZPWeaponID)iIndex );
 	gWR.UpdateWeaponData( iIndex, data );
+
+	// Fixes the clip amount, so it's not maxed out when you pick up a weapon with less ammo in the clip
+	gWR.UpdateWeaponClip( iIndex, iClipFix );
 
 	// Add the weapon to the history
 	gHR.AddToHistory( HISTSLOT_WEAP, data.Icons[WeaponDataIcons::ICON_WEAPON] );

@@ -57,6 +57,7 @@ public:
 	void UpdateWeaponData( int iID, WeaponData nData );
 	void UpdatedWeaponSlotPos( int iID, int iNewSlotPos );
 	void UpdateWeaponVisibility(int iID, bool bState);
+	void UpdateWeaponClip(int iID, int iClip);
 
 	WEAPON* GetWeaponBySlot(int iSlot)
 	{

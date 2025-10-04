@@ -497,9 +497,7 @@ public:
 	void DropWeapon( CBasePlayerWeapon *pWeapon, bool bAutoSwitch, bool pukevel = false );
 
 	void SetBackpackState( bool bState );
-	bool HasBackpack() const { return m_bBackpack; }
-
-	bool m_bBackpack = false;
+	inline bool HasBackpack() const { return (pev->weapons & (1 << WEAPON_BACKPACK)); }
 
 	// Get an available weapon from our weapon ID
 	CBasePlayerWeapon *GetWeaponFromID( int iID );

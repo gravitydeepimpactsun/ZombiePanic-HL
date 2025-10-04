@@ -232,7 +232,8 @@ class CItemBattery : public CItem
 	void Precache(void)
 	{
 		PRECACHE_MODEL("models/w_battery.mdl");
-		PRECACHE_SOUND("items/gunpickup2.wav");
+		PRECACHE_SOUND("items/armor_pickup01.wav");
+		PRECACHE_SOUND("items/armor_pickup02.wav");
 	}
 	BOOL MyTouch(CBasePlayer *pPlayer)
 	{
@@ -252,7 +253,10 @@ class CItemBattery : public CItem
 			pPlayer->pev->armorvalue += gSkillData.batteryCapacity;
 			pPlayer->pev->armorvalue = min(pPlayer->pev->armorvalue, (float)MAX_NORMAL_BATTERY);
 
-			EMIT_SOUND(pPlayer->edict(), CHAN_ITEM, "items/gunpickup2.wav", 1, ATTN_NORM);
+			if (RANDOM_LONG(0, 1))
+				EMIT_SOUND(pPlayer->edict(), CHAN_ITEM, "items/armor_pickup01.wav", 1, ATTN_NORM);
+			else
+				EMIT_SOUND(pPlayer->edict(), CHAN_ITEM, "items/armor_pickup02.wav", 1, ATTN_NORM);
 
 			CItem::SendItemPickup(pPlayer);
 
@@ -272,8 +276,35 @@ class CItemBattery : public CItem
 		return FALSE;
 	}
 };
-
 LINK_ENTITY_TO_CLASS(item_battery, CItemBattery);
+
+class CItemBackpack : public CItem
+{
+	void Spawn(void)
+	{
+		Precache();
+		SET_MODEL(ENT(pev), "models/w_weaponbox.mdl");
+		CItem::Spawn();
+	}
+	void Precache(void)
+	{
+		PRECACHE_MODEL("models/w_weaponbox.mdl");
+		PRECACHE_SOUND("items/backpack_pickup.wav");
+	}
+	BOOL MyTouch(CBasePlayer *pPlayer)
+	{
+		if (pPlayer->pev->deadflag != DEAD_NO) return false;
+		if ( pPlayer->pev->team == ZP::TEAM_ZOMBIE ) return false;
+		if (!pPlayer->HasBackpack())
+		{
+			pPlayer->SetBackpackState( true );
+			EMIT_SOUND(pPlayer->edict(), CHAN_ITEM, "items/backpack_pickup.wav", 1, ATTN_NORM);
+			return TRUE;
+		}
+		return FALSE;
+	}
+};
+LINK_ENTITY_TO_CLASS(item_backpack, CItemBackpack);
 
 class CItemSecurity : public CItem
 {

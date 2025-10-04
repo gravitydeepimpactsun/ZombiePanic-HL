@@ -5,6 +5,7 @@
 #include "player.h"
 #include "zp/info_random_base.h"
 #include "zp/info_beacon.h"
+#include "zp/gamemodes/zp_gamemodebase.h"
 #ifdef SCRIPT_SYSTEM
 #include "core.h"
 #endif
@@ -344,6 +345,13 @@ void ZP::SetupDefaultSpawnList()
 	s_SpawnList.push_back( new SpawnList( "item_battery", nItemToSpawn[1], ItemType::TypeItem ) );
 	s_SpawnList.push_back( new SpawnList( "weapon_satchel", nItemToSpawn[2], ItemType::TypeItem ) );
 	s_SpawnList.push_back( new SpawnList( "weapon_handgrenade", nItemToSpawn[3], ItemType::TypeItem ) );
+
+	// Our current gamemode
+	IGameModeBase *pGameMode = ZP::GetCurrentGameMode();
+
+	// In hardcore, add a few backpacks
+	if ( pGameMode && pGameMode->GetGameModeType() == ZP::GameModeType_e::GAMEMODE_HARDCORE )
+		s_SpawnList.push_back( new SpawnList( "item_backpack", 3, ItemType::TypeItem ) );
 
 	// Weapons
 	s_SpawnList.push_back( new SpawnList( "weapon_sig", nWeaponToSpawn[0], ItemType::TypeWeapon ) );

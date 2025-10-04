@@ -2314,7 +2314,7 @@ bool CBasePlayer::HasAvailableWeaponSlots( bool bIsDoubleSlot )
 {
 	bool bIsInHardcore = ( ZP::GetCurrentGameMode()->GetGameModeType() == ZP::GameModeType_e::GAMEMODE_HARDCORE );
 	int iAvailableSlot = bIsInHardcore ? MAX_WEAPON_SLOTS_HARDCORE : MAX_WEAPON_SLOTS;
-	if ( bIsInHardcore && m_bBackpack )
+	if ( bIsInHardcore && HasBackpack() )
 		iAvailableSlot += BACKPACK_EXTRA_SLOTS;
 	// Now check how many we have used
 	CBasePlayerWeapon *pWeapon = nullptr;
@@ -2344,7 +2344,7 @@ int CBasePlayer::GetBestSlotPosition()
 {
 	bool bIsInHardcore = ( ZP::GetCurrentGameMode()->GetGameModeType() == ZP::GameModeType_e::GAMEMODE_HARDCORE );
 	int iMaxSlots = bIsInHardcore ? MAX_WEAPON_SLOTS_HARDCORE : MAX_WEAPON_SLOTS;
-	if ( bIsInHardcore && m_bBackpack )
+	if ( bIsInHardcore && HasBackpack() )
 		iMaxSlots += BACKPACK_EXTRA_SLOTS;
 	int iAvailableSlot = 0;
 	for ( int i = 0; i < iMaxSlots; i++ )
@@ -2488,7 +2488,10 @@ void CBasePlayer::SetBackpackState( bool bState )
 	// Bodygroup 1 is the backpack on the player model,
 	// so we simply reuse the head bodygroup for this.
 	SetBodygroup( BGROUP_HEAD, bState ? BGROUP_HEAD_HEADSHOT : BGROUP_HEAD_DEFAULT );
-	m_bBackpack = bState;
+	if ( bState )
+		pev->weapons |= (1 << WEAPON_BACKPACK);
+	else
+		pev->weapons &= ~(1 << WEAPON_BACKPACK);
 }
 
 #define CLIMB_SHAKE_FREQUENCY 22 // how many frames in between screen shakes when climbing

@@ -280,6 +280,7 @@ void EXPORT W_Precache(void)
 	// custom items...
 
 	// common world objects
+	UTIL_PrecacheOther("item_backpack");
 	UTIL_PrecacheOther("item_suit");
 	UTIL_PrecacheOther("item_healthkit");
 	UTIL_PrecacheOther("item_battery");

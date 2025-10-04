@@ -17,6 +17,12 @@ int CWeaponBase::iItemSlot( void )
 	return slot.Slot + 1;
 }
 
+BOOL CWeaponBase::DefaultDeploy(char *szViewModel, char *szWeaponModel, int iAnim, char *szAnimExt, int skiplocal, int body)
+{
+	ClearWeaponSounds();
+	return BaseClass::DefaultDeploy( szViewModel, szWeaponModel, iAnim, szAnimExt, skiplocal, body );
+}
+
 /// <summary>
 /// Modified ItemPostFrame from CBasePlayerWeapon.
 /// Because having 2 cpp files for the same class is stupid.
@@ -163,6 +169,11 @@ void CWeaponBase::AddWeaponSound( const char *szSoundFile, float volume, float a
 	newSound.Attenuation = attenuation;
 	newSound.Delay = gpGlobals->time + delay;
 	m_vecWeaponSoundData.push_back( newSound );
+}
+
+void CWeaponBase::ClearWeaponSounds()
+{
+	m_vecWeaponSoundData.clear();
 }
 
 /// <summary>

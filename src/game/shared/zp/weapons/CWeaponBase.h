@@ -20,6 +20,7 @@ class CWeaponBase : public CBasePlayerWeapon
 
 public:
 	int iItemSlot( void ) override;
+	BOOL DefaultDeploy(char *szViewModel, char *szWeaponModel, int iAnim, char *szAnimExt, int skiplocal = 0, int body = 0) override;
 
 	// We don't use secondary attack in Zombie Panic! by default
 	void SecondaryAttack( void ) {}
@@ -43,6 +44,7 @@ public:
 
 	virtual bool IsEmpty( void ) const { return ( m_iClip <= 0 ); }
 	void AddWeaponSound( const char *szSoundFile, float volume = 1.0f, float attenuation = ATTN_NORM, float delay = 0.0f );
+	void ClearWeaponSounds( void );
 
 protected:
 	bool CanAttack( float attack_time, float curtime, bool isPredicted );

@@ -6188,7 +6188,7 @@ void CBasePlayer::ChangeAmmoTypeToDrop()
 			break;
 		}
 		// We need to loop back
-		if ( iAmmoType > 3 )
+		if ( iAmmoType > 4 )
 		{
 			iAmmoType = 0;
 			bHasLooped = true;

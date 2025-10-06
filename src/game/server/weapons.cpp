@@ -31,6 +31,9 @@
 #include "decals.h"
 #include "gamerules.h"
 #include "zp/zp_shared.h"
+#if !defined(CLIENT_DLL)
+#include "zp/gamemodes/zp_gamemodebase.h"
+#endif
 
 extern CGraph WorldGraph;
 extern int gEvilImpulse101;
@@ -1096,16 +1099,19 @@ void CBasePlayerAmmo::Materialize(void)
 #if !defined(CLIENT_DLL)
 void CBasePlayerAmmo::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value)
 {
+	// Invisible? Ignore.
+	if ( pev->effects == EF_NODRAW ) return;
+
 	if ( m_flDisallowPickup != -1 && m_flDisallowPickup - gpGlobals->time > 0 ) return;
 
 	// Make sure we have a player
 	CBasePlayer *pPlayer = (CBasePlayer *)pActivator;
 	if ( !pPlayer || !pPlayer->IsPlayer() ) return;
+	if ( pPlayer->pev->team != ZP::TEAM_SURVIVIOR ) return;
 
 	// Give the ammo to the player
 	if ( GiveAmmoToPlayer( pPlayer ) )
 	{
-		SetUse( NULL );
 		if ( SpawnedTroughRandomEntity() )
 		{
 			SetThink(&CBasePlayerAmmo::SUB_Remove);
@@ -1151,18 +1157,15 @@ void CBasePlayerAmmo ::DefaultTouch(CBaseEntity *pOther)
 
 bool CBasePlayerAmmo::GiveAmmoToPlayer(CBaseEntity *pOther)
 {
+#if !defined( CLIENT_DLL )
 	CBasePlayer *pPlayer = (CBasePlayer *)pOther;
-	AmmoData data = GetAmmoByAmmoID( m_AmmoType );
-	int iGiveAmmo = min( AmmoToGive(), data.MaxCarry - pPlayer->m_rgAmmo[m_AmmoType] );
+	int iGiveAmmo = pPlayer->PickupAmmo( AmmoToGive(), GetAmmoByAmmoID( m_AmmoType ) );
 	// If we can't give ammo, ignore.
-	if ( iGiveAmmo == 0 ) return false;
-	// Let's give our ammo
-	if ( pOther->GiveAmmo( AmmoToGive(), data.AmmoType ) > -1 )
-	{
-		m_iAmountLeft -= iGiveAmmo;
-		EMIT_SOUND( ENT(pev), CHAN_ITEM, m_szSound, 1, ATTN_NORM );
-	}
+	if ( iGiveAmmo <= 0 ) return false;
+	m_iAmountLeft -= iGiveAmmo;
+	EMIT_SOUND( ENT(pev), CHAN_ITEM, m_szSound, 1, ATTN_NORM );
 	// If we have no ammo left, we remove this entity
+#endif
 	return m_iAmountLeft <= 0 ? true : false;
 }
 

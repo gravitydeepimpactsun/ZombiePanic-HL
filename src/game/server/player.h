@@ -316,6 +316,8 @@ public:
 	void EXPORT GiveNamedItem(const char *szName);
 	void EnableControl(BOOL fControl);
 
+	int PickupAmmo(int iAmount, AmmoData data);
+
 	int GiveAmmo(int iAmount, ZPAmmoTypes ammotype );
 	int GiveAmmo(int iAmount, char *szName);
 	void SendAmmoUpdate(CBasePlayer *pPlayer);

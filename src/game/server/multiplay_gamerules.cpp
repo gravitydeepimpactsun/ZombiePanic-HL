@@ -904,7 +904,7 @@ void CHalfLifeMultiplay::DeathNotice(CBasePlayer *pVictim, entvars_t *pKiller, e
 		}
 
 		CBasePlayer *pAttacker = (CBasePlayer *)UTIL_PlayerByIndex( killer_index );
-		if ( pAttacker )
+		if ( pAttacker && pAttacker->IsPlayer() )
 		{
 			if (!strcmp(killer_weapon_name, "crowbar"))
 			{
@@ -1015,7 +1015,7 @@ void CHalfLifeMultiplay::DeathNotice(CBasePlayer *pVictim, entvars_t *pKiller, e
 		}
 	}
 
-	if (!strcmp(killer_weapon_name, "door") && pVictim)
+	if (!strcmp(killer_weapon_name, "crush") && pVictim && pVictim->IsConnected())
 		pVictim->GiveAchievement( EAchievements::DIE_BY_DOOR );
 
 	MESSAGE_BEGIN(MSG_SPEC, SVC_DIRECTOR);
@@ -1028,55 +1028,6 @@ void CHalfLifeMultiplay::DeathNotice(CBasePlayer *pVictim, entvars_t *pKiller, e
 		WRITE_SHORT(ENTINDEX(ENT(pKiller))); // index number of secondary entity
 	WRITE_LONG(7 | DRC_FLAG_DRAMATIC); // eventflags (priority and flags)
 	MESSAGE_END();
-
-	//  Print a standard message
-	// TODO: make this go direct to console
-	return; // just remove for now
-	/*
-	char	szText[ 128 ];
-
-	if ( pKiller->flags & FL_MONSTER )
-	{
-		// killed by a monster
-		UTIL_strcpy ( szText, STRING( pVictim->pev->netname ) );
-		strcat ( szText, " was killed by a monster.\n" );
-		return;
-	}
-
-	if ( pKiller == pVictim->pev )
-	{
-		UTIL_strcpy ( szText, STRING( pVictim->pev->netname ) );
-		strcat ( szText, " commited suicide.\n" );
-	}
-	else if ( pKiller->flags & FL_CLIENT )
-	{
-		UTIL_strcpy ( szText, STRING( pKiller->netname ) );
-
-		strcat( szText, " : " );
-		strcat( szText, killer_weapon_name );
-		strcat( szText, " : " );
-
-		strcat ( szText, STRING( pVictim->pev->netname ) );
-		strcat ( szText, "\n" );
-	}
-	else if ( FClassnameIs ( pKiller, "worldspawn" ) )
-	{
-		UTIL_strcpy ( szText, STRING( pVictim->pev->netname ) );
-		strcat ( szText, " fell or drowned or something.\n" );
-	}
-	else if ( pKiller->solid == SOLID_BSP )
-	{
-		UTIL_strcpy ( szText, STRING( pVictim->pev->netname ) );
-		strcat ( szText, " was mooshed.\n" );
-	}
-	else
-	{
-		UTIL_strcpy ( szText, STRING( pVictim->pev->netname ) );
-		strcat ( szText, " died mysteriously.\n" );
-	}
-
-	UTIL_ClientPrintAll( szText );
-*/
 }
 
 //=========================================================

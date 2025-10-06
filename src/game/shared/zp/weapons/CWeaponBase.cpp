@@ -31,6 +31,7 @@ BOOL CWeaponBase::DefaultDeploy(char *szViewModel, char *szWeaponModel, int iAni
 void CWeaponBase::ItemPostFrame( void )
 {
 	CBasePlayer *pPlayer = m_pPlayer; // Cache player cos attack could retire weapon and remove it from player
+	if ( !pPlayer ) return;
 
 	if ((m_fInReload) && (pPlayer->m_flNextAttack <= UTIL_WeaponTimeBase()))
 	{

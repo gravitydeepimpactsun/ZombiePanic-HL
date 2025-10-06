@@ -163,10 +163,7 @@ inline edict_t *INDEXENT(int iEdictNum)
 {
 	return (*g_engfuncs.pfnPEntityOfEntIndex)(iEdictNum);
 }
-inline void MESSAGE_BEGIN(int msg_dest, int msg_type, const float *pOrigin, entvars_t *ent)
-{
-	(*g_engfuncs.pfnMessageBegin)(msg_dest, msg_type, pOrigin, ENT(ent));
-}
+void MESSAGE_BEGIN(int msg_dest, int msg_type, const float *pOrigin, entvars_t *ent);
 
 // Testing the three types of "entity" for nullity
 #define eoNullEntity 0
@@ -551,6 +548,8 @@ int SENTENCEG_Lookup(const char *sample, char *sentencenum);
 void TEXTURETYPE_Init();
 char TEXTURETYPE_Find(char *name);
 float TEXTURETYPE_PlaySound(TraceResult *ptr, Vector vecSrc, Vector vecEnd, int iBulletType);
+
+void PRECACHE_SECRET_SOUNDS();
 
 // NOTE: use EMIT_SOUND_DYN to set the pitch of a sound. Pitch of 100
 // is no pitch shift.  Pitch > 100 up to 255 is a higher pitch, pitch < 100

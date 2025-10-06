@@ -138,6 +138,8 @@ public:
 
 	CRainbow m_Rainbow;
 
+	bool IsRainBowHUD() { return m_Rainbow.IsEnabled(); }
+
 	//-----------------------------------------------------
 	// HUD exports
 	//-----------------------------------------------------

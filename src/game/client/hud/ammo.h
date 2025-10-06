@@ -60,7 +60,6 @@ public:
 	void Draw(float flTime);
 	void Think();
 	void Reset();
-	int DrawWList(float flTime);
 	void DrawWeaponSlots();
 	void DrawWeaponSlot( WEAPON *pWeapon, int slot, int x, int y, int wide, int tall );
 	void DrawCrosshair();

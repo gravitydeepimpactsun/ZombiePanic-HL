@@ -35,7 +35,7 @@
 #include "vgui/client_viewport.h"
 
 ConVar hud_fastswitch("hud_fastswitch", "0", FCVAR_ARCHIVE, "Controls whether or not weapons can be selected in one keypress");
-ConVar hud_weapon("hud_weapon", "0", FCVAR_BHL_ARCHIVE, "Controls displaying sprite of currently selected weapon");
+ConVar hud_weaponslot_corner_hug("hud_weaponslot_corner_hug", "0", FCVAR_BHL_ARCHIVE, "Hug the weapon slots to the left of the screen");
 extern ConVar cl_cross_zoom;
 
 WEAPON *gpActiveSel; // NULL means off, 1 means just the menu bar, otherwise
@@ -136,39 +136,6 @@ void WeaponsResource::LoadWeaponSprites(WEAPON *pWeapon)
 	pWeapon->hAutoaim = gHUD.GetRegisteredIcon( wpnDat.Icons[ICON_CROSSHAIR_AUTO] );
 	pWeapon->hZoomedCrosshair = gHUD.GetRegisteredIcon( wpnDat.Icons[ICON_CROSSHAIR_ZOOM] );
 	pWeapon->hZoomedAutoaim = gHUD.GetRegisteredIcon( wpnDat.Icons[ICON_CROSSHAIR_ZOOMAUTO] );
-}
-
-// Returns the first weapon for a given slot.
-WEAPON *WeaponsResource::GetFirstPos(int iSlot)
-{
-	if (iSlot >= MAX_WEAPON_SLOTS)
-		return NULL;
-
-	WEAPON *pret = NULL;
-
-	for (int i = 0; i < MAX_WEAPON_POSITIONS; i++)
-	{
-		if (rgSlots[iSlot][i] && HasAmmo(rgSlots[iSlot][i]))
-		{
-			pret = rgSlots[iSlot][i];
-			break;
-		}
-	}
-
-	return pret;
-}
-
-WEAPON *WeaponsResource::GetNextActivePos(int iSlot, int iSlotPos)
-{
-	if (iSlot >= MAX_WEAPON_SLOTS || iSlotPos + 1 >= MAX_WEAPON_POSITIONS)
-		return NULL;
-
-	WEAPON *p = gWR.rgSlots[iSlot][iSlotPos + 1];
-
-	if (!p || !gWR.HasAmmo(p))
-		return GetNextActivePos(iSlot, iSlotPos + 1);
-
-	return p;
 }
 
 int giBucketHeight, giBucketWidth, giABHeight, giABWidth; // Ammo Bar width and height
@@ -318,70 +285,6 @@ CHud::RegisteredIcon WeaponsResource::GetAmmoPicFromWeapon(int iAmmoId)
 			return rgWeapons[i].hAmmo2;
 	}
 	return CHud::RegisteredIcon();
-}
-
-// Menu Selection Code
-
-void WeaponsResource::SelectSlot(int iSlot, int fAdvance, int iDirection)
-{
-	if ((fAdvance == FALSE) && (iDirection == 1) && CHudMenu::Get()->OnWeaponSlotSelected(iSlot))
-	{
-		// menu is overriding slot use commands
-		return;
-	}
-
-	if (iSlot > CHudAmmo::Get()->GetMaxSlot())
-		return;
-
-	if (gHUD.m_fPlayerDead || gHUD.m_iHideHUDDisplay & (HIDEHUD_WEAPONS | HIDEHUD_ALL))
-		return;
-
-	if (!(gHUD.m_iWeaponBits & (1 << (WEAPON_SUIT))))
-		return;
-
-	if (!(gHUD.m_iWeaponBits & ~(1 << (WEAPON_SUIT))))
-		return;
-
-	WEAPON *p = NULL;
-	bool fastSwitch = hud_fastswitch.GetInt() != 0;
-
-	if ((gpActiveSel == NULL) || (gpActiveSel == (WEAPON *)1) || (iSlot != gpActiveSel->iSlot))
-	{
-		PlaySound("common/wpn_hudon.wav", 1);
-		p = GetFirstPos(iSlot);
-
-		if (p && fastSwitch) // check for fast weapon switch mode
-		{
-			// if fast weapon switch is on, then weapons can be selected in a single keypress
-			// but only if there is only one item in the bucket
-			WEAPON *p2 = GetNextActivePos(p->iSlot, p->iSlotPos);
-			if (!p2)
-			{ // only one active item in bucket, so change directly to weapon
-				ServerCmd(p->szName);
-				g_weaponselect = p->iId;
-				return;
-			}
-		}
-	}
-	else
-	{
-		PlaySound("common/wpn_moveselect.wav", 1);
-		if (gpActiveSel)
-			p = GetNextActivePos(gpActiveSel->iSlot, gpActiveSel->iSlotPos);
-		if (!p)
-			p = GetFirstPos(iSlot);
-	}
-
-	if (!p) // no selection found
-	{
-		// just display the weapon list, unless fastswitch is on just ignore it
-		if (!fastSwitch)
-			gpActiveSel = (WEAPON *)1;
-		else
-			gpActiveSel = NULL;
-	}
-	else
-		gpActiveSel = p;
 }
 
 //------------------------------------------------------------------------
@@ -736,88 +639,6 @@ void CHudAmmo::UserCmd_Close(void)
 	gEngfuncs.pfnClientCmd("escape");
 }
 
-// Selects the next item in the weapon menu
-void CHudAmmo::UserCmd_NextWeapon(void)
-{
-	if (gHUD.m_fPlayerDead || (gHUD.m_iHideHUDDisplay & (HIDEHUD_WEAPONS | HIDEHUD_ALL)))
-		return;
-
-	if (!gpActiveSel || gpActiveSel == (WEAPON *)1)
-		gpActiveSel = m_pWeapon;
-
-	int pos = 0;
-	int slot = 0;
-	if (gpActiveSel)
-	{
-		pos = gpActiveSel->iSlotPos + 1;
-		slot = gpActiveSel->iSlot;
-	}
-
-	for (int loop = 0; loop <= 1; loop++)
-	{
-		for (; slot < MAX_WEAPON_SLOTS; slot++)
-		{
-			for (; pos < MAX_WEAPON_POSITIONS; pos++)
-			{
-				WEAPON *wsp = gWR.GetWeaponSlot(slot, pos);
-
-				if (wsp && gWR.HasAmmo(wsp))
-				{
-					gpActiveSel = wsp;
-					return;
-				}
-			}
-
-			pos = 0;
-		}
-
-		slot = 0; // start looking from the first slot again
-	}
-
-	gpActiveSel = NULL;
-}
-
-// Selects the previous item in the menu
-void CHudAmmo::UserCmd_PrevWeapon(void)
-{
-	if (gHUD.m_fPlayerDead || (gHUD.m_iHideHUDDisplay & (HIDEHUD_WEAPONS | HIDEHUD_ALL)))
-		return;
-
-	if (!gpActiveSel || gpActiveSel == (WEAPON *)1)
-		gpActiveSel = m_pWeapon;
-
-	int pos = MAX_WEAPON_POSITIONS - 1;
-	int slot = MAX_WEAPON_SLOTS - 1;
-	if (gpActiveSel)
-	{
-		pos = gpActiveSel->iSlotPos - 1;
-		slot = gpActiveSel->iSlot;
-	}
-
-	for (int loop = 0; loop <= 1; loop++)
-	{
-		for (; slot >= 0; slot--)
-		{
-			for (; pos >= 0; pos--)
-			{
-				WEAPON *wsp = gWR.GetWeaponSlot(slot, pos);
-
-				if (wsp && gWR.HasAmmo(wsp))
-				{
-					gpActiveSel = wsp;
-					return;
-				}
-			}
-
-			pos = MAX_WEAPON_POSITIONS - 1;
-		}
-
-		slot = MAX_WEAPON_SLOTS - 1;
-	}
-
-	gpActiveSel = NULL;
-}
-
 //-------------------------------------------------------------------------
 // Drawing code
 //-------------------------------------------------------------------------
@@ -835,9 +656,8 @@ void CHudAmmo::Draw(float flTime)
 		return;
 
 	// Draw Weapon Menu
-	// DrawWList has been disabled, because we don't use the old HL1 weapon menu anymore.
+	// DrawWList has been removed, because we don't use the old HL1 weapon menu anymore.
 	// We now use a new one designed for Zombie Panic.
-	//DrawWList(flTime);
 	DrawWeaponSlots();
 
 	// Draw our crosshair
@@ -875,16 +695,6 @@ void CHudAmmo::Draw(float flTime)
 	a *= gHUD.GetHudTransparency();
 	gHUD.GetHudColor(HudPart::Common, 0, r, g, b);
 	ScaleColors(r, g, b, a);
-
-	// Draw weapon sprite
-	if ( hud_weapon.GetBool() && IsIconValid( m_pWeapon->hInactive ) )
-	{
-		y = ScreenHeight - m_pWeapon->hInactive.Tall;
-		x = ScreenWidth - (8.5 * AmmoWidth) - m_pWeapon->hInactive.Wide;
-		vgui2::surface()->DrawSetTexture( m_pWeapon->hInactive.Icon );
-		vgui2::surface()->DrawSetColor( Color( r, g, b, a ) );
-		vgui2::surface()->DrawTexturedRect( x, y, x + m_pWeapon->hInactive.Wide, y + m_pWeapon->hInactive.Tall );
-	}
 
 	// SPR_Draw Ammo
 	if ((pw->iAmmoType < 0) && (pw->iAmmo2Type < 0))
@@ -1040,220 +850,6 @@ void DrawAmmoBar(WEAPON *p, int x, int y, int width, int height)
 	}
 }
 
-//
-// Draw Weapon Menu
-//
-int CHudAmmo::DrawWList(float flTime)
-{
-	int r, g, b, x, y, i;
-	float a;
-
-	if (!gpActiveSel)
-		return 0;
-
-	int iActiveSlot;
-
-	if (gpActiveSel == (WEAPON *)1)
-		iActiveSlot = -1; // current slot has no weapons
-	else
-		iActiveSlot = gpActiveSel->iSlot;
-
-	switch ( gHUD.m_iRes )
-	{
-		default:
-		case 320:
-		case 640:
-		case 1280: x = SET_WEAPON_SELECTION_XPOS; break;
-		case 2560: x = (SET_WEAPON_SELECTION_XPOS * 2) + 80; break;
-	}
-	y = SET_WEAPON_SELECTION_YPOS;
-
-	// Ensure that there are available choices in the active slot
-	if (iActiveSlot > 0)
-	{
-		if (!gWR.GetFirstPos(iActiveSlot))
-		{
-			gpActiveSel = (WEAPON *)1;
-			iActiveSlot = -1;
-		}
-	}
-
-	// Draw top line
-	for (i = 0; i <= m_iMaxSlot; i++)
-	{
-		int iWidth;
-
-		if (iActiveSlot == i)
-			a = 255;
-		else
-			a = 192;
-
-		a *= gHUD.GetHudTransparency();
-		gHUD.GetHudColor(HudPart::Common, 0, r, g, b);
-		ScaleColors(r, g, b, a);
-
-		SPR_Set(gHUD.GetSprite(m_HUD_bucket0 + i), r, g, b);
-
-		// make active slot wide enough to accomodate gun pictures
-		if (i == iActiveSlot)
-		{
-			WEAPON *p = gWR.GetFirstPos(iActiveSlot);
-			if (p)
-				iWidth = p->hActive.Wide;
-			else
-				iWidth = giBucketWidth;
-		}
-		else
-			iWidth = giBucketWidth;
-
-		SPR_DrawAdditive(0, x, y, &gHUD.GetSpriteRect(m_HUD_bucket0 + i));
-
-		x += iWidth + 5;
-	}
-
-	switch ( gHUD.m_iRes )
-	{
-		default:
-		case 320:
-		case 640:
-		case 1280: x = SET_WEAPON_SELECTION_XPOS; break;
-		case 2560: x = (SET_WEAPON_SELECTION_XPOS * 2) + 80; break;
-	}
-
-	// Draw all of the buckets
-	for (i = 0; i <= m_iMaxSlot; i++)
-	{
-		y = giBucketHeight + SET_WEAPON_SELECTION_YPOS;
-
-		// If this is the active slot, draw the bigger pictures,
-		// otherwise just draw boxes
-		if (i == iActiveSlot)
-		{
-			WEAPON *p = gWR.GetFirstPos(i);
-			int iWidth = giBucketWidth;
-			if (p)
-				iWidth = p->hActive.Wide;
-
-			V_HSPRITE hSprSelection = gHUD.GetSprite(m_HUD_selection);
-			const wrect_t &rcSprSelection = gHUD.GetSpriteRect(m_HUD_selection);
-
-			for (int iPos = 0; iPos < MAX_WEAPON_POSITIONS; iPos++)
-			{
-				p = gWR.GetWeaponSlot(i, iPos);
-
-				if (!p || !p->iId)
-					continue;
-
-				gHUD.GetHudColor(HudPart::Common, 0, r, g, b);
-
-				// if active, then we must have ammo.
-
-				if (gpActiveSel == p)
-				{
-					a = 255 * gHUD.GetHudTransparency();
-					ScaleColors(r, g, b, a);
-
-					if ( IsIconValid( p->hActive ) )
-					{
-						Color ItemBG( r, g, b, a );
-						DrawBackgroundSlot( ItemBG, x, y, p->hActive );
-						vgui2::surface()->DrawSetTexture( p->hActive.Icon );
-						vgui2::surface()->DrawSetColor( ItemBG );
-						vgui2::surface()->DrawTexturedRect( x, y, x + p->hActive.Wide, y + p->hActive.Tall );
-					}
-					else
-					{
-						// Pink rect
-						gEngfuncs.pfnFillRGBA(x, y, rcSprSelection.GetWidth(), rcSprSelection.GetHeight(), 64, 0, 64, a);
-					}
-
-					SPR_Set(hSprSelection, r, g, b);
-					SPR_DrawAdditive(0, x, y, &rcSprSelection);
-				}
-				else
-				{
-#if 0
-					// Draw Weapon if Red if no ammo
-
-					if (gWR.HasAmmo(p))
-					{
-						a = 192 * gHUD.GetHudTransparency();
-						ScaleColors(r, g, b, a);
-					}
-					else
-					{
-						a = 128 * gHUD.GetHudTransparency();
-						UnpackRGB(r, g, b, RGB_REDISH);
-						ScaleColors(r, g, b, a);
-					}
-#else
-					// Zombie Panic! does not care if you have an empty
-					// weapon or not.
-					a = 192 * gHUD.GetHudTransparency();
-					ScaleColors(r, g, b, a);
-#endif
-
-					if ( IsIconValid( p->hInactive ) )
-					{
-						Color ItemBG( r, g, b, a );
-						DrawBackgroundSlot( ItemBG, x, y, p->hInactive );
-						vgui2::surface()->DrawSetTexture( p->hInactive.Icon );
-						vgui2::surface()->DrawSetColor( ItemBG );
-						vgui2::surface()->DrawTexturedRect( x, y, x + p->hInactive.Wide, y + p->hInactive.Tall );
-					}
-					else
-					{
-						// Pink rect
-						gEngfuncs.pfnFillRGBA(x, y, rcSprSelection.GetWidth(), rcSprSelection.GetHeight(), 48, 0, 48, a);
-					}
-				}
-
-				// We use the ammobank for showing amount of ammo.
-				// And also our weight.
-#if 0
-				// Draw Ammo Bar
-				DrawAmmoBar(p, x + giABWidth / 2, y, giABWidth, giABHeight);
-#endif
-
-				y += rcSprSelection.bottom - rcSprSelection.top + 5;
-			}
-
-			x += iWidth + 5;
-		}
-		else
-		{
-			// Draw Row of weapons.
-
-			for (int iPos = 0; iPos < MAX_WEAPON_POSITIONS; iPos++)
-			{
-				WEAPON *p = gWR.GetWeaponSlot(i, iPos);
-
-				if (!p || !p->iId)
-					continue;
-
-				if (gWR.HasAmmo(p))
-				{
-					a = 128 * gHUD.GetHudTransparency();
-					gHUD.GetHudColor(HudPart::Common, 0, r, g, b);
-				}
-				else
-				{
-					a = 96 * gHUD.GetHudTransparency();
-					UnpackRGB(r, g, b, RGB_REDISH);
-				}
-
-				FillRGBA(x, y, giBucketWidth, giBucketHeight, r, g, b, a);
-
-				y += giBucketHeight + 5;
-			}
-
-			x += giBucketWidth + 5;
-		}
-	}
-
-	return 1;
-}
-
 #if DEBUG_WEAPON_SLOTS
 #include "con_nprint.h"
 static int DEBUG_PRINT_POS = 5;
@@ -1287,24 +883,32 @@ void CHudAmmo::DrawWeaponSlots()
 	}
 
 	static int WEAPON_SLOT_WIDE = 150;
-	static int WEAPON_SLOT_WIDE_DOUBLE = WEAPON_SLOT_WIDE * 2;
 	static int WEAPON_SLOT_TALL = 80;
 	static int WEAPON_SLOTS_XPOS = 80;
-	static int WEAPON_SLOTS_YPOS = ScreenHeight - WEAPON_SLOT_TALL - 5;
+	static int WEAPON_SLOTS_YPOS = ScreenHeight - 5;
 
-	int x, y;
+	int x, y, wide, tall;
 	switch ( gHUD.m_iRes )
 	{
 		default:
 		case 320:
 		case 640:
-		case 1280: x = WEAPON_SLOTS_XPOS; break;
-		case 2560: x = ( WEAPON_SLOTS_XPOS * 2 ) + 80; break;
+	    case 1280:
+			x = WEAPON_SLOTS_XPOS;
+			wide = WEAPON_SLOT_WIDE;
+			tall = WEAPON_SLOT_TALL;
+		break;
+	    case 2560:
+			x = (WEAPON_SLOTS_XPOS * 2);
+			wide = (WEAPON_SLOT_WIDE * 2);
+			tall = (WEAPON_SLOT_TALL * 2);
+		break;
 	}
 
-	int wide = WEAPON_SLOT_WIDE;
-	int tall = WEAPON_SLOT_TALL;
-	y = WEAPON_SLOTS_YPOS;
+	if ( hud_weaponslot_corner_hug.GetBool() )
+		x = 5;
+
+	y = WEAPON_SLOTS_YPOS - tall;
 #if DEBUG_WEAPON_SLOTS
 	DEBUG_PRINT_POS = 5;
 #endif
@@ -1327,13 +931,13 @@ void CHudAmmo::DrawWeaponSlots()
 			bHasDoubleSlot = pWeapon->bDoubleSlot;
 
 		// Set our width
-		wide = bHasDoubleSlot ? WEAPON_SLOT_WIDE_DOUBLE : WEAPON_SLOT_WIDE;
+		int draw_wide = bHasDoubleSlot ? ( wide * 2 ) : wide;
 
 		// Draw the slot
-		DrawWeaponSlot( pWeapon, i, x, y, wide, tall );
+		DrawWeaponSlot( pWeapon, i, x, y, draw_wide, tall );
 
 		// Move over
-		x += wide + 5;
+		x += draw_wide + 5;
 	}
 }
 
@@ -1432,7 +1036,8 @@ void CHudAmmo::DrawWeaponSlot( WEAPON *pWeapon, int slot, int x, int y, int wide
 
 		// Draw the background first, so it's more visible
 		ItemBG.SetColor( r, g, b, a );
-		DrawBackgroundSlot( ItemBG, x, y + tall - smallfontHeight, wide, smallfontHeight );
+		if ( !gHUD.IsRainBowHUD() )
+			DrawBackgroundSlot( ItemBG, x, y + tall - smallfontHeight, wide, smallfontHeight );
 
 		int iAmmo = pWeapon->iClip;// gWR.CountAmmo( pWeapon->iAmmoType );
 		if ( iAmmo < 0 ) iAmmo = 0;

@@ -2197,6 +2197,8 @@ void CBasePlayer::UpdateHealthRegen()
 
 void CBasePlayer::GiveAchievement( EAchievements eAchivement )
 {
+	// Only if we're connected
+	if ( !IsConnected() ) return;
 	MESSAGE_BEGIN( MSG_ONE, gmsgAchievement, NULL, pev );
 	WRITE_SHORT( eAchivement );
 	MESSAGE_END();
@@ -2204,6 +2206,8 @@ void CBasePlayer::GiveAchievement( EAchievements eAchivement )
 
 void CBasePlayer::NotifyOfEarnedAchivement( int eAchivement )
 {
+	// Only if we're connected
+	if ( !IsConnected() ) return;
 	MESSAGE_BEGIN( MSG_ALL, gmsgAchEarned );
 	WRITE_SHORT( entindex() );
 	WRITE_SHORT( eAchivement );
@@ -4461,6 +4465,8 @@ void CBasePlayer::SelectLastItem(void)
 	m_pLastItem = pTemp;
 	m_pActiveItem->Deploy();
 	m_pActiveItem->UpdateItemInfo();
+
+	m_flNextWeaponSwitch = gpGlobals->time + 1.0f;
 }
 
 //==============================================

@@ -2624,9 +2624,10 @@ void CClientFog::OnScriptCallBack( KeyValues *pData )
 
 void CClientFog::UpdateFog( bool isOn, bool doBlend, CBaseEntity *pPlayer )
 {
+	CBasePlayer *player = (CBasePlayer *)pPlayer;
 	if ( isOn )
 	{
-		if (pPlayer)
+		if ( player && player->IsConnected() )
 			MESSAGE_BEGIN(MSG_ONE, gmsgFog, NULL, pPlayer->pev);
 		else
 			MESSAGE_BEGIN(MSG_ALL, gmsgFog, NULL);
@@ -2645,7 +2646,7 @@ void CClientFog::UpdateFog( bool isOn, bool doBlend, CBaseEntity *pPlayer )
 	}
 	else if ( !m_flBlendTime )
 	{
-		if ( pPlayer )
+		if ( player && player->IsConnected() )
 			MESSAGE_BEGIN(MSG_ONE, gmsgFog, NULL, pPlayer->pev);
 		else
 			MESSAGE_BEGIN(MSG_ALL, gmsgFog, NULL);

@@ -107,6 +107,7 @@ extern int gEvilImpulse101;
 
 void CItem::ItemTouch(CBaseEntity *pOther)
 {
+#if ALLOW_AUTO_PICKUP
 	// if it's not a player, ignore
 	if (!pOther->IsPlayer())
 	{
@@ -122,7 +123,7 @@ void CItem::ItemTouch(CBaseEntity *pOther)
 		return;
 	}
 
-	if (MyTouch(pPlayer))
+	if ( MyTouch( pPlayer ) )
 	{
 		SUB_UseTargets(pOther, USE_TOGGLE, 0);
 		SetTouch(NULL);
@@ -131,7 +132,34 @@ void CItem::ItemTouch(CBaseEntity *pOther)
 		g_pGameRules->PlayerGotItem(pPlayer, this);
 		SoftRemove();
 	}
+#endif
 }
+
+#if !defined(CLIENT_DLL)
+void CItem::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value)
+{
+	// Make sure we have a player
+	CBasePlayer *pPlayer = (CBasePlayer *)pActivator;
+	if ( !pPlayer || !pPlayer->IsPlayer() ) return;
+
+	// Give the ammo to the player
+	if (!g_pGameRules->CanHaveItem(pPlayer, this))
+	{
+		// no? Ignore the touch.
+		return;
+	}
+
+	if (MyTouch(pPlayer))
+	{
+		SUB_UseTargets( pPlayer, USE_TOGGLE, 0 );
+		SetUse( NULL );
+
+		// player grabbed the item.
+		g_pGameRules->PlayerGotItem( pPlayer, this );
+		SoftRemove();
+	}
+}
+#endif
 
 CBaseEntity *CItem::Respawn(void)
 {

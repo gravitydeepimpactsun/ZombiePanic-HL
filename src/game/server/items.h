@@ -23,7 +23,10 @@ public:
 	void EXPORT ItemTouch(CBaseEntity *pOther);
 	void EXPORT Materialize(void);
 	virtual BOOL MyTouch(CBasePlayer *pPlayer) { return FALSE; };
-	virtual int ObjectCaps(void) { return CBaseEntity::ObjectCaps() | FCAP_MUST_RELEASE; }
+	virtual int ObjectCaps(void) { return CBaseEntity::ObjectCaps() | FCAP_MUST_RELEASE | FCAP_IMPULSE_USE; }
+#if !defined( CLIENT_DLL )
+	virtual void Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
+#endif
 
 protected:
 	void SendItemPickup(CBasePlayer *pPlayer);

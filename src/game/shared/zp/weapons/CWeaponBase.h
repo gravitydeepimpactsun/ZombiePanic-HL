@@ -19,6 +19,8 @@ class CWeaponBase : public CBasePlayerWeapon
 	DECLARE_CLASS_SIMPLE( CWeaponBase, CBasePlayerWeapon );
 
 public:
+	virtual int ObjectCaps(void) { return BaseClass::ObjectCaps() | FCAP_IMPULSE_USE; }
+
 	int iItemSlot( void ) override;
 	BOOL DefaultDeploy(char *szViewModel, char *szWeaponModel, int iAnim, char *szAnimExt, int skiplocal = 0, int body = 0) override;
 
@@ -45,6 +47,7 @@ public:
 	virtual bool IsEmpty( void ) const { return ( m_iClip <= 0 ); }
 	void AddWeaponSound( const char *szSoundFile, float volume = 1.0f, float attenuation = ATTN_NORM, float delay = 0.0f );
 	void ClearWeaponSounds( void );
+	virtual void Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
 
 protected:
 	bool CanAttack( float attack_time, float curtime, bool isPredicted );

@@ -349,9 +349,12 @@ class CBasePlayerAmmo : public CBaseEntity
 public:
 	virtual void EXPORT Spawn(void);
 	void EXPORT DefaultTouch(CBaseEntity *pOther); // default weapon touch
+#if !defined( CLIENT_DLL )
+	virtual void Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
+#endif
 	bool GiveAmmoToPlayer(CBaseEntity *pOther);
 	virtual void DisallowPickupFor( float flDisallow ) { m_flDisallowPickup = gpGlobals->time + flDisallow; }
-	virtual int ObjectCaps(void) { return CBaseEntity::ObjectCaps() | FCAP_MUST_RELEASE; }
+	virtual int ObjectCaps(void) { return CBaseEntity::ObjectCaps() | FCAP_MUST_RELEASE | FCAP_IMPULSE_USE; }
 	int AmmoToGive() const
 	{
 		if ( m_iDroppedOverride > 0 )

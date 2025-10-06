@@ -176,6 +176,24 @@ void CWeaponBase::ClearWeaponSounds()
 	m_vecWeaponSoundData.clear();
 }
 
+void CWeaponBase::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
+{
+	// Make sure we have a player
+	CBasePlayer *pPlayer = (CBasePlayer *)pActivator;
+	if ( !pPlayer || !pPlayer->IsPlayer() ) return;
+
+	// Check if we can pickup the weapon
+	if ( pPlayer->AddPlayerItem(this) )
+	{
+		AttachToPlayer( pPlayer );
+		if ( pPlayer->pev->team == ZP::TEAM_SURVIVIOR )
+			EMIT_SOUND( ENT(pPlayer->pev), CHAN_ITEM, "items/gunpickup2.wav", 1, ATTN_NORM );
+		return;
+	}
+
+	BaseClass::Use( pActivator, pCaller, useType, value );
+}
+
 /// <summary>
 /// Checks if we can attack or not
 /// </summary>

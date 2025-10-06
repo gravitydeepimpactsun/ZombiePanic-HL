@@ -553,6 +553,7 @@ CBaseEntity *CBasePlayerItem::Respawn(void)
 
 void CBasePlayerItem::DefaultTouch(CBaseEntity *pOther)
 {
+#if ALLOW_AUTO_PICKUP
 	// if it's not a player, ignore
 	if (!pOther->IsPlayer())
 		return;
@@ -577,6 +578,7 @@ void CBasePlayerItem::DefaultTouch(CBaseEntity *pOther)
 	}
 
 	SUB_UseTargets(pOther, USE_TOGGLE, 0); // UNDONE: when should this happen?
+#endif
 }
 
 BOOL CanAttack(float attack_time, float curtime, BOOL isPredicted)
@@ -1091,8 +1093,33 @@ void CBasePlayerAmmo::Materialize(void)
 	SetThink(NULL);
 }
 
+#if !defined(CLIENT_DLL)
+void CBasePlayerAmmo::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value)
+{
+	if ( m_flDisallowPickup != -1 && m_flDisallowPickup - gpGlobals->time > 0 ) return;
+
+	// Make sure we have a player
+	CBasePlayer *pPlayer = (CBasePlayer *)pActivator;
+	if ( !pPlayer || !pPlayer->IsPlayer() ) return;
+
+	// Give the ammo to the player
+	if ( GiveAmmoToPlayer( pPlayer ) )
+	{
+		SetUse( NULL );
+		if ( SpawnedTroughRandomEntity() )
+		{
+			SetThink(&CBasePlayerAmmo::SUB_Remove);
+			pev->nextthink = gpGlobals->time + .1;
+		}
+		else
+			SoftRemove();
+	}
+}
+#endif
+
 void CBasePlayerAmmo ::DefaultTouch(CBaseEntity *pOther)
 {
+#if ALLOW_AUTO_PICKUP
 	if ( m_flDisallowPickup != -1 && m_flDisallowPickup - gpGlobals->time > 0 ) return;
 
 	if (!pOther->IsPlayer())
@@ -1119,6 +1146,7 @@ void CBasePlayerAmmo ::DefaultTouch(CBaseEntity *pOther)
 		SetThink(&CBasePlayerAmmo::SUB_Remove);
 		pev->nextthink = gpGlobals->time + .1;
 	}
+#endif
 }
 
 bool CBasePlayerAmmo::GiveAmmoToPlayer(CBaseEntity *pOther)

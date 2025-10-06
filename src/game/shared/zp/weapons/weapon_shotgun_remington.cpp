@@ -91,7 +91,7 @@ void CWeaponShotgunRemington::OnRequestedAnimation( SingleActionAnimReq act )
 			SendWeaponAnim( SHOTGUN_PUMP );
 			// play cocking sound
 			EMIT_SOUND_DYN( ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/shotgun/pump.wav", 1, ATTN_NORM, 0, 105 );
-			m_flTimeWeaponIdle = m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + 0.66f;
+			m_flTimeWeaponIdle = m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + 0.73f;
 		}
 		break;
 		case CWeaponBaseSingleAction::ANIM_RELOAD_START: SendWeaponAnim( SHOTGUN_RELOAD_START ); break;
@@ -108,16 +108,16 @@ void CWeaponShotgunRemington::OnRequestedAnimation( SingleActionAnimReq act )
 			m_pPlayer->m_iWeaponKillCount = 0;
 #endif
 
-		    m_flNextReload = UTIL_WeaponTimeBase() + 0.6;
-		    m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.6;
+		    m_flNextReload = UTIL_WeaponTimeBase() + 0.62;
+		    m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.62;
 		}
 		break;
 		case CWeaponBaseSingleAction::ANIM_RELOAD_END:
 		{
 			SendWeaponAnim( SHOTGUN_RELOAD_END );
 			EMIT_SOUND_DYN( ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/shotgun/pump.wav", 1, ATTN_NORM, 0, 105 );
-			m_flNextReload = UTIL_WeaponTimeBase() + 0.8;
-			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.8;
+			m_flNextReload = UTIL_WeaponTimeBase() + 0.81;
+			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.81;
 		}
 		break;
 	}

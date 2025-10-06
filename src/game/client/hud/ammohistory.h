@@ -25,9 +25,6 @@ class WeaponsResource
 private:
 	// Information about weapons & ammo
 	WEAPON rgWeapons[LAST_WEAPON_ID]; // Weapons Array
-
-	// counts of weapons * ammo
-	WEAPON *rgSlots[MAX_WEAPON_SLOTS][MAX_WEAPON_POSITIONS]; // The slots currently in use by weapons. The value is a pointer to the weapon; if it's NULL, no weapon is there
 	int riAmmo[ZPAmmoTypes::AMMO_MAX]; // count of each ammo type
 
 public:
@@ -40,7 +37,6 @@ public:
 	void Reset(void)
 	{
 		iOldWeaponBits = 0;
-		memset(rgSlots, 0, sizeof rgSlots);
 		memset(riAmmo, 0, sizeof riAmmo);
 	}
 
@@ -73,7 +69,6 @@ public:
 	{
 		if (wp->iSlot >= MAX_WEAPON_SLOTS || wp->iSlotPos >= MAX_WEAPON_POSITIONS)
 			return;
-		rgSlots[wp->iSlot][wp->iSlotPos] = wp;
 		UpdateWeaponVisibility( iID, true );
 	}
 
@@ -81,7 +76,6 @@ public:
 	{
 		if (wp->iSlot >= MAX_WEAPON_SLOTS || wp->iSlotPos >= MAX_WEAPON_POSITIONS)
 			return;
-		rgSlots[wp->iSlot][wp->iSlotPos] = NULL;
 		UpdateWeaponVisibility( iID, false );
 		UpdatedWeaponSlotPos( iID, -1 );
 	}
@@ -92,18 +86,8 @@ public:
 			DropWeapon(&rgWeapons[i], i);
 	}
 
-	WEAPON *GetWeaponSlot(int slot, int pos)
-	{
-		if (slot >= MAX_WEAPON_SLOTS || pos >= MAX_WEAPON_POSITIONS)
-			return NULL;
-		return rgSlots[slot][pos];
-	}
-
 	void LoadWeaponSprites(WEAPON *wp);
 	void LoadAllWeaponSprites(void);
-	WEAPON *GetFirstPos(int iSlot);
-	void SelectSlot(int iSlot, int fAdvance, int iDirection);
-	WEAPON *GetNextActivePos(int iSlot, int iSlotPos);
 
 	///// AMMO /////
 	int HasAmmo(WEAPON *p);

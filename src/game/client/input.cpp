@@ -31,6 +31,7 @@
 #include "vgui/client_viewport.h"
 
 extern int g_iAlive;
+extern bool g_bLocalPlayerIsValid;
 
 extern int g_weaponselect;
 extern cl_enginefunc_t gEngfuncs;
@@ -462,8 +463,20 @@ int CL_DLLEXPORT HUD_Key_Event(int down, int keynum, const char *pszCurrentBindi
 	return 1;
 }
 
+// GetLocalPlayer will cause a crash if not connected to a server
+// So we use this function to check if we are connected.
+static bool IsConnected()
+{
+	char buf[64];
+	buf[0] = 0;
+	V_FileBase( gEngfuncs.pfnGetLevelName(), buf, sizeof(buf) );
+	if ( buf && buf[0] ) return true;
+	return false;
+}
+
 bool HasRoundBegun()
 {
+	if ( !IsConnected() ) return false;
 	// Do not move before the round starts
 	if ( gHUD.m_RoundState < ZP::RoundState::RoundState_RoundHasBegun )
 	{

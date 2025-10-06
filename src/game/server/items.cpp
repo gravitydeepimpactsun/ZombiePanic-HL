@@ -138,9 +138,12 @@ void CItem::ItemTouch(CBaseEntity *pOther)
 #if !defined(CLIENT_DLL)
 void CItem::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value)
 {
+	// Invisible? Ignore.
+	if ( pev->effects == EF_NODRAW ) return;
 	// Make sure we have a player
 	CBasePlayer *pPlayer = (CBasePlayer *)pActivator;
 	if ( !pPlayer || !pPlayer->IsPlayer() ) return;
+	if ( pPlayer->pev->team != ZP::TEAM_SURVIVIOR ) return;
 
 	// Give the ammo to the player
 	if (!g_pGameRules->CanHaveItem(pPlayer, this))
@@ -152,7 +155,6 @@ void CItem::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType,
 	if (MyTouch(pPlayer))
 	{
 		SUB_UseTargets( pPlayer, USE_TOGGLE, 0 );
-		SetUse( NULL );
 
 		// player grabbed the item.
 		g_pGameRules->PlayerGotItem( pPlayer, this );

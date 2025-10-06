@@ -946,7 +946,7 @@ void CBasePlayer::Killed(entvars_t *pevAttacker, int iGib)
 	}
 
 	// Is our attacker valid, and also dead?
-	CBasePlayer *pKiller = (CBasePlayer *)CBaseEntity::Instance( pevAttacker );
+	CBasePlayer *pKiller = dynamic_cast<CBasePlayer *>( CBaseEntity::Instance( pevAttacker ) );
 	if ( pKiller )
 	{
 		if ( !pKiller->IsAlive() )
@@ -5676,6 +5676,58 @@ void CBasePlayer ::EnableControl(BOOL fControl)
 		pev->flags &= ~FL_FROZEN;
 }
 
+int CBasePlayer::PickupAmmo( int iAmount, AmmoData data )
+{
+	int iMaxCarry = data.MaxCarry;
+	bool bIsInHardcore = ( ZP::GetCurrentGameMode()->GetGameModeType() == ZP::GameModeType_e::GAMEMODE_HARDCORE );
+	// If in hardcore mode and don't have a backpack, halve the max carry.
+	if ( bIsInHardcore && !HasBackpack() )
+		iMaxCarry = (int)( (float)iMaxCarry * 0.5f );
+
+	if (!g_pGameRules->CanHaveAmmo( this, data.AmmoName, iMaxCarry ) )
+	{
+		// game rules say I can't have any more of this ammo type.
+		return -1;
+	}
+
+	int i = data.AmmoType;
+	if ( i < 0 || i >= ZPAmmoTypes::AMMO_MAX ) return -1;
+
+	int iAdd = min(iAmount, iMaxCarry - m_rgAmmo[i]);
+	if ( iAdd < 1 ) return 0;
+
+	m_rgAmmo[i] += iAdd;
+
+	if (gmsgAmmoPickup) // make sure the ammo messages have been linked first
+	{
+		// Send the message that ammo has been picked up
+		MESSAGE_BEGIN(MSG_ONE, gmsgAmmoPickup, NULL, pev);
+		WRITE_BYTE(data.AmmoType); // ammo ID
+		WRITE_BYTE(iAdd); // amount
+		MESSAGE_END();
+
+		if (!this->m_fInitHUD)
+		{
+			// Send to all spectating players
+			CBasePlayer *plr;
+			for (int i = 1; i <= gpGlobals->maxClients; i++)
+			{
+				plr = (CBasePlayer *)UTIL_PlayerByIndex(i);
+				if (!plr || plr->pev->iuser1 != OBS_IN_EYE || plr->m_hObserverTarget != this)
+					continue;
+
+				MESSAGE_BEGIN(MSG_ONE, gmsgAmmoPickup, NULL, plr->pev);
+				WRITE_BYTE(data.AmmoType); // ammo ID
+				WRITE_BYTE(iAdd); // amount
+				MESSAGE_END();
+			}
+		}
+	}
+
+	TabulateAmmo();
+	return iAdd;
+}
+
 #define DOT_1DEGREE  0.9998476951564
 #define DOT_2DEGREE  0.9993908270191
 #define DOT_3DEGREE  0.9986295347546
@@ -6012,6 +6064,7 @@ void CBasePlayer::DropPlayerItem(char *pszItemName)
 void CBasePlayer::DropActiveWeapon()
 {
 	if ( !CanDropWeapon( true ) ) return;
+	if ( IsInPanic() ) return;
 	if ( !m_pActiveItem ) return;
 	m_flLastWeaponDrop = gpGlobals->time + 0.5f;
 	DropWeapon( (CBasePlayerWeapon *)m_pActiveItem, true );

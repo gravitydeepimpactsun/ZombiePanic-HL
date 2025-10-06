@@ -27,8 +27,13 @@
 #ifdef SCRIPT_SYSTEM
 #include "core.h"
 #endif
+#include "convar.h"
 
 static char *memfgets(byte *pMemFile, int fileSize, int &filePos, char *pBuffer, int bufferSize);
+
+#if DUMB_SECRET_SOUND_OVERRIDE
+static ConVar sv_secret_kawaii("sv_secret_kawaii", "0", FCVAR_SERVER | FCVAR_UNLOGGED, "Replaces all world audio etc. No weapon sounds.");
+#endif
 
 // ==================== GENERIC AMBIENT SOUND ======================================
 
@@ -1556,9 +1561,43 @@ int SENTENCEG_Lookup(const char *sample, char *sentencenum)
 	return -1;
 }
 
+void PRECACHE_SECRET_SOUNDS()
+{
+#if DUMB_SECRET_SOUND_OVERRIDE
+	PRECACHE_SOUND("secret/no.wav");
+	PRECACHE_SOUND("secret/pankapapam.wav");
+	PRECACHE_SOUND("secret/weeh.wav");
+	PRECACHE_SOUND("secret/frick.wav");
+	PRECACHE_SOUND("secret/meow.wav");
+	PRECACHE_SOUND("secret/ohmaigoto.wav");
+	PRECACHE_SOUND("secret/nihaha.wav");
+	PRECACHE_SOUND("secret/erm.wav");
+	PRECACHE_SOUND("secret/kekwa.wav");
+#endif
+}
+
 void EMIT_SOUND_DYN(edict_t *entity, int channel, const char *sample, float volume, float attenuation,
     int flags, int pitch)
 {
+#if DUMB_SECRET_SOUND_OVERRIDE
+	// This is torture, very nice!
+	if ( sv_secret_kawaii.GetBool() )
+	{
+		switch ( RANDOM_LONG( 0, 8 ) )
+		{
+			case 0: sample = "secret/no.wav"; break;
+			case 1: sample = "secret/pankapapam.wav"; break;
+			case 2: sample = "secret/weeh.wav"; break;
+			case 3: sample = "secret/frick.wav"; break;
+			case 4: sample = "secret/meow.wav"; break;
+			case 5: sample = "secret/ohmaigoto.wav"; break;
+			case 6: sample = "secret/nihaha.wav"; break;
+			case 7: sample = "secret/erm.wav"; break;
+		    case 8: sample = "secret/kekwa.wav"; break;
+		}
+	}
+#endif
+
 	if (sample && *sample == '!')
 	{
 		char name[32];

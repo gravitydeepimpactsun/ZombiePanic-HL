@@ -1019,6 +1019,8 @@ void ClientPrecache(void)
 		UTIL_PrecacheOther("monster_human_grunt");
 
 	m_usResetDecals = PRECACHE_EVENT(1, "events/decal_reset.sc");
+
+	PRECACHE_SECRET_SOUNDS();
 }
 
 /*

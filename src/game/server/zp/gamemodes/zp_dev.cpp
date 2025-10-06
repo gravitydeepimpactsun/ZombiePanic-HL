@@ -18,6 +18,8 @@ ZPGameMode_Dev::ZPGameMode_Dev()
 
 void ZPGameMode_Dev::OnHUDInit(CBasePlayer *pPlayer)
 {
+	if ( !pPlayer ) return;
+	if ( !pPlayer->IsConnected() ) return;
 	MESSAGE_BEGIN(MSG_ONE, gmsgRoundState, NULL, pPlayer->edict());
 	WRITE_SHORT(GetRoundState());
 	MESSAGE_END();

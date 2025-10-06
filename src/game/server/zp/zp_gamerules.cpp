@@ -177,6 +177,8 @@ extern int gmsgBeaconReset;
 
 void CZombiePanicGameRules::UpdateGameMode(CBasePlayer *pPlayer)
 {
+	if ( !pPlayer ) return;
+	if ( !pPlayer->IsConnected() ) return;
 	MESSAGE_BEGIN(MSG_ONE, gmsgGameMode, NULL, pPlayer->edict());
 	WRITE_BYTE(m_GameModeType);
 	MESSAGE_END();
@@ -195,6 +197,8 @@ const char *CZombiePanicGameRules::SetDefaultPlayerTeam(CBasePlayer *pPlayer)
 //=========================================================
 void CZombiePanicGameRules::InitHUD(CBasePlayer *pPlayer)
 {
+	if ( !pPlayer ) return;
+	if ( !pPlayer->IsConnected() ) return;
 	BaseClass::InitHUD(pPlayer);
 
 	// update the current player of the team he is joining

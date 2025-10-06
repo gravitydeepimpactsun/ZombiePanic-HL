@@ -28,6 +28,8 @@ ZPGameMode_Survival::ZPGameMode_Survival()
 
 void ZPGameMode_Survival::OnHUDInit(CBasePlayer *pPlayer)
 {
+	if ( !pPlayer ) return;
+	if ( !pPlayer->IsConnected() ) return;
 	MESSAGE_BEGIN(MSG_ONE, gmsgRoundState, NULL, pPlayer->edict());
 	WRITE_SHORT(GetRoundState());
 	MESSAGE_END();

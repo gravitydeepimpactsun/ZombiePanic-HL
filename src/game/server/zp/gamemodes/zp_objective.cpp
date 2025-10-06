@@ -22,6 +22,8 @@ ZPGameMode_Objective::ZPGameMode_Objective()
 
 void ZPGameMode_Objective::OnHUDInit(CBasePlayer *pPlayer)
 {
+	if ( !pPlayer ) return;
+	if ( !pPlayer->IsConnected() ) return;
 	BaseClass::OnHUDInit( pPlayer );
 	MESSAGE_BEGIN(MSG_ONE, gmsgRoundState, NULL, pPlayer->edict());
 	WRITE_SHORT(GetRoundState());

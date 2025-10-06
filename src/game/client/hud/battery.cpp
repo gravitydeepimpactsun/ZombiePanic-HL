@@ -110,7 +110,17 @@ void CHudBattery::Draw(float flTime)
 	int ArmorWidth = m_rc1.right - m_rc1.left;
 	int iOffset = (m_rc1.bottom - m_rc1.top) / 6;
 
-	y = ( gHUD.m_iFontHeight - gHUD.m_iFontHeight / 2 ) + gHUD.GetSpriteRect(gHUD.m_HUD_number_0).GetHeight() + 20;
+	int yOffset;
+	switch ( gHUD.m_iRes )
+	{
+		default:
+		case 320:
+		case 640:
+		case 1280: yOffset = 20; break;
+		case 2560: yOffset = 90; break;
+	}
+
+	y = ( gHUD.m_iFontHeight - gHUD.m_iFontHeight / 2 ) + gHUD.GetSpriteRect(gHUD.m_HUD_number_0).GetHeight() + yOffset;
 	int xOffset = gHUD.GetSpriteRect(gHUD.m_HUD_number_0).GetWidth() * 5 + 2;
 	x = ScreenWidth - gHUD.m_iFontHeight - xOffset - 15;
 

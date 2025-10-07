@@ -2312,10 +2312,56 @@ void CBasePlayer::SelectWeaponFromSlot( int iSlot )
 
 void CBasePlayer::SelectNextSlot()
 {
+	CWeaponBase *pBaseWeapon = dynamic_cast<CWeaponBase *>( m_pActiveItem );
+	int iCurrentSlot = pBaseWeapon ? pBaseWeapon->m_iAssignedSlotPosition : 0;
+	int iStartingSlot = -1;
+	// Select the next available slot, wrapping around to the start if necessary.
+	// We break the moment we find a weapon in a slot, even if it's our current weapon.
+	while ( true )
+	{
+		if ( iStartingSlot == -1 )
+			iStartingSlot = iCurrentSlot;
+		else
+		{
+			if ( iCurrentSlot == iStartingSlot )
+				break; // We've looped all the way around, no other weapons found.
+		}
+		iCurrentSlot++;
+		bool bIsInHardcore = ( ZP::GetCurrentGameMode()->GetGameModeType() == ZP::GameModeType_e::GAMEMODE_HARDCORE );
+		int iMaxSlots = bIsInHardcore ? MAX_WEAPON_SLOTS_HARDCORE : MAX_WEAPON_SLOTS;
+		if ( bIsInHardcore && HasBackpack() )
+			iMaxSlots += BACKPACK_EXTRA_SLOTS;
+		if ( iCurrentSlot >= iMaxSlots )
+			iCurrentSlot = 0;
+		SelectWeaponFromSlot( iCurrentSlot );
+	}
 }
 
 void CBasePlayer::SelectPreviousSlot()
 {
+	CWeaponBase *pBaseWeapon = dynamic_cast<CWeaponBase *>( m_pActiveItem );
+	int iCurrentSlot = pBaseWeapon ? pBaseWeapon->m_iAssignedSlotPosition : 0;
+	int iStartingSlot = -1;
+	// Select the previous available slot, wrapping around to the end if necessary.
+	// We break the moment we find a weapon in a slot, even if it's our current weapon.
+	while ( true )
+	{
+		if ( iStartingSlot == -1 )
+			iStartingSlot = iCurrentSlot;
+		else
+		{
+			if ( iCurrentSlot == iStartingSlot )
+				break; // We've looped all the way around, no other weapons found.
+		}
+		iCurrentSlot--;
+		bool bIsInHardcore = ( ZP::GetCurrentGameMode()->GetGameModeType() == ZP::GameModeType_e::GAMEMODE_HARDCORE );
+		int iMaxSlots = bIsInHardcore ? MAX_WEAPON_SLOTS_HARDCORE : MAX_WEAPON_SLOTS;
+		if ( bIsInHardcore && HasBackpack() )
+			iMaxSlots += BACKPACK_EXTRA_SLOTS;
+		if ( iCurrentSlot < 0 )
+			iCurrentSlot = iMaxSlots - 1;
+		SelectWeaponFromSlot( iCurrentSlot );
+	}
 }
 
 bool CBasePlayer::HasAvailableWeaponSlots( bool bIsDoubleSlot )

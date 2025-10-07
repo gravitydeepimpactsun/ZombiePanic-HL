@@ -16,14 +16,15 @@ public:
 	bool IsEnabled() { return m_bEnabled; }
 	bool HasSpawned();
 
-	void SetEnabled(bool bEnabled) { m_bEnabled = bEnabled; }
+	void DisableSpawn();
 	void SetOccupied(bool bOccupied);
 
 private:
 	bool m_bEnabled = true;
 	bool m_bEnabledRem = true;
 	bool m_bOccupied = false;
-	float m_flLastOccupied = 0.0f;
+	float m_flLastOccupied = -1;
+	float m_flDisableTime = -1;
 };
 
 #endif

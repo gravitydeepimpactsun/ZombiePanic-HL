@@ -45,6 +45,7 @@ void CBasePlayerSpawnPoint::OnScriptCallBack( KeyValues *pData )
 
 bool CBasePlayerSpawnPoint::HasSpawned()
 {
+	if ( !m_bEnabled ) return true;
 	if ( m_bOccupied )
 	{
 		// Waiting for players to spawn in, so we don't spawn in the same spot
@@ -53,16 +54,26 @@ bool CBasePlayerSpawnPoint::HasSpawned()
 		// If the time has not yet passed, then we are still occupied
 		return ( m_flLastOccupied - gpGlobals->time ) > 0 ? true : false;
 	}
+	if ( m_flDisableTime != -1 )
+	{
+		if ( m_flDisableTime - gpGlobals->time > 0.0f ) return true;
+		m_flDisableTime = -1;
+	}
 	return false;
+}
+
+void CBasePlayerSpawnPoint::DisableSpawn()
+{
+	m_flDisableTime = gpGlobals->time + 3.0f; // Disabled for 3 seconds, if we step inside the spawn blocker
 }
 
 void CBasePlayerSpawnPoint::SetOccupied(bool bOccupied)
 {
 	m_bOccupied = bOccupied;
-	// If we are occupied, set the timer to 3 seconds from now
+	// If we are occupied, set the timer to 8 seconds from now
 	// This will prevent spawn camping, and players spawning on top of each other
 	if ( ZP::GetCurrentRoundState() == ZP::RoundState::RoundState_RoundHasBegun )
-		m_flLastOccupied = gpGlobals->time + 3.0f;
+		m_flLastOccupied = gpGlobals->time + 8.0f;
 	else
 		m_flLastOccupied = -1;
 }
@@ -82,6 +93,8 @@ void CBasePlayerSpawnPoint::Restart()
 {
 	m_bEnabled = m_bEnabledRem;
 	m_bOccupied = false;
+	m_flDisableTime = -1;
+	m_flLastOccupied = -1;
 }
 
 void CBasePlayerSpawnPoint::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )

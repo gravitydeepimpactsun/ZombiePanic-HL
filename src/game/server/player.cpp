@@ -36,6 +36,7 @@
 #include "game.h"
 #include "hltv.h"
 #include "zp/gamemodes/zp_gamemodebase.h"
+#include "zp/weapons/CWeaponBase.h"
 #include "zp/zp_shared.h"
 #include "zp/zp_spawnpoint_ent.h"
 
@@ -98,15 +99,12 @@ constexpr float ItemSearchRadius = 512;
 enum class SpawnPointValidity
 {
 	NonValid,
-	Valid,
-	HasPlayers,
+	Valid
 };
 
 struct SpotInfo
 {
 	CBaseEntity *pSpot = nullptr;
-	float flItemsWeight = 0.0f;
-	SpawnPointValidity nValidity = SpawnPointValidity::NonValid;
 };
 
 // Global Savedata for player
@@ -811,8 +809,8 @@ void CBasePlayer::PackDeadPlayerItems(void)
 	pWeaponBox->pev->nextthink = 0;
 
 	// We just shat ourselves, refuse any pickup for this item for X amount of seconds
-	if ( bInPanic )
-		pWeaponBox->DisallowPickupFor( 2.5f );
+	//if ( bInPanic )
+	//	pWeaponBox->DisallowPickupFor( 2.5f );
 
 	// back these two lists up to their first elements
 	iPA = 0;
@@ -2291,8 +2289,6 @@ void CBasePlayer::InAchievementTrigger( string_t iszAchievementID )
 
 void CBasePlayer::SelectWeaponFromSlot( int iSlot )
 {
-	if ( !CanSelectNewWeapon( true ) ) return;
-
 	// Selects the weapon from the slot they were assigned
 	CBasePlayerWeapon *pWeapon = nullptr;
 	for (int i = 0; i < MAX_ITEM_TYPES; i++)
@@ -2312,6 +2308,14 @@ void CBasePlayer::SelectWeaponFromSlot( int iSlot )
 			}
 		}
 	}
+}
+
+void CBasePlayer::SelectNextSlot()
+{
+}
+
+void CBasePlayer::SelectPreviousSlot()
+{
 }
 
 bool CBasePlayer::HasAvailableWeaponSlots( bool bIsDoubleSlot )
@@ -2392,22 +2396,29 @@ void CBasePlayer::SelectWeapon( CBasePlayerWeapon *pWeapon )
 {
 	if ( pWeapon == m_pActiveItem ) return;
 
+	CWeaponBase *pBaseWeapon = dynamic_cast<CWeaponBase *>( m_pActiveItem );
+	if ( !pBaseWeapon ) return;
+	if ( pBaseWeapon->IsHolstering() ) return;
+
 	ResetAutoaim();
 
 	// Wait a little longer before the player can switch weapons again
 	m_flNextWeaponSwitch = gpGlobals->time + 1.0f;
 
 	// FIX, this needs to queue them up and delay
-	if (m_pActiveItem)
+	if ( pBaseWeapon )
 	{
 		// If throwable and active, get rid of it.
-		IsThrowableAndActive( (CBasePlayerWeapon *)m_pActiveItem, false );
-		m_pActiveItem->Holster();
+		IsThrowableAndActive( pBaseWeapon, false );
+		pBaseWeapon->BeginHolster( pWeapon );
 	}
 
 	m_pLastItem = m_pActiveItem;
-	m_pActiveItem = pWeapon;
+}
 
+void CBasePlayer::SelectNewActiveWeapon( CBasePlayerWeapon *pWeapon )
+{
+	m_pActiveItem = pWeapon;
 	if ( m_pActiveItem )
 	{
 		EMIT_SOUND(ENT(pev), CHAN_ITEM, "common/wpn_select.wav", 1, ATTN_NORM);
@@ -2416,7 +2427,7 @@ void CBasePlayer::SelectWeapon( CBasePlayerWeapon *pWeapon )
 	}
 }
 
-void CBasePlayer::WeaponSlotSet( CBasePlayerWeapon *pWeapon, bool bState )
+void CBasePlayer::WeaponSlotSet(CBasePlayerWeapon *pWeapon, bool bState)
 {
 	WeaponSlots[pWeapon->m_iAssignedSlotPosition] = bState;
 	if ( pWeapon->bDoubleSlot() )
@@ -2482,7 +2493,7 @@ void CBasePlayer::DropWeapon( CBasePlayerWeapon *pWeapon, bool bAutoSwitch, bool
 	CBasePlayerWeapon *pNewWeapon = (CBasePlayerWeapon *)CBaseEntity::Create((char *)STRING(weaponname), pev->origin + vecDir * 10, pev->angles, nullptr);
 	if ( !pNewWeapon ) return;
 
-	pNewWeapon->DisallowPickupFor( 2.5f );
+	//pNewWeapon->DisallowPickupFor( 2.5f );
 	if ( throwablestate == ThrowableDropState::NOT_ACTIVE )
 	{
 		pNewWeapon->m_iDefaultAmmo = nDefAmmo;
@@ -3629,7 +3640,7 @@ static bool IsSpawnPointTraceValid( CBaseEntity *pSpot, CBaseEntity *pEnt )
 }
 
 // checks if the spot is clear of players
-static SpawnPointValidity IsSpawnPointValid(CBaseEntity *pPlayer, CBaseEntity *pSpot, bool bIgnoreTrace)
+static SpawnPointValidity CheckSpawnPointValidity(CBaseEntity *pPlayer, CBaseEntity *pSpot)
 {
 	CBaseEntity *ent = NULL;
 
@@ -3659,26 +3670,14 @@ static SpawnPointValidity IsSpawnPointValid(CBaseEntity *pPlayer, CBaseEntity *p
 	if ( FoundSpawnPoint( item, pSpot ) )
 		return SpawnPointValidity::NonValid;
 
-	if ( bIgnoreTrace )
+	while ((ent = UTIL_FindEntityInSphere(ent, pSpot->pev->origin, 800)) != NULL)
 	{
-		while ((ent = UTIL_FindEntityInSphere(ent, pSpot->pev->origin, HalfPlayerHeight * 4)) != NULL)
+		// if ent is a client, don't spawn on 'em (if not on the same team)
+		if (ent->IsPlayer() && ent != pPlayer && ent->pev->team != pPlayer->pev->team)
 		{
-			// if ent is a client, don't spawn on 'em
-			if (ent->IsPlayer() && ent != pPlayer && ent->pev->team != pPlayer->pev->team)
-				return SpawnPointValidity::HasPlayers;
-		}
-	}
-	else
-	{
-		while ((ent = UTIL_FindEntityInSphere(ent, pSpot->pev->origin, 800)) != NULL)
-		{
-			// if ent is a client, don't spawn on 'em (if not on the same team)
-			if (ent->IsPlayer() && ent != pPlayer && ent->pev->team != pPlayer->pev->team)
-			{
-				if ( !IsSpawnPointTraceValid( pSpot, ent ) )
-					return SpawnPointValidity::NonValid;
-				return SpawnPointValidity::HasPlayers;
-			}
+			if ( IsSpawnPointTraceValid( pSpot, ent ) )
+				return SpawnPointValidity::Valid;
+			return SpawnPointValidity::NonValid;
 		}
 	}
 
@@ -3687,122 +3686,6 @@ static SpawnPointValidity IsSpawnPointValid(CBaseEntity *pPlayer, CBaseEntity *p
 
 DLL_GLOBAL CBaseEntity *g_pLastSpawn;
 inline int FNullEnt(CBaseEntity *ent) { return (ent == NULL) || FNullEnt(ent->edict()); }
-
-static float GetItemWeight(CBasePlayerItem *item)
-{
-	ItemInfo p;
-	if (item->GetItemInfo(&p) && p.iWeight > 0)
-	{
-		return (float)p.iWeight / 10;
-	}
-	return 1.0f;
-}
-
-static bool IsSameFloor(Vector spot, Vector item)
-{
-	return (spot.z - HalfPlayerHeight - HeightTolerance <= item.z) && (spot.z + HalfPlayerHeight + HeightTolerance >= item.z);
-}
-
-static float CountEntitesInSphere(Vector point)
-{
-	float weight = 0;
-	CBaseEntity *ent = nullptr;
-
-	while ((ent = UTIL_FindEntityInSphere(ent, point, ItemSearchRadius)))
-	{
-		CBasePlayerItem *item = dynamic_cast<CBasePlayerItem *>(ent);
-
-		if (!item || (item->pev->effects & EF_NODRAW) == EF_NODRAW)
-			continue;
-
-		weight += GetItemWeight(item);
-
-		if (IsSameFloor(point, item->pev->origin))
-			weight += 2.0f;
-	}
-
-	return weight;
-}
-
-static int SortSpots(SpotInfo spotInfos[], int spotsCount)
-{
-	int validSpotsCount = 0;
-	SpotInfo replacement;
-	for (int i = 0; i < spotsCount; i++)
-	{
-		// Search for max weight separately for valid and non valid spots
-		float maxWeightForValid = 0;
-		int maxWeightIndexForValid = -1;
-		float maxWeightForNonValid = 0;
-		int maxWeightIndexForNonValid = -1;
-
-		for (int j = i + 1; j < spotsCount; j++)
-		{
-			if (spotInfos[j].nValidity == SpawnPointValidity::Valid)
-			{
-				if (spotInfos[j].flItemsWeight >= maxWeightForValid)
-				{
-					maxWeightForValid = spotInfos[j].flItemsWeight;
-					maxWeightIndexForValid = j;
-				}
-			}
-			else
-			{
-				if (spotInfos[j].flItemsWeight >= maxWeightForNonValid)
-				{
-					maxWeightForNonValid = spotInfos[j].flItemsWeight;
-					maxWeightIndexForNonValid = j;
-				}
-			}
-		}
-
-		if (maxWeightIndexForValid < 0 && maxWeightIndexForNonValid < 0)
-		{
-			if (spotInfos[i].nValidity == SpawnPointValidity::Valid)
-				validSpotsCount++;
-			break;
-		}
-
-		// Select spot to exchange, valid ones first
-		int replaceIndex = -1;
-
-		if (maxWeightIndexForValid > 0)
-		{
-			validSpotsCount = i + 1;
-			if (spotInfos[i].nValidity != SpawnPointValidity::Valid || spotInfos[i].flItemsWeight < maxWeightForValid)
-				replaceIndex = maxWeightIndexForValid;
-		}
-		else if (maxWeightIndexForNonValid > 0)
-		{
-			if (spotInfos[i].flItemsWeight < maxWeightForNonValid)
-				replaceIndex = maxWeightIndexForNonValid;
-		}
-
-		// Exchange spots
-		if (replaceIndex > 0)
-		{
-			replacement = spotInfos[i];
-			spotInfos[i] = spotInfos[replaceIndex];
-			spotInfos[replaceIndex] = replacement;
-		}
-	}
-
-	return validSpotsCount;
-}
-
-static void ClearSpawn(CBaseEntity *pSpot, edict_t *player)
-{
-#if 0
-	CBaseEntity *ent = nullptr;
-
-	while ((ent = UTIL_FindEntityInSphere(ent, pSpot->pev->origin, 128)))
-	{
-		// if ent is a client, kill em (unless they are ourselves)
-		if (ent->IsPlayer() && !(ent->edict() == player))
-			ent->TakeDamage(VARS(INDEXENT(0)), VARS(INDEXENT(0)), 300, DMG_GENERIC);
-	}
-#endif
-}
 
 static CBaseEntity *EntSelectSpawnPointZPFallback(CBaseEntity *pPlayer, const char *szSpawnLocation)
 {
@@ -3840,7 +3723,7 @@ static CBaseEntity *EntSelectSpawnPointZPFallback(CBaseEntity *pPlayer, const ch
 			if (pSpot)
 			{
 				// check if pSpot is valid
-				if (IsSpawnPointValid(pPlayer, pSpot, false) == SpawnPointValidity::Valid &&
+				if (CheckSpawnPointValidity(pPlayer, pSpot) == SpawnPointValidity::Valid &&
 					g_pGameRules->GetTeamIndex(pPlayer->TeamID()) != pSpot->pev->team)
 				{
 					if (pSpot->pev->origin == Vector(0, 0, 0))
@@ -3863,7 +3746,7 @@ static CBaseEntity *EntSelectSpawnPointZPFallback(CBaseEntity *pPlayer, const ch
 		if (pSpot)
 		{
 			// check if pSpot is valid
-			if (IsSpawnPointValid(pPlayer, pSpot, false) == SpawnPointValidity::Valid)
+			if (CheckSpawnPointValidity(pPlayer, pSpot) == SpawnPointValidity::Valid)
 			{
 				if (pSpot->pev->origin == Vector(0, 0, 0))
 				{
@@ -3881,21 +3764,14 @@ static CBaseEntity *EntSelectSpawnPointZPFallback(CBaseEntity *pPlayer, const ch
 
 	// we haven't found a place to spawn yet,  so kill any guy at the first spawn point and spawn there
 	if (!FNullEnt(pSpot))
-	{
-		ClearSpawn(pSpot, pPlayer->edict());
 		return pSpot;
-	}
 
 	return nullptr;
 }
 
 static CBaseEntity *EntSelectSpawnPointZP(CBaseEntity *pPlayer)
 {
-	constexpr int MAX_SPOTS = 100;
-	SpotInfo spotInfos[MAX_SPOTS];
-
-	// New way to find spawn spot: count items around
-	int spotsCount = 0;
+	std::vector<CBaseEntity *> spotInfos;
 
 	// Find all spawn spots
 	CBaseEntity *pSpot = nullptr;
@@ -3912,38 +3788,14 @@ static CBaseEntity *EntSelectSpawnPointZP(CBaseEntity *pPlayer)
 	// try to find team spawn
 	while ((pSpot = UTIL_FindEntityByClassname(pSpot, szSpawnLocation)))
 	{
-		spotInfos[spotsCount].pSpot = pSpot;
-		spotInfos[spotsCount].flItemsWeight = CountEntitesInSphere(pSpot->pev->origin);
-		spotInfos[spotsCount].nValidity = IsSpawnPointValid(pPlayer, pSpot, false);
-		spotsCount++;
-
-		if (spotsCount == MAX_SPOTS)
-			break;
-	}
-
-	if (spotsCount == 0)
-	{
-		// Not using team spawns or not found any
-		while ((pSpot = UTIL_FindEntityByClassname(pSpot, szSpawnLocation)))
-		{
-			spotInfos[spotsCount].pSpot = pSpot;
-			spotInfos[spotsCount].flItemsWeight = CountEntitesInSphere(pSpot->pev->origin);
-			spotInfos[spotsCount].nValidity = IsSpawnPointValid(pPlayer, pSpot, true);
-			spotsCount++;
-
-			if (spotsCount == MAX_SPOTS)
-				break;
-		}
+		if ( CheckSpawnPointValidity(pPlayer, pSpot) == SpawnPointValidity::NonValid )
+			continue;
+		spotInfos.push_back( pSpot );
 	}
 
 	// Sort them
-	int validSpots = SortSpots(spotInfos, spotsCount);
+	int validSpots = spotInfos.size();
 	int limit = validSpots;
-
-	if (limit == 0)
-		limit = spotsCount;
-	else if (limit > 10 && (rand() % 3) != 0)
-		limit = 10;
 
 	// Still zero? Something must be wrong with the map,
 	// or we are missing spawn locations.
@@ -3961,11 +3813,11 @@ static CBaseEntity *EntSelectSpawnPointZP(CBaseEntity *pPlayer)
 		{
 			CBaseEntity *ent = nullptr;
 			float closestDistForThis = 99999;
-			while ( ( ent = UTIL_FindEntityInSphere( ent, spotInfos[i].pSpot->pev->origin, 3000 ) ) != NULL )
+			while ( ( ent = UTIL_FindEntityInSphere( ent, spotInfos[i]->pev->origin, 3000 ) ) != NULL )
 			{
 				if ( ent->IsPlayer() && ent->pev->team == ZP::TEAM_SURVIVIOR )
 				{
-					float dist = ( ent->pev->origin - spotInfos[i].pSpot->pev->origin ).Length();
+					float dist = ( ent->pev->origin - spotInfos[i]->pev->origin ).Length();
 					if ( dist < closestDistForThis )
 						closestDistForThis = dist;
 				}
@@ -3979,17 +3831,14 @@ static CBaseEntity *EntSelectSpawnPointZP(CBaseEntity *pPlayer)
 		take = closestIndex;
 	}
 
-	if (spotInfos[take].nValidity == SpawnPointValidity::HasPlayers)
-		ClearSpawn(spotInfos[take].pSpot, pPlayer->edict());
-
 	// Make sure we add the spawn!
 	PlayerLastSpawnPoint *item = GrabLastSpawn(pPlayer);
-	item->Spawns.push_back( spotInfos[take].pSpot->entindex() );
+	item->Spawns.push_back( spotInfos[take]->entindex() );
 
 	// We hit the limit? Clear it!
-	ShouldClearSpawnChecks(pPlayer, spotInfos[take].pSpot);
+	ShouldClearSpawnChecks(pPlayer, spotInfos[take]);
 
-	return spotInfos[take].pSpot;
+	return spotInfos[take];
 }
 
 /*
@@ -4370,23 +4219,10 @@ void CBasePlayer::SelectNextItem(int iItem)
 		m_rgpPlayerItems[iItem] = pItem;
 	}
 
-	ResetAutoaim();
-
-	// FIX, this needs to queue them up and delay
-	if (m_pActiveItem)
-	{
-		// If throwable and active, get rid of it.
-		IsThrowableAndActive( (CBasePlayerWeapon *)m_pActiveItem, false );
-		m_pActiveItem->Holster();
-	}
-
-	m_pActiveItem = pItem;
-
-	if (m_pActiveItem)
-	{
-		m_pActiveItem->Deploy();
-		m_pActiveItem->UpdateItemInfo();
-	}
+	if ( !pItem ) return;
+	CBasePlayerWeapon *pWeapon = dynamic_cast<CBasePlayerWeapon *>( pItem );
+	if ( pWeapon )
+		SelectWeapon( pWeapon );
 }
 
 void CBasePlayer::SelectItem(const char *pstr)
@@ -4417,60 +4253,19 @@ void CBasePlayer::SelectItem(const char *pstr)
 	if (!pItem)
 		return;
 
-	if (pItem == m_pActiveItem)
-		return;
-
-	ResetAutoaim();
-
-	// FIX, this needs to queue them up and delay
-	if (m_pActiveItem)
-	{
-		// If throwable and active, get rid of it.
-		IsThrowableAndActive( (CBasePlayerWeapon *)m_pActiveItem, false );
-		m_pActiveItem->Holster();
-	}
-
-	m_pLastItem = m_pActiveItem;
-	m_pActiveItem = pItem;
-
-	if (m_pActiveItem)
-	{
-		m_pActiveItem->Deploy();
-		m_pActiveItem->UpdateItemInfo();
-	}
+	CBasePlayerWeapon *pWeapon = dynamic_cast<CBasePlayerWeapon *>( pItem );
+	if ( pWeapon )
+		SelectWeapon( pWeapon );
 }
 
 void CBasePlayer::SelectLastItem(void)
 {
-	if (!m_pLastItem)
-	{
-		return;
-	}
-
-	if (m_pActiveItem && !m_pActiveItem->CanHolster())
-	{
-		return;
-	}
-
+	if ( !m_pLastItem ) return;
+	if ( m_pActiveItem && !m_pActiveItem->CanHolster() ) return;
 	if ( !CanSelectNewWeapon( true ) ) return;
-
-	ResetAutoaim();
-
-	// FIX, this needs to queue them up and delay
-	if (m_pActiveItem)
-	{
-		// If throwable and active, get rid of it.
-		IsThrowableAndActive( (CBasePlayerWeapon *)m_pActiveItem, false );
-		m_pActiveItem->Holster();
-	}
-
-	CBasePlayerItem *pTemp = m_pActiveItem;
-	m_pActiveItem = m_pLastItem;
-	m_pLastItem = pTemp;
-	m_pActiveItem->Deploy();
-	m_pActiveItem->UpdateItemInfo();
-
-	m_flNextWeaponSwitch = gpGlobals->time + 1.0f;
+	CBasePlayerWeapon *pWeapon = dynamic_cast<CBasePlayerWeapon *>( m_pLastItem );
+	if ( pWeapon )
+		SelectWeapon( pWeapon );
 }
 
 //==============================================
@@ -6244,7 +6039,7 @@ bool CBasePlayer::DropAmmo( int ammoindex, int amount, Vector Dir, bool pukevel 
 	CBasePlayerAmmo *pAmmoItem = (CBasePlayerAmmo *)CBaseEntity::Create((char *)szAmmoToDropClassnames(ammoindex), Dir, pev->angles, nullptr);
 	if ( !pAmmoItem ) return false;
 
-	pAmmoItem->DisallowPickupFor( 2.5f );
+	//pAmmoItem->DisallowPickupFor( 2.5f );
 	pAmmoItem->m_iDroppedOverride = pAmmoItem->m_iAmountLeft = amount;
 	pAmmoItem->pev->angles.x = 0;
 	pAmmoItem->pev->angles.z = 0;

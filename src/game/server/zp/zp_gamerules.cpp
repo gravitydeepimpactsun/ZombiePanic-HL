@@ -656,6 +656,16 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 			pPlayer->SelectWeaponFromSlot( atoi( pSelectedWeaponSlot ) );
 		return TRUE;
 	}
+	else if (FStrEq(pcmd, "invnext"))
+	{
+		pPlayer->SelectNextSlot();
+		return TRUE;
+	}
+	else if (FStrEq(pcmd, "invprev"))
+	{
+		pPlayer->SelectPreviousSlot();
+		return TRUE;
+	}
 	else if (FStrEq(pcmd, "ent_fire"))
 	{
 		const char *pSetCommand = CMD_ARGV(1);

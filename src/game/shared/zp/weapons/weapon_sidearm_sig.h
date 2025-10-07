@@ -13,6 +13,7 @@ public:
 	ZPWeaponID GetWeaponID() override { return WEAPON_SIG; }
 	bool IsAutomaticWeapon() const override { return false; }
 	const char *GetEmptySound() const override { return "weapons/sig/dryfire.wav"; }
+	void DoHolsterAnimation() override;
 	void Spawn( void );
 	void Precache( void );
 	int AddToPlayer( CBasePlayer *pPlayer );

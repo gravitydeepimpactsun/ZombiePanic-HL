@@ -298,7 +298,7 @@ public:
 	virtual BOOL CanDeploy(void);
 	virtual BOOL IsUseable(void);
 	virtual BOOL DefaultDeploy(char *szViewModel, char *szWeaponModel, int iAnim, char *szAnimExt, int skiplocal = 0, int body = 0);
-	int DefaultReload(int iAnim, float fDelay, int body = 0);
+	virtual int DefaultReload(int iAnim, float fDelay, int body = 0);
 
 	virtual void ItemPostFrame(void); // called each frame by the player PostThink
 	// called by CBasePlayerWeapons ItemPostFrame()

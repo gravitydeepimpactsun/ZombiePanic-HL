@@ -11,12 +11,19 @@ enum
 	SHOTGUN_RELOAD_START,
 	SHOTGUN_RELOAD,
 	SHOTGUN_RELOAD_END,
-	SHOTGUN_DRAW
+	SHOTGUN_DRAW,
+	SHOTGUN_HOLSTER,
 };
 
 LINK_ENTITY_TO_CLASS( weapon_shotgun, CWeaponShotgunRemington );
 
-void CWeaponShotgunRemington::Spawn( void )
+void CWeaponShotgunRemington::DoHolsterAnimation()
+{
+	SendWeaponAnim( SHOTGUN_HOLSTER );
+	m_flHolsterTime = gpGlobals->time + 0.63;
+}
+
+void CWeaponShotgunRemington::Spawn(void)
 {
 	Precache();
 	SET_MODEL(ENT(pev), "models/w_shotgun.mdl");

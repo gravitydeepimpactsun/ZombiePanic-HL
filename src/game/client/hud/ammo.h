@@ -89,8 +89,6 @@ public:
 	void UserCmd_Slot9();
 	void UserCmd_Slot10();
 	void UserCmd_Close();
-	void UserCmd_NextWeapon();
-	void UserCmd_PrevWeapon();
 
 private:
 	float m_fFade;

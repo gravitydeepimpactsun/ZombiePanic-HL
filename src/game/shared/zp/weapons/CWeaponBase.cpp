@@ -19,8 +19,50 @@ int CWeaponBase::iItemSlot( void )
 
 BOOL CWeaponBase::DefaultDeploy(char *szViewModel, char *szWeaponModel, int iAnim, char *szAnimExt, int skiplocal, int body)
 {
+	m_bIsHolstering = false;
 	ClearWeaponSounds();
 	return BaseClass::DefaultDeploy( szViewModel, szWeaponModel, iAnim, szAnimExt, skiplocal, body );
+}
+
+int CWeaponBase::DefaultReload(int iAnim, float fDelay, int body)
+{
+	if (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
+		return FALSE;
+
+	int j = min(GetData().MaxClip - m_iClip, m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType]);
+
+	if (j == 0)
+		return FALSE;
+
+	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + fDelay;
+
+	SendWeaponAnim(iAnim, 0, body);
+
+	m_fInReload = TRUE;
+
+	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + fDelay + 0.1;
+	return TRUE;
+}
+
+void CWeaponBase::BeginHolster( CBasePlayerWeapon *pWeapon )
+{
+	m_pNewWeapon = pWeapon;
+	m_bIsHolstering = true;
+	m_flHolsterTime = gpGlobals->time;
+	DoHolsterAnimation();
+}
+
+void CWeaponBase::FinishHolster()
+{
+	m_bIsHolstering = false;
+	m_flHolsterTime = -1;
+	BaseClass::Holster();
+	if ( !m_pPlayer ) return;
+	if ( !m_pNewWeapon ) return;
+#if !defined( CLIENT_DLL )
+	m_pPlayer->SelectNewActiveWeapon( m_pNewWeapon );
+#endif
+	m_pNewWeapon = nullptr;
 }
 
 /// <summary>
@@ -32,6 +74,14 @@ void CWeaponBase::ItemPostFrame( void )
 {
 	CBasePlayer *pPlayer = m_pPlayer; // Cache player cos attack could retire weapon and remove it from player
 	if ( !pPlayer ) return;
+
+	// If we are holstering, we can't do anything until it's done
+	if ( m_bIsHolstering )
+	{
+		if ( m_flHolsterTime - gpGlobals->time <= 0.0f )
+			FinishHolster();
+		return;
+	}
 
 	if ((m_fInReload) && (pPlayer->m_flNextAttack <= UTIL_WeaponTimeBase()))
 	{

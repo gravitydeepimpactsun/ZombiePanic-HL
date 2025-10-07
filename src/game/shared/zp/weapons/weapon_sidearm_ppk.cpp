@@ -21,6 +21,12 @@ enum
 LINK_ENTITY_TO_CLASS( weapon_ppk, CWeaponSideArmPPK );
 
 
+void CWeaponSideArmPPK::DoHolsterAnimation()
+{
+	SendWeaponAnim( IsEmpty() ? SIG_HOLSTER_EMPTY : SIG_HOLSTER );
+	m_flHolsterTime = gpGlobals->time + 0.33;
+}
+
 void CWeaponSideArmPPK::Spawn()
 {
 	Precache();

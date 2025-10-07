@@ -23,6 +23,11 @@ public:
 
 	int iItemSlot( void ) override;
 	BOOL DefaultDeploy(char *szViewModel, char *szWeaponModel, int iAnim, char *szAnimExt, int skiplocal = 0, int body = 0) override;
+	int DefaultReload(int iAnim, float fDelay, int body = 0) override;
+
+	void BeginHolster( CBasePlayerWeapon *pWeapon );
+	virtual void DoHolsterAnimation() {}
+	void FinishHolster();
 
 	// We don't use secondary attack in Zombie Panic! by default
 	void SecondaryAttack( void ) {}
@@ -49,6 +54,8 @@ public:
 	void ClearWeaponSounds( void );
 	virtual void Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
 
+	bool IsHolstering( void ) const { return m_bIsHolstering; }
+
 protected:
 	bool CanAttack( float attack_time, float curtime, bool isPredicted );
 
@@ -63,6 +70,12 @@ protected:
 		float Delay; // Delay before playing sound
 	};
 	std::vector<WeaponSoundData> m_vecWeaponSoundData;
+
+	float m_flHolsterTime = 0.0f; // Time when we holstered the weapon
+
+private:
+	bool m_bIsHolstering = false; // Are we holstering the weapon?
+	CBasePlayerWeapon *m_pNewWeapon = nullptr; // The weapon to switch to after holstering
 };
 
 #endif

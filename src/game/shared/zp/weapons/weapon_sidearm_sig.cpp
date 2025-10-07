@@ -21,6 +21,12 @@ LINK_ENTITY_TO_CLASS(weapon_sig, CWeaponSideArmSig);
 LINK_ENTITY_TO_CLASS(weapon_9mmhandgun, CWeaponSideArmSig); // Only used by old custom maps, don't remove this
 
 
+void CWeaponSideArmSig::DoHolsterAnimation()
+{
+	SendWeaponAnim( IsEmpty() ? SIG_HOLSTER_EMPTY : SIG_HOLSTER );
+	m_flHolsterTime = gpGlobals->time + 0.33;
+}
+
 void CWeaponSideArmSig::Spawn()
 {
 	pev->classname = MAKE_STRING( "weapon_sig" );

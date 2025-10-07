@@ -482,6 +482,8 @@ public:
 	// This is also used by the client when they press the weapon slot keys
 	// This replaces the old HL1 client side weapon selection code
 	void SelectWeaponFromSlot( int iSlot );
+	void SelectNextSlot();
+	void SelectPreviousSlot();
 	bool HasAvailableWeaponSlots( bool bIsDoubleSlot );
 	int GetBestSlotPosition( bool bIsDoubleSlot );
 
@@ -490,6 +492,7 @@ public:
 
 	void SelectWeapon( CBasePlayerWeapon *pWeapon );
 
+	void SelectNewActiveWeapon( CBasePlayerWeapon *pWeapon );
 	void WeaponSlotSet( CBasePlayerWeapon *pWeapon, bool bState );
 	bool WeaponSlots[MAX_WEAPON_SLOTS] = { false };
 

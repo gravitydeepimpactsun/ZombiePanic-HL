@@ -4029,8 +4029,12 @@ edict_t* EntSelectSpawnPoint(CBasePlayer* pPlayer)
 	// mark spawn point as used
 	CBasePlayerSpawnPoint *spawnPoint = dynamic_cast<CBasePlayerSpawnPoint *>(pSpot);
 	if ( spawnPoint )
+	{
 		spawnPoint->SetOccupied( true );
-
+		// Round have not fully begun yet, mark these spawns as unavailable after spawn (human spawns only)
+		if ( ZP::GetCurrentRoundState() < ZP::RoundState::RoundState_PickVolunteers )
+			spawnPoint->Use( nullptr, nullptr, USE_OFF, 0 );
+	}
 	g_pLastSpawn = pSpot;
 	return pSpot->edict();
 }

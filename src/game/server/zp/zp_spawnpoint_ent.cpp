@@ -75,7 +75,7 @@ void CBasePlayerSpawnPoint::SetOccupied(bool bOccupied)
 	if ( ZP::GetCurrentRoundState() == ZP::RoundState::RoundState_RoundHasBegun )
 		m_flLastOccupied = gpGlobals->time + 8.0f;
 	else
-		m_flLastOccupied = -1;
+		m_flLastOccupied = gpGlobals->time + 10.0f;
 }
 
 void CBasePlayerSpawnPoint::KeyValue( KeyValueData *pkvd )

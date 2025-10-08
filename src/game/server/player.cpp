@@ -2443,7 +2443,13 @@ void CBasePlayer::SelectWeapon( CBasePlayerWeapon *pWeapon )
 	if ( pWeapon == m_pActiveItem ) return;
 
 	CWeaponBase *pBaseWeapon = dynamic_cast<CWeaponBase *>( m_pActiveItem );
-	if ( !pBaseWeapon ) return;
+	if ( !pBaseWeapon )
+	{
+		m_pLastItem = nullptr;
+		// We have no active weapon, so we can select this one instantly.
+		SelectNewActiveWeapon( pWeapon );
+		return;
+	}
 	if ( pBaseWeapon->IsHolstering() ) return;
 
 	ResetAutoaim();
@@ -2493,7 +2499,7 @@ void CBasePlayer::DropEverything( bool bDontDropPrimary )
 			{
 				CBasePlayerWeapon *pNext = (CBasePlayerWeapon *)pWeapon->m_pNext;
 				bool bCanDrop = true;
-				if ( bDontDropPrimary && pWeapon->GetWeaponID() == m_pActiveItem->GetWeaponID() )
+				if ( bDontDropPrimary && ( pActive && pWeapon->GetWeaponID() == pActive->GetWeaponID() ) )
 					bCanDrop = false;
 				if ( bCanDrop )
 					DropWeapon( pWeapon, false, true );
@@ -2512,7 +2518,7 @@ void CBasePlayer::DropWeapon( CBasePlayerWeapon *pWeapon, bool bAutoSwitch, bool
 	m_flLastWeaponDrop = gpGlobals->time + 0.5f;
 
 	// You ain't allowed to drop shit.
-	if ( pWeapon->IsThrowable() && m_rgAmmo[pWeapon->m_iPrimaryAmmoType] == 0 ) return;
+	if ( pWeapon->IsThrowable() && pWeapon->m_iClip == 0 ) return;
 
 	// Check if this is an explosive, and if armed, decrease the value if we have ammo for it.
 	// If not, delete and explode.
@@ -2540,11 +2546,8 @@ void CBasePlayer::DropWeapon( CBasePlayerWeapon *pWeapon, bool bAutoSwitch, bool
 	if ( !pNewWeapon ) return;
 
 	//pNewWeapon->DisallowPickupFor( 2.5f );
-	if ( throwablestate == ThrowableDropState::NOT_ACTIVE )
-	{
-		pNewWeapon->m_iDefaultAmmo = nDefAmmo;
-		pNewWeapon->m_iClip = nClipWeHad1;
-	}
+	pNewWeapon->m_iDefaultAmmo = nDefAmmo;
+	pNewWeapon->m_iClip = nClipWeHad1;
 	pNewWeapon->pev->angles.x = 0;
 	pNewWeapon->pev->angles.z = 0;
 	if ( pukevel )

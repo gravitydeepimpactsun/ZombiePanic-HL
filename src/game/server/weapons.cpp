@@ -709,6 +709,8 @@ void CBasePlayerItem::DestroyItem(void)
 		m_pPlayer = NULL; // RemovePlayerItem will not call Holster
 		// if attached to a player, remove.
 		pPlayer->RemovePlayerItem(this);
+		// Switch to a new weapon, since we are removing this one.
+		pPlayer->SelectNextSlot();
 	}
 
 	Kill();

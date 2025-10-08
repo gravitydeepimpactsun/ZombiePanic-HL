@@ -677,23 +677,11 @@ void CBasePlayerWeapon::ItemPostFrame(void)
 
 		m_fFireOnEmpty = FALSE;
 
-		if (!IsUseable() && m_flNextPrimaryAttack < (UseDecrement() ? 0.0 : gpGlobals->time))
+		// weapon is useable. Reload if empty and weapon has waited as long as it has to after firing
+		if ((pPlayer->pev->button & (IN_RELOAD)) && m_iClip == 0 && m_flNextPrimaryAttack < (UseDecrement() ? 0.0 : gpGlobals->time))
 		{
-			// weapon isn't useable, switch.
-			if (!(iFlags() & ITEM_FLAG_NOAUTOSWITCHEMPTY) && g_pGameRules->GetNextBestWeapon(pPlayer, this))
-			{
-				m_flNextPrimaryAttack = (UseDecrement() ? 0.0 : gpGlobals->time) + 0.3;
-				return;
-			}
-		}
-		else
-		{
-			// weapon is useable. Reload if empty and weapon has waited as long as it has to after firing
-			if ((pPlayer->pev->button & (IN_RELOAD)) && m_iClip == 0 && m_flNextPrimaryAttack < (UseDecrement() ? 0.0 : gpGlobals->time))
-			{
-				Reload();
-				return;
-			}
+			Reload();
+			return;
 		}
 
 		WeaponIdle();

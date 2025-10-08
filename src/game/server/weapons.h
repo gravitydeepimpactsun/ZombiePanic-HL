@@ -112,7 +112,7 @@ typedef enum
 
 #define ITEM_FLAG_SELECTONEMPTY     (1<<0)
 #define ITEM_FLAG_NOAUTORELOAD      (1<<1)
-#define ITEM_FLAG_NOAUTOSWITCHEMPTY (1<<2)
+//#define ITEM_FLAG_NOAUTOSWITCHEMPTY (1<<2) // Unused
 #define ITEM_FLAG_LIMITINWORLD      (1<<3)
 #define ITEM_FLAG_EXHAUSTIBLE       (1<<4) // A player can totally exhaust their ammo supply and lose this weapon
 #define ITEM_FLAG_NOAUTOSWITCHTO    (1<<5)

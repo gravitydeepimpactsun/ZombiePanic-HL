@@ -130,7 +130,7 @@ void CWeaponSideArmPPK::PrimaryAttack(void)
 		// HEV suit - indicate out of ammo condition
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", FALSE, 0);
 
-	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15);
+	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + PrimaryFireRate() - 0.01;
 }
 
 void CWeaponSideArmPPK::Reload(void)
@@ -155,20 +155,11 @@ void CWeaponSideArmPPK::WeaponIdle(void)
 
 	m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
 
-	if (m_flTimeWeaponIdle > UTIL_WeaponTimeBase())
-		return;
+	if ( m_flTimeWeaponIdle > UTIL_WeaponTimeBase() ) return;
 
-	// only idle if the slid isn't back
-	if ( IsEmpty() )
-	{
-		SendWeaponAnim( SIG_IDLE_EMPTY, 1 );
-		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 3.8f;
-	}
-	else
-	{
-		SendWeaponAnim( SIG_IDLE, 1 );
-		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 3.8f;
-	}
+	int iAnim = IsEmpty() ? SIG_IDLE_EMPTY : SIG_IDLE;
+	SendWeaponAnim( iAnim );
+	m_flTimeWeaponIdle = UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15); // how long till we do this again.
 }
 
 class CLongRifleAmmoBox : public CBasePlayerAmmo

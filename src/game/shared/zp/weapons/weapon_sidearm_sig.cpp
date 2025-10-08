@@ -33,7 +33,7 @@ void CWeaponSideArmSig::Spawn()
 	Precache();
 	SET_MODEL(ENT(pev), "models/w_9mmhandgun.mdl");
 
-	WeaponData slot = GetWeaponSlotInfo(GetWeaponID());
+	WeaponData slot = GetWeaponSlotInfo( GetWeaponID() );
 	m_iDefaultAmmo = slot.DefaultAmmo;
 
 	FallInit(); // get ready to fall down.

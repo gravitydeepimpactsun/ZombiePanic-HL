@@ -27,7 +27,7 @@ void CWeaponExplosiveFrag::Spawn()
 	pev->dmg = gSkillData.plrDmgHandGrenade;
 #endif
 
-	WeaponData slot = GetWeaponSlotInfo(GetWeaponID());
+	WeaponData slot = GetWeaponSlotInfo( GetWeaponID() );
 	m_iDefaultAmmo = slot.DefaultAmmo;
 
 	FallInit(); // get ready to fall down.
@@ -38,6 +38,18 @@ int CWeaponExplosiveFrag::AddToPlayer( CBasePlayer *pPlayer )
 	if ( BaseClass::AddToPlayer( pPlayer ) )
 	{
 		BaseClass::SendWeaponPickup( pPlayer );
+		return TRUE;
+	}
+	return FALSE;
+}
+
+int CWeaponExplosiveFrag::AddDuplicate( CBasePlayerItem *pOriginal )
+{
+	CBasePlayerWeapon *pWeapon = dynamic_cast<CBasePlayerWeapon *>( pOriginal );
+	if ( pWeapon->m_iClip < pWeapon->iMaxClip() )
+	{
+		pWeapon->m_iClip += 1;
+		EMIT_SOUND( ENT(pev), CHAN_ITEM, "items/9mmclip1.wav", 1, ATTN_NORM );
 		return TRUE;
 	}
 	return FALSE;
@@ -75,7 +87,7 @@ void CWeaponExplosiveFrag::Holster(int skiplocal /* = 0 */)
 
 void CWeaponExplosiveFrag::PrimaryAttack()
 {
-	if (!m_flStartThrow && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] > 0)
+	if (!m_flStartThrow && m_iClip > 0)
 	{
 		m_flStartThrow = gpGlobals->time;
 		m_flReleaseThrow = 0;
@@ -141,9 +153,9 @@ void CWeaponExplosiveFrag::WeaponIdle(void)
 		m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + 0.5;
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.5;
 
-		m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType]--;
+		m_iClip--;
 
-		if (!m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType])
+		if (!m_iClip)
 		{
 			// just threw last grenade
 			// set attack times in the future, and weapon idle in the future so we can see the whole throw
@@ -162,7 +174,7 @@ void CWeaponExplosiveFrag::WeaponIdle(void)
 		// we've finished the throw, restart.
 		m_flStartThrow = 0;
 
-		if (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] > 0)
+		if (m_iClip > 0)
 		{
 			SendWeaponAnim(HANDGRENADE_DRAW);
 		}
@@ -177,7 +189,7 @@ void CWeaponExplosiveFrag::WeaponIdle(void)
 		return;
 	}
 
-	if (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType])
+	if (m_iClip)
 	{
 		int iAnim;
 		float flRand = UTIL_SharedRandomFloat(m_pPlayer->random_seed, 0, 1);

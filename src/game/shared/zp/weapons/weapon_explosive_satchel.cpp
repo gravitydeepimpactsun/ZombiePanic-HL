@@ -49,7 +49,7 @@ int CWeaponExplosiveSatchel::AddDuplicate(CBasePlayerItem *pOriginal)
 		if (!pOriginal->m_pPlayer)
 			return TRUE;
 
-		int nSatchelsInPocket = pSatchel->m_pPlayer->m_rgAmmo[pSatchel->PrimaryAmmoIndex()];
+		int nSatchelsInPocket = pSatchel->m_iClip;
 		int nNumSatchels = 0;
 		CThrowableSatchelCharge *pLiveSatchel = NULL;
 
@@ -71,7 +71,14 @@ int CWeaponExplosiveSatchel::AddDuplicate(CBasePlayerItem *pOriginal)
 		}
 	}
 
-	return BaseClass::AddDuplicate( pOriginal );
+	CBasePlayerWeapon *pWeapon = dynamic_cast<CBasePlayerWeapon *>( pOriginal );
+	if ( pWeapon->m_iClip < pWeapon->iMaxClip() )
+	{
+		pWeapon->m_iClip += 1;
+		EMIT_SOUND( ENT(pev), CHAN_ITEM, "items/9mmclip1.wav", 1, ATTN_NORM );
+		return TRUE;
+	}
+	return FALSE;
 }
 
 //=========================================================
@@ -92,7 +99,7 @@ void CWeaponExplosiveSatchel::Spawn()
 	Precache();
 	SET_MODEL(ENT(pev), "models/w_satchel.mdl");
 
-	WeaponData slot = GetWeaponSlotInfo(GetWeaponID());
+	WeaponData slot = GetWeaponSlotInfo( GetWeaponID() );
 	m_iDefaultAmmo = slot.DefaultAmmo;
 
 	FallInit(); // get ready to fall down.
@@ -118,7 +125,7 @@ BOOL CWeaponExplosiveSatchel::IsUseable(void)
 
 BOOL CWeaponExplosiveSatchel::CanDeploy(void)
 {
-	if (m_pPlayer->m_rgAmmo[PrimaryAmmoIndex()] > 0)
+	if (m_iClip > 0)
 	{
 		// player is carrying some satchels
 		return TRUE;
@@ -161,7 +168,7 @@ void CWeaponExplosiveSatchel::Holster(int skiplocal /* = 0 */)
 		SendWeaponAnim(SATCHEL_DROP);
 	}
 
-	if (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0 && m_chargeReady != SATCHEL_READY)
+	if (m_iClip <= 0 && m_chargeReady != SATCHEL_READY)
 	{
 #ifndef CLIENT_DLL
 		m_pPlayer->WeaponSlotSet( this, false );
@@ -223,7 +230,7 @@ void CWeaponExplosiveSatchel::SecondaryAttack()
 
 void CWeaponExplosiveSatchel::Throw(void)
 {
-	if (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] > 0)
+	if (m_iClip > 0)
 	{
 		Vector vecSrc = m_pPlayer->pev->origin;
 
@@ -248,7 +255,7 @@ void CWeaponExplosiveSatchel::Throw(void)
 
 		m_chargeReady = SATCHEL_READY;
 
-		m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType]--;
+		m_iClip--;
 
 		m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + PrimaryFireRate();
 		m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + SecondaryFireRate();
@@ -273,7 +280,7 @@ void CWeaponExplosiveSatchel::WeaponIdle(void)
 		UTIL_strcpy(m_pPlayer->m_szAnimExtention, "hive");
 		break;
 	case SATCHEL_RELOAD:
-		if (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
+		if (m_iClip <= 0)
 		{
 			RetireWeapon();
 			m_chargeReady = SATCHEL_IDLE;

@@ -166,8 +166,8 @@ static AmmoData sAmmoDataList[] = {
 	{ AMMO_RIFLE, "556ar", 150, 0.35f },
 	{ AMMO_LONGRIFLE, "longrifle", 100, 0.48f },
 
-	{ AMMO_GRENADE, "Hand Grenade", 3, 0.1f },
-	{ AMMO_SATCHEL, "Satchel Charge", 5, 0.5f },
+	{ AMMO_GRENADE, "explosive_tnt", 3, 0.1f },
+	{ AMMO_SATCHEL, "explosive_ied", 2, 0.5f },
 
 	// MUST BE LAST, DO NOT CHANGE THIS.
 	// This is used by Crowbar and Swipe (or any other weapon that has no ammo)

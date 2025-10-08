@@ -15,6 +15,7 @@ public:
 	bool IsThrowable() override { return true; }
 	ZPWeaponID GetWeaponID() override { return WEAPON_HANDGRENADE; }
 	int AddToPlayer( CBasePlayer *pPlayer );
+	int AddDuplicate( CBasePlayerItem *pOriginal );
 	void Spawn( void );
 	void Precache( void );
 	void PrimaryAttack();

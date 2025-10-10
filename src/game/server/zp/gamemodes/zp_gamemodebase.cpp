@@ -233,7 +233,7 @@ void CBaseGameMode::CheckZombieAmount()
 		// Drop everything in a backpack.
 		plr->m_flLastPanic = gpGlobals->time + 30;
 		plr->m_flPanicTime = gpGlobals->time + 3.5;
-		plr->PackDeadPlayerItems();
+		plr->DropEverything( false );
 		plr->RemoveAllItems( FALSE );
 
 		// Change team

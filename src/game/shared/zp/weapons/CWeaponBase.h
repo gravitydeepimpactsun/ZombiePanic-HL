@@ -9,6 +9,7 @@
 #include "monsters.h"
 #include "weapons.h"
 #include "player.h"
+#include "zp/zp_shared_weapons.h"
 
 #ifndef DECLARE_CLASS_SIMPLE
 #define DECLARE_CLASS_SIMPLE( className, baseClassName ) typedef baseClassName BaseClass;

@@ -1826,7 +1826,7 @@ void CStudioModelRenderer::StudioRenderModel(void)
 		}
 
 		// A weapon 
-		if ( bLookingAtWeapon )
+		if ( bLookingAtWeapon && !bIsZombie )
 		{
 			Color parsed;
 			color24 glow_color;

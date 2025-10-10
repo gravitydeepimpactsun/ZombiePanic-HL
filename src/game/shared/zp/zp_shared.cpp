@@ -39,8 +39,11 @@ std::vector<RequiredStepsTable> m_MarathonSteps = {
 	RequiredStepsTable( MAP_ZP_TOWN, 1 ),
 	RequiredStepsTable( MAP_ZP_MANSION, 1 ),
 	RequiredStepsTable( MAP_ZPO_CONTINGENCY, 1 ),
+	RequiredStepsTable( MAP_ZPH_EASTSIDE, 1 ),
+	RequiredStepsTable( MAP_ZPH_INDUSTRY, 1 ),
 	RequiredStepsTable( MAP_ZPH_HAUNTED, 1 ),
 	RequiredStepsTable( MAP_ZPH_SANTERIA, 1 ),
+	RequiredStepsTable( MAP_ZPH_THELABS, 1 ),
 	RequiredStepsTable( MAP_ZPH_CONTINGENCY, 1 )
 };
 

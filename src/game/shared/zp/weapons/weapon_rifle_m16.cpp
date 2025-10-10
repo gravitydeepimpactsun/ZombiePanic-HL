@@ -2,22 +2,15 @@
 
 #include "weapon_rifle_m16.h"
 
-enum
-{
-	AR556_LONGIDLE = 0,
-	AR556_IDLE1,
-	AR556_LAUNCH,
-	AR556_RELOAD,
-	AR556_DEPLOY,
-	AR556_FIRE1,
-	AR556_FIRE2,
-	AR556_FIRE3,
-	AR556_HOLSTER
-};
-
 LINK_ENTITY_TO_CLASS( weapon_556ar, CWeaponRifleM16 );
 LINK_ENTITY_TO_CLASS( weapon_9mmar, CWeaponRifleM16 ); // Only for old maps, DO NOT USE THIS.
 
+
+void CWeaponRifleM16::DoHolsterAnimation()
+{
+	SendWeaponAnim( ANIM_AR556_HOLSTER );
+	m_flHolsterTime = gpGlobals->time + 0.55;
+}
 
 void CWeaponRifleM16::Spawn()
 {
@@ -47,8 +40,9 @@ void CWeaponRifleM16::Precache(void)
 	PRECACHE_SOUND("weapons/556ar/fire1.wav"); // H to the K
 	PRECACHE_SOUND("weapons/556ar/fire2.wav"); // H to the K
 	PRECACHE_SOUND("weapons/556ar/dryfire.wav");
-	PRECACHE_SOUND("weapons/556ar/clipinsert.wav");
-	PRECACHE_SOUND("weapons/556ar/cliprelease.wav");
+	PRECACHE_SOUND("weapons/556ar/magout.wav");
+	PRECACHE_SOUND("weapons/556ar/magin.wav");
+	PRECACHE_SOUND("weapons/556ar/charge.wav");
 
 	m_nEventPrimary = PRECACHE_EVENT(1, "events/m16.sc");
 }
@@ -65,7 +59,7 @@ int CWeaponRifleM16::AddToPlayer(CBasePlayer *pPlayer)
 
 BOOL CWeaponRifleM16::Deploy()
 {
-	return DefaultDeploy("models/v_556AR.mdl", "models/p_556AR.mdl", AR556_DEPLOY, "mp5");
+	return DefaultDeploy("models/v_556AR.mdl", "models/p_556AR.mdl", ANIM_AR556_DEPLOY, "mp5");
 }
 
 void CWeaponRifleM16::PrimaryAttack()
@@ -128,7 +122,15 @@ void CWeaponRifleM16::Reload(void)
 	if (m_pPlayer->ammo_556ar <= 0)
 		return;
 
-	DefaultReload(AR556_RELOAD, 1.5);
+	int iAnim = IsEmpty() ? ANIM_AR556_RELOAD_EMPTY : ANIM_AR556_RELOAD;
+	float fDelay = IsEmpty() ? 3.16f : 2.16f;
+	if ( DefaultReload(iAnim, fDelay) )
+	{
+		AddWeaponSound( "weapons/556ar/magout.wav", 1, ATTN_NORM, 0.13f );
+		AddWeaponSound( "weapons/556ar/magin.wav", 1, ATTN_NORM, 1.2f );
+		if ( IsEmpty() )
+			AddWeaponSound( "weapons/556ar/charge.wav", 1, ATTN_NORM, 2.03f );
+	}
 }
 
 void CWeaponRifleM16::WeaponIdle(void)
@@ -140,22 +142,25 @@ void CWeaponRifleM16::WeaponIdle(void)
 	if (m_flTimeWeaponIdle > UTIL_WeaponTimeBase())
 		return;
 
+	float flTime;
 	int iAnim;
 	switch (RANDOM_LONG(0, 1))
 	{
 	case 0:
-		iAnim = AR556_LONGIDLE;
+		iAnim = ANIM_AR556_LONGIDLE;
+		flTime = 1.67f;
 		break;
 
 	default:
 	case 1:
-		iAnim = AR556_IDLE1;
+		iAnim = ANIM_AR556_IDLE1;
+		flTime = 1.93f;
 		break;
 	}
 
 	SendWeaponAnim(iAnim);
 
-	m_flTimeWeaponIdle = UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15); // how long till we do this again.
+	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + flTime;
 }
 
 class CWeaponRifleM16AmmoClip : public CBasePlayerAmmo

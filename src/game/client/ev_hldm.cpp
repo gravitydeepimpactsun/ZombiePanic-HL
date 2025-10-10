@@ -39,6 +39,8 @@
 
 #include "hud/spectator.h"
 
+#include "zp/zp_shared_weapons.h"
+
 extern engine_studio_api_t IEngineStudio;
 
 static int tracerCount[32];
@@ -528,7 +530,7 @@ void EV_FireSig(event_args_t *args)
 	if (EV_IsLocal(idx))
 	{
 		EV_MuzzleFlash();
-		gEngfuncs.pEventAPI->EV_WeaponAnimation(empty ? SIG_SHOOT_EMPTY : SIG_SHOOT, 2);
+		gEngfuncs.pEventAPI->EV_WeaponAnimation(empty ? ANIM_PISTOL_SHOOT_EMPTY : ANIM_PISTOL_SHOOT, 2);
 
 		V_PunchAxis(0, -2.0);
 	}
@@ -573,7 +575,7 @@ void EV_FirePPK(event_args_t *args)
 	if (EV_IsLocal(idx))
 	{
 		EV_MuzzleFlash();
-		gEngfuncs.pEventAPI->EV_WeaponAnimation(empty ? SIG_SHOOT_EMPTY : SIG_SHOOT, 2);
+		gEngfuncs.pEventAPI->EV_WeaponAnimation(empty ? ANIM_PISTOL_SHOOT_EMPTY : ANIM_PISTOL_SHOOT, 2);
 
 		V_PunchAxis(0, -2.0);
 	}
@@ -620,7 +622,7 @@ void EV_FireGlock(event_args_t *args)
 	{
 		// Add muzzle flash to current weapon model
 		EV_MuzzleFlash();
-		gEngfuncs.pEventAPI->EV_WeaponAnimation(empty ? GLOCK_SHOOT_EMPTY : GLOCK_SHOOT, 2);
+		gEngfuncs.pEventAPI->EV_WeaponAnimation(empty ? ANIM_PISTOL_SHOOT_EMPTY : ANIM_PISTOL_SHOOT, 2);
 
 		V_PunchAxis(0, -2.0);
 	}
@@ -693,7 +695,7 @@ void EV_FireShotGunSingle(event_args_t *args)
 	{
 		// Add muzzle flash to current weapon model
 		EV_MuzzleFlash();
-		gEngfuncs.pEventAPI->EV_WeaponAnimation(SHOTGUN_FIRE, 2);
+		gEngfuncs.pEventAPI->EV_WeaponAnimation(ANIM_SHOTGUN_FIRE, 2);
 
 		V_PunchAxis(0, -5.0);
 	}
@@ -731,7 +733,7 @@ void EV_FireDBarrel(event_args_t *args)
 	{
 		// Add muzzle flash to current weapon model
 		EV_MuzzleFlash();
-		gEngfuncs.pEventAPI->EV_WeaponAnimation(SHOTGUN_FIRE, 2);
+		gEngfuncs.pEventAPI->EV_WeaponAnimation(ANIM_SHOTGUN_FIRE, 2);
 
 		V_PunchAxis(0, -5.0);
 	}
@@ -779,7 +781,7 @@ void EV_FireM16(event_args_t *args)
 	{
 		// Add muzzle flash to current weapon model
 		EV_MuzzleFlash();
-		gEngfuncs.pEventAPI->EV_WeaponAnimation(AR556_FIRE1 + gEngfuncs.pfnRandomLong(0, 2), 2);
+		gEngfuncs.pEventAPI->EV_WeaponAnimation(ANIM_AR556_FIRE1 + gEngfuncs.pfnRandomLong(0, 2), 2);
 
 		V_PunchAxis(0, gEngfuncs.pfnRandomFloat(-2, 2));
 	}
@@ -836,7 +838,7 @@ void EV_FireMP5(event_args_t *args)
 	{
 		// Add muzzle flash to current weapon model
 		EV_MuzzleFlash();
-		gEngfuncs.pEventAPI->EV_WeaponAnimation(MP5_FIRE1 + gEngfuncs.pfnRandomLong(0, 2), 2);
+		gEngfuncs.pEventAPI->EV_WeaponAnimation(ANIM_MP5_FIRE1 + gEngfuncs.pfnRandomLong(0, 2), 2);
 
 		V_PunchAxis(0, gEngfuncs.pfnRandomFloat(-2, 2));
 	}
@@ -916,7 +918,7 @@ void EV_FirePython(event_args_t *args)
 
 		// Add muzzle flash to current weapon model
 		EV_MuzzleFlash();
-		gEngfuncs.pEventAPI->EV_WeaponAnimation(PYTHON_FIRE1, multiplayer ? 1 : 0);
+		gEngfuncs.pEventAPI->EV_WeaponAnimation(ANIM_357_FIRE1, multiplayer ? 1 : 0);
 
 		V_PunchAxis(0, -10.0);
 	}

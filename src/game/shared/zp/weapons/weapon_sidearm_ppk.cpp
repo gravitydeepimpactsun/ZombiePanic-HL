@@ -2,28 +2,12 @@
 
 #include "weapon_sidearm_ppk.h"
 
-// Unfinished, uses placeholder models/sounds
-
-enum
-{
-	SIG_IDLE = 0,
-	SIG_IDLE_EMPTY,
-	SIG_SHOOT,
-	SIG_SHOOT_EMPTY,
-	SIG_RELOAD,
-	SIG_RELOAD_EMPTY,
-	SIG_DRAW,
-	SIG_HOLSTER,
-	SIG_DRAW_EMPTY,
-	SIG_HOLSTER_EMPTY,
-};
-
 LINK_ENTITY_TO_CLASS( weapon_ppk, CWeaponSideArmPPK );
 
 
 void CWeaponSideArmPPK::DoHolsterAnimation()
 {
-	SendWeaponAnim( IsEmpty() ? SIG_HOLSTER_EMPTY : SIG_HOLSTER );
+	SendWeaponAnim( IsEmpty() ? ANIM_PISTOL_HOLSTER_EMPTY : ANIM_PISTOL_HOLSTER );
 	m_flHolsterTime = gpGlobals->time + 0.33;
 }
 
@@ -71,7 +55,7 @@ int CWeaponSideArmPPK::AddToPlayer(CBasePlayer *pPlayer)
 
 BOOL CWeaponSideArmPPK::Deploy()
 {
-	return DefaultDeploy("models/v_ppk.mdl", "models/p_ppk.mdl", IsEmpty() ? SIG_DRAW_EMPTY : SIG_DRAW, "onehanded");
+	return DefaultDeploy("models/v_ppk.mdl", "models/p_ppk.mdl", IsEmpty() ? ANIM_PISTOL_DRAW_EMPTY : ANIM_PISTOL_DRAW, "onehanded");
 }
 
 void CWeaponSideArmPPK::PrimaryAttack(void)
@@ -138,14 +122,13 @@ void CWeaponSideArmPPK::Reload(void)
 	if (m_pPlayer->ammo_longrifle <= 0)
 		return;
 
-	int iResult = DefaultReload( IsEmpty() ? SIG_RELOAD_EMPTY : SIG_RELOAD, 1.84f );
+	int iResult = DefaultReload( IsEmpty() ? ANIM_PISTOL_RELOAD_EMPTY : ANIM_PISTOL_RELOAD, 1.84f );
 	if ( iResult )
 	{
 		AddWeaponSound( "weapons/ppk/clipout.wav", 1, ATTN_NORM, 0.28f );
 		AddWeaponSound( "weapons/ppk/clipin.wav", 1, ATTN_NORM, 0.96f );
 		if ( IsEmpty() )
 			AddWeaponSound( "weapons/ppk/slideforward.wav", 1, ATTN_NORM, 1.28f );
-		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15);
 	}
 }
 
@@ -157,9 +140,29 @@ void CWeaponSideArmPPK::WeaponIdle(void)
 
 	if ( m_flTimeWeaponIdle > UTIL_WeaponTimeBase() ) return;
 
-	int iAnim = IsEmpty() ? SIG_IDLE_EMPTY : SIG_IDLE;
-	SendWeaponAnim( iAnim );
-	m_flTimeWeaponIdle = UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15); // how long till we do this again.
+	float flTime;
+	int iAnim;
+	switch (RANDOM_LONG(0, 2))
+	{
+	case 0:
+		iAnim = IsEmpty() ? ANIM_PISTOL_IDLE1_EMPTY : ANIM_PISTOL_IDLE1;
+		flTime = 3.8f;
+		break;
+
+	default:
+	case 1:
+		iAnim = IsEmpty() ? ANIM_PISTOL_IDLE2_EMPTY : ANIM_PISTOL_IDLE2;
+		flTime = 3.8f;
+		break;
+
+	case 2:
+		iAnim = IsEmpty() ? ANIM_PISTOL_IDLE3_EMPTY : ANIM_PISTOL_IDLE3;
+		flTime = 1.2f;
+		break;
+	}
+
+	SendWeaponAnim(iAnim);
+	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + flTime;
 }
 
 class CLongRifleAmmoBox : public CBasePlayerAmmo

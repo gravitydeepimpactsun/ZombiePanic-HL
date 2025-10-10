@@ -5,18 +5,6 @@
 #include "gamerules.h"
 #endif
 
-enum
-{
-	PYTHON_IDLE1 = 0,
-	PYTHON_FIDGET,
-	PYTHON_FIRE1,
-	PYTHON_RELOAD,
-	PYTHON_HOLSTER,
-	PYTHON_DRAW,
-	PYTHON_IDLE2,
-	PYTHON_IDLE3
-};
-
 LINK_ENTITY_TO_CLASS(weapon_python, CWeaponSideArmRevolver);
 LINK_ENTITY_TO_CLASS(weapon_357, CWeaponSideArmRevolver);
 
@@ -65,7 +53,7 @@ BOOL CWeaponSideArmRevolver::Deploy()
 	if ( m_pPlayer )
 		m_pPlayer->m_iWeaponKillCount = 0;
 #endif
-	return DefaultDeploy("models/v_357.mdl", "models/p_357.mdl", PYTHON_DRAW, "python");
+	return DefaultDeploy("models/v_357.mdl", "models/p_357.mdl", ANIM_357_DRAW, "python");
 }
 
 void CWeaponSideArmRevolver::Holster(int skiplocal /* = 0 */)
@@ -76,7 +64,7 @@ void CWeaponSideArmRevolver::Holster(int skiplocal /* = 0 */)
 	m_pPlayer->m_iWeaponKillCount = 0;
 #endif
 	m_flTimeWeaponIdle = UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15);
-	SendWeaponAnim( PYTHON_HOLSTER );
+	SendWeaponAnim( ANIM_357_HOLSTER );
 }
 
 void CWeaponSideArmRevolver::PrimaryAttack()
@@ -151,7 +139,7 @@ void CWeaponSideArmRevolver::Reload(void)
 	bUseScope = g_pGameRules->IsMultiplayer();
 #endif
 
-	if (DefaultReload(PYTHON_RELOAD, 2.0, bUseScope))
+	if (DefaultReload(ANIM_357_RELOAD, 2.0, bUseScope))
 	{
 #if defined( SERVER_DLL )
 		m_pPlayer->m_iWeaponKillCount = 0;
@@ -180,22 +168,22 @@ void CWeaponSideArmRevolver::WeaponIdle(void)
 	float flRand = UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15);
 	if (flRand <= 0.5)
 	{
-		iAnim = PYTHON_IDLE1;
+		iAnim = ANIM_357_IDLE1;
 		m_flTimeWeaponIdle = (70.0 / 30.0);
 	}
 	else if (flRand <= 0.7)
 	{
-		iAnim = PYTHON_IDLE2;
+		iAnim = ANIM_357_IDLE2;
 		m_flTimeWeaponIdle = (60.0 / 30.0);
 	}
 	else if (flRand <= 0.9)
 	{
-		iAnim = PYTHON_IDLE3;
+		iAnim = ANIM_357_IDLE3;
 		m_flTimeWeaponIdle = (88.0 / 30.0);
 	}
 	else
 	{
-		iAnim = PYTHON_FIDGET;
+		iAnim = ANIM_357_FIDGET;
 		m_flTimeWeaponIdle = (170.0 / 30.0);
 	}
 

@@ -2,25 +2,12 @@
 
 #include "weapon_shotgun_remington.h"
 
-enum
-{
-	SHOTGUN_IDLE = 0,
-	SHOTGUN_IDLE2,
-	SHOTGUN_FIRE,
-	SHOTGUN_PUMP,
-	SHOTGUN_RELOAD_START,
-	SHOTGUN_RELOAD,
-	SHOTGUN_RELOAD_END,
-	SHOTGUN_DRAW,
-	SHOTGUN_HOLSTER,
-};
-
 LINK_ENTITY_TO_CLASS( weapon_shotgun, CWeaponShotgunRemington );
 
 void CWeaponShotgunRemington::DoHolsterAnimation()
 {
-	SendWeaponAnim( SHOTGUN_HOLSTER );
-	m_flHolsterTime = gpGlobals->time + 0.63;
+	SendWeaponAnim( ANIM_SHOTGUN_HOLSTER );
+	m_flHolsterTime = gpGlobals->time + 0.35;
 }
 
 void CWeaponShotgunRemington::Spawn(void)
@@ -75,7 +62,7 @@ BOOL CWeaponShotgunRemington::Deploy()
 	if ( m_pPlayer )
 		m_pPlayer->m_iWeaponKillCount = 0;
 #endif
-	return DefaultDeploy( "models/v_shotgun.mdl", "models/p_shotgun.mdl", SHOTGUN_DRAW, "shotgun" );
+	return DefaultDeploy( "models/v_shotgun.mdl", "models/p_shotgun.mdl", ANIM_SHOTGUN_DRAW, "shotgun" );
 }
 
 void CWeaponShotgunRemington::Holster( int skiplocal )
@@ -89,19 +76,19 @@ void CWeaponShotgunRemington::OnRequestedAnimation( SingleActionAnimReq act )
 {
 	switch ( act )
 	{
-		case CWeaponBaseSingleAction::ANIM_IDLE: SendWeaponAnim( SHOTGUN_IDLE ); break;
-		case CWeaponBaseSingleAction::ANIM_LONGIDLE: SendWeaponAnim( SHOTGUN_IDLE2 ); break;
+		case CWeaponBaseSingleAction::ANIM_IDLE: SendWeaponAnim( ANIM_SHOTGUN_IDLE ); break;
+		case CWeaponBaseSingleAction::ANIM_LONGIDLE: SendWeaponAnim( ANIM_SHOTGUN_IDLE2 ); break;
 		//case CWeaponBaseSingleAction::ANIM_PRIMARYATTACK: SendWeaponAnim( SHOTGUN_FIRE ); break;
 		case CWeaponBaseSingleAction::ANIM_PUMP:
 		{
 			// reload debounce has timed out
-			SendWeaponAnim( SHOTGUN_PUMP );
+			SendWeaponAnim( ANIM_SHOTGUN_PUMP );
 			// play cocking sound
 			EMIT_SOUND_DYN( ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/shotgun/pump.wav", 1, ATTN_NORM, 0, 105 );
 			m_flTimeWeaponIdle = m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + 0.73f;
 		}
 		break;
-		case CWeaponBaseSingleAction::ANIM_RELOAD_START: SendWeaponAnim( SHOTGUN_RELOAD_START ); break;
+		case CWeaponBaseSingleAction::ANIM_RELOAD_START: SendWeaponAnim( ANIM_SHOTGUN_RELOAD_START ); break;
 		case CWeaponBaseSingleAction::ANIM_RELOAD:
 		{
 		    if (RANDOM_LONG(0, 1))
@@ -109,7 +96,7 @@ void CWeaponShotgunRemington::OnRequestedAnimation( SingleActionAnimReq act )
 		    else
 			    EMIT_SOUND_DYN( ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/shotgun/reload2.wav", 1, ATTN_NORM, 0, 85 + RANDOM_LONG(0, 0x1f) );
 
-		    SendWeaponAnim( SHOTGUN_RELOAD );
+		    SendWeaponAnim( ANIM_SHOTGUN_RELOAD );
 
 #if defined( SERVER_DLL )
 			m_pPlayer->m_iWeaponKillCount = 0;
@@ -121,7 +108,7 @@ void CWeaponShotgunRemington::OnRequestedAnimation( SingleActionAnimReq act )
 		break;
 		case CWeaponBaseSingleAction::ANIM_RELOAD_END:
 		{
-			SendWeaponAnim( SHOTGUN_RELOAD_END );
+			SendWeaponAnim( ANIM_SHOTGUN_RELOAD_END );
 			EMIT_SOUND_DYN( ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/shotgun/pump.wav", 1, ATTN_NORM, 0, 105 );
 			m_flNextReload = UTIL_WeaponTimeBase() + 0.81;
 			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.81;

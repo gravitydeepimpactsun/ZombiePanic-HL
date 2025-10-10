@@ -2,17 +2,6 @@
 
 #include "weapon_smg_mp5.h"
 
-enum
-{
-	MP5_LONGIDLE = 0,
-	MP5_IDLE1,
-	MP5_RELOAD,
-	MP5_DEPLOY,
-	MP5_FIRE1,
-	MP5_FIRE2,
-	MP5_FIRE3
-};
-
 LINK_ENTITY_TO_CLASS( weapon_mp5, CWeaponSMGMP5 );
 
 void CWeaponSMGMP5::Spawn()
@@ -58,7 +47,7 @@ int CWeaponSMGMP5::AddToPlayer(CBasePlayer *pPlayer)
 
 BOOL CWeaponSMGMP5::Deploy()
 {
-	return DefaultDeploy("models/v_mp5.mdl", "models/p_mp5.mdl", MP5_DEPLOY, "mp5");
+	return DefaultDeploy("models/v_mp5.mdl", "models/p_mp5.mdl", ANIM_MP5_DEPLOY, "mp5");
 }
 
 void CWeaponSMGMP5::PrimaryAttack()
@@ -120,7 +109,7 @@ void CWeaponSMGMP5::Reload(void)
 {
 	if (m_pPlayer->ammo_9mm <= 0)
 		return;
-	DefaultReload(MP5_RELOAD, 1.5);
+	DefaultReload(ANIM_MP5_RELOAD, 1.5);
 }
 
 void CWeaponSMGMP5::WeaponIdle(void)
@@ -136,12 +125,12 @@ void CWeaponSMGMP5::WeaponIdle(void)
 	switch (RANDOM_LONG(0, 1))
 	{
 	case 0:
-		iAnim = MP5_LONGIDLE;
+		iAnim = ANIM_MP5_LONGIDLE;
 		break;
 
 	default:
 	case 1:
-		iAnim = MP5_IDLE1;
+		iAnim = ANIM_MP5_IDLE1;
 		break;
 	}
 

@@ -2,28 +2,13 @@
 
 #include "weapon_sidearm_sig.h"
 
-
-enum
-{
-	SIG_IDLE = 0,
-	SIG_IDLE_EMPTY,
-	SIG_SHOOT,
-	SIG_SHOOT_EMPTY,
-	SIG_RELOAD,
-	SIG_RELOAD_EMPTY,
-	SIG_DRAW,
-	SIG_HOLSTER,
-	SIG_DRAW_EMPTY,
-	SIG_HOLSTER_EMPTY,
-};
-
 LINK_ENTITY_TO_CLASS(weapon_sig, CWeaponSideArmSig);
 LINK_ENTITY_TO_CLASS(weapon_9mmhandgun, CWeaponSideArmSig); // Only used by old custom maps, don't remove this
 
 
 void CWeaponSideArmSig::DoHolsterAnimation()
 {
-	SendWeaponAnim( IsEmpty() ? SIG_HOLSTER_EMPTY : SIG_HOLSTER );
+	SendWeaponAnim( IsEmpty() ? ANIM_PISTOL_HOLSTER_EMPTY : ANIM_PISTOL_HOLSTER );
 	m_flHolsterTime = gpGlobals->time + 0.33;
 }
 
@@ -70,7 +55,7 @@ int CWeaponSideArmSig::AddToPlayer(CBasePlayer *pPlayer)
 
 BOOL CWeaponSideArmSig::Deploy()
 {
-	return DefaultDeploy("models/v_9mmhandgun.mdl", "models/p_9mmhandgun.mdl", IsEmpty() ? SIG_DRAW_EMPTY : SIG_DRAW, "onehanded");
+	return DefaultDeploy("models/v_9mmhandgun.mdl", "models/p_9mmhandgun.mdl", IsEmpty() ? ANIM_PISTOL_DRAW_EMPTY : ANIM_PISTOL_DRAW, "onehanded");
 }
 
 void CWeaponSideArmSig::PrimaryAttack(void)
@@ -137,7 +122,7 @@ void CWeaponSideArmSig::Reload(void)
 	if (m_pPlayer->ammo_9mm <= 0)
 		return;
 
-	int iResult = DefaultReload( IsEmpty() ? SIG_RELOAD_EMPTY : SIG_RELOAD, 1.84f );
+	int iResult = DefaultReload( IsEmpty() ? ANIM_PISTOL_RELOAD_EMPTY : ANIM_PISTOL_RELOAD, 1.84f );
 	if ( iResult )
 	{
 		// play reload sound
@@ -145,7 +130,6 @@ void CWeaponSideArmSig::Reload(void)
 			AddWeaponSound( "weapons/sig/reload2.wav", 1, ATTN_NORM, 0.28f );
 		else
 			AddWeaponSound( "weapons/sig/reload1.wav", 1, ATTN_NORM, 0.28f );
-		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15);
 	}
 }
 
@@ -158,17 +142,29 @@ void CWeaponSideArmSig::WeaponIdle(void)
 	if (m_flTimeWeaponIdle > UTIL_WeaponTimeBase())
 		return;
 
-	// only idle if the slid isn't back
-	if ( IsEmpty() )
+	float flTime;
+	int iAnim;
+	switch (RANDOM_LONG(0, 2))
 	{
-		SendWeaponAnim( SIG_IDLE_EMPTY, 1 );
-		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 3.8f;
+	case 0:
+		iAnim = IsEmpty() ? ANIM_PISTOL_IDLE1_EMPTY : ANIM_PISTOL_IDLE1;
+		flTime = 3.8f;
+		break;
+
+	default:
+	case 1:
+		iAnim = IsEmpty() ? ANIM_PISTOL_IDLE2_EMPTY : ANIM_PISTOL_IDLE2;
+		flTime = 3.8f;
+		break;
+
+	case 2:
+		iAnim = IsEmpty() ? ANIM_PISTOL_IDLE3_EMPTY : ANIM_PISTOL_IDLE3;
+		flTime = 1.2f;
+		break;
 	}
-	else
-	{
-		SendWeaponAnim( SIG_IDLE, 1 );
-		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 3.8f;
-	}
+
+	SendWeaponAnim(iAnim);
+	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + flTime;
 }
 
 class C9MMAmmo : public CBasePlayerAmmo

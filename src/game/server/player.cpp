@@ -2534,7 +2534,7 @@ void CBasePlayer::DropWeapon( CBasePlayerWeapon *pWeapon, bool bAutoSwitch, bool
 	ThrowableDropState throwablestate = IsThrowableAndActive( pWeapon, true );
 
 	string_t weaponname = pWeapon->pev->classname;
-	int nClipWeHad1 = pWeapon->m_iClip;
+	int nClipWeHad = pWeapon->m_iClip;
 	int nDefAmmo = pWeapon->m_iDefaultAmmo;
 
 	if ( bAutoSwitch )
@@ -2556,7 +2556,8 @@ void CBasePlayer::DropWeapon( CBasePlayerWeapon *pWeapon, bool bAutoSwitch, bool
 
 	//pNewWeapon->DisallowPickupFor( 2.5f );
 	pNewWeapon->m_iDefaultAmmo = nDefAmmo;
-	pNewWeapon->m_iClip = nClipWeHad1;
+	pNewWeapon->m_iClip = nClipWeHad;
+	pNewWeapon->pev->playerclass = (nClipWeHad == 0) ? 1 : 0; // if iuser1 is 1, it's empty
 	pNewWeapon->pev->angles.x = 0;
 	pNewWeapon->pev->angles.z = 0;
 	if ( pukevel )

@@ -108,6 +108,10 @@ public:
 	// Send bones and verts to renderer
 	virtual void StudioRenderModel(void);
 
+	// Determine if the player is in first person view and looking at the current entity
+	// which should be a weapon model.
+	virtual bool IsLookingAtWeapon(void);
+
 	// Finalize rendering
 	virtual void StudioRenderFinal(void);
 

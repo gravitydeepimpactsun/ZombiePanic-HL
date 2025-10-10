@@ -62,6 +62,8 @@ extern ConVar cl_righthand;
 ConVar player_glow_style("player_glow_style", "0", FCVAR_BHL_ARCHIVE, "ZVision glow state");
 ConVar player_glow1("player_glow1", "0 0 255", FCVAR_BHL_ARCHIVE, "Survivor Team Glow [ZVision]");
 ConVar player_glow2("player_glow2", "255 0 0", FCVAR_BHL_ARCHIVE, "Zombie Team Glow [ZVision]");
+ConVar weapon_glow("weapon_glow", "255 255 0", FCVAR_BHL_ARCHIVE, "Weapon Glow");
+ConVar weapon_glow_empty("weapon_glow_empty", "255 0 0", FCVAR_BHL_ARCHIVE, "Weapon Glow");
 ConVar player_gaitspeed_walk( "player_gaitspeed_walk", "-1", 0, "Gait speed tweak multiplier for Zombie Panic!" );
 ConVar player_gaitspeed_run( "player_gaitspeed_run", "1", 0, "Gait speed tweak multiplier for Zombie Panic!" );
 ConVar player_gaitspeed_panic( "player_gaitspeed_panic", "1", 0, "Gait speed tweak multiplier for Zombie Panic!" );
@@ -1799,6 +1801,11 @@ void CStudioModelRenderer::StudioRenderModel(void)
 	if ( pLocalPlayer && pLocalPlayer->curstate.team == ZP::TEAM_ZOMBIE && gHUD.m_bUseZombVision )
 		bIsZombie = ( m_pCurrentEntity->player == TRUE ) ? true : false;
 
+	// Looing at a weapon? then let's add a glow shell
+	bool bLookingAtWeapon = IsLookingAtWeapon();
+	if ( bLookingAtWeapon )
+		m_pCurrentEntity->curstate.renderfx = kRenderFxGlowShell;
+
 	if ( m_pCurrentEntity->curstate.renderfx == kRenderFxGlowShell || bIsZombie )
 	{
 		m_pCurrentEntity->curstate.renderfx = kRenderFxNone;
@@ -1815,6 +1822,28 @@ void CStudioModelRenderer::StudioRenderModel(void)
 		{
 			color24 glow_color;
 			ParseGlowColor( m_pCurrentEntity->curstate.team, glow_color );
+			m_pCurrentEntity->curstate.rendercolor = glow_color;
+		}
+
+		// A weapon 
+		if ( bLookingAtWeapon )
+		{
+			Color parsed;
+			color24 glow_color;
+			// Is this weapon empty? glows red if so, otherwise yellow.
+			switch ( m_pCurrentEntity->curstate.playerclass )
+			{
+				case 1: // weapon is empty
+					ParseColor( weapon_glow_empty.GetString(), parsed );
+					break;
+				default:
+				case 0:
+				    ParseColor( weapon_glow.GetString(), parsed );
+					break;
+			}
+			glow_color.r = parsed.r();
+			glow_color.g = parsed.g();
+			glow_color.b = parsed.b();
 			m_pCurrentEntity->curstate.rendercolor = glow_color;
 		}
 
@@ -1964,6 +1993,30 @@ void CStudioModelRenderer::StudioRenderFinal_Hardware(void)
 	}
 
 	IEngineStudio.RestoreRenderer();
+}
+
+bool CStudioModelRenderer::IsLookingAtWeapon(void)
+{
+	// Check if the model is starting with "w_"
+	if ( m_pCurrentEntity && m_pCurrentEntity->model && m_pCurrentEntity->model->name )
+	{
+		// Is this a weapon model?
+		if ( strnicmp(m_pCurrentEntity->model->name, "models/w_", 9) == 0 )
+		{
+			// Now, let's check if we, the local player, are looking at it
+			cl_entity_t *pLocalPlayer = gEngfuncs.GetLocalPlayer();
+			if ( !pLocalPlayer ) return false;
+			Vector vToWeapon = m_pCurrentEntity->origin - pLocalPlayer->origin;
+
+			// Let's make sure we are close enough, we don't want to check for weapons far away
+			// because that would be stupid. :)
+			float flDistSqr = vToWeapon.LengthSqr();
+			if ( flDistSqr > ( 80.0f * 80.0f ) ) // 80 units max
+				return false;
+			return true;
+		}
+	}
+	return false;
 }
 
 /*

@@ -1392,6 +1392,12 @@ int AddToFullPack(struct entity_state_s *state, int e, edict_t *ent, edict_t *ho
 		state->vuser3.x = ent->v.vuser3.x;
 		state->vuser4.z = ent->v.vuser4.z;
 	}
+	else
+	{
+		state->iuser1 = ent->v.iuser1;
+		state->iuser2 = ent->v.iuser2;
+		state->iuser3 = ent->v.iuser3;
+	}
 
 	if (ent->v.renderfx == kRenderFxDeadPlayer)
 	{

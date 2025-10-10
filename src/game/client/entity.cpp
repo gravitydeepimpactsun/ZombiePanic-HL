@@ -212,6 +212,12 @@ void CL_DLLEXPORT HUD_ProcessPlayerState(struct entity_state_s *dst, const struc
 		g_iUser2 = src->iuser2;
 		g_iUser3 = src->iuser3;
 	}
+	else
+	{
+		dst->iuser1 = src->iuser1;
+		dst->iuser2 = src->iuser2;
+		dst->iuser3 = src->iuser3;
+	}
 }
 
 /*

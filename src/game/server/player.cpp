@@ -71,6 +71,7 @@ PlayerCharacterType g_CharacterTypes[] = {
 };
 
 static ConVar sv_allow_player_decals( "sv_allow_player_decals", "1", FCVAR_SERVER, "Whether player decals are allowed" );
+static ConVar sv_player_runspeed_gait_speed( "sv_player_runspeed_gait_speed", "100", FCVAR_SERVER, "The speed at which the player will switch to the running gait" );
 
 #define TRAIN_ACTIVE  0x80
 #define TRAIN_NEW     0xc0
@@ -1218,7 +1219,7 @@ void CBasePlayer::SetAnimation(PLAYER_ANIM playerAnim)
 			pev->gaitsequence = LookupActivity(ACT_CROUCH);
 		}
 	}
-	else if (speed > 220)
+	else if (speed > sv_player_runspeed_gait_speed.GetInt())
 	{
 		pev->gaitsequence = LookupActivity(ACT_RUN);
 	}

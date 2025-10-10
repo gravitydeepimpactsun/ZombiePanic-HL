@@ -62,8 +62,8 @@ extern ConVar cl_righthand;
 ConVar player_glow_style("player_glow_style", "0", FCVAR_BHL_ARCHIVE, "ZVision glow state");
 ConVar player_glow1("player_glow1", "0 0 255", FCVAR_BHL_ARCHIVE, "Survivor Team Glow [ZVision]");
 ConVar player_glow2("player_glow2", "255 0 0", FCVAR_BHL_ARCHIVE, "Zombie Team Glow [ZVision]");
-ConVar player_gaitspeed_walk( "player_gaitspeed_walk", "0.8", 0, "Gait speed tweak multiplier for Zombie Panic!" );
-ConVar player_gaitspeed_run( "player_gaitspeed_run", "0.45", 0, "Gait speed tweak multiplier for Zombie Panic!" );
+ConVar player_gaitspeed_walk( "player_gaitspeed_walk", "-1", 0, "Gait speed tweak multiplier for Zombie Panic!" );
+ConVar player_gaitspeed_run( "player_gaitspeed_run", "1", 0, "Gait speed tweak multiplier for Zombie Panic!" );
 ConVar player_gaitspeed_panic( "player_gaitspeed_panic", "1", 0, "Gait speed tweak multiplier for Zombie Panic!" );
 
 static void ParseGlowColor( const int &iTeam, color24 &clr )
@@ -1379,6 +1379,8 @@ void CStudioModelRenderer::StudioEstimateGait(entity_state_t *pplayer)
 		float flGaitTweak = GetGaitSpeedTweak( std::round( std::hypot( est_velocity[0], est_velocity[1] ) ) );
 		if ( flGaitTweak > 0 )
 			m_flGaitMovement *= flGaitTweak;
+		else if ( flGaitTweak == -1 )
+			m_flGaitMovement *= std::round( std::hypot( est_velocity[0], est_velocity[1] ) );
 	}
 	else
 	{

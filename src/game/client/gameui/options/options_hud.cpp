@@ -26,7 +26,6 @@ CHudSubOptions::CHudSubOptions(vgui2::Panel *parent)
 	m_pRenderCheckbox = new CCvarCheckButton(this, "RenderCheckbox", "#ZP_AdvOptions_HUD_Render", "hud_client_renderer");
 	m_pDimCheckbox = new CCvarCheckButton(this, "DimCheckbox", "#ZP_AdvOptions_HUD_Dim", "hud_dim");
 	m_pMenuFKeys = new CCvarCheckButton(this, "MenuFKeys", "#ZP_AdvOptions_HUD_MenuFKeys", "hud_menu_fkeys");
-	m_pWeaponSpriteCheckbox = new CCvarCheckButton(this, "WeaponSpriteCheckbox", "#ZP_AdvOptions_HUD_WeapSprite", "hud_weapon");
 	m_pCenterIdCvar = new CCvarCheckButton(this, "CenterIdCvar", "#ZP_AdvOptions_HUD_CenterId", "hud_centerid");
 	m_pRainbowCvar = new CCvarCheckButton(this, "RainbowCvar", "#ZP_AdvOptions_HUD_Rainbow", "hud_rainbow");
 
@@ -65,7 +64,6 @@ void CHudSubOptions::OnResetData()
 	m_pOpacityValue->ResetData();
 	m_pDimCheckbox->ResetData();
 	m_pMenuFKeys->ResetData();
-	m_pWeaponSpriteCheckbox->ResetData();
 	m_pCenterIdCvar->ResetData();
 	m_pRainbowCvar->ResetData();
 	m_pScaleBox->ResetData();
@@ -79,7 +77,6 @@ void CHudSubOptions::OnApplyChanges()
 	m_pOpacityValue->ApplyChanges();
 	m_pDimCheckbox->ApplyChanges();
 	m_pMenuFKeys->ApplyChanges();
-	m_pWeaponSpriteCheckbox->ApplyChanges();
 	m_pCenterIdCvar->ApplyChanges();
 	m_pRainbowCvar->ApplyChanges();
 	m_pScaleBox->ApplyChanges();

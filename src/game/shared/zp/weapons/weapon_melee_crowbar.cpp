@@ -8,19 +8,6 @@
 
 LINK_ENTITY_TO_CLASS( weapon_crowbar, CWeaponMeleeCrowbar );
 
-enum
-{
-	CROWBAR_IDLE = 0,
-	CROWBAR_DRAW,
-	CROWBAR_HOLSTER,
-	CROWBAR_ATTACK1HIT,
-	CROWBAR_ATTACK1MISS,
-	CROWBAR_ATTACK2MISS,
-	CROWBAR_ATTACK2HIT,
-	CROWBAR_ATTACK3MISS,
-	CROWBAR_ATTACK3HIT
-};
-
 #define CROWBAR_BODYHIT_VOLUME 128
 #define CROWBAR_WALLHIT_VOLUME 512
 
@@ -60,13 +47,13 @@ int CWeaponMeleeCrowbar::AddToPlayer( CBasePlayer *pPlayer )
 
 BOOL CWeaponMeleeCrowbar::Deploy()
 {
-	return DefaultDeploy("models/v_crowbar.mdl", "models/p_crowbar.mdl", CROWBAR_DRAW, "crowbar");
+	return DefaultDeploy("models/v_crowbar.mdl", "models/p_crowbar.mdl", ANIM_MELEE_DRAW, "crowbar");
 }
 
-void CWeaponMeleeCrowbar::Holster(int skiplocal /* = 0 */)
+void CWeaponMeleeCrowbar::DoHolsterAnimation()
 {
-	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 0.5;
-	SendWeaponAnim(CROWBAR_HOLSTER);
+	SendWeaponAnim( ANIM_MELEE_HOLSTER );
+	m_flHolsterTime = gpGlobals->time + 0.5f;
 }
 
 void FindHullIntersection(const Vector &vecSrc, TraceResult &tr, float *mins, float *maxs, edict_t *pEntity)
@@ -175,7 +162,7 @@ int CWeaponMeleeCrowbar::Swing(int fFirst)
 		if (fFirst)
 		{
 			// miss
-			m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + 0.5;
+			m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + 0.8;
 
 			// player "shoot" animation
 			m_pPlayer->SetAnimation(PLAYER_ATTACK1);
@@ -186,13 +173,13 @@ int CWeaponMeleeCrowbar::Swing(int fFirst)
 		switch (((m_iSwing++) % 2) + 1)
 		{
 		case 0:
-			SendWeaponAnim(CROWBAR_ATTACK1HIT);
+			SendWeaponAnim(ANIM_MELEE_ATTACK1HIT);
 			break;
 		case 1:
-			SendWeaponAnim(CROWBAR_ATTACK2HIT);
+			SendWeaponAnim(ANIM_MELEE_ATTACK2HIT);
 			break;
 		case 2:
-			SendWeaponAnim(CROWBAR_ATTACK3HIT);
+			SendWeaponAnim(ANIM_MELEE_ATTACK3HIT);
 			break;
 		}
 
@@ -290,4 +277,29 @@ int CWeaponMeleeCrowbar::Swing(int fFirst)
 		pev->nextthink = gpGlobals->time + 0.2;
 	}
 	return fDidHit;
+}
+
+void CWeaponMeleeCrowbar::WeaponIdle()
+{
+	if ( m_flTimeWeaponIdle > UTIL_WeaponTimeBase() ) return;
+	int iAnim;
+	float flTime = 1.0f;
+	switch ( RANDOM_LONG(0, 4) )
+	{
+		default:
+		case 0:
+		    iAnim = ANIM_MELEE_IDLE1;
+		    flTime = 2.75f;
+		break;
+		case 2:
+		    iAnim = ANIM_MELEE_IDLE2;
+		    flTime = 2.5f;
+		break;
+		case 4:
+		    iAnim = ANIM_MELEE_IDLE3;
+		    flTime = 3.33f;
+		break;
+	}
+	SendWeaponAnim( iAnim );
+	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + flTime; // how long till we do this again.
 }

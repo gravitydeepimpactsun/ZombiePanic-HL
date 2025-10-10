@@ -21,7 +21,7 @@ public:
 	void WeaponIdle();
 	int Swing( int fFirst );
 	BOOL Deploy( void );
-	void Holster( int skiplocal = 0 );
+	void DoHolsterAnimation() override;
 	int m_iSwing;
 	TraceResult m_trHit;
 };

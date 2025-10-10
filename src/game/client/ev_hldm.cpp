@@ -1269,20 +1269,23 @@ void EV_FireGauss(event_args_t *args)
 //	   CROWBAR START
 //======================
 
-enum crowbar_e
-{
-	CROWBAR_IDLE = 0,
-	CROWBAR_DRAW,
-	CROWBAR_HOLSTER,
-	CROWBAR_ATTACK1HIT,
-	CROWBAR_ATTACK1MISS,
-	CROWBAR_ATTACK2MISS,
-	CROWBAR_ATTACK2HIT,
-	CROWBAR_ATTACK3MISS,
-	CROWBAR_ATTACK3HIT
-};
-
 int g_iSwing;
+
+void EV_MeleeSwingMissAnim(int eState)
+{
+	switch (eState)
+	{
+	case 0:
+		gEngfuncs.pEventAPI->EV_WeaponAnimation(ANIM_MELEE_ATTACK1MISS, 1);
+		break;
+	case 1:
+		gEngfuncs.pEventAPI->EV_WeaponAnimation(ANIM_MELEE_ATTACK2MISS, 1);
+		break;
+	case 2:
+		gEngfuncs.pEventAPI->EV_WeaponAnimation(ANIM_MELEE_ATTACK3MISS, 1);
+		break;
+	}
+}
 
 //Only predict the miss sounds, hit sounds are still played
 //server side, so players don't get the wrong idea.
@@ -1300,20 +1303,7 @@ void EV_Crowbar(event_args_t *args)
 	gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, "weapons/melee/crowbar/miss.wav", 1, ATTN_NORM, 0, PITCH_NORM);
 
 	if (EV_IsLocal(idx))
-	{
-		switch ((g_iSwing++) % 3)
-		{
-		case 0:
-			gEngfuncs.pEventAPI->EV_WeaponAnimation(CROWBAR_ATTACK1MISS, 1);
-			break;
-		case 1:
-			gEngfuncs.pEventAPI->EV_WeaponAnimation(CROWBAR_ATTACK2MISS, 1);
-			break;
-		case 2:
-			gEngfuncs.pEventAPI->EV_WeaponAnimation(CROWBAR_ATTACK3MISS, 1);
-			break;
-		}
-	}
+		EV_MeleeSwingMissAnim((g_iSwing++) % 3);
 }
 
 // Same as crowbar, but we use the lead pipe sound
@@ -1331,20 +1321,7 @@ void EV_LeadPipe(event_args_t *args)
 	gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, "weapons/melee/miss1.wav", 1, ATTN_NORM, 0, PITCH_NORM);
 
 	if (EV_IsLocal(idx))
-	{
-		switch ((g_iSwing++) % 3)
-		{
-		case 0:
-			gEngfuncs.pEventAPI->EV_WeaponAnimation(CROWBAR_ATTACK1MISS, 1);
-			break;
-		case 1:
-			gEngfuncs.pEventAPI->EV_WeaponAnimation(CROWBAR_ATTACK2MISS, 1);
-			break;
-		case 2:
-			gEngfuncs.pEventAPI->EV_WeaponAnimation(CROWBAR_ATTACK3MISS, 1);
-			break;
-		}
-	}
+		EV_MeleeSwingMissAnim((g_iSwing++) % 3);
 }
 
 // Same as crowbar, but we use the zombie moan rawr xdx
@@ -1370,20 +1347,7 @@ void EV_Swipe(event_args_t *args)
 	}
 
 	if (EV_IsLocal(idx))
-	{
-		switch ((g_iSwing++) % 3)
-		{
-		case 0:
-			gEngfuncs.pEventAPI->EV_WeaponAnimation(CROWBAR_ATTACK1MISS, 1);
-			break;
-		case 1:
-			gEngfuncs.pEventAPI->EV_WeaponAnimation(CROWBAR_ATTACK2MISS, 1);
-			break;
-		case 2:
-			gEngfuncs.pEventAPI->EV_WeaponAnimation(CROWBAR_ATTACK3MISS, 1);
-			break;
-		}
-	}
+		EV_MeleeSwingMissAnim((g_iSwing++) % 3);
 }
 //======================
 //	   CROWBAR END

@@ -8,21 +8,6 @@
 
 LINK_ENTITY_TO_CLASS( weapon_swipe, CWeaponMeleeSwipe );
 
-enum
-{
-	SWIPE_IDLE = 0,
-	SWIPE_DRAW,
-	SWIPE_HOLSTER,
-	SWIPE_ATTACK1HIT,
-	SWIPE_ATTACK1MISS,
-	SWIPE_ATTACK2MISS,
-	SWIPE_ATTACK2HIT,
-	SWIPE_ATTACK3MISS,
-	SWIPE_ATTACK3HIT,
-	SWIPE_IDLE2,
-	SWIPE_IDLE3
-};
-
 #define SWIPE_BODYHIT_VOLUME 128
 #define SWIPE_WALLHIT_VOLUME 512
 
@@ -68,13 +53,13 @@ int CWeaponMeleeSwipe::AddToPlayer( CBasePlayer *pPlayer )
 
 BOOL CWeaponMeleeSwipe::Deploy()
 {
-	return DefaultDeploy("models/v_swipe.mdl", "models/p_swipe.mdl", SWIPE_DRAW, "swipe");
+	return DefaultDeploy("models/v_swipe.mdl", "models/p_swipe.mdl", ANIM_MELEE_DRAW, "swipe");
 }
 
-void CWeaponMeleeSwipe::Holster(int skiplocal /* = 0 */)
+void CWeaponMeleeSwipe::DoHolsterAnimation()
 {
-	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 0.5;
-	SendWeaponAnim(SWIPE_HOLSTER);
+	SendWeaponAnim( ANIM_MELEE_HOLSTER );
+	m_flHolsterTime = gpGlobals->time + 0.5f;
 }
 
 extern void FindHullIntersection( const Vector &vecSrc, TraceResult &tr, float *mins, float *maxs, edict_t *pEntity );
@@ -153,13 +138,13 @@ int CWeaponMeleeSwipe::Swing(int fFirst)
 		switch (((m_iSwing++) % 2) + 1)
 		{
 		case 0:
-			SendWeaponAnim(SWIPE_ATTACK1HIT);
+			SendWeaponAnim(ANIM_MELEE_ATTACK1HIT);
 			break;
 		case 1:
-			SendWeaponAnim(SWIPE_ATTACK2HIT);
+			SendWeaponAnim(ANIM_MELEE_ATTACK2HIT);
 			break;
 		case 2:
-			SendWeaponAnim(SWIPE_ATTACK3HIT);
+			SendWeaponAnim(ANIM_MELEE_ATTACK3HIT);
 			break;
 		}
 
@@ -272,15 +257,15 @@ void CWeaponMeleeSwipe::WeaponIdle()
 	{
 		default:
 		case 0:
-			iAnim = SWIPE_IDLE;
+		    iAnim = ANIM_MELEE_IDLE1;
 		    flTime = 3.0f;
 		break;
 		case 2:
-		    iAnim = SWIPE_IDLE2;
+		    iAnim = ANIM_MELEE_IDLE2;
 		    flTime = 1.0f;
 		break;
 		case 4:
-		    iAnim = SWIPE_IDLE3;
+		    iAnim = ANIM_MELEE_IDLE3;
 		    flTime = 1.06f;
 		break;
 	}

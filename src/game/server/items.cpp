@@ -158,7 +158,14 @@ void CItem::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType,
 
 		// player grabbed the item.
 		g_pGameRules->PlayerGotItem( pPlayer, this );
-		SoftRemove();
+
+		if ( SpawnedTroughRandomEntity() )
+		{
+			SetThink(&CBasePlayerAmmo::SUB_Remove);
+			pev->nextthink = gpGlobals->time + .1;
+		}
+		else
+			SoftRemove();
 	}
 }
 #endif

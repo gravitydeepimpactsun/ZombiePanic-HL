@@ -484,6 +484,7 @@ public:
 	void SelectWeaponFromSlot( int iSlot );
 	void SelectNextSlot();
 	void SelectPreviousSlot();
+	CBasePlayerWeapon *GetWeaponFromSlot( int iSlot );
 	bool HasAvailableWeaponSlots( bool bIsDoubleSlot );
 	int GetBestSlotPosition( bool bIsDoubleSlot );
 

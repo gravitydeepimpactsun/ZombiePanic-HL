@@ -2291,24 +2291,9 @@ void CBasePlayer::InAchievementTrigger( string_t iszAchievementID )
 void CBasePlayer::SelectWeaponFromSlot( int iSlot )
 {
 	// Selects the weapon from the slot they were assigned
-	CBasePlayerWeapon *pWeapon = nullptr;
-	for (int i = 0; i < MAX_ITEM_TYPES; i++)
-	{
-		if (m_rgpPlayerItems[i])
-		{
-			pWeapon = (CBasePlayerWeapon *)m_rgpPlayerItems[i];
-			while (pWeapon)
-			{
-				if ( pWeapon->m_iAssignedSlotPosition == iSlot )
-				{
-					// Select this weapon
-					SelectWeapon( pWeapon );
-					return;
-				}
-				pWeapon = (CBasePlayerWeapon *)pWeapon->m_pNext;
-			}
-		}
-	}
+	CBasePlayerWeapon *pWeapon = GetWeaponFromSlot( iSlot );
+	if ( !pWeapon ) return;
+	SelectWeapon( pWeapon );
 }
 
 void CBasePlayer::SelectNextSlot()
@@ -2363,6 +2348,29 @@ void CBasePlayer::SelectPreviousSlot()
 			iCurrentSlot = iMaxSlots - 1;
 		SelectWeaponFromSlot( iCurrentSlot );
 	}
+}
+
+CBasePlayerWeapon *CBasePlayer::GetWeaponFromSlot( int iSlot )
+{
+	// Selects the weapon from the slot they were assigned
+	CBasePlayerWeapon *pWeapon = nullptr;
+	for (int i = 0; i < MAX_ITEM_TYPES; i++)
+	{
+		if (m_rgpPlayerItems[i])
+		{
+			pWeapon = (CBasePlayerWeapon *)m_rgpPlayerItems[i];
+			while (pWeapon)
+			{
+				if ( pWeapon->m_iAssignedSlotPosition == iSlot )
+				{
+					// Select this weapon
+					return pWeapon;
+				}
+				pWeapon = (CBasePlayerWeapon *)pWeapon->m_pNext;
+			}
+		}
+	}
+	return nullptr;
 }
 
 bool CBasePlayer::HasAvailableWeaponSlots( bool bIsDoubleSlot )
@@ -4463,6 +4471,11 @@ void CBasePlayer::GiveNamedItem(const char *pszName)
 	pent->v.spawnflags |= SF_NORESPAWN;
 
 	DispatchSpawn(pent);
+
+	// Make sure this is set, so we can delete it if used
+	CBaseEntity *pItem = CBaseEntity::Instance( pent );
+	pItem->SetSpawnedTroughRandomEntity( true );
+
 	DispatchUse(pent, ENT(pev));
 }
 
@@ -5931,6 +5944,8 @@ int CBasePlayer::AmmoIndexToDrop( int ammoindex )
 		case 2: return ZPAmmoTypes::AMMO_SHOTGUN;
 		case 3: return ZPAmmoTypes::AMMO_RIFLE;
 		case 4: return ZPAmmoTypes::AMMO_LONGRIFLE;
+		case 5: return ZPAmmoTypes::AMMO_GRENADE;
+		case 6: return ZPAmmoTypes::AMMO_SATCHEL;
 	}
 	return 0;
 }
@@ -5949,6 +5964,10 @@ int CBasePlayer::AmmoIndexToDropArray( int ammoindex )
 		case ZPAmmoTypes::AMMO_RIFLE: return 3;
 		// Long Rifle
 		case ZPAmmoTypes::AMMO_LONGRIFLE: return 4;
+		// Grenade
+		case ZPAmmoTypes::AMMO_GRENADE: return 5;
+		// Satchel
+		case ZPAmmoTypes::AMMO_SATCHEL: return 6;
 	}
 	return 0;
 }
@@ -6093,6 +6112,7 @@ bool CBasePlayer::DropAmmo( int ammoindex, int amount, Vector Dir, bool pukevel 
 	pAmmoItem->m_iDroppedOverride = pAmmoItem->m_iAmountLeft = amount;
 	pAmmoItem->pev->angles.x = 0;
 	pAmmoItem->pev->angles.z = 0;
+	pAmmoItem->SetSpawnedTroughRandomEntity( true );
 
 	// for gpGlobals->v_forward
 	UTIL_MakeVectors(pev->v_angle);
@@ -6159,30 +6179,30 @@ void CBasePlayer::DropUnuseableAmmo()
 	if ( ( m_flLastUnusedDrop - gpGlobals->time > 0 ) ) return;
 	m_flLastUnusedDrop = gpGlobals->time + 1.0f;
 
-	int iAmmoThatShouldBeDropped[ZPAmmoTypes::AMMO_MAX];
+	bool bAmmoThatShouldBeDropped[ZPAmmoTypes::AMMO_MAX];
 	for ( int i = 0; i < ZPAmmoTypes::AMMO_MAX; i++ )
-		iAmmoThatShouldBeDropped[i] = AmmoIndexToDrop( i );
+		bAmmoThatShouldBeDropped[i] = true;
 
-	for ( int i = 0; i < MAX_ITEM_TYPES; i++ )
+	bool bIsInHardcore = ( ZP::GetCurrentGameMode()->GetGameModeType() == ZP::GameModeType_e::GAMEMODE_HARDCORE );
+	int iMaxSlots = bIsInHardcore ? MAX_WEAPON_SLOTS_HARDCORE : MAX_WEAPON_SLOTS;
+	if ( bIsInHardcore && HasBackpack() )
+		iMaxSlots += BACKPACK_EXTRA_SLOTS;
+	for ( int i = 0; i < iMaxSlots; i++ )
 	{
-		CBasePlayerItem *pWeapon = m_rgpPlayerItems[i];
-		while ( pWeapon )
-		{
-			ZPAmmoTypes iAmmoIndex = GetAmmoByName( pWeapon->GetData().Ammo1 ).AmmoType;
-			if ( iAmmoIndex > ZPAmmoTypes::AMMO_NONE )
-				iAmmoThatShouldBeDropped[ AmmoIndexToDropArray( iAmmoIndex ) ] = -1;
-			pWeapon = pWeapon->m_pNext;
-		}
+		CBasePlayerItem *pWeapon = GetWeaponFromSlot( i );
+		if ( !pWeapon ) continue;
+		ZPAmmoTypes iAmmoIndex = GetAmmoByName( pWeapon->GetData().Ammo1 ).AmmoType;
+		if ( iAmmoIndex > ZPAmmoTypes::AMMO_NONE )
+			bAmmoThatShouldBeDropped[ iAmmoIndex ] = false;
 	}
 
 	for ( int i = 0; i < ZPAmmoTypes::AMMO_MAX; i++ )
 	{
-		int iAmmoIndex = iAmmoThatShouldBeDropped[i];
-		if ( iAmmoIndex == -1 ) continue;
-		if ( m_rgAmmo[ iAmmoIndex ] == 0 ) continue;
+		if ( !bAmmoThatShouldBeDropped[i] ) continue;
+		if ( m_rgAmmo[ i ] == 0 ) continue;
 		UTIL_MakeVectors(pev->angles);
-		DropAmmo( iAmmoIndex, m_rgAmmo[ iAmmoIndex ], pev->origin + gpGlobals->v_forward, true );
-		m_rgAmmo[ iAmmoIndex ] = 0;
+		DropAmmo( i, m_rgAmmo[ i ], pev->origin + gpGlobals->v_forward, true );
+		m_rgAmmo[ i ] = 0;
 	}
 }
 

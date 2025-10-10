@@ -163,6 +163,7 @@ int CWeaponMeleeCrowbar::Swing(int fFirst)
 		{
 			// miss
 			m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + 0.8;
+			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.8;
 
 			// player "shoot" animation
 			m_pPlayer->SetAnimation(PLAYER_ATTACK1);
@@ -272,6 +273,7 @@ int CWeaponMeleeCrowbar::Swing(int fFirst)
 		m_pPlayer->m_iWeaponVolume = flVol * CROWBAR_WALLHIT_VOLUME;
 #endif
 		m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + PrimaryFireRate();
+		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + PrimaryFireRate() + 0.1;
 
 		SetThink(&CWeaponMeleeCrowbar::Smack);
 		pev->nextthink = gpGlobals->time + 0.2;

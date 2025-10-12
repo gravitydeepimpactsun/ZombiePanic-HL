@@ -30,7 +30,13 @@ void CWeaponMeleeLeadPipe::Precache(void)
 	PRECACHE_SOUND("weapons/melee/leadpipe/hitbod1.wav");
 	PRECACHE_SOUND("weapons/melee/leadpipe/hitbod2.wav");
 	PRECACHE_SOUND("weapons/melee/leadpipe/hitbod3.wav");
+	PRECACHE_SOUND("weapons/melee/leadpipe/hit1_heavy.wav");
+	PRECACHE_SOUND("weapons/melee/leadpipe/hit2_heavy.wav");
+	PRECACHE_SOUND("weapons/melee/leadpipe/hitbod1_heavy.wav");
+	PRECACHE_SOUND("weapons/melee/leadpipe/hitbod2_heavy.wav");
+	PRECACHE_SOUND("weapons/melee/leadpipe/hitbod3_heavy.wav");
 	PRECACHE_SOUND("weapons/melee/miss1.wav");
+	PRECACHE_SOUND("weapons/melee/miss2.wav");
 
 	m_nEventPrimary = PRECACHE_EVENT(1, "events/leadpipe.sc");
 }
@@ -305,13 +311,13 @@ void CWeaponMeleeLeadPipe::DoHeavyAttack()
 				switch (RANDOM_LONG(0, 2))
 				{
 				case 0:
-					EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/melee/leadpipe/hitbod1.wav", 1, ATTN_NORM);
+					EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/melee/leadpipe/hitbod1_heavy.wav", 1, ATTN_NORM);
 					break;
 				case 1:
-					EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/melee/leadpipe/hitbod2.wav", 1, ATTN_NORM);
+					EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/melee/leadpipe/hitbod2_heavy.wav", 1, ATTN_NORM);
 					break;
 				case 2:
-					EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/melee/leadpipe/hitbod3.wav", 1, ATTN_NORM);
+					EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/melee/leadpipe/hitbod3_heavy.wav", 1, ATTN_NORM);
 					break;
 				}
 				m_pPlayer->m_iWeaponVolume = LEADPIPE_BODYHIT_VOLUME;
@@ -341,10 +347,10 @@ void CWeaponMeleeLeadPipe::DoHeavyAttack()
 			switch (RANDOM_LONG(0, 1))
 			{
 			case 0:
-				EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/melee/leadpipe/hit1.wav", fvolbar, ATTN_NORM, 0, 98 + RANDOM_LONG(0, 3));
+				EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/melee/leadpipe/hit1_heavy.wav", fvolbar, ATTN_NORM, 0, 98 + RANDOM_LONG(0, 3));
 				break;
 			case 1:
-				EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/melee/leadpipe/hit2.wav", fvolbar, ATTN_NORM, 0, 98 + RANDOM_LONG(0, 3));
+				EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/melee/leadpipe/hit2_heavy.wav", fvolbar, ATTN_NORM, 0, 98 + RANDOM_LONG(0, 3));
 				break;
 			}
 
@@ -358,7 +364,15 @@ void CWeaponMeleeLeadPipe::DoHeavyAttack()
 	else
 	{
 #ifndef CLIENT_DLL
-		EMIT_SOUND( ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/melee/miss1.wav", 1, ATTN_NORM );
+		switch (RANDOM_LONG(0, 1))
+		{
+		case 0:
+			EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/melee/miss1.wav", 1, ATTN_NORM, 0, 75 + RANDOM_LONG(0, 3));
+			break;
+		case 1:
+			EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/melee/miss2.wav", 1, ATTN_NORM, 0, 75 + RANDOM_LONG(0, 3));
+			break;
+		}
 #endif
 	}
 

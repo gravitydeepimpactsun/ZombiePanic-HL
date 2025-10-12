@@ -1803,7 +1803,7 @@ void CStudioModelRenderer::StudioRenderModel(void)
 
 	// Looing at a weapon? then let's add a glow shell
 	bool bLookingAtWeapon = IsLookingAtWeapon();
-	if ( bLookingAtWeapon )
+	if ( bLookingAtWeapon && !bIsZombie )
 		m_pCurrentEntity->curstate.renderfx = kRenderFxGlowShell;
 
 	if ( m_pCurrentEntity->curstate.renderfx == kRenderFxGlowShell || bIsZombie )
@@ -1826,7 +1826,7 @@ void CStudioModelRenderer::StudioRenderModel(void)
 		}
 
 		// A weapon 
-		if ( bLookingAtWeapon && !bIsZombie )
+		if ( bLookingAtWeapon )
 		{
 			Color parsed;
 			color24 glow_color;

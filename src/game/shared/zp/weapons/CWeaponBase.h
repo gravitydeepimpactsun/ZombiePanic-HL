@@ -31,8 +31,7 @@ public:
 	void FinishHolster();
 
 	// We don't use secondary attack in Zombie Panic! by default
-	void SecondaryAttack( void ) {}
-
+	virtual void SecondaryAttack( void ) {}
 	virtual void ItemPostFrame( void );
 
 	/// <summary>

@@ -1797,16 +1797,21 @@ void CStudioModelRenderer::StudioRenderModel(void)
 	IEngineStudio.SetForceFaceFlags(0);
 
 	cl_entity_t *pLocalPlayer = gEngfuncs.GetLocalPlayer();
-	bool bIsZombie = false;
-	if ( pLocalPlayer && pLocalPlayer->curstate.team == ZP::TEAM_ZOMBIE && gHUD.m_bUseZombVision )
-		bIsZombie = ( m_pCurrentEntity->player == TRUE ) ? true : false;
+	int iIsZombie = 0;
+	if ( pLocalPlayer && pLocalPlayer->curstate.team == ZP::TEAM_ZOMBIE )
+	{
+		if ( gHUD.m_bUseZombVision )
+			iIsZombie = (m_pCurrentEntity->player == TRUE) ? 2 : 1;
+		else
+			iIsZombie = 1;
+	}
 
 	// Looing at a weapon? then let's add a glow shell
 	bool bLookingAtWeapon = IsLookingAtWeapon();
-	if ( bLookingAtWeapon && !bIsZombie )
+	if ( bLookingAtWeapon && iIsZombie == 0 )
 		m_pCurrentEntity->curstate.renderfx = kRenderFxGlowShell;
 
-	if ( m_pCurrentEntity->curstate.renderfx == kRenderFxGlowShell || bIsZombie )
+	if ( m_pCurrentEntity->curstate.renderfx == kRenderFxGlowShell || iIsZombie == 2 )
 	{
 		m_pCurrentEntity->curstate.renderfx = kRenderFxNone;
 		StudioRenderFinal();
@@ -1818,7 +1823,7 @@ void CStudioModelRenderer::StudioRenderModel(void)
 
 		IEngineStudio.SetForceFaceFlags(STUDIO_NF_CHROME);
 
-		if ( bIsZombie )
+		if ( iIsZombie == 2 )
 		{
 			color24 glow_color;
 			ParseGlowColor( m_pCurrentEntity->curstate.team, glow_color );

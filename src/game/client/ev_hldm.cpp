@@ -584,7 +584,7 @@ void EV_FirePPK(event_args_t *args)
 
 	EV_EjectBrass(ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHELL);
 
-	gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, empty ? "weapons/ppk/fire_to_empty.wav" : "weapons/ppk/fire.wav", gEngfuncs.pfnRandomFloat(0.92, 1.0), ATTN_NORM, 0, 98 + gEngfuncs.pfnRandomLong(0, 3));
+	gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, "weapons/ppk/fire.wav", gEngfuncs.pfnRandomFloat(0.92, 1.0), ATTN_NORM, 0, 98 + gEngfuncs.pfnRandomLong(0, 3));
 
 	EV_GetGunPosition(args, vecSrc, origin);
 
@@ -1303,7 +1303,10 @@ void EV_Crowbar(event_args_t *args)
 	gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, "weapons/melee/crowbar/miss.wav", 1, ATTN_NORM, 0, PITCH_NORM);
 
 	if (EV_IsLocal(idx))
-		EV_MeleeSwingMissAnim((g_iSwing++) % 3);
+	{
+		int nSwingState = (g_iSwing++) % 3;
+		EV_MeleeSwingMissAnim(nSwingState);
+	}
 }
 
 // Same as crowbar, but we use the lead pipe sound
@@ -1321,7 +1324,10 @@ void EV_LeadPipe(event_args_t *args)
 	gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, "weapons/melee/miss1.wav", 1, ATTN_NORM, 0, PITCH_NORM);
 
 	if (EV_IsLocal(idx))
-		EV_MeleeSwingMissAnim((g_iSwing++) % 3);
+	{
+		int nSwingState = (g_iSwing++) % 3;
+		EV_MeleeSwingMissAnim(nSwingState);
+	}
 }
 
 // Same as crowbar, but we use the zombie moan rawr xdx
@@ -1347,7 +1353,10 @@ void EV_Swipe(event_args_t *args)
 	}
 
 	if (EV_IsLocal(idx))
-		EV_MeleeSwingMissAnim((g_iSwing++) % 3);
+	{
+		int nSwingState = (g_iSwing++) % 3;
+		EV_MeleeSwingMissAnim(nSwingState);
+	}
 }
 //======================
 //	   CROWBAR END

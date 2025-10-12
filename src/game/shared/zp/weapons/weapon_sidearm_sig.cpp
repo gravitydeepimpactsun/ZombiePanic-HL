@@ -32,8 +32,7 @@ void CWeaponSideArmSig::Precache(void)
 
 	PRECACHE_MODEL("models/shell.mdl"); // brass shell
 
-	PRECACHE_SOUND("items/9mmclip1.wav");
-	PRECACHE_SOUND("items/9mmclip2.wav");
+	PRECACHE_SOUND("items/ammo_pickup.wav");
 
 	PRECACHE_SOUND("weapons/sig/dryfire.wav"); //handgun
 	PRECACHE_SOUND("weapons/sig/fire.wav"); //handgun
@@ -177,12 +176,12 @@ class C9MMAmmo : public CBasePlayerAmmo
 		WeaponData slot = GetWeaponSlotInfo( ZPWeaponID::WEAPON_SIG );
 		m_iAmountLeft = m_iAmmoToGive = slot.AmmoBox;
 		m_AmmoType = ZPAmmoTypes::AMMO_PISTOL;
-		strncpy(m_szSound, "items/9mmclip1.wav", 32);
+		strncpy(m_szSound, "items/ammo_pickup.wav", 32);
 	}
 	void Precache(void)
 	{
 		PRECACHE_MODEL("models/w_9mmclip.mdl");
-		PRECACHE_SOUND("items/9mmclip1.wav");
+		PRECACHE_SOUND("items/ammo_pickup.wav");
 	}
 };
 LINK_ENTITY_TO_CLASS(ammo_9mmclip, C9MMAmmo);

@@ -39,8 +39,7 @@ void CWeaponSideArmGlock17::Precache(void)
 
 	PRECACHE_MODEL("models/shell.mdl"); // brass shell
 
-	PRECACHE_SOUND("items/9mmclip1.wav");
-	PRECACHE_SOUND("items/9mmclip2.wav");
+	PRECACHE_SOUND("items/ammo_pickup.wav");
 
 	PRECACHE_SOUND("weapons/glock/dryfire.wav"); //handgun
 	PRECACHE_SOUND("weapons/glock/fire.wav"); //handgun

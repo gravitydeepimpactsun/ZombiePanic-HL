@@ -29,7 +29,7 @@ void CWeaponShotgunRemington::Precache( void )
 
 	PRECACHE_MODEL( "models/shotgunshell.mdl" ); // shotgun shell
 
-	PRECACHE_SOUND( "items/9mmclip1.wav" );
+	PRECACHE_SOUND( "items/ammo_pickup.wav" );
 
 	PRECACHE_SOUND( "weapons/sbarrel1.wav" ); //shotgun
 
@@ -149,12 +149,12 @@ class CShotgunAmmo : public CBasePlayerAmmo
 		WeaponData slot = GetWeaponSlotInfo( ZPWeaponID::WEAPON_SHOTGUN );
 		m_iAmountLeft = m_iAmmoToGive = slot.AmmoBox;
 		m_AmmoType = ZPAmmoTypes::AMMO_SHOTGUN;
-		strncpy( m_szSound, "items/9mmclip1.wav", 32 );
+		strncpy( m_szSound, "items/ammo_pickup.wav", 32 );
 	}
 	void Precache( void )
 	{
 		PRECACHE_MODEL( "models/w_shotbox.mdl" );
-		PRECACHE_SOUND( "items/9mmclip1.wav" );
+		PRECACHE_SOUND( "items/ammo_pickup.wav" );
 	}
 };
 LINK_ENTITY_TO_CLASS( ammo_buckshot, CShotgunAmmo );

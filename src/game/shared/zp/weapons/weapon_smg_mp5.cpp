@@ -24,7 +24,7 @@ void CWeaponSMGMP5::Precache(void)
 	PRECACHE_MODEL("models/shell.mdl"); // brass shellTE_MODEL
 
 	PRECACHE_MODEL("models/w_9mmARclip.mdl");
-	PRECACHE_SOUND("items/9mmclip1.wav");
+	PRECACHE_SOUND("items/ammo_pickup.wav");
 
 	PRECACHE_SOUND("items/clipinsert1.wav");
 	PRECACHE_SOUND("items/cliprelease1.wav");
@@ -149,12 +149,12 @@ class CWeaponSMGMP5AmmoClip : public CBasePlayerAmmo
 		WeaponData slot = GetWeaponSlotInfo( ZPWeaponID::WEAPON_MP5 );
 		m_iAmountLeft = m_iAmmoToGive = slot.AmmoBox;
 		m_AmmoType = ZPAmmoTypes::AMMO_PISTOL;
-		strncpy(m_szSound, "items/9mmclip1.wav", 32);
+		strncpy(m_szSound, "items/ammo_pickup.wav", 32);
 	}
 	void Precache(void)
 	{
 		PRECACHE_MODEL("models/w_9mmARclip.mdl");
-		PRECACHE_SOUND("items/9mmclip1.wav");
+		PRECACHE_SOUND("items/ammo_pickup.wav");
 	}
 };
 LINK_ENTITY_TO_CLASS(ammo_mp5clip, CWeaponSMGMP5AmmoClip);

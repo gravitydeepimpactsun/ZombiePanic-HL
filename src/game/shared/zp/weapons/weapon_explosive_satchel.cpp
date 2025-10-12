@@ -75,7 +75,7 @@ int CWeaponExplosiveSatchel::AddDuplicate(CBasePlayerItem *pOriginal)
 	if ( pWeapon->m_iClip < pWeapon->iMaxClip() )
 	{
 		pWeapon->m_iClip += 1;
-		EMIT_SOUND( ENT(pev), CHAN_ITEM, "items/9mmclip1.wav", 1, ATTN_NORM );
+		EMIT_SOUND( ENT(pev), CHAN_ITEM, "items/ammo_pickup.wav", 1, ATTN_NORM );
 		return TRUE;
 	}
 	return FALSE;

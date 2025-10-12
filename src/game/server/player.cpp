@@ -1097,6 +1097,54 @@ void CBasePlayer::SetAnimation(PLAYER_ANIM playerAnim)
 			break;
 		}
 		break;
+
+	case PLAYER_ATTACK2_PRE:
+		switch (m_Activity)
+		{
+		case ACT_HOVER:
+		case ACT_SWIM:
+		case ACT_HOP:
+		case ACT_LEAP:
+		case ACT_DIESIMPLE:
+			m_IdealActivity = m_Activity;
+			break;
+		default:
+			m_IdealActivity = ACT_MELEE_HEAVY_ATTACK_PRE;
+			break;
+		}
+		break;
+
+	case PLAYER_ATTACK2_HOLD:
+		switch (m_Activity)
+		{
+		case ACT_HOVER:
+		case ACT_SWIM:
+		case ACT_HOP:
+		case ACT_LEAP:
+		case ACT_DIESIMPLE:
+			m_IdealActivity = m_Activity;
+			break;
+		default:
+			m_IdealActivity = ACT_MELEE_HEAVY_ATTACK_LOOP;
+			break;
+		}
+		break;
+
+	case PLAYER_ATTACK2_POST:
+		switch (m_Activity)
+		{
+		case ACT_HOVER:
+		case ACT_SWIM:
+		case ACT_HOP:
+		case ACT_LEAP:
+		case ACT_DIESIMPLE:
+			m_IdealActivity = m_Activity;
+			break;
+		default:
+			m_IdealActivity = ACT_MELEE_HEAVY_ATTACK_POST;
+			break;
+		}
+		break;
 	case PLAYER_IDLE:
 	case PLAYER_WALK:
 		if (!FBitSet(pev->flags, FL_ONGROUND) && (m_Activity == ACT_HOP || m_Activity == ACT_LEAP)) // Still jumping
@@ -1156,6 +1204,84 @@ void CBasePlayer::SetAnimation(PLAYER_ANIM playerAnim)
 			else
 				UTIL_strcpy(szAnim, "ref_shoot_");
 		}
+		strcat(szAnim, m_szAnimExtention);
+		animDesired = LookupSequence(szAnim);
+		if (animDesired == -1)
+			animDesired = 0;
+
+		if (pev->sequence != animDesired || !m_fSequenceLoops)
+		{
+			pev->frame = 0;
+		}
+
+		if (!m_fSequenceLoops)
+		{
+			pev->effects |= EF_NOINTERP;
+		}
+
+		m_Activity = m_IdealActivity;
+
+		pev->sequence = animDesired;
+		ResetSequenceInfo();
+		break;
+
+	case ACT_MELEE_HEAVY_ATTACK_PRE:
+		if (FBitSet(pev->flags, FL_DUCKING)) // crouching
+			UTIL_strcpy(szAnim, "crouch_shoot_heavy_pre_");
+		else
+			UTIL_strcpy(szAnim, "ref_shoot_heavy_pre_");
+		strcat(szAnim, m_szAnimExtention);
+		animDesired = LookupSequence(szAnim);
+		if (animDesired == -1)
+			animDesired = 0;
+
+		if (pev->sequence != animDesired || !m_fSequenceLoops)
+		{
+			pev->frame = 0;
+		}
+
+		if (!m_fSequenceLoops)
+		{
+			pev->effects |= EF_NOINTERP;
+		}
+
+		m_Activity = m_IdealActivity;
+
+		pev->sequence = animDesired;
+		ResetSequenceInfo();
+		break;
+
+	case ACT_MELEE_HEAVY_ATTACK_LOOP:
+		if (FBitSet(pev->flags, FL_DUCKING)) // crouching
+			UTIL_strcpy(szAnim, "crouch_shoot_heavy_loop_");
+		else
+			UTIL_strcpy(szAnim, "ref_shoot_heavy_loop_");
+		strcat(szAnim, m_szAnimExtention);
+		animDesired = LookupSequence(szAnim);
+		if (animDesired == -1)
+			animDesired = 0;
+
+		if (pev->sequence != animDesired || !m_fSequenceLoops)
+		{
+			pev->frame = 0;
+		}
+
+		if (!m_fSequenceLoops)
+		{
+			pev->effects |= EF_NOINTERP;
+		}
+
+		m_Activity = m_IdealActivity;
+
+		pev->sequence = animDesired;
+		ResetSequenceInfo();
+		break;
+
+	case ACT_MELEE_HEAVY_ATTACK_POST:
+		if (FBitSet(pev->flags, FL_DUCKING)) // crouching
+			UTIL_strcpy(szAnim, "crouch_shoot_heavy_post_");
+		else
+			UTIL_strcpy(szAnim, "ref_shoot_heavy_post_");
 		strcat(szAnim, m_szAnimExtention);
 		animDesired = LookupSequence(szAnim);
 		if (animDesired == -1)

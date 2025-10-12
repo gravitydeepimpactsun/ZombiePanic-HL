@@ -18,12 +18,17 @@ public:
 	int AddToPlayer( CBasePlayer *pPlayer );
 
 	void PrimaryAttack( void );
+	void SecondaryAttack( void ) override;
 	int Swing( int fFirst );
+	void DoHeavyAttack();
 	void WeaponIdle();
 	BOOL Deploy( void );
 	void DoHolsterAnimation() override;
 	int m_iSwing;
 	TraceResult m_trHit;
+
+private:
+	bool m_bIsInHeavyAttack = false;
 };
 
 #endif

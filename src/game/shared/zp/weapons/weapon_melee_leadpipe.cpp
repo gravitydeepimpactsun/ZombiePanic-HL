@@ -67,6 +67,22 @@ void CWeaponMeleeLeadPipe::PrimaryAttack()
 	}
 }
 
+void CWeaponMeleeLeadPipe::SecondaryAttack( void )
+{
+	if ( m_bIsInHeavyAttack )
+	{
+		m_pPlayer->SetAnimation( PLAYER_ATTACK2_HOLD );
+		m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + 0.1;
+		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.1;
+		return;
+	}
+	SendWeaponAnim( ANIM_MELEE_HEAVY_HOLD );
+	m_pPlayer->SetAnimation( PLAYER_ATTACK2_PRE );
+	m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + 0.75;
+	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.75;
+	m_bIsInHeavyAttack = true;
+}
+
 void CWeaponMeleeLeadPipe::Smack()
 {
 	UTIL_MakeVectors(m_pPlayer->pev->v_angle);
@@ -230,7 +246,7 @@ int CWeaponMeleeLeadPipe::Swing(int fFirst)
 
 		m_pPlayer->m_iWeaponVolume = flVol * LEADPIPE_WALLHIT_VOLUME;
 #endif
-		m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + PrimaryFireRate();
+		m_flNextPrimaryAttack = m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + PrimaryFireRate();
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + PrimaryFireRate() + 0.1;
 
 		SetThink(&CWeaponMeleeLeadPipe::Smack);
@@ -239,9 +255,131 @@ int CWeaponMeleeLeadPipe::Swing(int fFirst)
 	return fDidHit;
 }
 
+void CWeaponMeleeLeadPipe::DoHeavyAttack()
+{
+	m_pPlayer->SetAnimation( PLAYER_ATTACK2_POST );
+
+	bool bDidHit = false;
+
+	UTIL_MakeVectors(m_pPlayer->pev->v_angle);
+	Vector vecSrc = m_pPlayer->GetGunPosition();
+	Vector vecEnd = vecSrc + gpGlobals->v_forward * 30;
+
+	TraceResult tr;
+	UTIL_TraceLine( vecSrc, vecEnd, dont_ignore_monsters, ENT(m_pPlayer->pev), &tr );
+
+#ifndef CLIENT_DLL
+	if ( tr.flFraction >= 1.0 )
+	{
+		UTIL_TraceHull(vecSrc, vecEnd, dont_ignore_monsters, head_hull, ENT(m_pPlayer->pev), &tr);
+		if (tr.flFraction < 1.0)
+		{
+			// Calculate the point of intersection of the line (or hull) and the object we hit
+			// This is and approximation of the "best" intersection
+			CBaseEntity *pHit = CBaseEntity::Instance(tr.pHit);
+			if (!pHit || pHit->IsBSPModel())
+				FindHullIntersection(vecSrc, tr, VEC_DUCK_HULL_MIN, VEC_DUCK_HULL_MAX, m_pPlayer->edict());
+			vecEnd = tr.vecEndPos; // This is the point on the actual surface (the hull could have hit space)
+		}
+	}
+#endif
+
+	if ( tr.flFraction < 1.0 )
+	{
+		bDidHit = true;
+#ifndef CLIENT_DLL
+		CBaseEntity *pEntity = CBaseEntity::Instance( tr.pHit );
+		ClearMultiDamage();
+		pEntity->TraceAttack(m_pPlayer->pev, mp_dmg_leadpipe_heavy.value, gpGlobals->v_forward, &tr, DMG_CLUB);
+		ApplyMultiDamage(m_pPlayer->pev, m_pPlayer->pev);
+
+		// play thwack, smack, or dong sound
+		float flVol = 1.0;
+		bool bHitWorld = true;
+
+		if ( pEntity )
+		{
+			if ( pEntity->Classify() != CLASS_NONE && pEntity->Classify() != CLASS_MACHINE )
+			{
+				// play thwack or smack sound
+				switch (RANDOM_LONG(0, 2))
+				{
+				case 0:
+					EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/melee/leadpipe/hitbod1.wav", 1, ATTN_NORM);
+					break;
+				case 1:
+					EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/melee/leadpipe/hitbod2.wav", 1, ATTN_NORM);
+					break;
+				case 2:
+					EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/melee/leadpipe/hitbod3.wav", 1, ATTN_NORM);
+					break;
+				}
+				m_pPlayer->m_iWeaponVolume = LEADPIPE_BODYHIT_VOLUME;
+
+				if ( pEntity->IsAlive() )
+					flVol = 0.1;
+
+				bHitWorld = false;
+			}
+		}
+
+		// play texture hit sound
+		// UNDONE: Calculate the correct point of intersection when we hit with the hull instead of the line
+
+		if ( bHitWorld )
+		{
+			float fvolbar = TEXTURETYPE_PlaySound(&tr, vecSrc, vecSrc + (vecEnd - vecSrc) * 2, BULLET_PLAYER_CROWBAR);
+
+			if (g_pGameRules->IsMultiplayer())
+			{
+				// override the volume here, cause we don't play texture sounds in multiplayer,
+				// and fvolbar is going to be 0 from the above call.
+				fvolbar = 1;
+			}
+
+			// also play crowbar strike
+			switch (RANDOM_LONG(0, 1))
+			{
+			case 0:
+				EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/melee/leadpipe/hit1.wav", fvolbar, ATTN_NORM, 0, 98 + RANDOM_LONG(0, 3));
+				break;
+			case 1:
+				EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/melee/leadpipe/hit2.wav", fvolbar, ATTN_NORM, 0, 98 + RANDOM_LONG(0, 3));
+				break;
+			}
+
+			// delay the decal a bit
+			m_trHit = tr;
+		}
+
+		m_pPlayer->m_iWeaponVolume = flVol * LEADPIPE_WALLHIT_VOLUME;
+#endif
+	}
+	else
+	{
+#ifndef CLIENT_DLL
+		EMIT_SOUND( ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/melee/miss1.wav", 1, ATTN_NORM );
+#endif
+	}
+
+	SendWeaponAnim( bDidHit ? ANIM_MELEE_HEAVY_HIT : ANIM_MELEE_HEAVY_MISS );
+	float flTime = bDidHit ? 1.0 : 1.45f;
+	m_bIsInHeavyAttack = false;
+	m_flNextPrimaryAttack = m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + flTime;
+	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + flTime + 0.1;
+
+	SetThink(&CWeaponMeleeLeadPipe::Smack);
+	pev->nextthink = gpGlobals->time + 0.2;
+}
+
 void CWeaponMeleeLeadPipe::WeaponIdle()
 {
 	if ( m_flTimeWeaponIdle > UTIL_WeaponTimeBase() ) return;
+	if ( m_bIsInHeavyAttack )
+	{
+		DoHeavyAttack();
+		return;
+	}
 	int iAnim;
 	float flTime = 1.0f;
 	switch ( RANDOM_LONG(0, 4) )

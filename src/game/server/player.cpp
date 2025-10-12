@@ -1227,10 +1227,9 @@ void CBasePlayer::SetAnimation(PLAYER_ANIM playerAnim)
 
 	case ACT_MELEE_HEAVY_ATTACK_PRE:
 		if (FBitSet(pev->flags, FL_DUCKING)) // crouching
-			UTIL_strcpy(szAnim, "crouch_shoot_heavy_pre_");
+			UTIL_strcpy(szAnim, "crouch_shoot_heavy_pre");
 		else
-			UTIL_strcpy(szAnim, "ref_shoot_heavy_pre_");
-		strcat(szAnim, m_szAnimExtention);
+			UTIL_strcpy(szAnim, "ref_shoot_heavy_pre");
 		animDesired = LookupSequence(szAnim);
 		if (animDesired == -1)
 			animDesired = 0;
@@ -1253,10 +1252,9 @@ void CBasePlayer::SetAnimation(PLAYER_ANIM playerAnim)
 
 	case ACT_MELEE_HEAVY_ATTACK_LOOP:
 		if (FBitSet(pev->flags, FL_DUCKING)) // crouching
-			UTIL_strcpy(szAnim, "crouch_shoot_heavy_loop_");
+			UTIL_strcpy(szAnim, "crouch_shoot_heavy_loop");
 		else
-			UTIL_strcpy(szAnim, "ref_shoot_heavy_loop_");
-		strcat(szAnim, m_szAnimExtention);
+			UTIL_strcpy(szAnim, "ref_shoot_heavy_loop");
 		animDesired = LookupSequence(szAnim);
 		if (animDesired == -1)
 			animDesired = 0;
@@ -1279,10 +1277,9 @@ void CBasePlayer::SetAnimation(PLAYER_ANIM playerAnim)
 
 	case ACT_MELEE_HEAVY_ATTACK_POST:
 		if (FBitSet(pev->flags, FL_DUCKING)) // crouching
-			UTIL_strcpy(szAnim, "crouch_shoot_heavy_post_");
+			UTIL_strcpy(szAnim, "crouch_shoot_heavy_post");
 		else
-			UTIL_strcpy(szAnim, "ref_shoot_heavy_post_");
-		strcat(szAnim, m_szAnimExtention);
+			UTIL_strcpy(szAnim, "ref_shoot_heavy_post");
 		animDesired = LookupSequence(szAnim);
 		if (animDesired == -1)
 			animDesired = 0;
@@ -1304,7 +1301,7 @@ void CBasePlayer::SetAnimation(PLAYER_ANIM playerAnim)
 		break;
 
 	case ACT_WALK:
-		if (m_Activity != ACT_RANGE_ATTACK1 || m_fSequenceFinished)
+		if ( CanActiveInteruptAnimation() )
 		{
 			// If m_szAnimExtention is empty, then we change it to use "empty"
 			if (m_szAnimExtention[0] == 0)
@@ -2070,6 +2067,20 @@ void CBasePlayer::Duck()
 int CBasePlayer::Classify(void)
 {
 	return CLASS_PLAYER;
+}
+
+bool CBasePlayer::CanActiveInteruptAnimation()
+{
+	switch ( m_Activity )
+	{
+		case ACT_RANGE_ATTACK1:
+		case ACT_RANGE_ATTACK2:
+		case ACT_MELEE_HEAVY_ATTACK_PRE:
+		case ACT_MELEE_HEAVY_ATTACK_LOOP:
+		case ACT_MELEE_HEAVY_ATTACK_POST:
+			return ( m_fSequenceFinished ) ? true : false;
+	}
+	return true;
 }
 
 void CBasePlayer::AddPoints(int score, BOOL bAllowNegativeScore)

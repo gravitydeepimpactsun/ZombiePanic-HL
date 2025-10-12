@@ -910,7 +910,7 @@ BOOL CBasePlayerWeapon ::AddPrimaryAmmo(int iCount, char *szName, int iMaxClip, 
 		{
 			// play the "got ammo" sound only if we gave some ammo to a player that already had this gun.
 			// if the player is just getting this gun for the first time, DefaultTouch will play the "picked up gun" sound for us.
-			EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/9mmclip1.wav", 1, ATTN_NORM);
+			EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/ammo_pickup.wav", 1, ATTN_NORM);
 		}
 	}
 
@@ -928,7 +928,7 @@ BOOL CBasePlayerWeapon ::AddSecondaryAmmo(int iCount, char *szName, int iMax)
 	if (iIdAmmo > 0)
 	{
 		m_iSecondaryAmmoType = iIdAmmo;
-		EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/9mmclip1.wav", 1, ATTN_NORM);
+		EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/ammo_pickup.wav", 1, ATTN_NORM);
 	}
 	return iIdAmmo > 0 ? TRUE : FALSE;
 }

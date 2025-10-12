@@ -35,7 +35,7 @@ void CWeaponRifleM16::Precache(void)
 	PRECACHE_MODEL("models/grenade.mdl"); // grenade
 
 	PRECACHE_MODEL("models/w_556ARclip.mdl");
-	PRECACHE_SOUND("items/556clip1.wav");
+	PRECACHE_SOUND("items/ammo_pickup.wav");
 
 	PRECACHE_SOUND("weapons/556ar/fire1.wav"); // H to the K
 	PRECACHE_SOUND("weapons/556ar/fire2.wav"); // H to the K
@@ -173,12 +173,12 @@ class CWeaponRifleM16AmmoClip : public CBasePlayerAmmo
 		WeaponData slot = GetWeaponSlotInfo( ZPWeaponID::WEAPON_556AR );
 		m_iAmountLeft = m_iAmmoToGive = slot.AmmoBox;
 		m_AmmoType = ZPAmmoTypes::AMMO_RIFLE;
-		strncpy(m_szSound, "items/556clip1.wav", 32);
+		strncpy(m_szSound, "items/ammo_pickup.wav", 32);
 	}
 	void Precache(void)
 	{
 		PRECACHE_MODEL("models/w_556ARclip.mdl");
-		PRECACHE_SOUND("items/556clip1.wav");
+		PRECACHE_SOUND("items/ammo_pickup.wav");
 	}
 };
 LINK_ENTITY_TO_CLASS(ammo_556AR, CWeaponRifleM16AmmoClip);
@@ -193,12 +193,12 @@ class CWeaponRifleM16Chainammo : public CBasePlayerAmmo
 		WeaponData slot = GetWeaponSlotInfo( ZPWeaponID::WEAPON_556AR );
 		m_iAmountLeft = m_iAmmoToGive = slot.AmmoBox * 2;
 		m_AmmoType = ZPAmmoTypes::AMMO_RIFLE;
-		strncpy(m_szSound, "items/556clip1.wav", 32);
+		strncpy(m_szSound, "items/ammo_pickup.wav", 32);
 	}
 	void Precache(void)
 	{
 		PRECACHE_MODEL("models/w_556box.mdl");
-		PRECACHE_SOUND("items/556clip1.wav");
+		PRECACHE_SOUND("items/ammo_pickup.wav");
 	}
 };
 LINK_ENTITY_TO_CLASS(ammo_556box, CWeaponRifleM16Chainammo);

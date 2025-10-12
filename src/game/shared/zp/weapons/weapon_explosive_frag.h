@@ -21,7 +21,7 @@ public:
 	void PrimaryAttack();
 	BOOL Deploy();
 	BOOL CanHolster();
-	void Holster( int skiplocal = 0 );
+	void DoHolsterAnimation() override;
 	void WeaponIdle();
 };
 

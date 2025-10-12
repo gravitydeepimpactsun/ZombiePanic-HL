@@ -49,7 +49,7 @@ int CWeaponExplosiveFrag::AddDuplicate( CBasePlayerItem *pOriginal )
 	if ( pWeapon->m_iClip < pWeapon->iMaxClip() )
 	{
 		pWeapon->m_iClip += 1;
-		EMIT_SOUND( ENT(pev), CHAN_ITEM, "items/9mmclip1.wav", 1, ATTN_NORM );
+		EMIT_SOUND( ENT(pev), CHAN_ITEM, "items/ammo_pickup.wav", 1, ATTN_NORM );
 		return TRUE;
 	}
 	return FALSE;
@@ -75,14 +75,10 @@ BOOL CWeaponExplosiveFrag::CanHolster(void)
 	return (m_flStartThrow == 0);
 }
 
-void CWeaponExplosiveFrag::Holster(int skiplocal /* = 0 */)
+void CWeaponExplosiveFrag::DoHolsterAnimation()
 {
-	m_flStartThrow = 0;
-	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 0.5;
-
-	EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_WEAPON, "common/null.wav", 1.0, ATTN_NORM);
-
-	SendWeaponAnim(HANDGRENADE_HOLSTER);
+	SendWeaponAnim( HANDGRENADE_HOLSTER );
+	m_flHolsterTime = gpGlobals->time + 0.4;
 }
 
 void CWeaponExplosiveFrag::PrimaryAttack()
@@ -92,8 +88,9 @@ void CWeaponExplosiveFrag::PrimaryAttack()
 		m_flStartThrow = gpGlobals->time;
 		m_flReleaseThrow = 0;
 
+		AddWeaponSound( "weapons/tnt/fuse.wav", 1, ATTN_NORM, 0.96f );
 		SendWeaponAnim(HANDGRENADE_PINPULL);
-		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.5;
+		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.36f;
 	}
 }
 
@@ -150,8 +147,8 @@ void CWeaponExplosiveFrag::WeaponIdle(void)
 
 		m_flReleaseThrow = 0;
 		m_flStartThrow = 0;
-		m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + 0.5;
-		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.5;
+		m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + 0.4;
+		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.4;
 
 		m_iClip--;
 

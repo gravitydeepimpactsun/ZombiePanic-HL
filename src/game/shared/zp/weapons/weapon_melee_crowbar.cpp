@@ -164,7 +164,9 @@ int CWeaponMeleeCrowbar::Swing(int fFirst)
 			// miss
 			m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + 0.8;
 			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.8;
-
+#ifndef CLIENT_DLL
+			EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/melee/crowbar/miss.wav", 1, ATTN_NORM);
+#endif
 			// player "shoot" animation
 			m_pPlayer->SetAnimation(PLAYER_ATTACK1);
 		}

@@ -1299,9 +1299,6 @@ void EV_Crowbar(event_args_t *args)
 	idx = args->entindex;
 	VectorCopy(args->origin, origin);
 
-	//Play Swing sound
-	gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, "weapons/melee/crowbar/miss.wav", 1, ATTN_NORM, 0, PITCH_NORM);
-
 	if (EV_IsLocal(idx))
 	{
 		int nSwingState = (g_iSwing++) % 3;
@@ -1320,9 +1317,6 @@ void EV_LeadPipe(event_args_t *args)
 	idx = args->entindex;
 	VectorCopy(args->origin, origin);
 
-	//Play Swing sound
-	gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, "weapons/melee/miss1.wav", 1, ATTN_NORM, 0, PITCH_NORM);
-
 	if (EV_IsLocal(idx))
 	{
 		int nSwingState = (g_iSwing++) % 3;
@@ -1340,17 +1334,6 @@ void EV_Swipe(event_args_t *args)
 
 	idx = args->entindex;
 	VectorCopy(args->origin, origin);
-
-	//Play Swing sound
-	switch (gEngfuncs.pfnRandomLong(0, 1))
-	{
-	case 0:
-		gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, "weapons/melee/miss1.wav", 1, ATTN_NORM, 0, PITCH_NORM);
-		break;
-	case 1:
-		gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, "weapons/melee/miss2.wav", 1, ATTN_NORM, 0, PITCH_NORM);
-		break;
-	}
 
 	if (EV_IsLocal(idx))
 	{

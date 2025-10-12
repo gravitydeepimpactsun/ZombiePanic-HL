@@ -29,8 +29,8 @@ void CWeaponMeleeSwipe::Precache(void)
 	PRECACHE_SOUND("weapons/melee/zarm/strike1.wav");
 	PRECACHE_SOUND("weapons/melee/zarm/strike2.wav");
 	PRECACHE_SOUND("weapons/melee/zarm/strike3.wav");
-	PRECACHE_SOUND("weapons/melee/miss1.wav");
-	PRECACHE_SOUND("weapons/melee/miss2.wav");
+	PRECACHE_SOUND("weapons/melee/zarm/miss1.wav");
+	PRECACHE_SOUND("weapons/melee/zarm/miss2.wav");
 
 	m_nEventPrimary = PRECACHE_EVENT(1, "events/swipe.sc");
 }
@@ -128,7 +128,17 @@ int CWeaponMeleeSwipe::Swing(int fFirst)
 			// miss
 			m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + 0.5;
 			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + PrimaryFireRate() + 1.0f;
-
+#ifndef CLIENT_DLL
+			switch (RANDOM_LONG(0, 1))
+			{
+			case 0:
+				EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/melee/zarm/miss1.wav", 1, ATTN_NORM);
+				break;
+			case 1:
+				EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/melee/zarm/miss2.wav", 1, ATTN_NORM);
+				break;
+			}
+#endif
 			// player "shoot" animation
 			m_pPlayer->SetAnimation(PLAYER_ATTACK1);
 		}

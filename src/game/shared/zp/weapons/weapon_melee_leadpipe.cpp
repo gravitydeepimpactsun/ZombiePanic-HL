@@ -35,8 +35,8 @@ void CWeaponMeleeLeadPipe::Precache(void)
 	PRECACHE_SOUND("weapons/melee/leadpipe/hitbod1_heavy.wav");
 	PRECACHE_SOUND("weapons/melee/leadpipe/hitbod2_heavy.wav");
 	PRECACHE_SOUND("weapons/melee/leadpipe/hitbod3_heavy.wav");
-	PRECACHE_SOUND("weapons/melee/miss1.wav");
-	PRECACHE_SOUND("weapons/melee/miss2.wav");
+	PRECACHE_SOUND("weapons/melee/leadpipe/miss1.wav");
+	PRECACHE_SOUND("weapons/melee/leadpipe/miss2.wav");
 
 	m_nEventPrimary = PRECACHE_EVENT(1, "events/leadpipe.sc");
 }
@@ -144,7 +144,17 @@ int CWeaponMeleeLeadPipe::Swing(int fFirst)
 			// miss
 			m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + 0.8;
 			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.8;
-
+#ifndef CLIENT_DLL
+			switch (RANDOM_LONG(0, 1))
+			{
+			case 0:
+				EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/melee/leadpipe/miss1.wav", 1, ATTN_NORM);
+				break;
+			case 1:
+				EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/melee/leadpipe/miss2.wav", 1, ATTN_NORM);
+				break;
+			}
+#endif
 			// player "shoot" animation
 			m_pPlayer->SetAnimation(PLAYER_ATTACK1);
 		}

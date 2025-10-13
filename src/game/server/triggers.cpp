@@ -33,6 +33,11 @@
 #include "core.h"
 #endif
 
+// for std::vector random_shuffle
+#include <iterator>
+#include <random>
+#include <algorithm>
+
 #define SF_TRIGGER_PUSH_START_OFF       2 //spawnflag that makes trigger_push spawn turned OFF
 #define SF_TRIGGER_HURT_TARGETONCE      1 // Only fire hurt target once
 #define SF_TRIGGER_HURT_START_OFF       2 //spawnflag that makes trigger_push spawn turned OFF
@@ -2030,9 +2035,27 @@ void CBaseTrigger ::TeleportTouch(CBaseEntity *pOther)
 		}
 	}
 
-	pentTarget = FIND_ENTITY_BY_TARGETNAME(pentTarget, STRING(pev->target));
-	if (FNullEnt(pentTarget))
-		return;
+	// We may have more than 1 target with the same name, find them all, and randomize which once we get.
+	std::vector<edict_t *> m_RandomList;
+	edict_t *pFind = FIND_ENTITY_BY_TARGETNAME( nullptr, STRING(pev->target) );
+	while ( !FNullEnt( pFind ) )
+	{
+		m_RandomList.push_back( pFind );
+		pFind = FIND_ENTITY_BY_TARGETNAME( pFind, STRING(pev->target) );
+	}
+
+	if ( m_RandomList.size() == 0 ) return;
+
+	// If we have a list, let's randomize the order.
+	std::random_device rd;
+	std::mt19937 g( rd() );
+	std::shuffle( m_RandomList.begin(), m_RandomList.end(), g );
+
+	// This is now our target.
+	pentTarget = m_RandomList[ RandomInt( 0, m_RandomList.size() - 1 ) ];
+
+	// Clear memory
+	m_RandomList.clear();
 
 	Vector tmp = VARS(pentTarget)->origin;
 

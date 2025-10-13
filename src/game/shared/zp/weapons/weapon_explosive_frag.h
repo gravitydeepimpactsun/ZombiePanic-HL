@@ -13,6 +13,7 @@ class CWeaponExplosiveFrag : public CWeaponBase
 
 public:
 	bool IsThrowable() override { return true; }
+	void DeactivateThrow() override;
 	ZPWeaponID GetWeaponID() override { return WEAPON_HANDGRENADE; }
 	int AddToPlayer( CBasePlayer *pPlayer );
 	int AddDuplicate( CBasePlayerItem *pOriginal );

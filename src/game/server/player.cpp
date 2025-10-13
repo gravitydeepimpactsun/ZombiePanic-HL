@@ -2607,7 +2607,20 @@ void CBasePlayer::SelectWeapon( CBasePlayerWeapon *pWeapon )
 	if ( pBaseWeapon )
 	{
 		// If throwable and active, get rid of it.
-		IsThrowableAndActive( pBaseWeapon, false );
+		ThrowableDropState throwablestate = IsThrowableAndActive( pBaseWeapon, false );
+		if ( throwablestate == DELETE_ITEM_AND_ACTIVE )
+		{
+			// Remove from the player
+			WeaponSlotSet( pBaseWeapon, false );
+			RemovePlayerItem( pBaseWeapon );
+			UTIL_Remove( pBaseWeapon );
+
+			m_pLastItem = nullptr;
+			SelectNewActiveWeapon( pWeapon );
+			return;
+		}
+		if ( pBaseWeapon->IsThrowable() )
+			pBaseWeapon->DeactivateThrow();
 		pBaseWeapon->BeginHolster( pWeapon );
 		m_flLastWeaponDrop = gpGlobals->time + pBaseWeapon->GetHolsterTime() + 0.5f;
 	}

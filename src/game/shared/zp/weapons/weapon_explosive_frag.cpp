@@ -33,7 +33,13 @@ void CWeaponExplosiveFrag::Spawn()
 	FallInit(); // get ready to fall down.
 }
 
-int CWeaponExplosiveFrag::AddToPlayer( CBasePlayer *pPlayer )
+void CWeaponExplosiveFrag::DeactivateThrow()
+{
+	m_flReleaseThrow = -1;
+	m_flStartThrow = 0;
+}
+
+int CWeaponExplosiveFrag::AddToPlayer(CBasePlayer *pPlayer)
 {
 	if ( BaseClass::AddToPlayer( pPlayer ) )
 	{

@@ -6194,14 +6194,7 @@ CBasePlayer::ThrowableDropState CBasePlayer::IsThrowableAndActive( CBasePlayerWe
 			return ThrowableDropState::IS_ACTIVE;
 		}
 		else
-		{
-			// If not active, make sure we decrement it
-			// if we are droping it
-			if ( bOnDrop )
-				pWeapon->m_iClip--;
-			if ( pWeapon->m_iClip == 0 ) return CBasePlayer::ThrowableDropState::DELETE_ITEM;
 			return ThrowableDropState::NOT_ACTIVE_THROWABLE;
-		}
 	}
 	return ThrowableDropState::NOT_ACTIVE;
 }

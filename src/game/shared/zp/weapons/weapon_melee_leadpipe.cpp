@@ -377,10 +377,10 @@ void CWeaponMeleeLeadPipe::DoHeavyAttack()
 		switch (RANDOM_LONG(0, 1))
 		{
 		case 0:
-			EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/melee/miss1.wav", 1, ATTN_NORM, 0, 75 + RANDOM_LONG(0, 3));
+			EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/melee/leadpipe/miss1.wav", 1, ATTN_NORM);
 			break;
 		case 1:
-			EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/melee/miss2.wav", 1, ATTN_NORM, 0, 75 + RANDOM_LONG(0, 3));
+			EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/melee/leadpipe/miss2.wav", 1, ATTN_NORM);
 			break;
 		}
 #endif

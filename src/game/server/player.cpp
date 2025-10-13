@@ -2609,6 +2609,7 @@ void CBasePlayer::SelectWeapon( CBasePlayerWeapon *pWeapon )
 		// If throwable and active, get rid of it.
 		IsThrowableAndActive( pBaseWeapon, false );
 		pBaseWeapon->BeginHolster( pWeapon );
+		m_flLastWeaponDrop = gpGlobals->time + pBaseWeapon->GetHolsterTime() + 0.5f;
 	}
 
 	m_pLastItem = m_pActiveItem;
@@ -2622,6 +2623,7 @@ void CBasePlayer::SelectNewActiveWeapon( CBasePlayerWeapon *pWeapon )
 		EMIT_SOUND(ENT(pev), CHAN_ITEM, "common/wpn_select.wav", 1, ATTN_NORM);
 		m_pActiveItem->Deploy();
 		m_pActiveItem->UpdateItemInfo();
+		m_flLastWeaponDrop = gpGlobals->time + 0.5f;
 	}
 }
 
@@ -5518,10 +5520,11 @@ void CBasePlayer ::UpdateClientData(void)
 	SendAmmoUpdate(pPlayer);
 
 	// Update all the items
-	for (int i = 0; i < MAX_ITEM_TYPES; i++)
+	for (int i = 0; i < MAX_WEAPON_SLOTS; i++)
 	{
-		if (m_rgpPlayerItems[i]) // each item updates it's successors
-			m_rgpPlayerItems[i]->UpdateClientData(this);
+		CBasePlayerWeapon *pWeapon = GetWeaponFromSlot( i );
+		if ( !pWeapon ) continue;
+		pWeapon->UpdateClientData( this );
 	}
 
 	if (m_pClientActiveItem != pPlayer->m_pActiveItem)
@@ -6186,8 +6189,8 @@ CBasePlayer::ThrowableDropState CBasePlayer::IsThrowableAndActive( CBasePlayerWe
 			CGrenade::ShootTimed( pev, vecSrc, vecThrow, time );
 
 			// Decrement
-			m_rgAmmo[pWeapon->m_iPrimaryAmmoType]--;
-			if ( m_rgAmmo[pWeapon->m_iPrimaryAmmoType] == 0 ) return ThrowableDropState::DELETE_ITEM_AND_ACTIVE;
+			pWeapon->m_iClip--;
+			if ( pWeapon->m_iClip == 0 ) return ThrowableDropState::DELETE_ITEM_AND_ACTIVE;
 			return ThrowableDropState::IS_ACTIVE;
 		}
 		else
@@ -6195,8 +6198,8 @@ CBasePlayer::ThrowableDropState CBasePlayer::IsThrowableAndActive( CBasePlayerWe
 			// If not active, make sure we decrement it
 			// if we are droping it
 			if ( bOnDrop )
-				m_rgAmmo[pWeapon->m_iPrimaryAmmoType]--;
-			if ( m_rgAmmo[pWeapon->m_iPrimaryAmmoType] == 0 ) return CBasePlayer::ThrowableDropState::DELETE_ITEM;
+				pWeapon->m_iClip--;
+			if ( pWeapon->m_iClip == 0 ) return CBasePlayer::ThrowableDropState::DELETE_ITEM;
 			return ThrowableDropState::NOT_ACTIVE_THROWABLE;
 		}
 	}
@@ -6243,6 +6246,9 @@ void CBasePlayer::AddToAssistDamage(CBasePlayer *pPlayer, float flDamage)
 
 bool CBasePlayer::DropAmmo( int ammoindex, int amount, Vector Dir, bool pukevel )
 {
+	// AMMO_GRENADE and higher, we don't allow any kind of ammo to be dropped.
+	if ( ammoindex >= ZPAmmoTypes::AMMO_GRENADE ) return false;
+
 	CBasePlayerAmmo *pAmmoItem = (CBasePlayerAmmo *)CBaseEntity::Create((char *)szAmmoToDropClassnames(ammoindex), Dir, pev->angles, nullptr);
 	if ( !pAmmoItem ) return false;
 
@@ -6354,6 +6360,7 @@ void CBasePlayer::DoPanic()
 		UTIL_SayText( "#ZP_Deny_Panic_WeaponSwitch", this );
 		return;
 	}
+	if ( !CanDropWeapon( true ) ) return;
 	if ( !CanPanicSinceLastTime() )
 	{
 		UTIL_SayText( "#ZP_Deny_Panic", this );

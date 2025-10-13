@@ -1089,9 +1089,6 @@ void CBasePlayerAmmo::Materialize(void)
 #if !defined(CLIENT_DLL)
 void CBasePlayerAmmo::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value)
 {
-	// Invisible? Ignore.
-	if ( pev->effects == EF_NODRAW ) return;
-
 	if ( m_flDisallowPickup != -1 && m_flDisallowPickup - gpGlobals->time > 0 ) return;
 
 	// Make sure we have a player
@@ -1102,13 +1099,18 @@ void CBasePlayerAmmo::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYP
 	// Give the ammo to the player
 	if ( GiveAmmoToPlayer( pPlayer ) )
 	{
+		m_flDisallowPickup = gpGlobals->time + 1.0f;
 		if ( SpawnedTroughRandomEntity() )
 		{
 			SetThink(&CBasePlayerAmmo::SUB_Remove);
 			pev->nextthink = gpGlobals->time + .1;
 		}
 		else
+		{
 			SoftRemove();
+			// Move it WAY down the map.
+			UTIL_SetOrigin( pev, pev->origin + Vector(0,0, -90000) );
+		}
 	}
 }
 #endif
@@ -1145,8 +1147,9 @@ void CBasePlayerAmmo ::DefaultTouch(CBaseEntity *pOther)
 #endif
 }
 
-bool CBasePlayerAmmo::GiveAmmoToPlayer(CBaseEntity *pOther)
+bool CBasePlayerAmmo::GiveAmmoToPlayer( CBaseEntity *pOther )
 {
+	if ( m_iAmountLeft <= 0 ) return false;
 #if !defined( CLIENT_DLL )
 	CBasePlayer *pPlayer = (CBasePlayer *)pOther;
 	int iGiveAmmo = pPlayer->PickupAmmo( AmmoToGive(), GetAmmoByAmmoID( m_AmmoType ) );

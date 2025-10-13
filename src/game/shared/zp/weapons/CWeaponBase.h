@@ -55,6 +55,7 @@ public:
 	virtual void Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
 
 	bool IsHolstering( void ) const { return m_bIsHolstering; }
+	float GetHolsterTime( void ) const { return m_flHolsterTime; }
 
 protected:
 	bool CanAttack( float attack_time, float curtime, bool isPredicted );

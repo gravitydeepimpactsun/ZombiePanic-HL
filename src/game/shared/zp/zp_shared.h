@@ -66,7 +66,7 @@ enum ZPAmmoTypes
 	AMMO_SHOTGUN,
 	AMMO_RIFLE,
 	AMMO_LONGRIFLE,
-	AMMO_GRENADE,
+	AMMO_GRENADE, // Everything after this, we don't allow for dropping ammo
 	AMMO_SATCHEL,
 
 	AMMO_MAX

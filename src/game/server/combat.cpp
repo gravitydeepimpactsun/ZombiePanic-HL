@@ -1573,6 +1573,9 @@ Vector CBaseEntity::FireBulletsPlayer(ULONG cShots, Vector vecSrc, Vector vecDir
 
 void CBaseEntity::SoftRemove()
 {
+	SetUse(NULL);
+	SetThink(NULL);
+	SetTouch(NULL);
 	pev->takedamage = DAMAGE_NO;
 	pev->deadflag = DEAD_DEAD;
 	pev->effects = EF_NODRAW;

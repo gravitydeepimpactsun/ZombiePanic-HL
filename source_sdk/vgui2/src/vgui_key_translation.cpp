@@ -4,7 +4,7 @@
 //
 //===========================================================================//
 
-#if defined( _WIN32 ) && !defined( _X360 )
+#if defined( WIN32 ) && !defined( _X360 )
 #undef ARRAYSIZE
 #include <wtypes.h>
 #include <winuser.h>

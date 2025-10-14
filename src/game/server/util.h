@@ -163,7 +163,10 @@ inline edict_t *INDEXENT(int iEdictNum)
 {
 	return (*g_engfuncs.pfnPEntityOfEntIndex)(iEdictNum);
 }
-void MESSAGE_BEGIN(int msg_dest, int msg_type, const float *pOrigin, entvars_t *ent);
+inline void MESSAGE_BEGIN(int msg_dest, int msg_type, const float *pOrigin, entvars_t *ent)
+{
+	(*g_engfuncs.pfnMessageBegin)(msg_dest, msg_type, pOrigin, ENT(ent));
+}
 
 // Testing the three types of "entity" for nullity
 #define eoNullEntity 0

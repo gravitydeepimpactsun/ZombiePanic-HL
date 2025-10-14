@@ -71,8 +71,8 @@ include( CTest )
 #-----------------------------------------------------------------
 # Build options
 #-----------------------------------------------------------------
-option( AUTO_DEPLOY		"Whether to automatically deploy to deploy paths" )
-option( USE_UPDATER		"Enable update checked and downloader" )
+option( AUTO_DEPLOY				"Whether to automatically deploy to deploy paths" )
+option( USE_UPDATER				"Enable update checked and downloader" )
 option( USE_PARANOIA_RENDER		"Enable paranoia render" )
 
 #-----------------------------------------------------------------
@@ -83,7 +83,7 @@ if( NOT CMAKE_SIZEOF_VOID_P EQUAL 4 )
 		message( WARNING "You are not building for 32 bit systems. This is not supported." )
 	else()
 		set( PLAT_ERROR "" )
-		
+
 		if( CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU" )
 			set( PLAT_ERROR "Did you forget CMAKE_TOOLCHAIN_FILE?" )
 		elseif( CMAKE_CXX_COMPILER_ID MATCHES "MSVC" )
@@ -91,7 +91,7 @@ if( NOT CMAKE_SIZEOF_VOID_P EQUAL 4 )
 		else()
 			set( PLAT_ERROR "Check your compiler options." )
 		endif()
-		
+
 		message( FATAL_ERROR "You are not building for 32 bit systems. ${PLAT_ERROR}" )
 	endif()
 endif()
@@ -99,7 +99,6 @@ endif()
 #-----------------------------------------------------------------
 # Compiler and linker settings
 #-----------------------------------------------------------------
-# C++14 support
 set( CMAKE_CXX_STANDARD 17 )
 set( CMAKE_CXX_STANDARD_REQUIRED ON )
 set( CMAKE_CXX_EXTENSIONS OFF )
@@ -190,13 +189,6 @@ elseif( COMPILER_MSVC )
 	# Target Windows 7
 	add_compile_definitions( _WIN32_WINNT=0x0601 )
 	add_compile_definitions( WINVER=0x0601 )
-
-	# We have to add this define for Windows builds since some defines uses this instead of _WIN32...
-	add_compile_definitions( WIN32 )
-
-	# Debug data
-	add_compile_options("$<$<CONFIG:Debug>:/Zi>")
-	add_link_options("$<$<CONFIG:Debug>:/DEBUG>")
 endif()
 
 set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${C_CXX_COMPILER_FLAGS}" )
@@ -461,7 +453,7 @@ if( USE_UPDATER )
 		# The bundled curl statically links with the bundled GnuTLS
 		set( CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH};${PLAT_EXTERNAL_PATH}/gnutls" )
 		find_package( GnuTLS REQUIRED )
-		
+
 		set( UPDATER_LIBS
 			${UPDATER_LIBS}
 			$<LINK_GROUP:RESCAN,

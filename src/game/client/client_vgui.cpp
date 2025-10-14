@@ -102,6 +102,7 @@ void CClientVGUI::Shutdown()
 
 void CClientVGUI::GetProportionalBase(int &wide, int &tall)
 {
+	// Pre-HL25 values
 	wide = 640;
 	tall = 480;
 }

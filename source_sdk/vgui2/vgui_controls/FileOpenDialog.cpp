@@ -8,7 +8,7 @@
 
 #define PROTECTED_THINGS_DISABLE
 
-#if !defined( _X360 ) && defined( _WIN32 )
+#if !defined( _X360 ) && defined( WIN32 )
 #include "winlite.h"
 #include <shellapi.h>
 #elif defined( POSIX )
@@ -727,7 +727,7 @@ void FileOpenDialog::PopulateDriveList()
 
 	m_pFullPathEdit->DeleteAllItems();
 
-#ifdef _WIN32
+#ifdef WIN32
 	// populate the drive list
 	char buf[512];
 	int len = system()->GetAvailableDrives(buf, 512);
@@ -860,7 +860,7 @@ void FileOpenDialog::OnOpenInExplorer()
 {
 	char pCurrentDirectory[MAX_PATH];
 	GetCurrentDirectory( pCurrentDirectory, sizeof(pCurrentDirectory) );
-#if !defined( _X360 ) && defined( _WIN32 )
+#if !defined( _X360 ) && defined( WIN32 )
 	ShellExecute( NULL, NULL, pCurrentDirectory, NULL, NULL, SW_SHOWNORMAL );
 #elif defined( OSX )
 	char szCmd[ MAX_PATH * 2];
@@ -1079,7 +1079,7 @@ void FileOpenDialog::ValidatePath()
 	m_pFullPathEdit->GetTooltip()->SetText(m_szLastPath);
 }
 
-#ifdef _WIN32	
+#ifdef WIN32	
 const char *GetAttributesAsString( DWORD dwAttributes )
 {
 	static char out[ 256 ];

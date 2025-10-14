@@ -375,7 +375,7 @@ struct cl_enginefunc_t
 	*	@param pszPicName Name of the sprite to load. Must include the sprites directory name and the extension.
 	*	@return Handle to the sprite.
 	*/
-	V_HSPRITE (*pfnSPR_Load) (const char *szPicName);
+	HSPRITE (*pfnSPR_Load) (const char *szPicName);
 
 	// clang-format on
 
@@ -384,7 +384,7 @@ struct cl_enginefunc_t
 	*	@param hPic Handle to the sprite.
 	*	@return Frame count.
 	*/
-	int (*pfnSPR_Frames)(V_HSPRITE hPic);
+	int (*pfnSPR_Frames)(HSPRITE hPic);
 
 	/**
 	*	Gets the height of a given sprite frame.
@@ -392,7 +392,7 @@ struct cl_enginefunc_t
 	*	@param frame Frame number.
 	*	@return Height in pixels.
 	*/
-	int (*pfnSPR_Height)(V_HSPRITE hPic, int frame);
+	int (*pfnSPR_Height)(HSPRITE hPic, int frame);
 
 	/**
 	*	Gets the width of a given sprite frame.
@@ -400,7 +400,7 @@ struct cl_enginefunc_t
 	*	@param frame Frame number.
 	*	@return Width in pixels.
 	*/
-	int (*pfnSPR_Width)(V_HSPRITE hPic, int frame);
+	int (*pfnSPR_Width)(HSPRITE hPic, int frame);
 
 	/**
 	*	Sets the sprite to draw, and its color.
@@ -409,7 +409,7 @@ struct cl_enginefunc_t
 	*	@param g Green color. [ 0, 255 ].
 	*	@param b Blue color. [ 0, 255 ].
 	*/
-	void (*pfnSPR_Set)(V_HSPRITE hPic, int r, int g, int b);
+	void (*pfnSPR_Set)(HSPRITE hPic, int r, int g, int b);
 
 	/**
 	*	Draws the current sprite as solid.
@@ -493,7 +493,7 @@ struct cl_enginefunc_t
 	*	@param g Green color. [ 0, 255 ].
 	*	@param b Blue color. [ 0, 255 ].
 	*/
-	void (*pfnSetCrosshair)(V_HSPRITE hspr, wrect_t rc, int r, int g, int b);
+	void (*pfnSetCrosshair)(HSPRITE hspr, wrect_t rc, int r, int g, int b);
 
 	/**
 	*	Registers a new cvar. Avoid calling with the same name more than once.
@@ -846,10 +846,10 @@ struct cl_enginefunc_t
 
 	/**
 	*	Gets the model that is represented by the given sprite handle.
-	*	@param V_HSPRITE Handle to the sprite.
+	*	@param hSprite Handle to the sprite.
 	*	@return Pointer to the model, or null if the handle is invalid.
 	*/
-	const struct model_s *(*GetSpritePointer)(V_HSPRITE V_HSPRITE);
+	const struct model_s *(*GetSpritePointer)(HSPRITE hSprite);
 
 	/**
 	*	Plays a sound by name at a given location.

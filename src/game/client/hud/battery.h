@@ -11,8 +11,8 @@ public:
 	int MsgFunc_Battery(const char *pszName, int iSize, void *pbuf);
 
 private:
-	V_HSPRITE m_hSprite1;
-	V_HSPRITE m_hSprite2;
+	HSPRITE m_hSprite1;
+	HSPRITE m_hSprite2;
 	wrect_t m_rc1;
 	wrect_t m_rc2;
 	int m_iBat;

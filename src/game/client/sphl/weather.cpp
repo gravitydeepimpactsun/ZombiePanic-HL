@@ -519,7 +519,7 @@ void Weather::Draw()
 	if ( !cl_weather_quality.GetBool() ) return;
 	if ( WeatherData.weatherMode == WEATHER_NONE ) return;
 
-	V_HSPRITE hsprTexture;
+	HSPRITE hsprTexture;
 	const model_s *pTexture;
 	float visibleHeight = WeatherData.globalHeight - SNOWFADEDIST;
 
@@ -694,7 +694,7 @@ void Weather::DrawFXObjects()
 		cl_rainfx* nextFX = curFX->p_Next;
 
 		// usual triapi stuff
-		V_HSPRITE hsprTexture;
+		HSPRITE hsprTexture;
 		const model_s *pTexture;
 		if ( curFX->inWater )
 			hsprTexture = LoadSprite( RANDOM_LONG(0, 1) == 1 ? "sprites/effects/rain_splash_01.spr" : "sprites/effects/rain_splash_02.spr" );

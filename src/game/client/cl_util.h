@@ -100,8 +100,8 @@ inline struct cvar_s *CVAR_CREATE(const char *cv, const char *val, const int fla
 int EngineFilteredClientCmd(const char *const pszCmdString);
 
 // Gets the height & width of a sprite,  at the specified frame
-inline int SPR_Height(V_HSPRITE x, int f) { return gEngfuncs.pfnSPR_Height(x, f); }
-inline int SPR_Width(V_HSPRITE x, int f) { return gEngfuncs.pfnSPR_Width(x, f); }
+inline int SPR_Height(HSPRITE x, int f) { return gEngfuncs.pfnSPR_Height(x, f); }
+inline int SPR_Width(HSPRITE x, int f) { return gEngfuncs.pfnSPR_Width(x, f); }
 
 inline client_textmessage_t *TextMessageGet(const char *pName) { return gEngfuncs.pfnTextMessageGet(pName); }
 inline int TextMessageDrawChar(int x, int y, int number, int r, int g, int b)
@@ -151,7 +151,7 @@ inline void UnpackRGB(int &r, int &g, int &b, unsigned long ulRGB)
 	b = ulRGB & 0xFF;
 }
 
-V_HSPRITE LoadSprite(const char *pszName);
+HSPRITE LoadSprite(const char *pszName);
 
 /**
  * Parses a string in format "RRR GGG BBB" where each component is integer [0; 255].

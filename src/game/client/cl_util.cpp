@@ -98,7 +98,7 @@ void ConsolePrint(const char *string)
 		gEngfuncs.pfnConsolePrint(RemoveColorCodes(string));
 }
 
-V_HSPRITE LoadSprite(const char *pszName)
+HSPRITE LoadSprite(const char *pszName)
 {
 	char sz[256];
 	sprintf(sz, pszName, gHUD.m_iRes);

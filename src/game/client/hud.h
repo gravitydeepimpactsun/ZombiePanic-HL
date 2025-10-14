@@ -187,7 +187,7 @@ public:
 	//-----------------------------------------------------
 	// Sprite functions
 	//-----------------------------------------------------
-	V_HSPRITE GetSprite(int index);
+	HSPRITE GetSprite(int index);
 	const wrect_t &GetSpriteRect(int index); // Don't keep the reference! It may become invalid.
 	int GetSpriteIndex(const char *SpriteName); // gets a sprite index, for use in the m_rghSprites[] array
 	void AddSprite(const client_sprite_t &p);
@@ -303,7 +303,7 @@ public:
 
 	struct RegisteredIcon
 	{
-		V_HSPRITE Icon = -1;
+		HSPRITE Icon = -1;
 		std::string Name = "";
 		std::string Texture = "";
 		int Wide = 0;
@@ -326,7 +326,7 @@ private:
 		char name[MAX_SPRITE_NAME_LENGTH];
 	};
 
-	V_HSPRITE m_hsprLogo;
+	HSPRITE m_hsprLogo;
 	int m_iLogo;
 	client_sprite_t *m_pSpriteList;
 	int m_iSpriteCount = 0;
@@ -343,7 +343,7 @@ private:
 
 	// the memory for these arrays are allocated in the first call
 	// to CHud::VidInit(), when the hud.txt and associated sprites are loaded.
-	std::vector<V_HSPRITE> m_rghSprites; /*[HUD_SPRITE_COUNT]*/ // the sprites loaded from hud.txt
+	std::vector<HSPRITE> m_rghSprites; /*[HUD_SPRITE_COUNT]*/ // the sprites loaded from hud.txt
 	std::vector<wrect_t> m_rgrcRects; /*[HUD_SPRITE_COUNT]*/
 	std::vector<SpriteName> m_rgszSpriteNames; /*[HUD_SPRITE_COUNT].name*/
 	std::vector<std::string> m_rgSpritePaths;
@@ -377,7 +377,7 @@ private:
 	}
 };
 
-inline V_HSPRITE CHud::GetSprite(int index)
+inline HSPRITE CHud::GetSprite(int index)
 {
 	return (index < 0) ? 0 : m_rghSprites[index];
 }

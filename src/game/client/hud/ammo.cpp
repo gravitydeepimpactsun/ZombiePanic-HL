@@ -140,7 +140,7 @@ void WeaponsResource::LoadWeaponSprites(WEAPON *pWeapon)
 
 int giBucketHeight, giBucketWidth, giABHeight, giABWidth; // Ammo Bar width and height
 
-V_HSPRITE ghsprBuckets; // Sprite for top row of weapons menu
+HSPRITE ghsprBuckets; // Sprite for top row of weapons menu
 
 // width of ammo fonts
 #define AMMO_SMALL_WIDTH 10

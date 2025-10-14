@@ -1,8 +1,13 @@
 #include "hud.h"
 #include "mathlib/vector.h"
 #include "fog.h"
-#if WIN32
-	#include "windows.h"
+#ifdef WIN32
+	#include "winsani_in.h"
+	#define WIN32_LEAN_AND_MEAN
+	#define WIN32_EXTRA_LEAN
+	#include <windows.h>
+	#include "winsani_out.h"
+
 	#include "gl/gl.h"
 #endif
 #include "triangleapi.h"

@@ -13,9 +13,9 @@ public:
 	int MsgFunc_FlashBat(const char *pszName, int iSize, void *pbuf);
 
 private:
-	V_HSPRITE m_hSprite1;
-	V_HSPRITE m_hSprite2;
-	V_HSPRITE m_hBeam;
+	HSPRITE m_hSprite1;
+	HSPRITE m_hSprite2;
+	HSPRITE m_hBeam;
 	wrect_t m_rc1;
 	wrect_t m_rc2;
 	wrect_t m_rcBeam;

@@ -34,7 +34,7 @@ private:
 	float m_flSat = 100;
 	float m_flVal = 100;
 
-	V_HSPRITE m_hSprite = 0;
+	HSPRITE m_hSprite = 0;
 	int m_iSpriteColor[3] = { 0, 0, 0 };
 
 	decltype(gEngfuncs.pfnSPR_Set) m_pfnSPR_Set = nullptr;
@@ -44,7 +44,7 @@ private:
 	decltype(gEngfuncs.pfnDrawConsoleString) m_pfnDrawConsoleString = nullptr;
 	decltype(gEngfuncs.pfnFillRGBA) m_pfnFillRGBA = nullptr;
 
-	static void SPR_SetRainbow(V_HSPRITE hPic, int r, int g, int b);
+	static void SPR_SetRainbow(HSPRITE hPic, int r, int g, int b);
 	static void SPR_DrawAdditiveRainbow(int frame, int x, int y, const struct rect_s *prc);
 	static int DrawString(int x, int y, const char *str, int r, int g, int b);
 	static int DrawStringReverse(int x, int y, const char *str, int r, int g, int b);

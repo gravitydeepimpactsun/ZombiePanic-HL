@@ -1,7 +1,11 @@
 #ifndef __GLMANAGER_H
 #define __GLMANAGER_H
 
-#include "windows.h"
+#include "winsani_in.h"
+#define WIN32_LEAN_AND_MEAN
+#define WIN32_EXTRA_LEAN
+#include <windows.h>
+#include "winsani_out.h"
 #include "gl/gl.h"
 #include "SDL2/SDL_opengl.h"
 

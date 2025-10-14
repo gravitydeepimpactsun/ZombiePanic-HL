@@ -44,7 +44,7 @@ int HISTORY_DRAW_TIME = 5;
 struct ITEM_INFO
 {
 	char szName[MAX_ITEM_NAME];
-	V_HSPRITE spr;
+	HSPRITE spr;
 	wrect_t rect;
 };
 

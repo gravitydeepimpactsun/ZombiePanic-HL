@@ -33,7 +33,7 @@ void CHudRenderer::HookFuncs()
 	gEngfuncs.pfnSPR_DrawGeneric = nullptr;
 }
 
-void CHudRenderer::SpriteSet(V_HSPRITE hPic, int r, int g, int b)
+void CHudRenderer::SpriteSet(HSPRITE hPic, int r, int g, int b)
 {
 	s_Instance.m_hPic = hPic;
 	s_Instance.m_SpriteColor[0] = r;

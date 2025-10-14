@@ -2,28 +2,11 @@
 
 // For DNS stuff
 #if defined( _WIN32 )
-
-// Undefine these
-#ifdef ARRAYSIZE
-	#undef ARRAYSIZE
-#endif
-
-// Our include file
-#include "winsock.h"
-
-// Undefine these
-#ifdef PropertySheet
-	#undef PropertySheet
-#endif
-#ifdef MessageBox
-	#undef MessageBox
-#endif
-#ifdef PostMessage
-	#undef PostMessage
-#endif
-#ifdef SetPort
-	#undef SetPort
-#endif
+#include "winsani_in.h"
+#define WIN32_LEAN_AND_MEAN
+#define WIN32_EXTRA_LEAN
+#include <winsock.h>
+#include "winsani_out.h"
 #else
 // Our include file
 #include <netdb.h>		// gethostbyname()

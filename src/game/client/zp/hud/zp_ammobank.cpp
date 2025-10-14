@@ -113,8 +113,8 @@ void CHudAmmoBank::PaintBackground()
 	if ( !IsAllowedToDraw() ) return;
 	// hurrdidurr
 	DrawBox(
-		panelrect.x, panelrect.y,
-		panelrect.width, panelrect.height,
+		0, 0,
+	    GetWide(), GetTall(),
 		Color( 15, 15, 15, 160 ),
 		1.0f
 	);
@@ -128,8 +128,8 @@ void CHudAmmoBank::Paint()
 		return;
 	}
 
-	m_pBackground->SetSize( panelrect.width, panelrect.height );
-	m_pBackground->SetPos( panelrect.x, panelrect.y );
+	m_pBackground->SetSize( GetWide(), GetTall() );
+	m_pBackground->SetPos( 0, 0 );
 
 	const int TextBuffer = 8;
 
@@ -233,10 +233,16 @@ void CHudAmmoBank::Paint()
 		case 2560: xy[0] = m_pAmmoBank_up_x4; xy[1] = m_pAmmoBank_left_x4; break;
 	}
 
-	panelrect.x = GetWide() - (panelrect.width + xy[1]);
-	panelrect.y = GetTall() - (panelrect.height + xy[0]);
+	int panel_wide = panelrect.width + xy[1];
+	int panel_tall = panelrect.height + xy[0];
+
+	panelrect.x = ScreenWidth - panel_wide;
+	panelrect.y = ScreenHeight - panel_tall;
 
 	UpdateVisibility( m_bHasPanelRect );
+
+	SetSize( panelrect.width, panelrect.height );
+	SetPos( panelrect.x, panelrect.y );
 
 	// On next frame, we will draw it.
 	if ( !m_bHasPanelRect )

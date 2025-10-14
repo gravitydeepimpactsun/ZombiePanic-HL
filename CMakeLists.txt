@@ -189,6 +189,21 @@ elseif( COMPILER_MSVC )
 	# Target Windows 7
 	add_compile_definitions( _WIN32_WINNT=0x0601 )
 	add_compile_definitions( WINVER=0x0601 )
+
+	### !!!!!!!
+	## DO NOT REMOVE THIS!!
+	## On latest Windows 11 (and Visual Studio) this will NOT be applied automatically!!!!!
+	## It will fuck up debug mode, so DON'T even think about removing this!
+	### !!!!!!!
+
+	# We have to add this define for Windows builds since some defines uses this instead of _WIN32...
+	add_compile_definitions( WIN32 )
+
+	# Debug data
+	add_compile_options("$<$<CONFIG:Debug>:/Zi>")
+	add_link_options("$<$<CONFIG:Debug>:/DEBUG>")
+
+	### ^^ VERY IMPORTANT FOR DEBUG ^^
 endif()
 
 set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${C_CXX_COMPILER_FLAGS}" )

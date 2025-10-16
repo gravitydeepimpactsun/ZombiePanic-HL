@@ -29,6 +29,7 @@ public:
 	void BeginHolster( CBasePlayerWeapon *pWeapon );
 	virtual void DoHolsterAnimation() {}
 	void FinishHolster();
+	void StopHolstering();
 
 	// We don't use secondary attack in Zombie Panic! by default
 	virtual void SecondaryAttack( void ) {}

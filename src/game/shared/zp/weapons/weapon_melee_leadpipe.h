@@ -10,6 +10,7 @@ class CWeaponMeleeLeadPipe : public CWeaponBase
 	DECLARE_CLASS_SIMPLE( CWeaponMeleeLeadPipe, CWeaponBase );
 
 public:
+	bool IsMeleeWeapon() override { return true; }
 	ZPWeaponID GetWeaponID() override { return WEAPON_LEADPIPE; }
 	void Spawn( void );
 	void Precache( void );

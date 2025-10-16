@@ -65,6 +65,13 @@ void CWeaponBase::FinishHolster()
 	m_pNewWeapon = nullptr;
 }
 
+void CWeaponBase::StopHolstering()
+{
+	m_bIsHolstering = false;
+	m_flHolsterTime = -1;
+	m_pNewWeapon = nullptr;
+}
+
 /// <summary>
 /// Modified ItemPostFrame from CBasePlayerWeapon.
 /// Because having 2 cpp files for the same class is stupid.

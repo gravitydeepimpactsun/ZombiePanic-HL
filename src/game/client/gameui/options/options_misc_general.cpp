@@ -18,6 +18,7 @@ CMiscSubOptions::CMiscSubOptions(vgui2::Panel *parent)
 
 	m_pZMVision = new CCvarCheckButton(this, "ZMVision", "#ZP_AdvOptions_General_KeepZMVision", "cl_keepzombovision");
 	m_pAutoWeaponSwitch = new CCvarCheckButton(this, "AutoSwitch", "#ZP_AdvOptions_General_AutoSwitch", "cl_autopickup");
+	m_pPanicToMelee = new CCvarCheckButton(this, "PanicToMelee", "#ZP_AdvOptions_General_PanicToMelee", "cl_panictomelee");
 
 	LoadControlSettings(VGUI2_ROOT_DIR "resource/options/MiscSubOptions.res");
 }
@@ -26,10 +27,12 @@ void CMiscSubOptions::OnResetData()
 {
 	m_pZMVision->ResetData();
 	m_pAutoWeaponSwitch->ResetData();
+	m_pPanicToMelee->ResetData();
 }
 
 void CMiscSubOptions::OnApplyChanges()
 {
 	m_pZMVision->ApplyChanges();
 	m_pAutoWeaponSwitch->ApplyChanges();
+	m_pPanicToMelee->ApplyChanges();
 }

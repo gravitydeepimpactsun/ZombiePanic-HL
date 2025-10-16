@@ -10,6 +10,7 @@ class CWeaponMeleeSwipe : public CWeaponBase
 	DECLARE_CLASS_SIMPLE( CWeaponMeleeSwipe, CWeaponBase );
 
 public:
+	bool IsMeleeWeapon() override { return true; }
 	ZPWeaponID GetWeaponID() override { return WEAPON_SWIPE; }
 	void Spawn( void );
 	void Precache( void );

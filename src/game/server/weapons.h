@@ -252,6 +252,8 @@ public:
 	virtual bool IsThrowable() { return false; }
 	virtual void DeactivateThrow() { }
 
+	virtual bool IsMeleeWeapon() { return false; }
+
 	virtual int AddWeapon(void)
 	{
 #ifdef SERVER_DLL

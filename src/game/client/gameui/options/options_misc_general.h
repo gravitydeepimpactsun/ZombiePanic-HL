@@ -18,6 +18,7 @@ public:
 private:
 	CCvarCheckButton *m_pZMVision = nullptr;
 	CCvarCheckButton *m_pAutoWeaponSwitch = nullptr;
+	CCvarCheckButton *m_pPanicToMelee = nullptr;
 };
 
 #endif

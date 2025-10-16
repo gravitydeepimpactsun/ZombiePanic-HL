@@ -303,6 +303,7 @@ public:
 	void ChangeAmmoTypeToDrop();
 	void DropUnuseableAmmo();
 	void DoPanic();
+	void SwitchToMelee();
 	int AmmoIndexToDrop( int ammoindex = -1 );
 	int AmmoIndexToDropArray( int ammoindex );
 	int DefaultAmmoToDrop( int ammoindex );

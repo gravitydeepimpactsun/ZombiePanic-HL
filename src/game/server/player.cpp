@@ -6380,6 +6380,11 @@ void CBasePlayer::DoPanic()
 	}
 	*/
 
+	// If "Switch to melee on panic" is enabled, then we quickly switch weapons. We skip the holstering and all that.
+	char *szSwitchToMelee = g_engfuncs.pfnInfoKeyValue( g_engfuncs.pfnGetInfoKeyBuffer( edict() ), "panic_to_melee" );
+	if ( szSwitchToMelee && szSwitchToMelee[0] )
+		SwitchToMelee();
+
 	m_flLastPanic = gpGlobals->time + 30;
 	m_flPanicTime = gpGlobals->time + 3.5;
 
@@ -6399,6 +6404,32 @@ void CBasePlayer::DoPanic()
 	// Give our achievements
 	GiveAchievement( EAchievements::PANIC_ATTACK );
 	GiveAchievement( EAchievements::PANIC_100 );
+}
+
+void CBasePlayer::SwitchToMelee()
+{
+	// If we have an active weapon, make sure we kill it's thinking.
+	CWeaponBase *pActive = dynamic_cast<CWeaponBase *>(m_pActiveItem);
+	if ( pActive )
+	{
+		if ( pActive->IsHolstering() )
+			pActive->StopHolstering();
+	}
+
+	// Let's find a melee weapon!
+	bool bIsInHardcore = ( ZP::GetCurrentGameMode()->GetGameModeType() == ZP::GameModeType_e::GAMEMODE_HARDCORE );
+	int iMaxSlots = bIsInHardcore ? MAX_WEAPON_SLOTS_HARDCORE : MAX_WEAPON_SLOTS;
+	if ( bIsInHardcore && HasBackpack() )
+		iMaxSlots += BACKPACK_EXTRA_SLOTS;
+
+	for ( int i = 0; i < iMaxSlots; i++ )
+	{
+		CBasePlayerWeapon *pWeapon = GetWeaponFromSlot( i );
+		if ( !pWeapon ) continue;
+		if ( !pWeapon->IsMeleeWeapon() ) continue;
+		SelectNewActiveWeapon( pWeapon );
+		break;
+	}
 }
 
 //=========================================================

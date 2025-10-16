@@ -382,7 +382,7 @@ CGrenade *CGrenade::ShootContact(entvars_t *pevOwner, Vector vecStart, Vector ve
 	return pGrenade;
 }
 
-CGrenade *CGrenade::ShootTimed(entvars_t *pevOwner, Vector vecStart, Vector vecVelocity, float time)
+CGrenade *CGrenade::ShootTimed(entvars_t *pevOwner, Vector vecStart, Vector vecVelocity, float time, const char *szModel)
 {
 	CGrenade *pGrenade = GetClassPtr((CGrenade *)NULL);
 	pGrenade->Spawn();
@@ -415,7 +415,7 @@ CGrenade *CGrenade::ShootTimed(entvars_t *pevOwner, Vector vecStart, Vector vecV
 	pGrenade->pev->gravity = 0.5;
 	pGrenade->pev->friction = 0.8;
 
-	SET_MODEL(ENT(pGrenade->pev), "models/w_grenade.mdl");
+	SET_MODEL(ENT(pGrenade->pev), szModel);
 	pGrenade->pev->dmg = gSkillData.plrDmgHandGrenade;
 
 	return pGrenade;

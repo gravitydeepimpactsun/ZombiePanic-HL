@@ -41,7 +41,7 @@
 #include "zp/weapons/weapon_melee_swipe.h"
 #include "zp/weapons/weapon_melee_crowbar.h"
 #include "zp/weapons/weapon_melee_leadpipe.h"
-#include "zp/weapons/weapon_explosive_frag.h"
+#include "zp/weapons/weapon_explosive_tnt.h"
 #include "zp/weapons/weapon_explosive_satchel.h"
 
 extern globalvars_t *gpGlobals;
@@ -75,7 +75,7 @@ CWeaponSMGMP5 g_Mp5;
 CWeaponRifleM16 g_M16;
 CWeaponShotgunRemington g_Shotgun;
 CWeaponShotgunDoubleBarrel g_Dbarrel;
-CWeaponExplosiveFrag g_HandGren;
+CWeaponExplosiveTNT g_TNT;
 CWeaponExplosiveSatchel g_Satchel;
 
 /*
@@ -635,7 +635,7 @@ void HUD_InitClientWeapons(void)
 	HUD_PrepEntity(&g_M16, &player);
 	HUD_PrepEntity(&g_Shotgun, &player);
 	HUD_PrepEntity(&g_Dbarrel, &player);
-	HUD_PrepEntity(&g_HandGren, &player);
+	HUD_PrepEntity(&g_TNT, &player);
 	HUD_PrepEntity(&g_Satchel, &player);
 }
 
@@ -742,8 +742,8 @@ void HUD_WeaponsPostThink(local_state_s *from, local_state_s *to, usercmd_t *cmd
 		pWeapon = &g_Dbarrel;
 		break;
 
-	case WEAPON_HANDGRENADE:
-		pWeapon = &g_HandGren;
+	case WEAPON_TNT:
+		pWeapon = &g_TNT;
 		break;
 
 	case WEAPON_SATCHEL:

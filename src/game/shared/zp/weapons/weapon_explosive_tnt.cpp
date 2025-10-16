@@ -1,31 +1,17 @@
 // ============== Copyright (c) 2025 Monochrome Games ============== \\
 
-#include "weapon_explosive_frag.h"
+#include "weapon_explosive_tnt.h"
 #include "gamerules.h"
 
-enum
+LINK_ENTITY_TO_CLASS(weapon_handgrenade, CWeaponExplosiveTNT); // for backwards compatibility
+LINK_ENTITY_TO_CLASS(weapon_tnt, CWeaponExplosiveTNT);
+
+void CWeaponExplosiveTNT::Spawn()
 {
-	HANDGRENADE_IDLE = 0,
-	HANDGRENADE_FIDGET,
-	HANDGRENADE_PINPULL,
-	HANDGRENADE_THROW1, // toss
-	HANDGRENADE_THROW2, // medium
-	HANDGRENADE_THROW3, // hard
-	HANDGRENADE_HOLSTER,
-	HANDGRENADE_DRAW
-};
+	pev->classname = MAKE_STRING( "weapon_tnt" );
 
-
-LINK_ENTITY_TO_CLASS(weapon_handgrenade, CWeaponExplosiveFrag);
-
-void CWeaponExplosiveFrag::Spawn()
-{
 	Precache();
-	SET_MODEL(ENT(pev), "models/w_grenade.mdl");
-
-#ifndef CLIENT_DLL
-	pev->dmg = gSkillData.plrDmgHandGrenade;
-#endif
+	SET_MODEL(ENT(pev), "models/w_tnt.mdl");
 
 	WeaponData slot = GetWeaponSlotInfo( GetWeaponID() );
 	m_iDefaultAmmo = slot.DefaultAmmo;
@@ -33,13 +19,13 @@ void CWeaponExplosiveFrag::Spawn()
 	FallInit(); // get ready to fall down.
 }
 
-void CWeaponExplosiveFrag::DeactivateThrow()
+void CWeaponExplosiveTNT::DeactivateThrow()
 {
 	m_flReleaseThrow = -1;
 	m_flStartThrow = 0;
 }
 
-int CWeaponExplosiveFrag::AddToPlayer(CBasePlayer *pPlayer)
+int CWeaponExplosiveTNT::AddToPlayer(CBasePlayer *pPlayer)
 {
 	if ( BaseClass::AddToPlayer( pPlayer ) )
 	{
@@ -49,7 +35,7 @@ int CWeaponExplosiveFrag::AddToPlayer(CBasePlayer *pPlayer)
 	return FALSE;
 }
 
-int CWeaponExplosiveFrag::AddDuplicate( CBasePlayerItem *pOriginal )
+int CWeaponExplosiveTNT::AddDuplicate( CBasePlayerItem *pOriginal )
 {
 	CBasePlayerWeapon *pWeapon = dynamic_cast<CBasePlayerWeapon *>( pOriginal );
 	if ( pWeapon->m_iClip < pWeapon->iMaxClip() )
@@ -61,33 +47,34 @@ int CWeaponExplosiveFrag::AddDuplicate( CBasePlayerItem *pOriginal )
 	return FALSE;
 }
 
-void CWeaponExplosiveFrag::Precache(void)
+void CWeaponExplosiveTNT::Precache(void)
 {
-	PRECACHE_MODEL("models/w_grenade.mdl");
-	PRECACHE_MODEL("models/v_grenade.mdl");
-	PRECACHE_MODEL("models/p_grenade.mdl");
+	PRECACHE_MODEL("models/w_tnt.mdl");
+	PRECACHE_MODEL("models/w_tnt_thrown.mdl");
+	PRECACHE_MODEL("models/v_tnt.mdl");
+	PRECACHE_MODEL("models/p_tnt.mdl");
 	PRECACHE_SOUND("weapons/tnt/fuse.wav");
 }
 
-BOOL CWeaponExplosiveFrag::Deploy()
+BOOL CWeaponExplosiveTNT::Deploy()
 {
 	m_flReleaseThrow = -1;
-	return DefaultDeploy("models/v_grenade.mdl", "models/p_grenade.mdl", HANDGRENADE_DRAW, "crowbar");
+	return DefaultDeploy("models/v_tnt.mdl", "models/p_tnt.mdl", ANIM_THROW_EXPLOSIVES_DRAW, "crowbar");
 }
 
-BOOL CWeaponExplosiveFrag::CanHolster(void)
+BOOL CWeaponExplosiveTNT::CanHolster(void)
 {
-	// can only holster hand grenades when not primed!
+	// can only holster when not primed!
 	return (m_flStartThrow == 0);
 }
 
-void CWeaponExplosiveFrag::DoHolsterAnimation()
+void CWeaponExplosiveTNT::DoHolsterAnimation()
 {
-	SendWeaponAnim( HANDGRENADE_HOLSTER );
+	SendWeaponAnim( ANIM_THROW_EXPLOSIVES_HOLSTER );
 	m_flHolsterTime = gpGlobals->time + 0.4;
 }
 
-void CWeaponExplosiveFrag::PrimaryAttack()
+void CWeaponExplosiveTNT::PrimaryAttack()
 {
 	if (!m_flStartThrow && m_iClip > 0)
 	{
@@ -95,12 +82,12 @@ void CWeaponExplosiveFrag::PrimaryAttack()
 		m_flReleaseThrow = 0;
 
 		AddWeaponSound( "weapons/tnt/fuse.wav", 1, ATTN_NORM, 0.96f );
-		SendWeaponAnim(HANDGRENADE_PINPULL);
+		SendWeaponAnim(ANIM_THROW_EXPLOSIVES_PINPULL);
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.36f;
 	}
 }
 
-void CWeaponExplosiveFrag::WeaponIdle(void)
+void CWeaponExplosiveTNT::WeaponIdle(void)
 {
 	if (m_flReleaseThrow == 0 && m_flStartThrow)
 		m_flReleaseThrow = gpGlobals->time;
@@ -133,19 +120,19 @@ void CWeaponExplosiveFrag::WeaponIdle(void)
 		if (time < 0)
 			time = 0;
 
-		CGrenade::ShootTimed(m_pPlayer->pev, vecSrc, vecThrow, time);
+		CGrenade::ShootTimed(m_pPlayer->pev, vecSrc, vecThrow, time, "models/w_tnt_thrown.mdl");
 
 		if (flVel < 500)
 		{
-			SendWeaponAnim(HANDGRENADE_THROW1);
+			SendWeaponAnim(ANIM_THROW_EXPLOSIVES_THROW1);
 		}
 		else if (flVel < 1000)
 		{
-			SendWeaponAnim(HANDGRENADE_THROW2);
+			SendWeaponAnim(ANIM_THROW_EXPLOSIVES_THROW2);
 		}
 		else
 		{
-			SendWeaponAnim(HANDGRENADE_THROW3);
+			SendWeaponAnim(ANIM_THROW_EXPLOSIVES_THROW3);
 		}
 
 		// player "shoot" animation
@@ -179,7 +166,7 @@ void CWeaponExplosiveFrag::WeaponIdle(void)
 
 		if (m_iClip > 0)
 		{
-			SendWeaponAnim(HANDGRENADE_DRAW);
+			SendWeaponAnim(ANIM_THROW_EXPLOSIVES_DRAW);
 		}
 		else
 		{
@@ -198,12 +185,12 @@ void CWeaponExplosiveFrag::WeaponIdle(void)
 		float flRand = UTIL_SharedRandomFloat(m_pPlayer->random_seed, 0, 1);
 		if (flRand <= 0.75)
 		{
-			iAnim = HANDGRENADE_IDLE;
+			iAnim = ANIM_THROW_EXPLOSIVES_IDLE;
 			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15); // how long till we do this again.
 		}
 		else
 		{
-			iAnim = HANDGRENADE_FIDGET;
+			iAnim = ANIM_THROW_EXPLOSIVES_FIDGET;
 			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 75.0 / 30.0;
 		}
 

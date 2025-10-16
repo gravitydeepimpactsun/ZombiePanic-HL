@@ -7,14 +7,14 @@
 
 class CBasePlayerItem;
 
-class CWeaponExplosiveFrag : public CWeaponBase
+class CWeaponExplosiveTNT : public CWeaponBase
 {
-	DECLARE_CLASS_SIMPLE( CWeaponExplosiveFrag, CWeaponBase );
+	DECLARE_CLASS_SIMPLE( CWeaponExplosiveTNT, CWeaponBase );
 
 public:
 	bool IsThrowable() override { return true; }
 	void DeactivateThrow() override;
-	ZPWeaponID GetWeaponID() override { return WEAPON_HANDGRENADE; }
+	ZPWeaponID GetWeaponID() override { return WEAPON_TNT; }
 	int AddToPlayer( CBasePlayer *pPlayer );
 	int AddDuplicate( CBasePlayerItem *pOriginal );
 	void Spawn( void );

@@ -36,7 +36,7 @@ enum ZPWeaponID
 	WEAPON_MP5,		// Was cut from original
 	WEAPON_556AR,
 	WEAPON_SHOTGUN,
-	WEAPON_HANDGRENADE, // Change to WEAPON_TNT when we add a proper frag grenade?
+	WEAPON_TNT,
 	WEAPON_SATCHEL,
 
 	// New weapons

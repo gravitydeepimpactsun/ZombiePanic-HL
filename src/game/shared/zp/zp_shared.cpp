@@ -188,7 +188,7 @@ static WeaponInfo sWeaponInfoList[] = {
 	{ "mp5", WEAPON_MP5, false },
 	{ "556ar", WEAPON_556AR, false },
 	{ "shotgun", WEAPON_SHOTGUN, false },
-	{ "handgrenade", WEAPON_HANDGRENADE, false },
+	{ "tnt", WEAPON_TNT, false },
 	{ "satchel", WEAPON_SATCHEL, false },
 };
 
@@ -337,7 +337,7 @@ WeaponData CreateWeaponSlotData( ZPWeaponID WeaponID )
 		case WEAPON_MP5: szWeaponScriptFile = "weapon_mp5"; break;
 		case WEAPON_556AR: szWeaponScriptFile = "weapon_556ar"; break;
 		case WEAPON_SHOTGUN: szWeaponScriptFile = "weapon_shotgun"; break;
-		case WEAPON_HANDGRENADE: szWeaponScriptFile = "weapon_handgrenade"; break;
+		case WEAPON_TNT: szWeaponScriptFile = "weapon_tnt"; break;
 		case WEAPON_SATCHEL: szWeaponScriptFile = "weapon_satchel"; break;
 		case WEAPON_DOUBLEBARREL: szWeaponScriptFile = "weapon_doublebarrel"; break;
 		case WEAPON_PPK: szWeaponScriptFile = "weapon_ppk"; break;

@@ -6196,7 +6196,7 @@ CBasePlayer::ThrowableDropState CBasePlayer::IsThrowableAndActive( CBasePlayerWe
 			Vector vecThrow = gpGlobals->v_forward * flVel + pev->velocity;
 
 			// alway explode 3 seconds after the pin was pulled
-			float time = pWeapon->m_flStartThrow - gpGlobals->time + 3.0;
+			float time = pWeapon->m_flStartThrow - gpGlobals->time + 5.0;
 			if ( time < 0 ) time = 1.0;
 
 			CGrenade::ShootTimed( pev, vecSrc, vecThrow, time );

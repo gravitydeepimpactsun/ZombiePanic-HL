@@ -71,7 +71,7 @@ BOOL CWeaponExplosiveTNT::CanHolster(void)
 void CWeaponExplosiveTNT::DoHolsterAnimation()
 {
 	SendWeaponAnim( ANIM_THROW_EXPLOSIVES_HOLSTER );
-	m_flHolsterTime = gpGlobals->time + 0.4;
+	m_flHolsterTime = gpGlobals->time + GetAnimationTime( 8, 20 );
 }
 
 void CWeaponExplosiveTNT::PrimaryAttack()
@@ -83,7 +83,7 @@ void CWeaponExplosiveTNT::PrimaryAttack()
 
 		AddWeaponSound( "weapons/tnt/fuse.wav", 1, ATTN_NORM, 0.96f );
 		SendWeaponAnim(ANIM_THROW_EXPLOSIVES_PINPULL);
-		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.36f;
+		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime( 34, 25 );
 		m_bDoSecondaryAttack = false;
 	}
 }
@@ -97,7 +97,7 @@ void CWeaponExplosiveTNT::SecondaryAttack()
 
 		AddWeaponSound( "weapons/tnt/fuse.wav", 1, ATTN_NORM, 0.96f );
 		SendWeaponAnim( ANIM_THROW_EXPLOSIVES_PINPULL2 );
-		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.36f;
+		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime( 35, 25 );
 		m_bDoSecondaryAttack = true;
 	}
 }
@@ -139,10 +139,11 @@ void CWeaponExplosiveTNT::WeaponIdle(void)
 		// player "shoot" animation
 		m_pPlayer->SetAnimation(PLAYER_ATTACK1);
 
+		float flTime = m_bDoSecondaryAttack ? GetAnimationTime( 13, 10 ) : GetAnimationTime( 6, 10 );
 		m_flReleaseThrow = 0;
 		m_flStartThrow = 0;
-		m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + 0.4;
-		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.4;
+		m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + flTime;
+		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + flTime;
 
 		m_iClip--;
 
@@ -187,12 +188,12 @@ void CWeaponExplosiveTNT::WeaponIdle(void)
 		if (flRand <= 0.75)
 		{
 			iAnim = ANIM_THROW_EXPLOSIVES_IDLE;
-			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15); // how long till we do this again.
+			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime( 50, 6 );
 		}
 		else
 		{
 			iAnim = ANIM_THROW_EXPLOSIVES_FIDGET;
-			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 75.0 / 30.0;
+			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime( 117, 16 );
 		}
 
 		SendWeaponAnim(iAnim);

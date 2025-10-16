@@ -50,6 +50,14 @@ public:
 #endif
 	}
 
+	// Get the duration of an animation in seconds
+	float GetAnimationTime( int iFrames, int iFrameRate )
+	{
+		if ( iFrameRate <= 0 )
+			return 0.1f;
+		return (float)iFrames / (float)iFrameRate;
+	}
+
 	virtual bool IsEmpty( void ) const { return ( m_iClip <= 0 ); }
 	void AddWeaponSound( const char *szSoundFile, float volume = 1.0f, float attenuation = ATTN_NORM, float delay = 0.0f );
 	void ClearWeaponSounds( void );

@@ -84,6 +84,21 @@ void CWeaponExplosiveTNT::PrimaryAttack()
 		AddWeaponSound( "weapons/tnt/fuse.wav", 1, ATTN_NORM, 0.96f );
 		SendWeaponAnim(ANIM_THROW_EXPLOSIVES_PINPULL);
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.36f;
+		m_bDoSecondaryAttack = false;
+	}
+}
+
+void CWeaponExplosiveTNT::SecondaryAttack()
+{
+	if (!m_flStartThrow && m_iClip > 0)
+	{
+		m_flStartThrow = gpGlobals->time;
+		m_flReleaseThrow = 0;
+
+		AddWeaponSound( "weapons/tnt/fuse.wav", 1, ATTN_NORM, 0.96f );
+		SendWeaponAnim( ANIM_THROW_EXPLOSIVES_PINPULL2 );
+		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.36f;
+		m_bDoSecondaryAttack = true;
 	}
 }
 
@@ -104,10 +119,7 @@ void CWeaponExplosiveTNT::WeaponIdle(void)
 		else
 			angThrow.x = -10 + angThrow.x * ((90 + 10) / 90.0);
 
-		static float flMultiplier = 6.5f;
-		float flVel = (90 - angThrow.x) * flMultiplier;
-		if (flVel > 1000)
-			flVel = 1000;
+		float flVel = m_bDoSecondaryAttack ? 280 : 800;
 
 		UTIL_MakeVectors(angThrow);
 
@@ -122,18 +134,7 @@ void CWeaponExplosiveTNT::WeaponIdle(void)
 
 		CGrenade::ShootTimed(m_pPlayer->pev, vecSrc, vecThrow, time, "models/w_tnt_thrown.mdl");
 
-		if (flVel < 500)
-		{
-			SendWeaponAnim(ANIM_THROW_EXPLOSIVES_THROW1);
-		}
-		else if (flVel < 1000)
-		{
-			SendWeaponAnim(ANIM_THROW_EXPLOSIVES_THROW2);
-		}
-		else
-		{
-			SendWeaponAnim(ANIM_THROW_EXPLOSIVES_THROW3);
-		}
+		SendWeaponAnim( m_bDoSecondaryAttack ? ANIM_THROW_EXPLOSIVES_THROW2 : ANIM_THROW_EXPLOSIVES_THROW );
 
 		// player "shoot" animation
 		m_pPlayer->SetAnimation(PLAYER_ATTACK1);

@@ -20,10 +20,14 @@ public:
 	void Spawn( void );
 	void Precache( void );
 	void PrimaryAttack();
+	void SecondaryAttack();
 	BOOL Deploy();
 	BOOL CanHolster();
 	void DoHolsterAnimation() override;
 	void WeaponIdle();
+
+private:
+	bool m_bDoSecondaryAttack = false;
 };
 
 #endif

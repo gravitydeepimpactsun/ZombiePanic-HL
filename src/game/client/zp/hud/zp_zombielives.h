@@ -28,6 +28,7 @@ private:
 	*/
 
 	CPanelAnimationVarAliasType( int, m_iIconTexture, "IconTexture", "ui/gfx/hud/zombielives", "textureid" );
+	CPanelAnimationVarAliasType( int, m_iIconTextureHC, "IconTexture", "ui/gfx/hud/zombielives_hc", "textureid" );
 
 	// 320
 	CPanelAnimationVarAliasType( int, m_iIconWide_0, "IconWide_0", "20", "proportional_int" );

@@ -77,7 +77,8 @@ void CHudZombieLives::Paint()
 		case 2560: imagesize[0] = m_iIconWide_3; imagesize[1] = m_iIconTall_3; imagesize[2] = m_iTextYAdd_3; break;
 	}
 
-	vgui2::surface()->DrawSetTexture( m_iIconTexture );
+	bool bIsHardCore = (gHUD.m_GameMode == ZP::GAMEMODE_HARDCORE);
+	vgui2::surface()->DrawSetTexture( bIsHardCore ? m_iIconTextureHC : m_iIconTexture );
 	vgui2::surface()->DrawSetColor( m_clrIcon );
 	vgui2::surface()->DrawTexturedRect( 0, 0, imagesize[0], imagesize[1] );
 

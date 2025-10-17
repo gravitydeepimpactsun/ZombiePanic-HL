@@ -7,6 +7,7 @@
 #endif
 
 LINK_ENTITY_TO_CLASS( weapon_satchel, CWeaponExplosiveSatchel );
+LINK_ENTITY_TO_CLASS( weapon_ied, CWeaponExplosiveSatchel );
 
 //=========================================================
 // CALLED THROUGH the newly-touched weapon's instance. The existing player weapon is pOriginal
@@ -72,6 +73,8 @@ int CWeaponExplosiveSatchel::AddToPlayer(CBasePlayer *pPlayer)
 
 void CWeaponExplosiveSatchel::Spawn()
 {
+	pev->classname = MAKE_STRING( "weapon_satchel" );
+
 	Precache();
 	SET_MODEL(ENT(pev), "models/w_satchel.mdl");
 
@@ -191,6 +194,7 @@ void CWeaponExplosiveSatchel::Throw(void)
 		pSatchel->pev->velocity = vecThrow;
 		pSatchel->pev->avelocity.y = 400;
 		m_pPlayer->pev->weaponmodel = MAKE_STRING( "models/p_satchel_radio.mdl" );
+		UTIL_strcpy( m_pPlayer->m_szAnimExtention, "hive" );
 #endif
 
 		SendWeaponAnim( ANIM_SATCHEL_DROP );

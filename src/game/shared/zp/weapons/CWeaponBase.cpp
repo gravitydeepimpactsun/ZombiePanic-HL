@@ -119,7 +119,6 @@ void CWeaponBase::ItemPostFrame( void )
 			pPlayer->TabulateAmmo();
 #endif
 			SecondaryAttack();
-			pPlayer->pev->button &= ~IN_ATTACK2;
 		}
 		else if ((pPlayer->pev->button & IN_ATTACK) && CanAttack(m_flNextPrimaryAttack, gpGlobals->time, UseDecrement()))
 		{

@@ -82,9 +82,8 @@ void CWeaponExplosiveTNT::PrimaryAttack()
 		m_flReleaseThrow = 0;
 
 		AddWeaponSound( "weapons/tnt/fuse.wav", 1, ATTN_NORM, 0.96f );
-		SendWeaponAnim(ANIM_THROW_EXPLOSIVES_PINPULL);
+		SendWeaponAnim( ANIM_THROW_EXPLOSIVES_PINPULL );
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime( 34, 25 );
-		m_bDoSecondaryAttack = false;
 	}
 }
 
@@ -104,10 +103,10 @@ void CWeaponExplosiveTNT::SecondaryAttack()
 
 void CWeaponExplosiveTNT::WeaponIdle(void)
 {
-	if (m_flReleaseThrow == 0 && m_flStartThrow)
+	if ( m_flReleaseThrow == 0 && m_flStartThrow )
 		m_flReleaseThrow = gpGlobals->time;
 
-	if (m_flTimeWeaponIdle > UTIL_WeaponTimeBase())
+	if ( m_flTimeWeaponIdle > UTIL_WeaponTimeBase() )
 		return;
 
 	if (m_flStartThrow)
@@ -142,8 +141,8 @@ void CWeaponExplosiveTNT::WeaponIdle(void)
 		float flTime = m_bDoSecondaryAttack ? GetAnimationTime( 13, 10 ) : GetAnimationTime( 6, 10 );
 		m_flReleaseThrow = 0;
 		m_flStartThrow = 0;
-		m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + flTime;
-		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + flTime;
+		m_flTimeWeaponIdle = m_flNextSecondaryAttack = m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + flTime;
+		m_bDoSecondaryAttack = false;
 
 		m_iClip--;
 

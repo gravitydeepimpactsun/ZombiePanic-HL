@@ -20,14 +20,19 @@ public:
 	int AddDuplicate( CBasePlayerItem *pOriginal );
 	void PrimaryAttack( void );
 	void SecondaryAttack( void );
+	bool HasSatchelCharge() const { return m_bHasThrownSatchel; }
 
 	BOOL CanDeploy();
 	BOOL Deploy();
 	BOOL IsUseable();
 
-	void Holster( int skiplocal = 0 );
+	void DoHolsterAnimation() override;
 	void WeaponIdle();
 	void Throw();
+
+private:
+	bool m_bHasThrownSatchel;
+	bool m_bHasDetonatedSatchel;
 };
 
 #endif

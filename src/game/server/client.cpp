@@ -1767,7 +1767,6 @@ int GetWeaponData(struct edict_s *player, struct weapon_data_s *info)
 						item->fuser1 = max(gun->pev->fuser1, -0.001f);
 						item->fuser2 = gun->m_flStartThrow;
 						item->fuser3 = gun->m_flReleaseThrow;
-						item->iuser1 = gun->m_chargeReady;
 						item->iuser2 = gun->m_fInAttack;
 						item->iuser3 = gun->m_fireState;
 

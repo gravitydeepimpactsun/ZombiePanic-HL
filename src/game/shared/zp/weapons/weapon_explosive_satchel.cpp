@@ -8,29 +8,6 @@
 
 LINK_ENTITY_TO_CLASS( weapon_satchel, CWeaponExplosiveSatchel );
 
-enum
-{
-	// Satchel states
-	SATCHEL_IDLE = 0,
-	SATCHEL_READY,
-	SATCHEL_RELOAD,
-
-	// It's animations
-	SATCHEL_IDLE1 = 0,
-	SATCHEL_FIDGET1,
-	SATCHEL_DRAW,
-	SATCHEL_DROP
-};
-
-enum
-{
-	SATCHEL_RADIO_IDLE1 = 0,
-	SATCHEL_RADIO_FIDGET1,
-	SATCHEL_RADIO_DRAW,
-	SATCHEL_RADIO_FIRE,
-	SATCHEL_RADIO_HOLSTER
-};
-
 //=========================================================
 // CALLED THROUGH the newly-touched weapon's instance. The existing player weapon is pOriginal
 //=========================================================
@@ -64,7 +41,7 @@ int CWeaponExplosiveSatchel::AddDuplicate(CBasePlayerItem *pOriginal)
 			}
 		}
 
-		if (pSatchel->m_chargeReady != SATCHEL_IDLE && (nSatchelsInPocket + nNumSatchels) >= SATCHEL_MAX_CARRY)
+		if ( pSatchel->HasSatchelCharge() && (nSatchelsInPocket + nNumSatchels) >= pSatchel->iMaxClip() )
 		{
 			// player has some satchels deployed. Refuse to add more.
 			return FALSE;
@@ -85,7 +62,6 @@ int CWeaponExplosiveSatchel::AddDuplicate(CBasePlayerItem *pOriginal)
 //=========================================================
 int CWeaponExplosiveSatchel::AddToPlayer(CBasePlayer *pPlayer)
 {
-	m_chargeReady = SATCHEL_IDLE; // this satchel charge weapon now forgets that any satchels are deployed by it.
 	if ( BaseClass::AddToPlayer( pPlayer ) )
 	{
 		BaseClass::SendWeaponPickup( pPlayer );
@@ -103,15 +79,17 @@ void CWeaponExplosiveSatchel::Spawn()
 	m_iDefaultAmmo = slot.DefaultAmmo;
 
 	FallInit(); // get ready to fall down.
+
+	m_bHasThrownSatchel = false;
 }
 
 void CWeaponExplosiveSatchel::Precache(void)
 {
 	PRECACHE_MODEL("models/v_satchel.mdl");
-	PRECACHE_MODEL("models/v_satchel_radio.mdl");
 	PRECACHE_MODEL("models/w_satchel.mdl");
 	PRECACHE_MODEL("models/p_satchel.mdl");
 	PRECACHE_MODEL("models/p_satchel_radio.mdl");
+	PRECACHE_SOUND("weapons/ied/button_press.wav");
 
 	UTIL_PrecacheOther("monster_satchel");
 }
@@ -131,7 +109,7 @@ BOOL CWeaponExplosiveSatchel::CanDeploy(void)
 		return TRUE;
 	}
 
-	if (m_chargeReady != SATCHEL_IDLE)
+	if ( HasSatchelCharge() )
 	{
 		// player isn't carrying any satchels, but has some out
 		return TRUE;
@@ -142,33 +120,24 @@ BOOL CWeaponExplosiveSatchel::CanDeploy(void)
 
 BOOL CWeaponExplosiveSatchel::Deploy()
 {
-	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 1.0;
-	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15);
-
-	if (m_chargeReady)
-		return DefaultDeploy("models/v_satchel_radio.mdl", "models/p_satchel_radio.mdl", SATCHEL_RADIO_DRAW, "hive");
-	else
-		return DefaultDeploy("models/v_satchel.mdl", "models/p_satchel.mdl", SATCHEL_DRAW, "trip");
-
-	return TRUE;
+	m_bHasDetonatedSatchel = false;
+	m_flTimeWeaponIdle = m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + GetAnimationTime( HasSatchelCharge() ? 18 : 22, 30 );
+	return DefaultDeploy(
+		"models/v_satchel.mdl",
+		HasSatchelCharge() ? "models/p_satchel_radio.mdl" : "models/p_satchel.mdl",
+		HasSatchelCharge() ? ANIM_SATCHEL_DETONATOR_DRAW : ANIM_SATCHEL_DRAW,
+		HasSatchelCharge() ? "hive" : "trip"
+	);
 }
 
-void CWeaponExplosiveSatchel::Holster(int skiplocal /* = 0 */)
+void CWeaponExplosiveSatchel::DoHolsterAnimation()
 {
-	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 0.5;
-
 	EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_WEAPON, "common/null.wav", 1.0, ATTN_NORM);
 
-	if (m_chargeReady)
-	{
-		SendWeaponAnim(SATCHEL_RADIO_HOLSTER);
-	}
-	else
-	{
-		SendWeaponAnim(SATCHEL_DROP);
-	}
+	SendWeaponAnim( HasSatchelCharge() ? ANIM_SATCHEL_DETONATOR_HOLSTER : ANIM_SATCHEL_HOLSTER );
+	m_flHolsterTime = gpGlobals->time + GetAnimationTime( HasSatchelCharge() ? 10 : 9, 30 );
 
-	if (m_iClip <= 0 && m_chargeReady != SATCHEL_READY)
+	if ( m_iClip <= 0 && !HasSatchelCharge() )
 	{
 #ifndef CLIENT_DLL
 		m_pPlayer->WeaponSlotSet( this, false );
@@ -179,53 +148,34 @@ void CWeaponExplosiveSatchel::Holster(int skiplocal /* = 0 */)
 
 void CWeaponExplosiveSatchel::PrimaryAttack(void)
 {
-	if (m_chargeReady != SATCHEL_RELOAD)
-	{
-		Throw();
-	}
+	Throw();
 }
 
 void CWeaponExplosiveSatchel::SecondaryAttack()
 {
-	switch (m_chargeReady)
-	{
-	case SATCHEL_IDLE:
-	{
-		Throw();
-	}
-	break;
-	case SATCHEL_READY:
-	{
-		SendWeaponAnim(SATCHEL_RADIO_FIRE);
+	if ( !HasSatchelCharge() ) return;
 
-		edict_t *pPlayer = m_pPlayer->edict();
+	AddWeaponSound( "weapons/ied/button_press.wav", 1, ATTN_NORM, GetAnimationTime( 4, 30 ) );
+	SendWeaponAnim( ANIM_SATCHEL_DETONATOR_USE );
 
-		CThrowableSatchelCharge *pSatchel = NULL;
+	edict_t *pPlayer = m_pPlayer->edict();
 
-		while ((pSatchel = (CThrowableSatchelCharge *)UTIL_FindEntityInSphere(pSatchel, m_pPlayer->pev->origin, 4096)) != NULL)
+	CThrowableSatchelCharge *pSatchel = NULL;
+
+	while ((pSatchel = (CThrowableSatchelCharge *)UTIL_FindEntityInSphere(pSatchel, m_pPlayer->pev->origin, 4096)) != NULL)
+	{
+		if (FClassnameIs(pSatchel->pev, "monster_satchel"))
 		{
-			if (FClassnameIs(pSatchel->pev, "monster_satchel"))
+			if (pSatchel->pev->owner == pPlayer || pSatchel->GetThrower() == ENTINDEX(pPlayer))
 			{
-				if (pSatchel->pev->owner == pPlayer || pSatchel->GetThrower() == ENTINDEX(pPlayer))
-				{
-					pSatchel->Use(m_pPlayer, m_pPlayer, USE_SET, 0);
-				}
+				pSatchel->Use(m_pPlayer, m_pPlayer, USE_SET, 0);
 			}
 		}
-
-		m_chargeReady = SATCHEL_RELOAD;
-		m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + SecondaryFireRate();
-		m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + SecondaryFireRate();
-		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.5;
-		break;
 	}
 
-	case SATCHEL_RELOAD:
-		// we're reloading, don't allow fire
-		{
-		}
-		break;
-	}
+	m_flNextPrimaryAttack = m_flNextSecondaryAttack = m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime( 14, 30 );
+	m_bHasDetonatedSatchel = true;
+	m_bHasThrownSatchel = false;
 }
 
 void CWeaponExplosiveSatchel::Throw(void)
@@ -237,74 +187,72 @@ void CWeaponExplosiveSatchel::Throw(void)
 		Vector vecThrow = gpGlobals->v_forward * 274 + m_pPlayer->pev->velocity;
 
 #ifndef CLIENT_DLL
-		CThrowableSatchelCharge *pSatchel = (CThrowableSatchelCharge *)Create("monster_satchel", vecSrc, Vector(0, 0, 0), m_pPlayer->edict());
+		CThrowableSatchelCharge *pSatchel = (CThrowableSatchelCharge *)Create( "monster_satchel", vecSrc, Vector(0, 0, 0), m_pPlayer->edict() );
 		pSatchel->pev->velocity = vecThrow;
 		pSatchel->pev->avelocity.y = 400;
-		pSatchel->DisallowPickupFor( 2.5f );
-
-		m_pPlayer->pev->viewmodel = MAKE_STRING("models/v_satchel_radio.mdl");
-		m_pPlayer->pev->weaponmodel = MAKE_STRING("models/p_satchel_radio.mdl");
-#else
-		LoadVModel("models/v_satchel_radio.mdl", m_pPlayer);
+		m_pPlayer->pev->weaponmodel = MAKE_STRING( "models/p_satchel_radio.mdl" );
 #endif
 
-		SendWeaponAnim(SATCHEL_RADIO_DRAW);
+		SendWeaponAnim( ANIM_SATCHEL_DROP );
 
 		// player "shoot" animation
-		m_pPlayer->SetAnimation(PLAYER_ATTACK1);
-
-		m_chargeReady = SATCHEL_READY;
+		m_pPlayer->SetAnimation( PLAYER_ATTACK1 );
 
 		m_iClip--;
 
-		m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + PrimaryFireRate();
-		m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + SecondaryFireRate();
+		m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime( 20, 30 );
+
+		m_bHasThrownSatchel = true;
 	}
 }
 
-void CWeaponExplosiveSatchel::WeaponIdle(void)
+void CWeaponExplosiveSatchel::WeaponIdle( void )
 {
-	if (m_flTimeWeaponIdle > UTIL_WeaponTimeBase())
+	if ( m_flTimeWeaponIdle > UTIL_WeaponTimeBase() )
 		return;
 
-	switch (m_chargeReady)
+	// Retire if we are out of ammo,
+	// and have no satchels deployed.
+	if ( !HasSatchelCharge() && m_iClip <= 0 )
 	{
-	case SATCHEL_IDLE:
-		SendWeaponAnim(SATCHEL_FIDGET1);
-		// use tripmine animations
-		UTIL_strcpy(m_pPlayer->m_szAnimExtention, "trip");
-		break;
-	case SATCHEL_READY:
-		SendWeaponAnim(SATCHEL_RADIO_FIDGET1);
-		// use hivehand animations
-		UTIL_strcpy(m_pPlayer->m_szAnimExtention, "hive");
-		break;
-	case SATCHEL_RELOAD:
-		if (m_iClip <= 0)
-		{
-			RetireWeapon();
-			m_chargeReady = SATCHEL_IDLE;
-			return;
-		}
+		DoHolsterAnimation();
+		return;
+	}
 
-#ifndef CLIENT_DLL
-		m_pPlayer->pev->viewmodel = MAKE_STRING("models/v_satchel.mdl");
-		m_pPlayer->pev->weaponmodel = MAKE_STRING("models/p_satchel.mdl");
-#else
-		LoadVModel("models/v_satchel.mdl", m_pPlayer);
-#endif
+	if ( m_bHasDetonatedSatchel )
+	{
+		m_bHasDetonatedSatchel = false;
+		m_pPlayer->pev->weaponmodel = MAKE_STRING( "models/p_satchel.mdl" );
 
-		SendWeaponAnim(SATCHEL_DRAW);
+		SendWeaponAnim( ANIM_SATCHEL_DRAW );
 
 		// use tripmine animations
 		UTIL_strcpy(m_pPlayer->m_szAnimExtention, "trip");
 
+		float flDelay = GetAnimationTime( 39, 30 );
 		m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + 0.5;
 		m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + 0.5;
-		m_chargeReady = SATCHEL_IDLE;
+		return;
+	}
+
+	int iAnimation;
+	float flDelay;
+
+	switch ( RANDOM_LONG( 0, 8 ) )
+	{
+		default:
+			iAnimation = HasSatchelCharge() ? ANIM_SATCHEL_DETONATOR_IDLE : ANIM_SATCHEL_IDLE;
+			flDelay = GetAnimationTime( HasSatchelCharge() ? 36 : 39, 30 );
+		break;
+
+		case 4:
+		    iAnimation = HasSatchelCharge() ? ANIM_SATCHEL_DETONATOR_FIDGET : ANIM_SATCHEL_FIDGET;
+			flDelay = GetAnimationTime( HasSatchelCharge() ? 36 : 50, 30 );
 		break;
 	}
-	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15); // how long till we do this again.
+
+	SendWeaponAnim( iAnimation );
+	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + flDelay;
 }
 
 //=========================================================

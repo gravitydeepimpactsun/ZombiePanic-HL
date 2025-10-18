@@ -17,11 +17,20 @@ int CWeaponBase::iItemSlot( void )
 	return slot.Slot + 1;
 }
 
-BOOL CWeaponBase::DefaultDeploy(char *szViewModel, char *szWeaponModel, int iAnim, char *szAnimExt, int skiplocal, int body)
+bool CWeaponBase::DoDeploy( const char *szViewModel, const char *szWeaponModel, int iAnim, const char *szAnimExt, int skiplocal, int body )
 {
 	m_bIsHolstering = false;
 	ClearWeaponSounds();
-	return BaseClass::DefaultDeploy( szViewModel, szWeaponModel, iAnim, szAnimExt, skiplocal, body );
+
+	m_pPlayer->TabulateAmmo();
+	m_pPlayer->pev->viewmodel = MAKE_STRING( szViewModel );
+	m_pPlayer->pev->weaponmodel = MAKE_STRING( szWeaponModel );
+	UTIL_strcpy( m_pPlayer->m_szAnimExtention, szAnimExt );
+	SendWeaponAnim( iAnim, skiplocal, body );
+
+	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 0.5;
+	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.0;
+	return true;
 }
 
 int CWeaponBase::DefaultReload(int iAnim, float fDelay, int body)

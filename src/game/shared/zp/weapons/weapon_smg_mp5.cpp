@@ -47,7 +47,7 @@ int CWeaponSMGMP5::AddToPlayer(CBasePlayer *pPlayer)
 
 BOOL CWeaponSMGMP5::Deploy()
 {
-	return DefaultDeploy("models/v_mp5.mdl", "models/p_mp5.mdl", ANIM_MP5_DEPLOY, "mp5");
+	return DoDeploy( "models/v_mp5.mdl", "models/p_mp5.mdl", ANIM_MP5_DEPLOY, "mp5" );
 }
 
 void CWeaponSMGMP5::PrimaryAttack()

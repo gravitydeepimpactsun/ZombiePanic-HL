@@ -76,7 +76,7 @@ BOOL CWeaponShotgunDoubleBarrel::Deploy()
 	if ( m_pPlayer )
 		m_pPlayer->m_iWeaponKillCount = 0;
 #endif
-	return DefaultDeploy( "models/v_shotgun.mdl", "models/p_shotgun.mdl", DBARREL_DRAW, "shotgun" );
+	return DoDeploy( "models/v_shotgun.mdl", "models/p_shotgun.mdl", DBARREL_DRAW, "shotgun" );
 }
 
 void CWeaponShotgunDoubleBarrel::Holster( int skiplocal )

@@ -53,7 +53,7 @@ int CWeaponMeleeLeadPipe::AddToPlayer( CBasePlayer *pPlayer )
 
 BOOL CWeaponMeleeLeadPipe::Deploy()
 {
-	return DefaultDeploy("models/v_leadpipe.mdl", "models/p_leadpipe.mdl", ANIM_MELEE_DRAW, "crowbar");
+	return DoDeploy( "models/v_leadpipe.mdl", "models/p_leadpipe.mdl", ANIM_MELEE_DRAW, "crowbar" );
 }
 
 void CWeaponMeleeLeadPipe::DoHolsterAnimation()

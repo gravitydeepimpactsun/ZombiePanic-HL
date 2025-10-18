@@ -47,7 +47,7 @@ int CWeaponMeleeCrowbar::AddToPlayer( CBasePlayer *pPlayer )
 
 BOOL CWeaponMeleeCrowbar::Deploy()
 {
-	return DefaultDeploy("models/v_crowbar.mdl", "models/p_crowbar.mdl", ANIM_MELEE_DRAW, "crowbar");
+	return DoDeploy( "models/v_crowbar.mdl", "models/p_crowbar.mdl", ANIM_MELEE_DRAW, "crowbar" );
 }
 
 void CWeaponMeleeCrowbar::DoHolsterAnimation()

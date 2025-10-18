@@ -54,7 +54,7 @@ int CWeaponSideArmSig::AddToPlayer(CBasePlayer *pPlayer)
 
 BOOL CWeaponSideArmSig::Deploy()
 {
-	return DefaultDeploy("models/v_9mmhandgun.mdl", "models/p_9mmhandgun.mdl", IsEmpty() ? ANIM_PISTOL_DRAW_EMPTY : ANIM_PISTOL_DRAW, "onehanded");
+	return DoDeploy( "models/v_9mmhandgun.mdl", "models/p_9mmhandgun.mdl", IsEmpty() ? ANIM_PISTOL_DRAW_EMPTY : ANIM_PISTOL_DRAW, "onehanded" );
 }
 
 void CWeaponSideArmSig::PrimaryAttack(void)

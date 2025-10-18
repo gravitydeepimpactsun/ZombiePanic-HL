@@ -53,7 +53,7 @@ int CWeaponMeleeSwipe::AddToPlayer( CBasePlayer *pPlayer )
 
 BOOL CWeaponMeleeSwipe::Deploy()
 {
-	return DefaultDeploy("models/v_swipe.mdl", "models/p_swipe.mdl", ANIM_MELEE_DRAW, "swipe");
+	return DoDeploy( "models/v_swipe.mdl", "models/p_swipe.mdl", ANIM_MELEE_DRAW, "swipe" );
 }
 
 void CWeaponMeleeSwipe::DoHolsterAnimation()

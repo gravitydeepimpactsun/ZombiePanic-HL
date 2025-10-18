@@ -23,7 +23,7 @@ public:
 	virtual int ObjectCaps(void) { return BaseClass::ObjectCaps() | FCAP_IMPULSE_USE; }
 
 	int iItemSlot( void ) override;
-	BOOL DefaultDeploy(char *szViewModel, char *szWeaponModel, int iAnim, char *szAnimExt, int skiplocal = 0, int body = 0) override;
+	bool DoDeploy(const char *szViewModel, const char *szWeaponModel, int iAnim, const char *szAnimExt, int skiplocal = 0, int body = 0);
 	int DefaultReload(int iAnim, float fDelay, int body = 0) override;
 
 	void BeginHolster( CBasePlayerWeapon *pWeapon );

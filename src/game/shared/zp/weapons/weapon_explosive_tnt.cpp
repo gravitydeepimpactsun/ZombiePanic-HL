@@ -59,7 +59,7 @@ void CWeaponExplosiveTNT::Precache(void)
 BOOL CWeaponExplosiveTNT::Deploy()
 {
 	m_flReleaseThrow = -1;
-	return DefaultDeploy("models/v_tnt.mdl", "models/p_tnt.mdl", ANIM_THROW_EXPLOSIVES_DRAW, "crowbar");
+	return DoDeploy( "models/v_tnt.mdl", "models/p_tnt.mdl", ANIM_THROW_EXPLOSIVES_DRAW, "crowbar" );
 }
 
 BOOL CWeaponExplosiveTNT::CanHolster(void)

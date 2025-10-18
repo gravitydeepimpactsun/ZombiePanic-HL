@@ -125,7 +125,7 @@ BOOL CWeaponExplosiveSatchel::Deploy()
 {
 	m_bHasDetonatedSatchel = false;
 	m_flTimeWeaponIdle = m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + GetAnimationTime( HasSatchelCharge() ? 18 : 22, 30 );
-	return DefaultDeploy(
+	return DoDeploy(
 		"models/v_satchel.mdl",
 		HasSatchelCharge() ? "models/p_satchel_radio.mdl" : "models/p_satchel.mdl",
 		HasSatchelCharge() ? ANIM_SATCHEL_DETONATOR_DRAW : ANIM_SATCHEL_DRAW,
@@ -183,10 +183,9 @@ void CWeaponExplosiveSatchel::SecondaryAttack()
 
 void CWeaponExplosiveSatchel::Throw(void)
 {
-	if (m_iClip > 0)
+	if ( m_iClip > 0 )
 	{
 		Vector vecSrc = m_pPlayer->pev->origin;
-
 		Vector vecThrow = gpGlobals->v_forward * 274 + m_pPlayer->pev->velocity;
 
 #ifndef CLIENT_DLL
@@ -197,7 +196,7 @@ void CWeaponExplosiveSatchel::Throw(void)
 		UTIL_strcpy( m_pPlayer->m_szAnimExtention, "hive" );
 #endif
 
-		SendWeaponAnim( ANIM_SATCHEL_DROP );
+		SendWeaponAnim( HasSatchelCharge() ? ANIM_SATCHEL_DETONATOR_DROP : ANIM_SATCHEL_DROP );
 
 		// player "shoot" animation
 		m_pPlayer->SetAnimation( PLAYER_ATTACK1 );

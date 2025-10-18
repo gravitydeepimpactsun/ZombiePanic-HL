@@ -53,7 +53,7 @@ BOOL CWeaponSideArmRevolver::Deploy()
 	if ( m_pPlayer )
 		m_pPlayer->m_iWeaponKillCount = 0;
 #endif
-	return DefaultDeploy("models/v_357.mdl", "models/p_357.mdl", ANIM_357_DRAW, "python");
+	return DoDeploy( "models/v_357.mdl", "models/p_357.mdl", ANIM_357_DRAW, "python" );
 }
 
 void CWeaponSideArmRevolver::Holster(int skiplocal /* = 0 */)

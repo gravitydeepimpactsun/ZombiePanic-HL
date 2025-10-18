@@ -53,7 +53,7 @@ int CWeaponSideArmPPK::AddToPlayer(CBasePlayer *pPlayer)
 
 BOOL CWeaponSideArmPPK::Deploy()
 {
-	return DefaultDeploy("models/v_ppk.mdl", "models/p_ppk.mdl", IsEmpty() ? ANIM_PISTOL_DRAW_EMPTY : ANIM_PISTOL_DRAW, "onehanded");
+	return DoDeploy ("models/v_ppk.mdl", "models/p_ppk.mdl", IsEmpty() ? ANIM_PISTOL_DRAW_EMPTY : ANIM_PISTOL_DRAW, "onehanded");
 }
 
 void CWeaponSideArmPPK::PrimaryAttack(void)

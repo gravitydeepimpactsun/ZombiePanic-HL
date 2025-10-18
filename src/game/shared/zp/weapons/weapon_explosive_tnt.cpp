@@ -139,9 +139,10 @@ void CWeaponExplosiveTNT::WeaponIdle(void)
 		m_pPlayer->SetAnimation(PLAYER_ATTACK1);
 
 		float flTime = m_bDoSecondaryAttack ? GetAnimationTime( 13, 30 ) : GetAnimationTime( 6, 10 );
-		m_flReleaseThrow = 0;
+		m_flReleaseThrow = 1;
 		m_flStartThrow = 0;
-		m_flTimeWeaponIdle = m_flNextSecondaryAttack = m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + flTime;
+		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + flTime;
+		m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flTimeWeaponIdle + 0.1f;
 		m_bDoSecondaryAttack = false;
 
 		m_iClip--;
@@ -165,17 +166,15 @@ void CWeaponExplosiveTNT::WeaponIdle(void)
 		// we've finished the throw, restart.
 		m_flStartThrow = 0;
 
-		if (m_iClip > 0)
-		{
-			SendWeaponAnim(ANIM_THROW_EXPLOSIVES_DRAW);
-		}
+		if ( m_iClip > 0 )
+			Deploy();
 		else
 		{
 			RetireWeapon();
 			return;
 		}
 
-		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15);
+		m_flTimeWeaponIdle = m_flNextSecondaryAttack = m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + GetAnimationTime( 26, 30 );
 		m_flReleaseThrow = -1;
 		return;
 	}

@@ -44,32 +44,34 @@ void ZPGameMode_HardCore::GiveWeapons(CBasePlayer *pPlayer)
 		if ( !pPlayer->m_bPunishLateJoiner )
 		{
 			// Randomly give a melee weapon
-			int randWep = RANDOM_LONG(0, 1);
+			int randWep = UTIL_SharedRandomLong( pPlayer->random_seed, 0, 10 );
 			switch (randWep)
 			{
-				case 0: pPlayer->GiveNamedItem( "weapon_crowbar" ); break;
-				case 1: pPlayer->GiveNamedItem( "weapon_leadpipe" ); break;
+				default: pPlayer->GiveNamedItem( "weapon_crowbar" ); break;
+			    case 3:
+			    case 4:
+				case 8: pPlayer->GiveNamedItem( "weapon_leadpipe" ); break;
 			}
 
 			// Randomly give a secondary weapon
-			randWep = RANDOM_LONG(0, 4);
+			randWep = UTIL_SharedRandomLong( pPlayer->random_seed, 0, 4 );
 			switch (randWep)
 			{
 				case 0:
 					pPlayer->GiveNamedItem( "weapon_shotgun" );
-					pPlayer->GiveAmmo( 6, ZPAmmoTypes::AMMO_SHOTGUN );
+					pPlayer->GiveAmmo( 12, ZPAmmoTypes::AMMO_SHOTGUN );
 				break;
 			    case 1:
 					pPlayer->GiveNamedItem( "weapon_556ar" );
-					pPlayer->GiveAmmo( 20, ZPAmmoTypes::AMMO_RIFLE );
+					pPlayer->GiveAmmo( 40, ZPAmmoTypes::AMMO_RIFLE );
 				break;
 			    case 2:
-					pPlayer->GiveNamedItem( "weapon_357" );
-					pPlayer->GiveAmmo(6, ZPAmmoTypes::AMMO_MAGNUM );
+					pPlayer->GiveNamedItem( "weapon_ppk" );
+					pPlayer->GiveAmmo( 20, ZPAmmoTypes::AMMO_LONGRIFLE );
 				break;
 				case 3:
 					pPlayer->GiveNamedItem( "weapon_mp5" );
-					pPlayer->GiveAmmo( 30, ZPAmmoTypes::AMMO_PISTOL );
+					pPlayer->GiveAmmo( 60, ZPAmmoTypes::AMMO_PISTOL );
 				break;
 				case 4:
 					pPlayer->GiveNamedItem( "weapon_sig" );

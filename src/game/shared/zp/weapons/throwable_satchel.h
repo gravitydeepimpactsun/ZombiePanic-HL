@@ -16,14 +16,15 @@ class CThrowableSatchelCharge : public CGrenade
 	void EXPORT SatchelThink(void);
 	void EXPORT SatchelUse(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
 
+public:
 #ifndef CLIENT_DLL
 	void IEDExplode();
 #endif
 
-public:
 	void Deactivate(void);
 	void DisallowPickupFor( float flDisallow ) { m_flDisallowPickup = gpGlobals->time + flDisallow; }
 	int GetThrower() const { return m_iThrower; }
+	virtual int ObjectCaps(void) { return CGrenade::ObjectCaps() | FCAP_IMPULSE_USE; }
 
 private:
 	float m_flDisallowPickup = -1;

@@ -83,6 +83,7 @@ void CWeaponExplosiveSatchel::Spawn()
 
 	FallInit(); // get ready to fall down.
 
+	m_bFirstThrow = false;
 	m_bHasThrownSatchel = false;
 }
 
@@ -138,7 +139,7 @@ void CWeaponExplosiveSatchel::DoHolsterAnimation()
 	EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_WEAPON, "common/null.wav", 1.0, ATTN_NORM);
 
 	SendWeaponAnim( HasSatchelCharge() ? ANIM_SATCHEL_DETONATOR_HOLSTER : ANIM_SATCHEL_HOLSTER );
-	m_flHolsterTime = gpGlobals->time + GetAnimationTime( HasSatchelCharge() ? 10 : 9, 30 );
+	m_flHolsterTime = gpGlobals->time + GetAnimationTime( 9, 30 );
 
 	if ( m_iClip <= 0 && !HasSatchelCharge() )
 	{
@@ -149,6 +150,12 @@ void CWeaponExplosiveSatchel::DoHolsterAnimation()
 	}
 }
 
+void CWeaponExplosiveSatchel::DeactivateThrow()
+{
+	m_bHasDetonatedSatchel = false;
+	m_bHasThrownSatchel = false;
+}
+
 void CWeaponExplosiveSatchel::PrimaryAttack(void)
 {
 	Throw();
@@ -157,6 +164,7 @@ void CWeaponExplosiveSatchel::PrimaryAttack(void)
 void CWeaponExplosiveSatchel::SecondaryAttack()
 {
 	if ( !HasSatchelCharge() ) return;
+	if ( m_bFirstThrow ) return;
 
 	AddWeaponSound( "weapons/ied/button_press.wav", 1, ATTN_NORM, GetAnimationTime( 4, 30 ) );
 	SendWeaponAnim( ANIM_SATCHEL_DETONATOR_USE );
@@ -169,10 +177,10 @@ void CWeaponExplosiveSatchel::SecondaryAttack()
 	{
 		if (FClassnameIs(pSatchel->pev, "monster_satchel"))
 		{
+#ifndef CLIENT_DLL
 			if (pSatchel->pev->owner == pPlayer || pSatchel->GetThrower() == ENTINDEX(pPlayer))
-			{
-				pSatchel->Use(m_pPlayer, m_pPlayer, USE_SET, 0);
-			}
+				pSatchel->IEDExplode();
+#endif
 		}
 	}
 
@@ -185,6 +193,8 @@ void CWeaponExplosiveSatchel::Throw(void)
 {
 	if ( m_iClip > 0 )
 	{
+		if ( !m_bHasThrownSatchel )
+			m_bFirstThrow = true;
 		Vector vecSrc = m_pPlayer->pev->origin;
 		Vector vecThrow = gpGlobals->v_forward * 274 + m_pPlayer->pev->velocity;
 
@@ -192,6 +202,7 @@ void CWeaponExplosiveSatchel::Throw(void)
 		CThrowableSatchelCharge *pSatchel = (CThrowableSatchelCharge *)Create( "monster_satchel", vecSrc, Vector(0, 0, 0), m_pPlayer->edict() );
 		pSatchel->pev->velocity = vecThrow;
 		pSatchel->pev->avelocity.y = 400;
+		pSatchel->DisallowPickupFor( 2.0f );
 		m_pPlayer->pev->weaponmodel = MAKE_STRING( "models/p_satchel_radio.mdl" );
 		UTIL_strcpy( m_pPlayer->m_szAnimExtention, "hive" );
 #endif
@@ -203,7 +214,7 @@ void CWeaponExplosiveSatchel::Throw(void)
 
 		m_iClip--;
 
-		m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime( 20, 30 );
+		m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime( HasSatchelCharge() ? 21 : 20, 30 );
 
 		m_bHasThrownSatchel = true;
 	}
@@ -222,19 +233,16 @@ void CWeaponExplosiveSatchel::WeaponIdle( void )
 		return;
 	}
 
+	if ( m_bFirstThrow )
+	{
+		m_bFirstThrow = false;
+		Deploy();
+		return;
+	}
+
 	if ( m_bHasDetonatedSatchel )
 	{
-		m_bHasDetonatedSatchel = false;
-		m_pPlayer->pev->weaponmodel = MAKE_STRING( "models/p_satchel.mdl" );
-
-		SendWeaponAnim( ANIM_SATCHEL_DRAW );
-
-		// use tripmine animations
-		UTIL_strcpy(m_pPlayer->m_szAnimExtention, "trip");
-
-		float flDelay = GetAnimationTime( 39, 30 );
-		m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + 0.5;
-		m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + 0.5;
+		Deploy();
 		return;
 	}
 

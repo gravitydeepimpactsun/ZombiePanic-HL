@@ -138,7 +138,7 @@ void CWeaponExplosiveTNT::WeaponIdle(void)
 		// player "shoot" animation
 		m_pPlayer->SetAnimation(PLAYER_ATTACK1);
 
-		float flTime = m_bDoSecondaryAttack ? GetAnimationTime( 13, 10 ) : GetAnimationTime( 6, 10 );
+		float flTime = m_bDoSecondaryAttack ? GetAnimationTime( 13, 30 ) : GetAnimationTime( 6, 10 );
 		m_flReleaseThrow = 0;
 		m_flStartThrow = 0;
 		m_flTimeWeaponIdle = m_flNextSecondaryAttack = m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + flTime;

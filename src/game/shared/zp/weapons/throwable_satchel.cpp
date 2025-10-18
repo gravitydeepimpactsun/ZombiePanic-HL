@@ -46,27 +46,6 @@ void CThrowableSatchelCharge::SatchelSlide(CBaseEntity *pOther)
 {
 	entvars_t *pevOther = pOther->pev;
 
-	// Allow for pickup! (if we can)
-	if ( m_iThrower != -1 && pOther->IsPlayer() && pOther->pev->team == ZP::TEAM_SURVIVIOR )
-	{
-#ifndef CLIENT_DLL
-		CBasePlayer *pOwner = (CBasePlayer *)UTIL_PlayerByIndex( m_iThrower );
-		bool bCanBePickedUp = pOwner ? false : true;
-		if ( pOwner && pOwner->pev->team != pev->team )
-			bCanBePickedUp = true;
-		else if ( pOther->edict() == pOwner->edict() )
-			bCanBePickedUp = true;
-		if ( bCanBePickedUp )
-		{
-			CBasePlayer *pPlayer = (CBasePlayer *)pOther;
-			pPlayer->GiveNamedItem( "weapon_satchel" );
-			SetTouch( NULL );
-			SetThink( &CThrowableSatchelCharge::SUB_Remove );
-			return;
-		}
-#endif
-	}
-
 	// don't hit the guy that launched this grenade
 	if (pOther->edict() == pev->owner)
 		return;
@@ -139,20 +118,37 @@ void CThrowableSatchelCharge::SatchelUse(CBaseEntity *pActivator, CBaseEntity *p
 	if ( useType == USE_SET )
 	{
 #ifndef CLIENT_DLL
-		if ( m_iThrower != -1 )
+		// Allow for pickup! (if we can)
+		if ( m_iThrower != -1 && pCaller && pCaller->IsPlayer() && pCaller->pev->team == ZP::TEAM_SURVIVIOR )
 		{
 			CBasePlayer *pOwner = (CBasePlayer *)UTIL_PlayerByIndex( m_iThrower );
-			pev->owner = pOwner->edict();
+			bool bCanBePickedUp = pOwner ? false : true;
+			if ( pOwner && pOwner->pev->team != pev->team )
+				bCanBePickedUp = true;
+			else if ( pCaller->edict() == pOwner->edict() )
+				bCanBePickedUp = true;
+			if ( bCanBePickedUp )
+			{
+				CBasePlayer *pPlayer = (CBasePlayer *)pCaller;
+				pPlayer->GiveNamedItem( "weapon_satchel" );
+				SetTouch( NULL );
+				SetThink( &CThrowableSatchelCharge::SUB_Remove );
+				return;
+			}
 		}
-		IEDExplode();
 #endif
-		return;
 	}
 }
 
 #ifndef CLIENT_DLL
 void CThrowableSatchelCharge::IEDExplode()
 {
+	if ( m_iThrower != -1 )
+	{
+		CBasePlayer *pOwner = (CBasePlayer *)UTIL_PlayerByIndex( m_iThrower );
+		pev->owner = pOwner->edict();
+	}
+
 	TraceResult tr;
 	Vector vecSpot; // trace starts here!
 

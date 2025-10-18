@@ -27,10 +27,12 @@ public:
 	BOOL IsUseable();
 
 	void DoHolsterAnimation() override;
+	void DeactivateThrow() override;
 	void WeaponIdle();
 	void Throw();
 
 private:
+	bool m_bFirstThrow;
 	bool m_bHasThrownSatchel;
 	bool m_bHasDetonatedSatchel;
 };

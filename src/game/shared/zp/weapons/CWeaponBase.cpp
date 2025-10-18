@@ -22,10 +22,12 @@ bool CWeaponBase::DoDeploy( const char *szViewModel, const char *szWeaponModel, 
 	m_bIsHolstering = false;
 	ClearWeaponSounds();
 
+#ifndef CLIENT_DLL
 	m_pPlayer->TabulateAmmo();
 	m_pPlayer->pev->viewmodel = MAKE_STRING( szViewModel );
 	m_pPlayer->pev->weaponmodel = MAKE_STRING( szWeaponModel );
 	UTIL_strcpy( m_pPlayer->m_szAnimExtention, szAnimExt );
+#endif
 	SendWeaponAnim( iAnim, skiplocal, body );
 
 	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 0.5;

@@ -96,6 +96,8 @@ void CWeaponBase::ItemPostFrame( void )
 	// If we are holstering, we can't do anything until it's done
 	if ( m_bIsHolstering )
 	{
+		pPlayer->pev->button &= ~IN_ATTACK;
+		pPlayer->pev->button &= ~IN_ATTACK2;
 		if ( m_flHolsterTime - gpGlobals->time <= 0.0f )
 			FinishHolster();
 		return;

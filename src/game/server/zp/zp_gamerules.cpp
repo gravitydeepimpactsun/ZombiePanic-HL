@@ -141,16 +141,6 @@ void CZombiePanicGameRules ::Think(void)
 	if ( eWinState >= IGameModeBase::WinState_e::State_Draw || m_pGameMode->GetRoundState() == ZP::RoundState::RoundState_RoundIsOver )
 	{
 		m_pGameMode->SetRoundState( ZP::RoundState::RoundState_RoundIsOver );
-		int iRoundLimit = (int)roundlimit.value;
-		if ( iRoundLimit > 0 )
-		{
-			// We need to change the map
-			if ( m_iRounds >= iRoundLimit )
-			{
-				GoToIntermission();
-				return;
-			}
-		}
 		ResetRound();
 		return;
 	}
@@ -308,6 +298,9 @@ void CZombiePanicGameRules::ResetRound()
 			CBasePlayer *plr = (CBasePlayer *)UTIL_PlayerByIndex( i );
 			if ( plr )
 			{
+				// No more buttons
+				plr->pev->button = 0;
+
 				// For these, we do not care about team etc.
 				plr->GiveAchievement( EAchievements::MARATHON );
 				plr->GiveAchievement( EAchievements::PLAY_ALL_SURVIVAL );
@@ -350,6 +343,19 @@ void CZombiePanicGameRules::ResetRound()
 
 	// Reset volunteers
 	ResetVolunteers();
+
+	// Check round limit. If we reached it, go to intermission
+	// instead of restarting the round.
+	int iRoundLimit = (int)roundlimit.value;
+	if ( iRoundLimit > 0 )
+	{
+		// We need to change the map
+		if ( m_iRounds >= iRoundLimit )
+		{
+			GoToIntermission();
+			return;
+		}
+	}
 
 	// Reset all map objects
 	CleanUpMap();

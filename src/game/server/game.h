@@ -60,6 +60,7 @@ extern cvar_t mp_dmg_357;
 extern cvar_t mp_dmg_mp5;
 extern cvar_t mp_dmg_m16;
 extern cvar_t mp_dmg_shotgun;
+extern cvar_t mp_dmg_dbarrel;
 extern cvar_t mp_dmg_xbow_scope;
 extern cvar_t mp_dmg_xbow_noscope;
 extern cvar_t mp_dmg_rpg;

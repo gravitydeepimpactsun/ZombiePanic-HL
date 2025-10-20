@@ -293,7 +293,7 @@ void EXPORT W_Precache(void)
 	UTIL_PrecacheOther("item_longjump");
 
 	// Double barrel shotgun
-	//UTIL_PrecacheOtherWeapon("weapon_doublebarrel");
+	UTIL_PrecacheOtherWeapon("weapon_doublebarrel");
 
 	// shotgun
 	UTIL_PrecacheOtherWeapon("weapon_shotgun");

@@ -188,6 +188,7 @@ static WeaponInfo sWeaponInfoList[] = {
 	{ "mp5", WEAPON_MP5, false },
 	{ "556ar", WEAPON_556AR, false },
 	{ "shotgun", WEAPON_SHOTGUN, false },
+	{ "doublebarrel", WEAPON_DOUBLEBARREL, false },
 	{ "tnt", WEAPON_TNT, false },
 	{ "satchel", WEAPON_SATCHEL, false },
 };

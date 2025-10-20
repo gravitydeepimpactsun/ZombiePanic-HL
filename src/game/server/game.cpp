@@ -92,6 +92,7 @@ cvar_t mp_dmg_357 = { "mp_dmg_357", "50", FCVAR_SERVER };
 cvar_t mp_dmg_mp5 = { "mp_dmg_mp5", "12", FCVAR_SERVER };
 cvar_t mp_dmg_m16 = { "mp_dmg_m16", "15", FCVAR_SERVER };
 cvar_t mp_dmg_shotgun = { "mp_dmg_shotgun", "20", FCVAR_SERVER };
+cvar_t mp_dmg_dbarrel = { "mp_dmg_dbarrel", "50", FCVAR_SERVER };
 cvar_t mp_dmg_xbow_scope = { "mp_dmg_xbow_scope", "120", FCVAR_SERVER };
 cvar_t mp_dmg_xbow_noscope = { "mp_dmg_xbow_noscope", "40", FCVAR_SERVER };
 cvar_t mp_dmg_rpg = { "mp_dmg_rpg", "120", FCVAR_SERVER };
@@ -596,6 +597,7 @@ void GameDLLInit(void)
 	CVAR_REGISTER(&mp_dmg_mp5);
 	CVAR_REGISTER(&mp_dmg_m16);
 	CVAR_REGISTER(&mp_dmg_shotgun);
+	CVAR_REGISTER(&mp_dmg_dbarrel);
 	CVAR_REGISTER(&mp_dmg_xbow_scope);
 	CVAR_REGISTER(&mp_dmg_xbow_noscope);
 	CVAR_REGISTER(&mp_dmg_rpg);

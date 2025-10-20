@@ -2,37 +2,12 @@
 
 #include "weapon_shotgun_doublebarrel.h"
 
-// Unfinished, uses placeholder animations/sounds/logic
-
-enum
-{
-	DBARREL_IDLE = 0,
-	DBARREL_IDLE2,
-	DBARREL_FIRE,
-	DBARREL_RELOAD_START,
-	DBARREL_RELOAD1,
-	DBARREL_RELOAD2,
-	DBARREL_RELOAD_END,
-	DBARREL_DRAW
-};
-
-
 LINK_ENTITY_TO_CLASS( weapon_doublebarrel, CWeaponShotgunDoubleBarrel );
-
-
-BOOL CWeaponShotgunDoubleBarrel::PlayEmptySound()
-{
-	if (m_iPlayEmptySound)
-	{
-		EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/db_dryfire.wav", 1, ATTN_NORM, 0, 85 + RANDOM_LONG(0, 0x1f));
-		m_iPlayEmptySound = 0;
-		return 0;
-	}
-	return 0;
-}
+LINK_ENTITY_TO_CLASS( weapon_dbarrel, CWeaponShotgunDoubleBarrel );
 
 void CWeaponShotgunDoubleBarrel::Spawn()
 {
+	pev->classname = MAKE_STRING( "weapon_doublebarrel" );
 	Precache();
 	SET_MODEL(ENT(pev), "models/w_doublebarrel.mdl");
 
@@ -53,11 +28,13 @@ void CWeaponShotgunDoubleBarrel::Precache(void)
 	PRECACHE_SOUND("weapons/doublebarrel/dryfire.wav");
 	PRECACHE_SOUND("weapons/doublebarrel/fire.wav");
 	PRECACHE_SOUND("weapons/doublebarrel/open.wav");
-	PRECACHE_SOUND("weapons/doublebarrel/reload1.wav");
-	PRECACHE_SOUND("weapons/doublebarrel/reload2.wav");
+	PRECACHE_SOUND("weapons/doublebarrel/out.wav");
+	PRECACHE_SOUND("weapons/doublebarrel/load1.wav");
+	PRECACHE_SOUND("weapons/doublebarrel/load2.wav");
 	PRECACHE_SOUND("weapons/doublebarrel/close.wav");
 
 	m_nEventPrimary = PRECACHE_EVENT(1, "events/dbarrel.sc");
+	m_nEventSecondary = PRECACHE_EVENT(1, "events/dbarrel_reload.sc");
 }
 
 int CWeaponShotgunDoubleBarrel::AddToPlayer(CBasePlayer *pPlayer)
@@ -76,59 +53,53 @@ BOOL CWeaponShotgunDoubleBarrel::Deploy()
 	if ( m_pPlayer )
 		m_pPlayer->m_iWeaponKillCount = 0;
 #endif
-	return DoDeploy( "models/v_shotgun.mdl", "models/p_shotgun.mdl", DBARREL_DRAW, "shotgun" );
+	DoDeploy( "models/v_doublebarrel.mdl", "models/p_doublebarrel.mdl", ANIM_DBARREL_DRAW, "shotgun" );
+	m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime( 21, 20 );
+	return TRUE;
 }
 
-void CWeaponShotgunDoubleBarrel::Holster( int skiplocal )
+void CWeaponShotgunDoubleBarrel::DoHolsterAnimation()
 {
 #if defined( SERVER_DLL )
 	m_pPlayer->m_iWeaponKillCount = 0;
 #endif
+	SendWeaponAnim( ANIM_DBARREL_HOLSTER );
+	m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flHolsterTime = gpGlobals->time + GetAnimationTime( 11, 30 );
 }
 
-void CWeaponShotgunDoubleBarrel::OnRequestedAnimation( SingleActionAnimReq act )
+void CWeaponShotgunDoubleBarrel::PrimaryAttack()
 {
-	switch ( act )
+	// don't fire underwater
+	if (m_pPlayer->pev->waterlevel == 3)
 	{
-		case CWeaponBaseSingleAction::ANIM_IDLE: SendWeaponAnim( DBARREL_IDLE ); break;
-		case CWeaponBaseSingleAction::ANIM_LONGIDLE: SendWeaponAnim( DBARREL_IDLE2 ); break;
-		//case CWeaponBaseSingleAction::ANIM_PRIMARYATTACK: SendWeaponAnim( SHOTGUN_FIRE ); break;
-		case CWeaponBaseSingleAction::ANIM_RELOAD_START:
-		{
-			EMIT_SOUND_DYN( ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/db_open.wav", 1, ATTN_NORM, 0, 85 + RANDOM_LONG(0, 0x1f) );
-			SendWeaponAnim( DBARREL_RELOAD_START );
-		}
-		break;
-		case CWeaponBaseSingleAction::ANIM_RELOAD:
-		{
-			EMIT_SOUND_DYN( ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/db_reload2.wav", 1, ATTN_NORM, 0, 85 + RANDOM_LONG(0, 0x1f) );
-
-			if ( m_iClip == 0 )
-				SendWeaponAnim( DBARREL_RELOAD1 );
-		    else
-				SendWeaponAnim( DBARREL_RELOAD2 );
-
-#if defined( SERVER_DLL )
-			m_pPlayer->m_iWeaponKillCount = 0;
-#endif
-
-		    m_flNextReload = UTIL_WeaponTimeBase() + 0.5;
-		    m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.5;
-		}
-		break;
-		case CWeaponBaseSingleAction::ANIM_RELOAD_END:
-		{
-			SendWeaponAnim( DBARREL_RELOAD_END );
-			EMIT_SOUND_DYN( ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/db_close.wav", 1, ATTN_NORM, 0, 105 );
-			m_flNextReload = UTIL_WeaponTimeBase() + 1.5;
-			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.5;
-		}
-		break;
+		PlayEmptySound();
+		m_flNextPrimaryAttack = 0.15;
+		return;
 	}
-}
 
-void CWeaponShotgunDoubleBarrel::OnWeaponPrimaryAttack()
-{
+	if (m_iClip <= 0)
+	{
+		PlayEmptySound();
+		m_flNextPrimaryAttack = 0.15;
+		return;
+	}
+
+	m_pPlayer->m_iWeaponVolume = NORMAL_GUN_VOLUME;
+	m_pPlayer->m_iWeaponFlash = NORMAL_GUN_FLASH;
+
+	m_iClip--;
+
+	m_pPlayer->pev->effects = (int)(m_pPlayer->pev->effects) | EF_MUZZLEFLASH;
+
+	// player "shoot" animation
+	m_pPlayer->SetAnimation( PLAYER_ATTACK1 );
+
+	Vector vecSrc = m_pPlayer->GetGunPosition();
+	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_5DEGREES);
+	Vector vecDir;
+
+	vecDir = m_pPlayer->FireBulletsPlayer( iBullets(), vecSrc, vecAiming, GetSpreadVector( PrimaryWeaponSpread() ), 8192, BULLET_PLAYER_DBARREL, 2, 0, m_pPlayer->pev, m_pPlayer->random_seed );
+
 	int flags;
 #if defined(CLIENT_WEAPONS)
 	flags = FEV_NOTHOST;
@@ -136,10 +107,67 @@ void CWeaponShotgunDoubleBarrel::OnWeaponPrimaryAttack()
 	flags = 0;
 #endif
 
-	Vector vecSrc = m_pPlayer->GetGunPosition();
-	Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_5DEGREES);
-	Vector vecDir;
-	vecDir = m_pPlayer->FireBulletsPlayer(iBullets(), vecSrc, vecAiming, GetSpreadVector( PrimaryWeaponSpread() ), 2048, BULLET_PLAYER_BUCKSHOT, 0, 0, m_pPlayer->pev, m_pPlayer->random_seed);
+	PLAYBACK_EVENT_FULL(flags, m_pPlayer->edict(), m_nEventPrimary, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, 0, 0, 0, 0);
 
-	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_nEventPrimary, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, 0, 0, 0, 0 );
+	if (!m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
+		// HEV suit - indicate out of ammo condition
+		m_pPlayer->SetSuitUpdate("!HEV_AMO0", FALSE, 0);
+
+	m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + PrimaryFireRate();
+
+	if (m_flNextPrimaryAttack < UTIL_WeaponTimeBase())
+		m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + PrimaryFireRate();
+
+	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15);
+}
+
+void CWeaponShotgunDoubleBarrel::WeaponIdle( void )
+{
+	ResetEmptySound();
+
+	m_pPlayer->GetAutoaimVector( AUTOAIM_5DEGREES );
+
+	if ( m_flTimeWeaponIdle > UTIL_WeaponTimeBase() )
+		return;
+
+	float flTime;
+	int iAnim;
+	switch (RANDOM_LONG(0, 1))
+	{
+	case 0:
+		iAnim = ANIM_DBARREL_IDLE2;
+		flTime = GetAnimationTime( 1, 5 );
+		break;
+
+	default:
+	case 1:
+		iAnim = ANIM_DBARREL_IDLE1;
+		flTime = GetAnimationTime( 1, 5 );
+		break;
+	}
+
+	SendWeaponAnim(iAnim);
+
+	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + flTime;
+}
+
+void CWeaponShotgunDoubleBarrel::Reload( void )
+{
+	if ( m_pPlayer->ammo_buckshot <= 0 ) return;
+	if ( DefaultReload( ANIM_DBARREL_RELOAD, GetAnimationTime( 59, 20 ) ) )
+	{
+		AddWeaponSound( "weapons/doublebarrel/open.wav", 1, ATTN_NORM, GetAnimationTime( 8, 20 ) );
+		AddWeaponSound( "weapons/doublebarrel/out.wav", 1, ATTN_NORM, GetAnimationTime( 18, 20 ) );
+		AddWeaponSound( "weapons/doublebarrel/load1.wav", 1, ATTN_NORM, GetAnimationTime( 28, 20 ) );
+		AddWeaponSound( "weapons/doublebarrel/load2.wav", 1, ATTN_NORM, GetAnimationTime( 35, 20 ) );
+		AddWeaponSound( "weapons/doublebarrel/close.wav", 1, ATTN_NORM, GetAnimationTime( 45, 20 ) );
+
+		int flags;
+#if defined(CLIENT_WEAPONS)
+		flags = FEV_NOTHOST;
+#else
+		flags = 0;
+#endif
+		PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_nEventSecondary, GetAnimationTime( 20, 20 ), (float *)&g_vecZero, (float *)&g_vecZero, 0, 0, 0, 0, 0, 0 );
+	}
 }

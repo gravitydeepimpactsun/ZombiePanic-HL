@@ -181,7 +181,7 @@ void ZP::SetupDefaultSpawnList()
 {
 	int nPlayers = s_iCurrentPlayerAmount;
 	int nAmmoToSpawn[6];
-	int nWeaponToSpawn[6];
+	int nWeaponToSpawn[7];
 	int nItemToSpawn[4];
 
 	if ( nPlayers >= 18 )
@@ -199,6 +199,7 @@ void ZP::SetupDefaultSpawnList()
 		nWeaponToSpawn[3] = 3; // 3 - weapon_mp5
 		nWeaponToSpawn[4] = 3; // 4 - weapon_shotgun
 		nWeaponToSpawn[5] = 3; // 5 - weapon_ppk
+		nWeaponToSpawn[6] = 2; // 6 - weapon_doublebarrel
 
 		nItemToSpawn[0] = 3; // 0 - item_healthkit
 		nItemToSpawn[1] = 3; // 1 - item_battery
@@ -220,6 +221,7 @@ void ZP::SetupDefaultSpawnList()
 		nWeaponToSpawn[3] = 2; // 3 - weapon_mp5
 		nWeaponToSpawn[4] = 2; // 4 - weapon_shotgun
 		nWeaponToSpawn[5] = 3; // 5 - weapon_ppk
+		nWeaponToSpawn[6] = 2; // 6 - weapon_doublebarrel
 
 		nItemToSpawn[0] = 3; // 0 - item_healthkit
 		nItemToSpawn[1] = 3; // 1 - item_battery
@@ -241,6 +243,7 @@ void ZP::SetupDefaultSpawnList()
 		nWeaponToSpawn[3] = 2; // 3 - weapon_mp5
 		nWeaponToSpawn[4] = 1; // 4 - weapon_shotgun
 		nWeaponToSpawn[5] = 3; // 5 - weapon_ppk
+		nWeaponToSpawn[6] = 2; // 6 - weapon_doublebarrel
 
 		nItemToSpawn[0] = 3; // 0 - item_healthkit
 		nItemToSpawn[1] = 2; // 1 - item_battery
@@ -262,6 +265,7 @@ void ZP::SetupDefaultSpawnList()
 		nWeaponToSpawn[3] = 1; // 3 - weapon_mp5
 		nWeaponToSpawn[4] = 1; // 4 - weapon_shotgun
 		nWeaponToSpawn[5] = 3; // 5 - weapon_ppk
+		nWeaponToSpawn[6] = 2; // 6 - weapon_doublebarrel
 
 		nItemToSpawn[0] = 2; // 0 - item_healthkit
 		nItemToSpawn[1] = 2; // 1 - item_battery
@@ -283,6 +287,7 @@ void ZP::SetupDefaultSpawnList()
 		nWeaponToSpawn[3] = 1; // 3 - weapon_mp5
 		nWeaponToSpawn[4] = 1; // 4 - weapon_shotgun
 		nWeaponToSpawn[5] = 3; // 5 - weapon_ppk
+		nWeaponToSpawn[6] = 1; // 6 - weapon_doublebarrel
 
 		nItemToSpawn[0] = 2; // 0 - item_healthkit
 		nItemToSpawn[1] = 1; // 1 - item_battery
@@ -304,6 +309,7 @@ void ZP::SetupDefaultSpawnList()
 		nWeaponToSpawn[3] = 1; // 3 - weapon_mp5
 		nWeaponToSpawn[4] = 1; // 4 - weapon_shotgun
 		nWeaponToSpawn[5] = 3; // 5 - weapon_ppk
+		nWeaponToSpawn[6] = 1; // 6 - weapon_doublebarrel
 
 		nItemToSpawn[0] = 2; // 0 - item_healthkit
 		nItemToSpawn[1] = 1; // 1 - item_battery
@@ -325,6 +331,7 @@ void ZP::SetupDefaultSpawnList()
 		nWeaponToSpawn[3] = 1;	// 3 - weapon_mp5
 		nWeaponToSpawn[4] = 1;	// 4 - weapon_shotgun
 		nWeaponToSpawn[5] = 3;	// 5 - weapon_ppk
+		nWeaponToSpawn[6] = 1;	// 6 - weapon_doublebarrel
 
 		nItemToSpawn[0] = 1;	// 0 - item_healthkit
 		nItemToSpawn[1] = 1;	// 1 - item_battery
@@ -360,6 +367,7 @@ void ZP::SetupDefaultSpawnList()
 	s_SpawnList.push_back( new SpawnList( "weapon_mp5", nWeaponToSpawn[3], ItemType::TypeWeapon ) );
 	s_SpawnList.push_back( new SpawnList( "weapon_shotgun", nWeaponToSpawn[4], ItemType::TypeWeapon ) );
 	s_SpawnList.push_back( new SpawnList( "weapon_ppk", nWeaponToSpawn[5], ItemType::TypeWeapon ) );
+	s_SpawnList.push_back( new SpawnList( "weapon_doublebarrel", nWeaponToSpawn[6], ItemType::TypeWeapon ) );
 }
 
 void CRandomItemBase::SpawnItem(void)

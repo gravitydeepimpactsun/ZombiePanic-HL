@@ -56,10 +56,11 @@ void CWeaponExplosiveTNT::Precache(void)
 	PRECACHE_SOUND("weapons/tnt/fuse.wav");
 }
 
-BOOL CWeaponExplosiveTNT::Deploy()
+float CWeaponExplosiveTNT::Deploy()
 {
 	m_flReleaseThrow = -1;
-	return DoDeploy( "models/v_tnt.mdl", "models/p_tnt.mdl", ANIM_THROW_EXPLOSIVES_DRAW, "crowbar" );
+	DoDeploy( "models/v_tnt.mdl", "models/p_tnt.mdl", ANIM_THROW_EXPLOSIVES_DRAW, "crowbar" );
+	return GetAnimationTime( 26, 30 );
 }
 
 BOOL CWeaponExplosiveTNT::CanHolster(void)
@@ -68,10 +69,10 @@ BOOL CWeaponExplosiveTNT::CanHolster(void)
 	return (m_flStartThrow == 0);
 }
 
-void CWeaponExplosiveTNT::DoHolsterAnimation()
+float CWeaponExplosiveTNT::DoHolsterAnimation()
 {
 	SendWeaponAnim( ANIM_THROW_EXPLOSIVES_HOLSTER );
-	m_flTimeWeaponIdle = m_flHolsterTime = gpGlobals->time + GetAnimationTime(8, 20);
+	return GetAnimationTime( 8, 20 );
 }
 
 void CWeaponExplosiveTNT::PrimaryAttack()
@@ -167,7 +168,7 @@ void CWeaponExplosiveTNT::WeaponIdle(void)
 		m_flStartThrow = 0;
 
 		if ( m_iClip > 0 )
-			Deploy();
+			DoDeployAnimation();
 		else
 		{
 			RetireWeapon();

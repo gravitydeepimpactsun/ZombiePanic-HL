@@ -16,7 +16,7 @@ public:
 	void Spawn( void );
 	void Precache( void );
 	int AddToPlayer( CBasePlayer *pPlayer );
-	BOOL Deploy();
+	float Deploy();
 	void Reload( void );
 	void PrimaryAttack( void );
 	void WeaponIdle( void );

@@ -436,7 +436,7 @@ void CBasePlayer::SelectItem(const char *pstr)
 
 	if (m_pActiveItem)
 	{
-		m_pActiveItem->Deploy();
+		m_pActiveItem->DoDeployAnimation();
 	}
 }
 
@@ -464,7 +464,7 @@ void CBasePlayer::SelectLastItem(void)
 	CBasePlayerItem *pTemp = m_pActiveItem;
 	m_pActiveItem = m_pLastItem;
 	m_pLastItem = pTemp;
-	m_pActiveItem->Deploy();
+	m_pActiveItem->DoDeployAnimation();
 }
 
 /*
@@ -491,7 +491,7 @@ CBasePlayer::Spawn
 void CBasePlayer::Spawn(void)
 {
 	if (m_pActiveItem)
-		m_pActiveItem->Deploy();
+		m_pActiveItem->DoDeployAnimation();
 
 	g_irunninggausspred = false;
 }
@@ -902,7 +902,7 @@ void HUD_WeaponsPostThink(local_state_s *from, local_state_s *to, usercmd_t *cmd
 				// Deploy new weapon
 				if (player.m_pActiveItem)
 				{
-					player.m_pActiveItem->Deploy();
+					player.m_pActiveItem->DoDeployAnimation();
 				}
 
 				// Update weapon id so we can predict things correctly.

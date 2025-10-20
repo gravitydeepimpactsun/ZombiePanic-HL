@@ -383,7 +383,7 @@ void CFuncTank ::StopControl()
 		return;
 
 	if (m_pController->m_pActiveItem)
-		m_pController->m_pActiveItem->Deploy();
+		m_pController->m_pActiveItem->DoDeployAnimation();
 
 	ALERT(at_console, "stopped using TANK\n");
 

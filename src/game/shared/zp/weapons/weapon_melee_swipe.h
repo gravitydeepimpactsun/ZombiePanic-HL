@@ -21,8 +21,8 @@ public:
 	void PrimaryAttack(void);
 	void WeaponIdle();
 	int Swing( int fFirst );
-	BOOL Deploy( void );
-	void DoHolsterAnimation() override;
+	float Deploy( void );
+	float DoHolsterAnimation() override;
 	int m_iSwing;
 	TraceResult m_trHit;
 };

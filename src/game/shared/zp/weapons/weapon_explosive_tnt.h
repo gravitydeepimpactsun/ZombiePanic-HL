@@ -21,9 +21,9 @@ public:
 	void Precache( void );
 	void PrimaryAttack();
 	void SecondaryAttack();
-	BOOL Deploy();
+	float Deploy();
 	BOOL CanHolster();
-	void DoHolsterAnimation() override;
+	float DoHolsterAnimation() override;
 	void WeaponIdle();
 
 private:

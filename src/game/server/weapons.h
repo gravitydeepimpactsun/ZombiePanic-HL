@@ -144,10 +144,8 @@ public:
 	void CheckRespawn(void);
 	virtual int GetItemInfo(ItemInfo *p) { return 0; }; // returns 0 if struct not filled out
 	virtual BOOL CanDeploy(void) { return TRUE; };
-	virtual BOOL Deploy() // returns is deploy was successful
-	{
-		return TRUE;
-	};
+	virtual float Deploy() { return 0.0f; }
+	virtual void DoDeployAnimation() { }
 
 	virtual BOOL CanHolster(void) { return TRUE; }; // can this weapon be put away right now?
 	virtual void Holster(int skiplocal = 0);

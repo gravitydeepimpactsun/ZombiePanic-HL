@@ -26,8 +26,9 @@ public:
 	bool DoDeploy(const char *szViewModel, const char *szWeaponModel, int iAnim, const char *szAnimExt, int skiplocal = 0, int body = 0);
 	int DefaultReload(int iAnim, float fDelay, int body = 0) override;
 
+	void DoDeployAnimation() override;
 	void BeginHolster( CBasePlayerWeapon *pWeapon );
-	virtual void DoHolsterAnimation() {}
+	virtual float DoHolsterAnimation() { return 0.0f; }
 	void FinishHolster();
 	void StopHolstering();
 

@@ -57,9 +57,10 @@ int CWeaponSideArmGlock17::AddToPlayer(CBasePlayer *pPlayer)
 	return FALSE;
 }
 
-BOOL CWeaponSideArmGlock17::Deploy()
+float CWeaponSideArmGlock17::Deploy()
 {
-	return DoDeploy( "models/v_9mmhandgun.mdl", "models/p_9mmhandgun.mdl", SIG_DRAW, "onehanded" );
+	DoDeploy( "models/v_9mmhandgun.mdl", "models/p_9mmhandgun.mdl", SIG_DRAW, "onehanded" );
+	return 1.0f;
 }
 
 void CWeaponSideArmGlock17::PrimaryAttack(void)

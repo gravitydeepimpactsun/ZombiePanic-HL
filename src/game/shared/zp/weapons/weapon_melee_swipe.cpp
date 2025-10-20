@@ -51,15 +51,16 @@ int CWeaponMeleeSwipe::AddToPlayer( CBasePlayer *pPlayer )
 	return FALSE;
 }
 
-BOOL CWeaponMeleeSwipe::Deploy()
+float CWeaponMeleeSwipe::Deploy()
 {
-	return DoDeploy( "models/v_swipe.mdl", "models/p_swipe.mdl", ANIM_MELEE_DRAW, "swipe" );
+	DoDeploy( "models/v_swipe.mdl", "models/p_swipe.mdl", ANIM_MELEE_DRAW, "swipe" );
+	return 1.0f;
 }
 
-void CWeaponMeleeSwipe::DoHolsterAnimation()
+float CWeaponMeleeSwipe::DoHolsterAnimation()
 {
 	SendWeaponAnim( ANIM_MELEE_HOLSTER );
-	m_flTimeWeaponIdle = m_flHolsterTime = gpGlobals->time + 0.5f;
+	return 0.5f;
 }
 
 extern void FindHullIntersection( const Vector &vecSrc, TraceResult &tr, float *mins, float *maxs, edict_t *pEntity );

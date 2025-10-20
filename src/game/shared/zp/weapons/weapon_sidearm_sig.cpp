@@ -6,10 +6,10 @@ LINK_ENTITY_TO_CLASS(weapon_sig, CWeaponSideArmSig);
 LINK_ENTITY_TO_CLASS(weapon_9mmhandgun, CWeaponSideArmSig); // Only used by old custom maps, don't remove this
 
 
-void CWeaponSideArmSig::DoHolsterAnimation()
+float CWeaponSideArmSig::DoHolsterAnimation()
 {
 	SendWeaponAnim( IsEmpty() ? ANIM_PISTOL_HOLSTER_EMPTY : ANIM_PISTOL_HOLSTER );
-	m_flTimeWeaponIdle = m_flHolsterTime = gpGlobals->time + 0.33;
+	return 0.33;
 }
 
 void CWeaponSideArmSig::Spawn()
@@ -52,11 +52,10 @@ int CWeaponSideArmSig::AddToPlayer(CBasePlayer *pPlayer)
 	return FALSE;
 }
 
-BOOL CWeaponSideArmSig::Deploy()
+float CWeaponSideArmSig::Deploy()
 {
 	DoDeploy( "models/v_9mmhandgun.mdl", "models/p_9mmhandgun.mdl", IsEmpty() ? ANIM_PISTOL_DRAW_EMPTY : ANIM_PISTOL_DRAW, "onehanded" );
-	m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime( 26, 30 );
-	return TRUE;
+	return GetAnimationTime( 26, 30 );
 }
 
 void CWeaponSideArmSig::PrimaryAttack(void)

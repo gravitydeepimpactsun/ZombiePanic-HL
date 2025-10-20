@@ -4,10 +4,10 @@
 
 LINK_ENTITY_TO_CLASS( weapon_mp5, CWeaponSMGMP5 );
 
-void CWeaponSMGMP5::DoHolsterAnimation()
+float CWeaponSMGMP5::DoHolsterAnimation()
 {
 	SendWeaponAnim( ANIM_MP5_HOLSTER );
-	m_flNextPrimaryAttack = m_flTimeWeaponIdle = m_flHolsterTime = gpGlobals->time + GetAnimationTime(11, 30);
+	return GetAnimationTime( 11, 30 );
 }
 
 void CWeaponSMGMP5::Spawn()
@@ -52,11 +52,10 @@ int CWeaponSMGMP5::AddToPlayer(CBasePlayer *pPlayer)
 	return FALSE;
 }
 
-BOOL CWeaponSMGMP5::Deploy()
+float CWeaponSMGMP5::Deploy()
 {
 	DoDeploy( "models/v_mp5.mdl", "models/p_mp5.mdl", ANIM_MP5_DEPLOY, "mp5" );
-	m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime( 21, 30 );
-	return TRUE;
+	return GetAnimationTime( 21, 30 );
 }
 
 void CWeaponSMGMP5::PrimaryAttack()

@@ -47,13 +47,14 @@ void CWeaponSideArmRevolver::Precache(void)
 	m_nEventPrimary = PRECACHE_EVENT(1, "events/python.sc");
 }
 
-BOOL CWeaponSideArmRevolver::Deploy()
+float CWeaponSideArmRevolver::Deploy()
 {
 #if defined( SERVER_DLL )
 	if ( m_pPlayer )
 		m_pPlayer->m_iWeaponKillCount = 0;
 #endif
-	return DoDeploy( "models/v_357.mdl", "models/p_357.mdl", ANIM_357_DRAW, "python" );
+	DoDeploy( "models/v_357.mdl", "models/p_357.mdl", ANIM_357_DRAW, "python" );
+	return 1.0f;
 }
 
 void CWeaponSideArmRevolver::Holster(int skiplocal /* = 0 */)

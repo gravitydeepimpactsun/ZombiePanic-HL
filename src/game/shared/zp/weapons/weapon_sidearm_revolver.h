@@ -16,7 +16,7 @@ public:
 	void Precache( void );
 	int AddToPlayer( CBasePlayer *pPlayer );
 	void Holster( int skiplocal = 0 );
-	BOOL Deploy();
+	float Deploy();
 	void Reload( void );
 	void PrimaryAttack( void );
 	void WeaponIdle( void );

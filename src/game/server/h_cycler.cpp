@@ -356,7 +356,7 @@ public:
 
 	void PrimaryAttack(void);
 	void SecondaryAttack(void);
-	BOOL Deploy(void);
+	float Deploy(void);
 	void Holster(int skiplocal = 0);
 	int m_iszModel;
 	int m_iModel;
@@ -378,13 +378,13 @@ void CWeaponCycler::Spawn()
 	SetTouch(&CWeaponCycler::DefaultTouch);
 }
 
-BOOL CWeaponCycler::Deploy()
+float CWeaponCycler::Deploy()
 {
 	m_pPlayer->pev->viewmodel = m_iszModel;
 	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 1.0;
 	SendWeaponAnim(0);
 	m_iClip = 0;
-	return TRUE;
+	return 0.0f;
 }
 
 void CWeaponCycler::Holster(int skiplocal /* = 0 */)

@@ -57,12 +57,20 @@ int CWeaponBase::DefaultReload(int iAnim, float fDelay, int body)
 	return TRUE;
 }
 
+void CWeaponBase::DoDeployAnimation()
+{
+	float flDeploy = Deploy();
+	m_flHolsterTime = -1;
+	m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flTimeWeaponIdle = m_pPlayer->m_flNextAttack = flDeploy;
+}
+
 void CWeaponBase::BeginHolster( CBasePlayerWeapon *pWeapon )
 {
 	m_pNewWeapon = pWeapon;
 	m_bIsHolstering = true;
-	m_flHolsterTime = gpGlobals->time;
-	DoHolsterAnimation();
+	m_fInReload = FALSE;
+	m_pPlayer->m_flNextAttack = 0;
+	m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flHolsterTime = m_flTimeWeaponIdle = gpGlobals->time + DoHolsterAnimation();
 }
 
 void CWeaponBase::FinishHolster()

@@ -12,11 +12,11 @@ class CWeaponSMGMP5 : public CWeaponBase
 public:
 	ZPWeaponID GetWeaponID() override { return WEAPON_MP5; }
 	const char *GetEmptySound() const override { return "weapons/mp5/dryfire.wav"; }
-	void DoHolsterAnimation() override;
+	float DoHolsterAnimation() override;
 	void Spawn( void );
 	void Precache( void );
 	int AddToPlayer( CBasePlayer *pPlayer );
-	BOOL Deploy();
+	float Deploy();
 	void Reload( void );
 	void PrimaryAttack( void );
 	void WeaponIdle( void );

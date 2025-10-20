@@ -13,11 +13,11 @@ public:
 	ZPWeaponID GetWeaponID() override { return WEAPON_PPK; }
 	bool IsAutomaticWeapon() const override { return false; }
 	const char *GetEmptySound() const override { return "weapons/ppk/dryfire.wav"; }
-	void DoHolsterAnimation() override;
+	float DoHolsterAnimation() override;
 	void Spawn( void );
 	void Precache( void );
 	int AddToPlayer( CBasePlayer *pPlayer );
-	BOOL Deploy();
+	float Deploy();
 	void Reload( void );
 	void PrimaryAttack( void );
 	void WeaponIdle( void );

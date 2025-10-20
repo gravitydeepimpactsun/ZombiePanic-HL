@@ -122,24 +122,23 @@ BOOL CWeaponExplosiveSatchel::CanDeploy(void)
 	return FALSE;
 }
 
-BOOL CWeaponExplosiveSatchel::Deploy()
+float CWeaponExplosiveSatchel::Deploy()
 {
 	m_bHasDetonatedSatchel = false;
-	m_flTimeWeaponIdle = m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + GetAnimationTime( HasSatchelCharge() ? 18 : 22, 30 );
-	return DoDeploy(
+	DoDeploy(
 		"models/v_satchel.mdl",
 		HasSatchelCharge() ? "models/p_satchel_radio.mdl" : "models/p_satchel.mdl",
 		HasSatchelCharge() ? ANIM_SATCHEL_DETONATOR_DRAW : ANIM_SATCHEL_DRAW,
 		HasSatchelCharge() ? "hive" : "trip"
 	);
+	return GetAnimationTime( HasSatchelCharge() ? 18 : 22, 30 );
 }
 
-void CWeaponExplosiveSatchel::DoHolsterAnimation()
+float CWeaponExplosiveSatchel::DoHolsterAnimation()
 {
 	EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_WEAPON, "common/null.wav", 1.0, ATTN_NORM);
 
 	SendWeaponAnim( HasSatchelCharge() ? ANIM_SATCHEL_DETONATOR_HOLSTER : ANIM_SATCHEL_HOLSTER );
-	m_flTimeWeaponIdle = m_flHolsterTime = gpGlobals->time + GetAnimationTime(9, 30);
 
 	if ( m_iClip <= 0 && !HasSatchelCharge() )
 	{
@@ -148,6 +147,8 @@ void CWeaponExplosiveSatchel::DoHolsterAnimation()
 #endif
 		DestroyItem();
 	}
+
+	return GetAnimationTime( 9, 30 );
 }
 
 void CWeaponExplosiveSatchel::DeactivateThrow()
@@ -236,13 +237,13 @@ void CWeaponExplosiveSatchel::WeaponIdle( void )
 	if ( m_bFirstThrow )
 	{
 		m_bFirstThrow = false;
-		Deploy();
+		DoDeployAnimation();
 		return;
 	}
 
 	if ( m_bHasDetonatedSatchel )
 	{
-		Deploy();
+		DoDeployAnimation();
 		return;
 	}
 

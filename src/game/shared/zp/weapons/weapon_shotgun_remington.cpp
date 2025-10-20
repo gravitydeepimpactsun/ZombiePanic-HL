@@ -4,13 +4,13 @@
 
 LINK_ENTITY_TO_CLASS( weapon_shotgun, CWeaponShotgunRemington );
 
-void CWeaponShotgunRemington::DoHolsterAnimation()
+float CWeaponShotgunRemington::DoHolsterAnimation()
 {
 #if defined( SERVER_DLL )
 	m_pPlayer->m_iWeaponKillCount = 0;
 #endif
 	SendWeaponAnim( ANIM_SHOTGUN_HOLSTER );
-	m_flTimeWeaponIdle = m_flHolsterTime = gpGlobals->time + 0.35;
+	return 0.35;
 }
 
 void CWeaponShotgunRemington::Spawn(void)
@@ -59,15 +59,14 @@ int CWeaponShotgunRemington::AddToPlayer( CBasePlayer *pPlayer )
 	return FALSE;
 }
 
-BOOL CWeaponShotgunRemington::Deploy()
+float CWeaponShotgunRemington::Deploy()
 {
 #if defined( SERVER_DLL )
 	if ( m_pPlayer )
 		m_pPlayer->m_iWeaponKillCount = 0;
 #endif
 	DoDeploy( "models/v_shotgun.mdl", "models/p_shotgun.mdl", ANIM_SHOTGUN_DRAW, "shotgun" );
-	m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime( 19, 30 );
-	return TRUE;
+	return GetAnimationTime( 19, 30 );
 }
 
 void CWeaponShotgunRemington::OnRequestedAnimation( SingleActionAnimReq act )

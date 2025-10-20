@@ -23,8 +23,8 @@ public:
 	int Swing( int fFirst );
 	void DoHeavyAttack();
 	void WeaponIdle();
-	BOOL Deploy( void );
-	void DoHolsterAnimation() override;
+	float Deploy( void );
+	float DoHolsterAnimation() override;
 	int m_iSwing;
 	TraceResult m_trHit;
 

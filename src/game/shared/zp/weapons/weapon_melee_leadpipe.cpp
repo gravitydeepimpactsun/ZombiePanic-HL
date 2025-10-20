@@ -51,17 +51,16 @@ int CWeaponMeleeLeadPipe::AddToPlayer( CBasePlayer *pPlayer )
 	return FALSE;
 }
 
-BOOL CWeaponMeleeLeadPipe::Deploy()
+float CWeaponMeleeLeadPipe::Deploy()
 {
 	DoDeploy( "models/v_leadpipe.mdl", "models/p_leadpipe.mdl", ANIM_MELEE_DRAW, "crowbar" );
-	m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime( 24, 30 );
-	return TRUE;
+	return GetAnimationTime( 24, 30 );
 }
 
-void CWeaponMeleeLeadPipe::DoHolsterAnimation()
+float CWeaponMeleeLeadPipe::DoHolsterAnimation()
 {
 	SendWeaponAnim( ANIM_MELEE_HOLSTER );
-	m_flTimeWeaponIdle = m_flHolsterTime = gpGlobals->time + 0.5f;
+	return 0.5f;
 }
 
 extern void FindHullIntersection(const Vector &vecSrc, TraceResult &tr, float *mins, float *maxs, edict_t *pEntity);

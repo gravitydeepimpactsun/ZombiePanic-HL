@@ -47,17 +47,16 @@ int CWeaponShotgunDoubleBarrel::AddToPlayer(CBasePlayer *pPlayer)
 	return FALSE;
 }
 
-BOOL CWeaponShotgunDoubleBarrel::Deploy()
+float CWeaponShotgunDoubleBarrel::Deploy()
 {
 	DoDeploy( "models/v_doublebarrel.mdl", "models/p_doublebarrel.mdl", ANIM_DBARREL_DRAW, "shotgun" );
-	m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime( 21, 20 );
-	return TRUE;
+	return GetAnimationTime( 21, 20 );
 }
 
-void CWeaponShotgunDoubleBarrel::DoHolsterAnimation()
+float CWeaponShotgunDoubleBarrel::DoHolsterAnimation()
 {
 	SendWeaponAnim( ANIM_DBARREL_HOLSTER );
-	m_flTimeWeaponIdle = m_flHolsterTime = gpGlobals->time + GetAnimationTime(11, 30);
+	return GetAnimationTime( 11, 30 );
 }
 
 void CWeaponShotgunDoubleBarrel::DoAudioFrame( void )
@@ -191,7 +190,7 @@ void CWeaponShotgunDoubleBarrel::Reload( void )
 			AddWeaponSound( "weapons/doublebarrel/open.wav", 1, ATTN_NORM, GetAnimationTime( 15, 25 ) );
 			AddWeaponSound( "weapons/doublebarrel/out.wav", 1, ATTN_NORM, GetAnimationTime( 22, 25 ) );
 			AddWeaponSound( "weapons/doublebarrel/load1.wav", 1, ATTN_NORM, GetAnimationTime( 45, 25 ) );
-			AddWeaponSound( "weapons/doublebarrel/close.wav", 1, ATTN_NORM, GetAnimationTime( 57, 25 ) );
+			AddWeaponSound( "weapons/doublebarrel/close.wav", 1, ATTN_NORM, GetAnimationTime( 55, 25 ) );
 		}
 		else
 		{

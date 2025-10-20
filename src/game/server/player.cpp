@@ -37,6 +37,7 @@
 #include "hltv.h"
 #include "zp/gamemodes/zp_gamemodebase.h"
 #include "zp/weapons/CWeaponBase.h"
+#include "zp/weapons/CWeaponBaseSingleAction.h"
 #include "zp/zp_shared.h"
 #include "zp/zp_spawnpoint_ent.h"
 
@@ -2598,6 +2599,15 @@ void CBasePlayer::SelectWeapon( CBasePlayerWeapon *pWeapon )
 	}
 	if ( pBaseWeapon->IsHolstering() ) return;
 
+	// Check if this is a CWeaponBaseSingleAction, if so,
+	// make sure we can't switch if we are pumping the weapon.
+	CWeaponBaseSingleAction *pSingleAction = dynamic_cast<CWeaponBaseSingleAction *>( pBaseWeapon );
+	if ( pSingleAction )
+	{
+		// If we are pumping, don't allow switching.
+		if ( pSingleAction->PumpIsRequired() ) return;
+	}
+
 	ResetAutoaim();
 
 	// Wait a little longer before the player can switch weapons again
@@ -2634,7 +2644,7 @@ void CBasePlayer::SelectNewActiveWeapon( CBasePlayerWeapon *pWeapon )
 	if ( m_pActiveItem )
 	{
 		EMIT_SOUND(ENT(pev), CHAN_ITEM, "common/wpn_select.wav", 1, ATTN_NORM);
-		m_pActiveItem->Deploy();
+		m_pActiveItem->DoDeployAnimation();
 		m_pActiveItem->UpdateItemInfo();
 		m_flLastWeaponDrop = gpGlobals->time + 0.5f;
 	}
@@ -6523,7 +6533,7 @@ BOOL CBasePlayer ::SwitchWeapon(CBasePlayerItem *pWeapon)
 	m_pLastItem = m_pActiveItem;
 	m_pActiveItem = pWeapon;
 
-	m_pActiveItem->Deploy();
+	m_pActiveItem->DoDeployAnimation();
 	m_pActiveItem->UpdateItemInfo();
 
 	return TRUE;

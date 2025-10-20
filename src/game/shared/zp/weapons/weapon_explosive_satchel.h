@@ -23,10 +23,10 @@ public:
 	bool HasSatchelCharge() const { return m_bHasThrownSatchel; }
 
 	BOOL CanDeploy();
-	BOOL Deploy();
+	float Deploy();
 	BOOL IsUseable();
 
-	void DoHolsterAnimation() override;
+	float DoHolsterAnimation() override;
 	void DeactivateThrow() override;
 	void WeaponIdle();
 	void Throw();

@@ -52,6 +52,22 @@ void VectorAngles(const float *forward, float *angles);
 
 extern cvar_t *cl_lw;
 
+// ------------------------------------------------------------------------
+// Shell ejection cvars cords
+// We can adjust the shell ejection position for each weapon
+// ------------------------------------------------------------------------
+
+static ConVar cl_shellejects_dbarrel1( "cl_shellejects_dbarrel1", "-20 -12 -4" );
+static ConVar cl_shellejects_dbarrel2( "cl_shellejects_dbarrel2", "-20 -12 4" );
+static ConVar cl_shellejects_m16( "cl_shellejects_m16", "13 -12 10" );
+static ConVar cl_shellejects_sig( "cl_shellejects_sig", "20 -12 4" );
+static ConVar cl_shellejects_ppk( "cl_shellejects_ppk", "20 -12 4" );
+static ConVar cl_shellejects_mp5( "cl_shellejects_mp5", "13 -12 10" );
+static ConVar cl_shellejects_revolver( "cl_shellejects_revolver", "20 -12 4" );
+static ConVar cl_shellejects_shotgun( "cl_shellejects_shotgun", "8 -12 8" );
+
+// ------------------------------------------------------------------------
+
 extern "C"
 {
 
@@ -60,6 +76,7 @@ extern "C"
 	void EV_FirePPK(struct event_args_s *args);
 //	void EV_FireGlock(struct event_args_s *args);
 	void EV_FireDBarrel(struct event_args_s *args);
+	void EV_DBarrelReload(struct event_args_s *args);
 	void EV_ShotgunPump(struct event_args_s *args);
 	void EV_FireShotGunSingle(struct event_args_s *args);
 	void EV_FireShotGunDouble(struct event_args_s *args);
@@ -337,15 +354,9 @@ void EV_HLDM_DecalGunshot(pmtrace_t *pTrace, const Vector &vDir, int iBulletType
 	{
 		switch (iBulletType)
 		{
-		case BULLET_PLAYER_9MM:
-		case BULLET_MONSTER_9MM:
-		case BULLET_PLAYER_MP5:
-		case BULLET_MONSTER_MP5:
-		case BULLET_PLAYER_BUCKSHOT:
-		case BULLET_PLAYER_357:
-		default:
-			// smoke and decal
-			EV_HLDM_GunshotDecalTrace(pTrace, EV_HLDM_DamageDecal(pe));
+			default:
+				// smoke and decal
+				EV_HLDM_GunshotDecalTrace(pTrace, EV_HLDM_DamageDecal(pe));
 			break;
 		}
 	}
@@ -413,7 +424,7 @@ void EV_HLDM_FireBullets(int idx, float *forward, float *right, float *up, int c
 
 		float x, y, z;
 		//We randomize for the Shotgun.
-		if (iBulletType == BULLET_PLAYER_BUCKSHOT)
+		if (iBulletType == BULLET_PLAYER_BUCKSHOT || iBulletType == BULLET_PLAYER_DBARREL)
 		{
 			do
 			{
@@ -466,32 +477,9 @@ void EV_HLDM_FireBullets(int idx, float *forward, float *right, float *up, int c
 		{
 			switch (iBulletType)
 			{
-			default:
-			case BULLET_PLAYER_9MM:
-
-				EV_HLDM_PlayTextureSound(idx, &tr, vecSrc, vecEnd, iBulletType);
-				EV_HLDM_DecalGunshot(&tr, forward, iBulletType);
-
-				break;
-			case BULLET_PLAYER_MP5:
-
-				if (!tracer)
-				{
+				default:
 					EV_HLDM_PlayTextureSound(idx, &tr, vecSrc, vecEnd, iBulletType);
 					EV_HLDM_DecalGunshot(&tr, forward, iBulletType);
-				}
-				break;
-			case BULLET_PLAYER_BUCKSHOT:
-
-				EV_HLDM_PlayTextureSound(idx, &tr, vecSrc, vecEnd, iBulletType);
-				EV_HLDM_DecalGunshot(&tr, forward, iBulletType);
-
-				break;
-			case BULLET_PLAYER_357:
-
-				EV_HLDM_PlayTextureSound(idx, &tr, vecSrc, vecEnd, iBulletType);
-				EV_HLDM_DecalGunshot(&tr, forward, iBulletType);
-
 				break;
 			}
 		}
@@ -535,8 +523,9 @@ void EV_FireSig(event_args_t *args)
 		V_PunchAxis(0, -2.0);
 	}
 
-	EV_GetDefaultShellInfo(args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 20, -12, 4);
-
+	Vector shellOffset;
+	ParseVector( cl_shellejects_sig.GetString(), shellOffset );
+	EV_GetDefaultShellInfo(args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, shellOffset.x, shellOffset.y, shellOffset.z);
 	EV_EjectBrass(ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHELL);
 
 	gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, "weapons/sig/fire.wav", gEngfuncs.pfnRandomFloat(0.92, 1.0), ATTN_NORM, 0, 98 + gEngfuncs.pfnRandomLong(0, 3));
@@ -545,7 +534,7 @@ void EV_FireSig(event_args_t *args)
 
 	VectorCopy(forward, vecAiming);
 
-	EV_HLDM_FireBullets(idx, forward, right, up, 1, vecSrc, vecAiming, 8192, BULLET_PLAYER_9MM, 0, NULL, args->fparam1, args->fparam2);
+	EV_HLDM_FireBullets(idx, forward, right, up, 1, vecSrc, vecAiming, 8192, BULLET_PLAYER_SIG, 0, NULL, args->fparam1, args->fparam2);
 }
 
 void EV_FirePPK(event_args_t *args)
@@ -579,9 +568,10 @@ void EV_FirePPK(event_args_t *args)
 
 		V_PunchAxis(0, -2.0);
 	}
-
-	EV_GetDefaultShellInfo(args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 20, -12, 4);
-
+	
+	Vector shellOffset;
+	ParseVector( cl_shellejects_ppk.GetString(), shellOffset );
+	EV_GetDefaultShellInfo(args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, shellOffset.x, shellOffset.y, shellOffset.z);
 	EV_EjectBrass(ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHELL);
 
 	gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, "weapons/ppk/fire.wav", gEngfuncs.pfnRandomFloat(0.92, 1.0), ATTN_NORM, 0, 98 + gEngfuncs.pfnRandomLong(0, 3));
@@ -590,7 +580,7 @@ void EV_FirePPK(event_args_t *args)
 
 	VectorCopy(forward, vecAiming);
 
-	EV_HLDM_FireBullets(idx, forward, right, up, 1, vecSrc, vecAiming, 8192, BULLET_PLAYER_9MM, 0, NULL, args->fparam1, args->fparam2);
+	EV_HLDM_FireBullets(idx, forward, right, up, 1, vecSrc, vecAiming, 8192, BULLET_PLAYER_PPK, 0, NULL, args->fparam1, args->fparam2);
 }
 
 void EV_FireGlock(event_args_t *args)
@@ -637,7 +627,7 @@ void EV_FireGlock(event_args_t *args)
 
 	VectorCopy(forward, vecAiming);
 
-	EV_HLDM_FireBullets(idx, forward, right, up, 1, vecSrc, vecAiming, 8192, BULLET_PLAYER_9MM, 0, NULL, args->fparam1, args->fparam2);
+	EV_HLDM_FireBullets(idx, forward, right, up, 1, vecSrc, vecAiming, 8192, BULLET_PLAYER_GLOCK, 0, NULL, args->fparam1, args->fparam2);
 }
 //======================
 //	   GLOCK END
@@ -667,8 +657,9 @@ void EV_ShotgunPump(event_args_t *args)
 	Vector ShellOrigin;
 	int shell = gEngfuncs.pEventAPI->EV_FindModelIndex("models/shotgunshell.mdl"); // brass shell
 
-	EV_GetDefaultShellInfo(args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 32, -12, 6);
-
+	Vector shellOffset;
+	ParseVector( cl_shellejects_shotgun.GetString(), shellOffset );
+	EV_GetDefaultShellInfo(args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, shellOffset.x, shellOffset.y, shellOffset.z);
 	EV_EjectBrass(ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHOTSHELL);
 }
 
@@ -733,7 +724,7 @@ void EV_FireDBarrel(event_args_t *args)
 	{
 		// Add muzzle flash to current weapon model
 		EV_MuzzleFlash();
-		gEngfuncs.pEventAPI->EV_WeaponAnimation(ANIM_SHOTGUN_FIRE, 2);
+		gEngfuncs.pEventAPI->EV_WeaponAnimation( ANIM_DBARREL_FIRE1 + gEngfuncs.pfnRandomLong(0, 2), 2 );
 
 		V_PunchAxis(0, -5.0);
 	}
@@ -743,9 +734,38 @@ void EV_FireDBarrel(event_args_t *args)
 	EV_GetGunPosition(args, vecSrc, origin);
 	VectorCopy(forward, vecAiming);
 
-	WeaponData data = GetWeaponSlotInfo( WEAPON_SHOTGUN );
+	WeaponData data = GetWeaponSlotInfo( WEAPON_DOUBLEBARREL );
 
-	EV_HLDM_FireBullets(idx, forward, right, up, data.Bullets, vecSrc, vecAiming, 2048, BULLET_PLAYER_BUCKSHOT, 0, NULL, data.WeaponSpread[0], data.WeaponSpread[0]);
+	EV_HLDM_FireBullets(idx, forward, right, up, data.Bullets, vecSrc, vecAiming, 2048, BULLET_PLAYER_DBARREL, 0, NULL, data.WeaponSpread[0], data.WeaponSpread[0]);
+}
+
+void EV_DBarrelReload(event_args_t *args)
+{
+	Vector origin;
+	Vector angles;
+	Vector velocity;
+	Vector up, right, forward;
+
+	VectorCopy(args->origin, origin);
+	VectorCopy(args->angles, angles);
+	VectorCopy(args->velocity, velocity);
+
+	AngleVectors(angles, forward, right, up);
+
+	Vector ShellVelocity;
+	Vector ShellOrigin;
+	int shell = gEngfuncs.pEventAPI->EV_FindModelIndex("models/shotgunshell.mdl"); // brass shell
+
+	// Shell 1
+	Vector shellOffset;
+	ParseVector( cl_shellejects_dbarrel1.GetString(), shellOffset );
+	EV_GetDefaultShellInfo(args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, shellOffset.x, shellOffset.y, shellOffset.z);
+	EV_EjectBrass(ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHOTSHELL);
+
+	// Shell 2
+	ParseVector( cl_shellejects_dbarrel2.GetString(), shellOffset );
+	EV_GetDefaultShellInfo(args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, shellOffset.x, shellOffset.y, shellOffset.z);
+	EV_EjectBrass(ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHOTSHELL);
 }
 //======================
 //	   SHOTGUN END
@@ -786,8 +806,9 @@ void EV_FireM16(event_args_t *args)
 		V_PunchAxis(0, gEngfuncs.pfnRandomFloat(-2, 2));
 	}
 
-	EV_GetDefaultShellInfo(args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 20, -12, 4);
-
+	Vector shellOffset;
+	ParseVector( cl_shellejects_m16.GetString(), shellOffset );
+	EV_GetDefaultShellInfo(args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, shellOffset.x, shellOffset.y, shellOffset.z);
 	EV_EjectBrass(ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHELL);
 
 	switch (gEngfuncs.pfnRandomLong(0, 1))
@@ -842,9 +863,10 @@ void EV_FireMP5(event_args_t *args)
 
 		V_PunchAxis(0, gEngfuncs.pfnRandomFloat(-2, 2));
 	}
-
-	EV_GetDefaultShellInfo(args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 20, -12, 4);
-
+	
+	Vector shellOffset;
+	ParseVector( cl_shellejects_mp5.GetString(), shellOffset );
+	EV_GetDefaultShellInfo(args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, shellOffset.x, shellOffset.y, shellOffset.z);
 	EV_EjectBrass(ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHELL);
 
 	gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, "weapons/mp5/fire.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong(0, 0xf));

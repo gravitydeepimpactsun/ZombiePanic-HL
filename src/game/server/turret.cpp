@@ -30,6 +30,7 @@
 #include "monsters.h"
 #include "weapons.h"
 #include "effects.h"
+#include "zp/zp_shared_weapons.h"
 
 extern Vector VecBModelOrigin(entvars_t *pevBModel);
 

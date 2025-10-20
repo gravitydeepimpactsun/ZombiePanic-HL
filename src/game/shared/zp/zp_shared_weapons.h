@@ -3,6 +3,26 @@
 #ifndef ZOMBIEPANIC_SHARED_WEAPON_H
 #define ZOMBIEPANIC_SHARED_WEAPON_H
 
+// bullet types
+typedef enum
+{
+	BULLET_NONE = 0,
+	BULLET_PLAYER_SIG, // sig
+	BULLET_PLAYER_PPK, // ppk
+	BULLET_PLAYER_GLOCK, // glock
+	BULLET_PLAYER_MP5, // mp5
+	BULLET_PLAYER_M16, // m16
+	BULLET_PLAYER_357, // python
+	BULLET_PLAYER_BUCKSHOT, // shotgun
+	BULLET_PLAYER_DBARREL, // double barrel
+	BULLET_PLAYER_CROWBAR, // crowbar swipe
+	BULLET_PLAYER_SWIPE, // zombie swipe
+
+	BULLET_MONSTER_9MM,
+	BULLET_MONSTER_MP5,
+	BULLET_MONSTER_12MM,
+} Bullet;
+
 // Sig / Shared pistol animations
 enum
 {
@@ -34,6 +54,19 @@ enum
 	ANIM_SHOTGUN_RELOAD_END,
 	ANIM_SHOTGUN_DRAW,
 	ANIM_SHOTGUN_HOLSTER,
+};
+
+// Double Barrel Shotgun animations
+enum
+{
+	ANIM_DBARREL_IDLE1 = 0,
+	ANIM_DBARREL_IDLE2,
+	ANIM_DBARREL_FIRE1,
+	ANIM_DBARREL_FIRE2,
+	ANIM_DBARREL_FIRE3,
+	ANIM_DBARREL_RELOAD,
+	ANIM_DBARREL_DRAW,
+	ANIM_DBARREL_HOLSTER
 };
 
 // M16 / 5.56mm rifle animations

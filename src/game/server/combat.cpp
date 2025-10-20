@@ -30,6 +30,7 @@
 #include "weapons.h"
 #include "func_break.h"
 #include "game.h"
+#include "zp/zp_shared_weapons.h"
 
 extern DLL_GLOBAL Vector g_vecAttackDir;
 extern DLL_GLOBAL int g_iSkillLevel;
@@ -1541,8 +1542,11 @@ Vector CBaseEntity::FireBulletsPlayer(ULONG cShots, Vector vecSrc, Vector vecDir
 					break;
 
 				case BULLET_PLAYER_BUCKSHOT:
-					// make distance based!
 					pEntity->TraceAttack(pevAttacker, mp_dmg_shotgun.value, vecDir, &tr, DMG_BULLET);
+					break;
+
+				case BULLET_PLAYER_DBARREL:
+					pEntity->TraceAttack(pevAttacker, mp_dmg_dbarrel.value, vecDir, &tr, DMG_BULLET);
 					break;
 
 				case BULLET_PLAYER_357:

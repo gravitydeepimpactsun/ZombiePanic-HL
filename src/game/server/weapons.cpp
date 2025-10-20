@@ -34,6 +34,7 @@
 #if !defined(CLIENT_DLL)
 #include "zp/gamemodes/zp_gamemodebase.h"
 #endif
+#include "zp/zp_shared_weapons.h"
 
 extern CGraph WorldGraph;
 extern int gEvilImpulse101;

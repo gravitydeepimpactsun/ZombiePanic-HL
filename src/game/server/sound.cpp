@@ -28,6 +28,7 @@
 #include "core.h"
 #endif
 #include "convar.h"
+#include "zp/zp_shared_weapons.h"
 
 static char *memfgets(byte *pMemFile, int fileSize, int &filePos, char *pBuffer, int bufferSize);
 

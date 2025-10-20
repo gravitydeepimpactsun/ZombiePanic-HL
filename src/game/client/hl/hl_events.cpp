@@ -23,6 +23,7 @@ extern "C"
 	void EV_FirePPK(struct event_args_s *args);
 	//void EV_FireGlock(struct event_args_s *args);
 	void EV_FireDBarrel(struct event_args_s *args);
+	void EV_DBarrelReload(struct event_args_s *args);
 	void EV_ShotgunPump(struct event_args_s *args);
 	void EV_FireShotGunSingle(struct event_args_s *args);
 	void EV_FireShotGunDouble(struct event_args_s *args);
@@ -68,6 +69,7 @@ void Game_HookEvents(void)
 	gEngfuncs.pfnHookEvent("events/ppk.sc", EV_FirePPK);
 	//gEngfuncs.pfnHookEvent("events/glock.sc", EV_FireGlock);
 	gEngfuncs.pfnHookEvent("events/dbarrel.sc", EV_FireDBarrel);
+	gEngfuncs.pfnHookEvent("events/dbarrel_reload.sc", EV_DBarrelReload);
 	gEngfuncs.pfnHookEvent("events/shotgun_pump.sc", EV_ShotgunPump);
 	gEngfuncs.pfnHookEvent("events/shotgun1.sc", EV_FireShotGunSingle);
 	gEngfuncs.pfnHookEvent("events/shotgun2.sc", EV_FireShotGunDouble);

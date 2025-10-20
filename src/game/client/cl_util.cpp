@@ -155,6 +155,60 @@ bool ParseColor(const char *string, Color &color)
 	return true;
 }
 
+// Parses a string in format "X Y Z" where each component is a float.
+// Similar to how ParseColor works but for Vector class.
+bool ParseVector( const char *string, Vector &vec )
+{
+	Vector newVector;
+	const char *value = string;
+
+	// X cordinate
+	{
+		while (*value == ' ')
+			value++;
+
+		// Allow for negative values
+		if ((*value < '0' || *value > '9') && *value != '-')
+			return false;
+
+		newVector[0] = atoi(value);
+
+		value = strchr(value, ' ');
+		if (value == NULL)
+			return false;
+	}
+
+	// Y cordinate
+	{
+		while (*value == ' ')
+			value++;
+
+		// Allow for negative values
+		if ((*value < '0' || *value > '9') && *value != '-')
+			return false;
+
+		newVector[1] = atoi(value);
+		value = strchr(value, ' ');
+		if (value == NULL)
+			return false;
+	}
+
+	// Z cordinate
+	{
+		while (*value == ' ')
+			value++;
+
+		// Allow for negative values
+		if ((*value < '0' || *value > '9') && *value != '-')
+			return false;
+
+		newVector[2] = atoi(value);
+	}
+
+	vec = newVector;
+	return true;
+}
+
 //-------------------------------------------------------------------
 // Text drawing in console font
 //-------------------------------------------------------------------

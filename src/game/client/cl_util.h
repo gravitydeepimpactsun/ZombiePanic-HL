@@ -161,6 +161,9 @@ HSPRITE LoadSprite(const char *pszName);
  */
 bool ParseColor(const char *string, Color &color);
 
+// Parses a string in format "X Y Z" where each component is a float.
+bool ParseVector(const char *string, Vector &vec);
+
 //-------------------------------------------------------------------
 // Text drawing in console font
 //-------------------------------------------------------------------

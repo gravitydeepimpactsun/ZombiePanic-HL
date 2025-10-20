@@ -6,6 +6,9 @@ LINK_ENTITY_TO_CLASS( weapon_shotgun, CWeaponShotgunRemington );
 
 void CWeaponShotgunRemington::DoHolsterAnimation()
 {
+#if defined( SERVER_DLL )
+	m_pPlayer->m_iWeaponKillCount = 0;
+#endif
 	SendWeaponAnim( ANIM_SHOTGUN_HOLSTER );
 	m_flHolsterTime = gpGlobals->time + 0.35;
 }
@@ -63,13 +66,6 @@ BOOL CWeaponShotgunRemington::Deploy()
 		m_pPlayer->m_iWeaponKillCount = 0;
 #endif
 	return DoDeploy( "models/v_shotgun.mdl", "models/p_shotgun.mdl", ANIM_SHOTGUN_DRAW, "shotgun" );
-}
-
-void CWeaponShotgunRemington::Holster( int skiplocal )
-{
-#if defined( SERVER_DLL )
-	m_pPlayer->m_iWeaponKillCount = 0;
-#endif
 }
 
 void CWeaponShotgunRemington::OnRequestedAnimation( SingleActionAnimReq act )

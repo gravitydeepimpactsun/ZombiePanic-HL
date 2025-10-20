@@ -182,12 +182,24 @@ void CWeaponShotgunDoubleBarrel::WeaponIdle( void )
 void CWeaponShotgunDoubleBarrel::Reload( void )
 {
 	if ( m_pPlayer->ammo_buckshot <= 0 ) return;
-	if ( DefaultReload( ANIM_DBARREL_RELOAD, GetAnimationTime( 59, 20 ) ) )
+	bool bSingleShell = ( m_iClip == 1 );
+	float flDelay = bSingleShell ? GetAnimationTime( 65, 25 ) : GetAnimationTime( 56, 20 );
+	if ( DefaultReload( bSingleShell ? ANIM_DBARREL_RELOAD_SINGLE : ANIM_DBARREL_RELOAD, flDelay ) )
 	{
-		AddWeaponSound( "weapons/doublebarrel/open.wav", 1, ATTN_NORM, GetAnimationTime( 8, 20 ) );
-		AddWeaponSound( "weapons/doublebarrel/out.wav", 1, ATTN_NORM, GetAnimationTime( 18, 20 ) );
-		AddWeaponSound( "weapons/doublebarrel/load1.wav", 1, ATTN_NORM, GetAnimationTime( 28, 20 ) );
-		AddWeaponSound( "weapons/doublebarrel/load2.wav", 1, ATTN_NORM, GetAnimationTime( 35, 20 ) );
-		AddWeaponSound( "weapons/doublebarrel/close.wav", 1, ATTN_NORM, GetAnimationTime( 45, 20 ) );
+		if ( bSingleShell )
+		{
+			AddWeaponSound( "weapons/doublebarrel/open.wav", 1, ATTN_NORM, GetAnimationTime( 15, 20 ) );
+			AddWeaponSound( "weapons/doublebarrel/out.wav", 1, ATTN_NORM, GetAnimationTime( 22, 20 ) );
+			AddWeaponSound( "weapons/doublebarrel/load1.wav", 1, ATTN_NORM, GetAnimationTime( 45, 20 ) );
+			AddWeaponSound( "weapons/doublebarrel/close.wav", 1, ATTN_NORM, GetAnimationTime( 57, 20 ) );
+		}
+		else
+		{
+			AddWeaponSound( "weapons/doublebarrel/open.wav", 1, ATTN_NORM, GetAnimationTime( 8, 20 ) );
+			AddWeaponSound( "weapons/doublebarrel/out.wav", 1, ATTN_NORM, GetAnimationTime( 18, 20 ) );
+			AddWeaponSound( "weapons/doublebarrel/load1.wav", 1, ATTN_NORM, GetAnimationTime( 28, 20 ) );
+			AddWeaponSound( "weapons/doublebarrel/load2.wav", 1, ATTN_NORM, GetAnimationTime( 35, 20 ) );
+			AddWeaponSound( "weapons/doublebarrel/close.wav", 1, ATTN_NORM, GetAnimationTime( 45, 20 ) );
+		}
 	}
 }

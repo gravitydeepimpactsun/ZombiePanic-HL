@@ -207,9 +207,11 @@ void CWeaponBase::DoAudioFrame( void )
 		WeaponSoundData &soundData = m_vecWeaponSoundData[x];
 		if ( soundData.Delay - gpGlobals->time <= 0 )
 		{
+#if !defined( CLIENT_DLL )
 			// Time to play the sound
 			if ( m_pPlayer )
 				EMIT_SOUND( ENT(m_pPlayer->pev), CHAN_WEAPON, soundData.File, soundData.Volume, soundData.Attenuation );
+#endif
 			// Remove it from the list
 			m_vecWeaponSoundData.erase( m_vecWeaponSoundData.begin() + x );
 			break; // Only play one sound per frame

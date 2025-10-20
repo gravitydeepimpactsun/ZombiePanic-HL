@@ -5190,6 +5190,8 @@ void CBasePlayer::ItemPostFrame()
 	if (m_pTank != NULL)
 		return;
 
+	ImpulseCommands();
+
 #if defined(CLIENT_WEAPONS)
 	if (m_flNextAttack > 0)
 #else
@@ -5198,8 +5200,6 @@ void CBasePlayer::ItemPostFrame()
 	{
 		return;
 	}
-
-	ImpulseCommands();
 
 	if ( !m_pActiveItem ) return;
 	m_pActiveItem->ItemPostFrame();

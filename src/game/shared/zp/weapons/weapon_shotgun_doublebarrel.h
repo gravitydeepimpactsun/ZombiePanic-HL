@@ -13,6 +13,7 @@ public:
 	ZPWeaponID GetWeaponID() override { return WEAPON_DOUBLEBARREL; }
 	const char *GetEmptySound() const override { return "weapons/doublebarrel/dryfire.wav"; }
 	void DoHolsterAnimation() override;
+	void DoAudioFrame( void ) override;
 	void Spawn( void );
 	void Precache( void );
 	int AddToPlayer( CBasePlayer *pPlayer );

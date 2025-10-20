@@ -67,6 +67,41 @@ void CWeaponShotgunDoubleBarrel::DoHolsterAnimation()
 	m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flHolsterTime = gpGlobals->time + GetAnimationTime( 11, 30 );
 }
 
+void CWeaponShotgunDoubleBarrel::DoAudioFrame( void )
+{
+	// Same as our baseclass, but we play an event when we find out.wav
+	for ( int x = 0; x < (int)m_vecWeaponSoundData.size(); x++ )
+	{
+		WeaponSoundData &soundData = m_vecWeaponSoundData[x];
+		if ( soundData.Delay - gpGlobals->time <= 0 )
+		{
+			// Time to play the sound
+			if ( m_pPlayer )
+			{
+				// Don't play sounds in client DLL
+#if !defined( CLIENT_DLL )
+				EMIT_SOUND( ENT(m_pPlayer->pev), CHAN_WEAPON, soundData.File, soundData.Volume, soundData.Attenuation );
+#endif
+				// If this is the "out.wav" sound, play a shell ejection event. It's a shitty hack, but eh.
+				// At least the origin won't be fucked...
+				if ( FStrEq( soundData.File, "weapons/doublebarrel/out.wav" ) )
+				{
+					int flags;
+#if defined(CLIENT_WEAPONS)
+					flags = FEV_NOTHOST;
+#else
+					flags = 0;
+#endif
+					PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_nEventSecondary, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, 0, 0, 0, 0, 0, 0 );
+				}
+			}
+			// Remove it from the list
+			m_vecWeaponSoundData.erase( m_vecWeaponSoundData.begin() + x );
+			break; // Only play one sound per frame
+		}
+	}
+}
+
 void CWeaponShotgunDoubleBarrel::PrimaryAttack()
 {
 	// don't fire underwater
@@ -161,13 +196,5 @@ void CWeaponShotgunDoubleBarrel::Reload( void )
 		AddWeaponSound( "weapons/doublebarrel/load1.wav", 1, ATTN_NORM, GetAnimationTime( 28, 20 ) );
 		AddWeaponSound( "weapons/doublebarrel/load2.wav", 1, ATTN_NORM, GetAnimationTime( 35, 20 ) );
 		AddWeaponSound( "weapons/doublebarrel/close.wav", 1, ATTN_NORM, GetAnimationTime( 45, 20 ) );
-
-		int flags;
-#if defined(CLIENT_WEAPONS)
-		flags = FEV_NOTHOST;
-#else
-		flags = 0;
-#endif
-		PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_nEventSecondary, GetAnimationTime( 20, 20 ), (float *)&g_vecZero, (float *)&g_vecZero, 0, 0, 0, 0, 0, 0 );
 	}
 }

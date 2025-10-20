@@ -762,6 +762,9 @@ void EV_DBarrelReload(event_args_t *args)
 	EV_GetDefaultShellInfo(args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, shellOffset.x, shellOffset.y, shellOffset.z);
 	EV_EjectBrass(ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHOTSHELL);
 
+	if ( args->iparam1 == 1 )
+		return; // only eject one shell
+
 	// Shell 2
 	ParseVector( cl_shellejects_dbarrel2.GetString(), shellOffset );
 	EV_GetDefaultShellInfo(args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, shellOffset.x, shellOffset.y, shellOffset.z);

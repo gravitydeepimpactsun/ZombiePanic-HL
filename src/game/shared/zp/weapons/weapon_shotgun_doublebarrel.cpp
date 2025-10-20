@@ -85,7 +85,7 @@ void CWeaponShotgunDoubleBarrel::DoAudioFrame( void )
 #else
 					flags = 0;
 #endif
-					PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_nEventSecondary, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, 0, 0, 0, 0, 0, 0 );
+					PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_nEventSecondary, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, 0, 0, ( m_iClip == 1 ) ? 1 : 0, 0, 0, 0 );
 				}
 			}
 			// Remove it from the list
@@ -188,10 +188,10 @@ void CWeaponShotgunDoubleBarrel::Reload( void )
 	{
 		if ( bSingleShell )
 		{
-			AddWeaponSound( "weapons/doublebarrel/open.wav", 1, ATTN_NORM, GetAnimationTime( 15, 20 ) );
-			AddWeaponSound( "weapons/doublebarrel/out.wav", 1, ATTN_NORM, GetAnimationTime( 22, 20 ) );
-			AddWeaponSound( "weapons/doublebarrel/load1.wav", 1, ATTN_NORM, GetAnimationTime( 45, 20 ) );
-			AddWeaponSound( "weapons/doublebarrel/close.wav", 1, ATTN_NORM, GetAnimationTime( 57, 20 ) );
+			AddWeaponSound( "weapons/doublebarrel/open.wav", 1, ATTN_NORM, GetAnimationTime( 15, 25 ) );
+			AddWeaponSound( "weapons/doublebarrel/out.wav", 1, ATTN_NORM, GetAnimationTime( 22, 25 ) );
+			AddWeaponSound( "weapons/doublebarrel/load1.wav", 1, ATTN_NORM, GetAnimationTime( 45, 25 ) );
+			AddWeaponSound( "weapons/doublebarrel/close.wav", 1, ATTN_NORM, GetAnimationTime( 57, 25 ) );
 		}
 		else
 		{

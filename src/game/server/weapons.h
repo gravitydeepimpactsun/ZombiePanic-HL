@@ -91,25 +91,6 @@ public:
 // the maximum amount of ammo each weapon's clip can hold
 #define WEAPON_NOCLIP -1
 
-// bullet types
-typedef enum
-{
-	BULLET_NONE = 0,
-	BULLET_PLAYER_SIG, // sig
-	BULLET_PLAYER_PPK, // ppk
-	BULLET_PLAYER_GLOCK, // glock
-	BULLET_PLAYER_MP5, // mp5
-	BULLET_PLAYER_M16, // m16
-	BULLET_PLAYER_357, // python
-	BULLET_PLAYER_BUCKSHOT, // shotgun
-	BULLET_PLAYER_CROWBAR, // crowbar swipe
-	BULLET_PLAYER_SWIPE, // zombie swipe
-
-	BULLET_MONSTER_9MM,
-	BULLET_MONSTER_MP5,
-	BULLET_MONSTER_12MM,
-} Bullet;
-
 #define ITEM_FLAG_SELECTONEMPTY     (1<<0)
 #define ITEM_FLAG_NOAUTORELOAD      (1<<1)
 //#define ITEM_FLAG_NOAUTOSWITCHEMPTY (1<<2) // Unused

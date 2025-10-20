@@ -9,7 +9,7 @@ LINK_ENTITY_TO_CLASS( weapon_9mmar, CWeaponRifleM16 ); // Only for old maps, DO 
 void CWeaponRifleM16::DoHolsterAnimation()
 {
 	SendWeaponAnim( ANIM_AR556_HOLSTER );
-	m_flHolsterTime = gpGlobals->time + 0.55;
+	m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flHolsterTime = gpGlobals->time + 0.55;
 }
 
 void CWeaponRifleM16::Spawn()

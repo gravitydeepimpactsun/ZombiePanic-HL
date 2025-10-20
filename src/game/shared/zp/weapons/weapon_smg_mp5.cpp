@@ -7,7 +7,7 @@ LINK_ENTITY_TO_CLASS( weapon_mp5, CWeaponSMGMP5 );
 void CWeaponSMGMP5::DoHolsterAnimation()
 {
 	SendWeaponAnim( ANIM_MP5_HOLSTER );
-	m_flHolsterTime = gpGlobals->time + GetAnimationTime( 11, 30 );
+	m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flHolsterTime = gpGlobals->time + GetAnimationTime( 11, 30 );
 }
 
 void CWeaponSMGMP5::Spawn()
@@ -118,6 +118,8 @@ void CWeaponSMGMP5::Reload(void)
 {
 	if ( m_pPlayer->ammo_9mm <= 0 ) return;
 	float flDelay = GetAnimationTime( IsEmpty() ? 77 : 48, 20 );
+	int iRet = DefaultReload( IsEmpty() ? ANIM_MP5_RELOAD_EMPTY : ANIM_MP5_RELOAD, flDelay );
+	if ( !iRet ) return;
 	if ( IsEmpty() )
 	{
 		AddWeaponSound( "weapons/mp5/slide_back.wav", 1, ATTN_NORM, GetAnimationTime( 4, 20 ) );
@@ -130,7 +132,6 @@ void CWeaponSMGMP5::Reload(void)
 		AddWeaponSound( "weapons/mp5/magout.wav", 1, ATTN_NORM, GetAnimationTime( 4, 20 ) );
 		AddWeaponSound( "weapons/mp5/magin.wav", 1, ATTN_NORM, GetAnimationTime( 26, 20 ) );
 	}
-	DefaultReload( IsEmpty() ? ANIM_MP5_RELOAD_EMPTY : ANIM_MP5_RELOAD, flDelay );
 }
 
 void CWeaponSMGMP5::WeaponIdle(void)

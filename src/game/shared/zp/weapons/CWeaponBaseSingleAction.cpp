@@ -85,6 +85,9 @@ void CWeaponBaseSingleAction::Reload( void )
 	// check to see if we're ready to reload
 	if ( m_fInSpecialReload == 0 )
 	{
+		// Already full?
+		if ( m_iClip == GetData().MaxClip ) return;
+
 		OnRequestedAnimation( ANIM_RELOAD_START);
 		m_fInSpecialReload = 1;
 		m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 0.55;

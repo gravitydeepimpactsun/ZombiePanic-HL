@@ -10,7 +10,7 @@ void CWeaponShotgunRemington::DoHolsterAnimation()
 	m_pPlayer->m_iWeaponKillCount = 0;
 #endif
 	SendWeaponAnim( ANIM_SHOTGUN_HOLSTER );
-	m_flHolsterTime = gpGlobals->time + 0.35;
+	m_flTimeWeaponIdle = m_flHolsterTime = gpGlobals->time + 0.35;
 }
 
 void CWeaponShotgunRemington::Spawn(void)
@@ -65,7 +65,9 @@ BOOL CWeaponShotgunRemington::Deploy()
 	if ( m_pPlayer )
 		m_pPlayer->m_iWeaponKillCount = 0;
 #endif
-	return DoDeploy( "models/v_shotgun.mdl", "models/p_shotgun.mdl", ANIM_SHOTGUN_DRAW, "shotgun" );
+	DoDeploy( "models/v_shotgun.mdl", "models/p_shotgun.mdl", ANIM_SHOTGUN_DRAW, "shotgun" );
+	m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime( 19, 30 );
+	return TRUE;
 }
 
 void CWeaponShotgunRemington::OnRequestedAnimation( SingleActionAnimReq act )

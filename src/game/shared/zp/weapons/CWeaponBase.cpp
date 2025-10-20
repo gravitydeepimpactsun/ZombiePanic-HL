@@ -37,6 +37,8 @@ bool CWeaponBase::DoDeploy( const char *szViewModel, const char *szWeaponModel, 
 
 int CWeaponBase::DefaultReload(int iAnim, float fDelay, int body)
 {
+	// No reloads while holstering
+	if ( IsHolstering() ) return FALSE;
 	if (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 		return FALSE;
 

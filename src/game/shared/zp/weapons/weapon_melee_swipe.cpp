@@ -59,7 +59,7 @@ BOOL CWeaponMeleeSwipe::Deploy()
 void CWeaponMeleeSwipe::DoHolsterAnimation()
 {
 	SendWeaponAnim( ANIM_MELEE_HOLSTER );
-	m_flHolsterTime = gpGlobals->time + 0.5f;
+	m_flTimeWeaponIdle = m_flHolsterTime = gpGlobals->time + 0.5f;
 }
 
 extern void FindHullIntersection( const Vector &vecSrc, TraceResult &tr, float *mins, float *maxs, edict_t *pEntity );

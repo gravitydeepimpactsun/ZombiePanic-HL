@@ -47,13 +47,15 @@ int CWeaponMeleeCrowbar::AddToPlayer( CBasePlayer *pPlayer )
 
 BOOL CWeaponMeleeCrowbar::Deploy()
 {
-	return DoDeploy( "models/v_crowbar.mdl", "models/p_crowbar.mdl", ANIM_MELEE_DRAW, "crowbar" );
+	DoDeploy( "models/v_crowbar.mdl", "models/p_crowbar.mdl", ANIM_MELEE_DRAW, "crowbar" );
+	m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime( 24, 30 );
+	return TRUE;
 }
 
 void CWeaponMeleeCrowbar::DoHolsterAnimation()
 {
 	SendWeaponAnim( ANIM_MELEE_HOLSTER );
-	m_flHolsterTime = gpGlobals->time + 0.5f;
+	m_flTimeWeaponIdle = m_flHolsterTime = gpGlobals->time + 0.5f;
 }
 
 void FindHullIntersection(const Vector &vecSrc, TraceResult &tr, float *mins, float *maxs, edict_t *pEntity)

@@ -7,7 +7,7 @@ LINK_ENTITY_TO_CLASS( weapon_mp5, CWeaponSMGMP5 );
 void CWeaponSMGMP5::DoHolsterAnimation()
 {
 	SendWeaponAnim( ANIM_MP5_HOLSTER );
-	m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flHolsterTime = gpGlobals->time + GetAnimationTime( 11, 30 );
+	m_flNextPrimaryAttack = m_flTimeWeaponIdle = m_flHolsterTime = gpGlobals->time + GetAnimationTime(11, 30);
 }
 
 void CWeaponSMGMP5::Spawn()

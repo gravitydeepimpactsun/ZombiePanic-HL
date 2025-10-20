@@ -9,7 +9,7 @@ LINK_ENTITY_TO_CLASS( weapon_9mmar, CWeaponRifleM16 ); // Only for old maps, DO 
 void CWeaponRifleM16::DoHolsterAnimation()
 {
 	SendWeaponAnim( ANIM_AR556_HOLSTER );
-	m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flHolsterTime = gpGlobals->time + 0.55;
+	m_flNextPrimaryAttack = m_flTimeWeaponIdle = m_flHolsterTime = gpGlobals->time + 0.55;
 }
 
 void CWeaponRifleM16::Spawn()
@@ -59,7 +59,9 @@ int CWeaponRifleM16::AddToPlayer(CBasePlayer *pPlayer)
 
 BOOL CWeaponRifleM16::Deploy()
 {
-	return DoDeploy( "models/v_556AR.mdl", "models/p_556AR.mdl", ANIM_AR556_DEPLOY, "mp5" );
+	DoDeploy( "models/v_556AR.mdl", "models/p_556AR.mdl", ANIM_AR556_DEPLOY, "mp5" );
+	m_flNextPrimaryAttack = m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime( 21, 30 );
+	return TRUE;
 }
 
 void CWeaponRifleM16::PrimaryAttack()

@@ -8,7 +8,7 @@ LINK_ENTITY_TO_CLASS( weapon_ppk, CWeaponSideArmPPK );
 void CWeaponSideArmPPK::DoHolsterAnimation()
 {
 	SendWeaponAnim( IsEmpty() ? ANIM_PISTOL_HOLSTER_EMPTY : ANIM_PISTOL_HOLSTER );
-	m_flHolsterTime = gpGlobals->time + 0.33;
+	m_flTimeWeaponIdle = m_flHolsterTime = gpGlobals->time + 0.33;
 }
 
 void CWeaponSideArmPPK::Spawn()
@@ -53,7 +53,9 @@ int CWeaponSideArmPPK::AddToPlayer(CBasePlayer *pPlayer)
 
 BOOL CWeaponSideArmPPK::Deploy()
 {
-	return DoDeploy ("models/v_ppk.mdl", "models/p_ppk.mdl", IsEmpty() ? ANIM_PISTOL_DRAW_EMPTY : ANIM_PISTOL_DRAW, "onehanded");
+	DoDeploy( "models/v_ppk.mdl", "models/p_ppk.mdl", IsEmpty() ? ANIM_PISTOL_DRAW_EMPTY : ANIM_PISTOL_DRAW, "onehanded" );
+	m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime( 26, 30 );
+	return TRUE;
 }
 
 void CWeaponSideArmPPK::PrimaryAttack(void)

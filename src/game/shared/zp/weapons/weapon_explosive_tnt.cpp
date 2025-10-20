@@ -71,7 +71,7 @@ BOOL CWeaponExplosiveTNT::CanHolster(void)
 void CWeaponExplosiveTNT::DoHolsterAnimation()
 {
 	SendWeaponAnim( ANIM_THROW_EXPLOSIVES_HOLSTER );
-	m_flHolsterTime = gpGlobals->time + GetAnimationTime( 8, 20 );
+	m_flTimeWeaponIdle = m_flHolsterTime = gpGlobals->time + GetAnimationTime(8, 20);
 }
 
 void CWeaponExplosiveTNT::PrimaryAttack()

@@ -139,7 +139,7 @@ void CWeaponExplosiveSatchel::DoHolsterAnimation()
 	EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_WEAPON, "common/null.wav", 1.0, ATTN_NORM);
 
 	SendWeaponAnim( HasSatchelCharge() ? ANIM_SATCHEL_DETONATOR_HOLSTER : ANIM_SATCHEL_HOLSTER );
-	m_flHolsterTime = gpGlobals->time + GetAnimationTime( 9, 30 );
+	m_flTimeWeaponIdle = m_flHolsterTime = gpGlobals->time + GetAnimationTime(9, 30);
 
 	if ( m_iClip <= 0 && !HasSatchelCharge() )
 	{

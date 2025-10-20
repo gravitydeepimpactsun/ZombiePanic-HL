@@ -49,10 +49,6 @@ int CWeaponShotgunDoubleBarrel::AddToPlayer(CBasePlayer *pPlayer)
 
 BOOL CWeaponShotgunDoubleBarrel::Deploy()
 {
-#if defined( SERVER_DLL )
-	if ( m_pPlayer )
-		m_pPlayer->m_iWeaponKillCount = 0;
-#endif
 	DoDeploy( "models/v_doublebarrel.mdl", "models/p_doublebarrel.mdl", ANIM_DBARREL_DRAW, "shotgun" );
 	m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime( 21, 20 );
 	return TRUE;
@@ -60,11 +56,8 @@ BOOL CWeaponShotgunDoubleBarrel::Deploy()
 
 void CWeaponShotgunDoubleBarrel::DoHolsterAnimation()
 {
-#if defined( SERVER_DLL )
-	m_pPlayer->m_iWeaponKillCount = 0;
-#endif
 	SendWeaponAnim( ANIM_DBARREL_HOLSTER );
-	m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flHolsterTime = gpGlobals->time + GetAnimationTime( 11, 30 );
+	m_flTimeWeaponIdle = m_flHolsterTime = gpGlobals->time + GetAnimationTime(11, 30);
 }
 
 void CWeaponShotgunDoubleBarrel::DoAudioFrame( void )

@@ -20,7 +20,7 @@ public:
 	int AddDuplicate( CBasePlayerItem *pOriginal );
 	void PrimaryAttack( void );
 	void SecondaryAttack( void );
-	bool HasSatchelCharge() const { return m_bHasThrownSatchel; }
+	bool HasSatchelCharge() const;
 
 	BOOL CanDeploy();
 	float Deploy();
@@ -35,6 +35,7 @@ private:
 	bool m_bFirstThrow;
 	bool m_bHasThrownSatchel;
 	bool m_bHasDetonatedSatchel;
+	int m_iPrevClip;
 };
 
 #endif

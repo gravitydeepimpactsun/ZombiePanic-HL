@@ -889,9 +889,6 @@ void CBasePlayer::RemoveAllItems(BOOL removeSuit)
 	for (i = 0; i < ZPAmmoTypes::AMMO_MAX; i++)
 		m_rgAmmo[i] = 0;
 
-	// Remove deployed satchels
-	DeactivateSatchels(this);
-
 	UpdateClientData();
 	// send Selected Weapon Message to our client
 	MESSAGE_BEGIN(MSG_ONE, gmsgCurWeapon, NULL, pev);

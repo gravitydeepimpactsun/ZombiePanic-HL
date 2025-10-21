@@ -12,7 +12,7 @@ LINK_ENTITY_TO_CLASS( weapon_ied, CWeaponExplosiveSatchel );
 //=========================================================
 // CALLED THROUGH the newly-touched weapon's instance. The existing player weapon is pOriginal
 //=========================================================
-int CWeaponExplosiveSatchel::AddDuplicate(CBasePlayerItem *pOriginal)
+int CWeaponExplosiveSatchel::AddDuplicate( CBasePlayerItem *pOriginal )
 {
 	CWeaponExplosiveSatchel *pWeapon = dynamic_cast<CWeaponExplosiveSatchel *>( pOriginal );
 	if ( pWeapon->m_iClip < pWeapon->iMaxClip() )
@@ -121,7 +121,6 @@ float CWeaponExplosiveSatchel::DoHolsterAnimation()
 void CWeaponExplosiveSatchel::DeactivateThrow()
 {
 	m_bHasDetonatedSatchel = false;
-	m_bHasThrownSatchel = false;
 }
 
 void CWeaponExplosiveSatchel::PrimaryAttack(void)
@@ -251,33 +250,4 @@ void CWeaponExplosiveSatchel::WeaponIdle( void )
 
 	SendWeaponAnim( iAnimation );
 	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + flDelay;
-}
-
-//=========================================================
-// DeactivateSatchels - removes all satchels owned by
-// the provided player. Should only be used upon death.
-//
-// Made this global on purpose.
-//=========================================================
-void DeactivateSatchels( CBasePlayer *pOwner )
-{
-	edict_t *pFind;
-
-	pFind = FIND_ENTITY_BY_CLASSNAME(NULL, "monster_satchel");
-
-	while (!FNullEnt(pFind))
-	{
-		CBaseEntity *pEnt = CBaseEntity::Instance(pFind);
-		CThrowableSatchelCharge *pSatchel = (CThrowableSatchelCharge *)pEnt;
-
-		if (pSatchel)
-		{
-			if (pSatchel->pev->owner == pOwner->edict() || pSatchel->GetThrower() == pOwner->entindex())
-			{
-				pSatchel->Deactivate();
-			}
-		}
-
-		pFind = FIND_ENTITY_BY_CLASSNAME(pFind, "monster_satchel");
-	}
 }

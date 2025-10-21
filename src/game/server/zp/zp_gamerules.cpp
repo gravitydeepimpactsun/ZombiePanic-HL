@@ -423,6 +423,7 @@ void CZombiePanicGameRules::CleanUpMap()
 		UTIL_RestartOther( s_EntitiesRestarts[i] );
 
 	// Make sure these are removed.
+	UTIL_RemoveAll( "monster_satchel" );
 	UTIL_RemoveAll( "grenade" );
 	UTIL_RemoveAll( "weaponbox" );
 	UTIL_RemoveAll( "bodyque" ); // We don't want any bodies on next round

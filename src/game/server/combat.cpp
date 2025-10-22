@@ -1512,59 +1512,44 @@ Vector CBaseEntity::FireBulletsPlayer(ULONG cShots, Vector vecSrc, Vector vecDir
 
 			if (iDamage)
 			{
-				pEntity->TraceAttack(pevAttacker, iDamage, vecDir, &tr, DMG_BULLET | ((iDamage > 16) ? DMG_ALWAYSGIB : DMG_NEVERGIB));
+				pEntity->TraceAttack(pevAttacker, iDamage, vecDir, &tr, DMG_BULLET | DMG_NEVERGIB);
 
 				TEXTURETYPE_PlaySound(&tr, vecSrc, vecEnd, iBulletType);
 				DecalGunshot(&tr, vecDir, iBulletType);
 			}
 			else
+			{
+				float flDamage, flBulletDistance;
+				flDamage = flBulletDistance = 0.0;
+
 				switch (iBulletType)
 				{
-				default:
-				case BULLET_PLAYER_SIG:
-					pEntity->TraceAttack(pevAttacker, mp_dmg_sig.value, vecDir, &tr, DMG_BULLET);
+					default:
+					case BULLET_PLAYER_SIG: flDamage = mp_dmg_sig.value; break;
+					case BULLET_PLAYER_PPK: flDamage = mp_dmg_ppk.value; break;
+					case BULLET_PLAYER_GLOCK: flDamage = mp_dmg_glock.value; break;
+					case BULLET_PLAYER_357: flDamage = mp_dmg_357.value; break;
+					case BULLET_PLAYER_MP5: flDamage = mp_dmg_mp5.value; break;
+					case BULLET_PLAYER_M16: flDamage = mp_dmg_m16.value; break;
+
+					case BULLET_PLAYER_BUCKSHOT:
+						flDamage = mp_dmg_shotgun.value;
+						// If the target is too far away, reduce damage
+						flBulletDistance = (tr.vecEndPos - vecSrc).Length();
+						if ( flBulletDistance > 2048 ) flDamage *= 0.2;
+						else if ( flBulletDistance > 1024 ) flDamage *= 0.5;
 					break;
 
-				case BULLET_PLAYER_PPK:
-					pEntity->TraceAttack(pevAttacker, mp_dmg_ppk.value, vecDir, &tr, DMG_BULLET);
-					break;
-
-				case BULLET_PLAYER_GLOCK:
-					pEntity->TraceAttack(pevAttacker, mp_dmg_glock.value, vecDir, &tr, DMG_BULLET);
-					break;
-
-				case BULLET_PLAYER_MP5:
-					pEntity->TraceAttack(pevAttacker, mp_dmg_mp5.value, vecDir, &tr, DMG_BULLET);
-					break;
-
-				case BULLET_PLAYER_M16:
-					pEntity->TraceAttack(pevAttacker, mp_dmg_m16.value, vecDir, &tr, DMG_BULLET);
-					break;
-
-				case BULLET_PLAYER_BUCKSHOT:
-					pEntity->TraceAttack(pevAttacker, mp_dmg_shotgun.value, vecDir, &tr, DMG_BULLET);
-					break;
-
-				case BULLET_PLAYER_DBARREL:
-					pEntity->TraceAttack(pevAttacker, mp_dmg_dbarrel.value, vecDir, &tr, DMG_BULLET);
-					break;
-
-				case BULLET_PLAYER_357:
-					pEntity->TraceAttack(pevAttacker, mp_dmg_357.value, vecDir, &tr, DMG_BULLET);
-					break;
-
-				case BULLET_NONE: // FIX
-					pEntity->TraceAttack(pevAttacker, 50, vecDir, &tr, DMG_CLUB);
-					TEXTURETYPE_PlaySound(&tr, vecSrc, vecEnd, iBulletType);
-					// only decal glass
-					if (!FNullEnt(tr.pHit) && VARS(tr.pHit)->rendermode != 0)
-					{
-						UTIL_DecalTrace(&tr, DECAL_GLASSBREAK1 + RANDOM_LONG(0, 2));
-					}
-
+					case BULLET_PLAYER_DBARREL:
+						flDamage = mp_dmg_dbarrel.value;
+						// If the target is too far away, reduce damage
+						flBulletDistance = (tr.vecEndPos - vecSrc).Length();
+						if ( flBulletDistance > 2048 ) flDamage *= 0.5;
 					break;
 				}
 
+				pEntity->TraceAttack( pevAttacker, flDamage, vecDir, &tr, DMG_BULLET );
+			}
 			ZP::CheckIfBreakableGlass( &tr, pEntity, vecDir, DECAL_GLASSBREAK1 + RANDOM_LONG(0, 2) );
 		}
 		// make bullet trails

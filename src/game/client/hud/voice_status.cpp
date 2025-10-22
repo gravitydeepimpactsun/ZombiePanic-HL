@@ -193,9 +193,11 @@ void CHudVoiceStatus::Paint()
 
 		bgColor[3] = 128 * newAlphaMultiplier;
 
-		const char *pName = pi->IsConnected() ? pi->GetDisplayName(false) : "unknown";
+		const char *pName = pi->IsConnected() ? pi->GetDisplayName( true ) : "unknown";
 		wchar_t szconverted[64];
-		g_pVGuiLocalize->ConvertANSIToUnicode(pName, szconverted, sizeof(szconverted));
+		char szBuffer[MAX_PLAYER_NAME];
+		RemoveColorCodes( pName, szBuffer, MAX_PLAYER_NAME );
+		g_pVGuiLocalize->ConvertANSIToUnicode( szBuffer, szconverted, sizeof(szconverted) );
 
 		// Draw the item background
 		vgui2::surface()->DrawSetColor(bgColor);

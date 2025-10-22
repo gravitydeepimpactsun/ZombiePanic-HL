@@ -64,30 +64,6 @@ void CWeaponExplosiveSatchel::Precache(void)
 	UTIL_PrecacheOther("monster_satchel");
 }
 
-//=========================================================
-//=========================================================
-BOOL CWeaponExplosiveSatchel::IsUseable(void)
-{
-	return CanDeploy();
-}
-
-BOOL CWeaponExplosiveSatchel::CanDeploy(void)
-{
-	if (m_iClip > 0)
-	{
-		// player is carrying some satchels
-		return TRUE;
-	}
-
-	if ( HasSatchelCharge() )
-	{
-		// player isn't carrying any satchels, but has some out
-		return TRUE;
-	}
-
-	return FALSE;
-}
-
 float CWeaponExplosiveSatchel::Deploy()
 {
 	m_bHasDetonatedSatchel = false;

@@ -22,9 +22,7 @@ public:
 	void SecondaryAttack( void );
 	bool HasSatchelCharge() const;
 
-	BOOL CanDeploy();
 	float Deploy();
-	BOOL IsUseable();
 
 	float DoHolsterAnimation() override;
 	void DeactivateThrow() override;

@@ -2695,6 +2695,16 @@ void CBasePlayer::DropWeapon( CBasePlayerWeapon *pWeapon, bool bAutoSwitch, bool
 	// You ain't allowed to drop shit.
 	if ( pWeapon->IsThrowable() && pWeapon->m_iClip == 0 ) return;
 
+	// Remove from the player
+	WeaponSlotSet( pWeapon, false );
+
+	if ( bAutoSwitch )
+	{
+		pev->viewmodel = 0;
+		pev->weaponmodel = 0;
+		m_pActiveItem = NULL;
+	}
+
 	// Check if this is an explosive, and if armed, decrease the value if we have ammo for it.
 	// If not, delete and explode.
 	ThrowableDropState throwablestate = IsThrowableAndActive( pWeapon, true );
@@ -2705,8 +2715,6 @@ void CBasePlayer::DropWeapon( CBasePlayerWeapon *pWeapon, bool bAutoSwitch, bool
 
 	if ( bAutoSwitch )
 		g_pGameRules->GetNextBestWeapon( this, pWeapon );
-	// Remove from the player
-	WeaponSlotSet( pWeapon, false );
 	RemovePlayerItem( pWeapon );
 	UTIL_Remove( pWeapon );
 

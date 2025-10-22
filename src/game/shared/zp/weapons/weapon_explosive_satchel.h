@@ -17,7 +17,6 @@ public:
 	void Spawn( void );
 	void Precache( void );
 	int AddToPlayer( CBasePlayer *pPlayer );
-	int AddDuplicate( CBasePlayerItem *pOriginal );
 	void PrimaryAttack( void );
 	void SecondaryAttack( void );
 	bool HasSatchelCharge() const;

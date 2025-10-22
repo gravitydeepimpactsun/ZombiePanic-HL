@@ -130,7 +130,16 @@ void CThrowableSatchelCharge::SatchelUse(CBaseEntity *pActivator, CBaseEntity *p
 			if ( bCanBePickedUp )
 			{
 				CBasePlayer *pPlayer = (CBasePlayer *)pCaller;
-				pPlayer->GiveNamedItem( "weapon_satchel" );
+				CBasePlayerWeapon *pWeapon = pPlayer->GetWeaponFromID( WEAPON_SATCHEL );
+				if ( pWeapon )
+				{
+					// If we already have one, stop.
+					if ( pWeapon->m_iClip == 1 ) return;
+					pWeapon->m_iClip = 1;
+					EMIT_SOUND( ENT(pPlayer->pev), CHAN_ITEM, "items/ammo_pickup.wav", 1, ATTN_NORM );
+				}
+				else
+					pPlayer->GiveNamedItem( "weapon_satchel" );
 				SetTouch( NULL );
 				SetThink( &CThrowableSatchelCharge::SUB_Remove );
 				return;

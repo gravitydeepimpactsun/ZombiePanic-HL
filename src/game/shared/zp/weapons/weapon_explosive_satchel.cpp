@@ -10,21 +10,6 @@ LINK_ENTITY_TO_CLASS( weapon_satchel, CWeaponExplosiveSatchel );
 LINK_ENTITY_TO_CLASS( weapon_ied, CWeaponExplosiveSatchel );
 
 //=========================================================
-// CALLED THROUGH the newly-touched weapon's instance. The existing player weapon is pOriginal
-//=========================================================
-int CWeaponExplosiveSatchel::AddDuplicate( CBasePlayerItem *pOriginal )
-{
-	CWeaponExplosiveSatchel *pWeapon = dynamic_cast<CWeaponExplosiveSatchel *>( pOriginal );
-	if ( pWeapon->m_iClip < pWeapon->iMaxClip() )
-	{
-		pWeapon->m_iClip += 1;
-		EMIT_SOUND( ENT(pev), CHAN_ITEM, "items/ammo_pickup.wav", 1, ATTN_NORM );
-		return TRUE;
-	}
-	return FALSE;
-}
-
-//=========================================================
 //=========================================================
 int CWeaponExplosiveSatchel::AddToPlayer(CBasePlayer *pPlayer)
 {
@@ -78,7 +63,7 @@ float CWeaponExplosiveSatchel::Deploy()
 
 float CWeaponExplosiveSatchel::DoHolsterAnimation()
 {
-	bool bHasSatchel = HasSatchelCharge();
+	bool bHasSatchel = m_bHasThrownSatchel;
 	EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_WEAPON, "common/null.wav", 1.0, ATTN_NORM);
 
 	SendWeaponAnim( bHasSatchel ? ANIM_SATCHEL_DETONATOR_HOLSTER : ANIM_SATCHEL_HOLSTER );

@@ -90,9 +90,10 @@ static ConVar sv_player_runspeed_gait_speed( "sv_player_runspeed_gait_speed", "1
 
 #define BGROUP_BODY 0
 #define BGROUP_HEAD 1
+#define BGROUP_BACKPACK 1
 
-#define BGROUP_HEAD_DEFAULT 0
-#define BGROUP_HEAD_HEADSHOT 1
+#define BGROUP_SUB_DEFAULT 0
+#define BGROUP_SUB_VALUE1 1
 
 constexpr int HalfPlayerHeight = 36;
 constexpr int HeightTolerance = 20;
@@ -913,7 +914,12 @@ void CBasePlayer::Killed(entvars_t *pevAttacker, int iGib)
 
 	bool bShouldGib = false;
 	if ((pev->health < -40 && iGib != GIB_NEVER) || iGib == GIB_ALWAYS)
-		bShouldGib = true;
+	{
+		// If the damage that killed us was blast or crush damage, we should gib
+		// We don't want to give from bullets or being smacked by melee weapons...
+		if ( ( m_bitsDamageType & DMG_BLAST ) || ( m_bitsDamageType & DMG_CRUSH ) )
+			bShouldGib = true;
+	}
 
 	// Holster weapon immediately, to allow it to cleanup
 	if (m_pActiveItem)
@@ -936,7 +942,7 @@ void CBasePlayer::Killed(entvars_t *pevAttacker, int iGib)
 			break;
 		}
 		if ( pev->team == ZP::TEAM_ZOMBIE )
-			SetBodygroup( BGROUP_HEAD, BGROUP_HEAD_HEADSHOT );
+			SetBodygroup( BGROUP_HEAD, BGROUP_SUB_VALUE1 );
 		// Now create some blood n' shit!
 		Vector headpos = pev->origin + Vector( 0, 0, 13 );
 		CGib::SpawnStickyGibs( pev, headpos, RANDOM_LONG( 4, 8 ) );
@@ -2378,7 +2384,8 @@ void CBasePlayer::SetTheCorrectPlayerModel()
 	SET_MODEL(ENT(pev), szModel );
 	pev->model = MODEL_INDEX( szModel );
 
-	SetBodygroup( BGROUP_HEAD, BGROUP_HEAD_DEFAULT );
+	SetBodygroup( BGROUP_HEAD, BGROUP_SUB_DEFAULT );
+	SetBodygroup( BGROUP_BACKPACK, BGROUP_SUB_DEFAULT );
 
 	if ( iTeam == ZP::TEAM_SURVIVIOR )
 		pev->maxspeed = ZP::MaxSpeeds[0];
@@ -2732,7 +2739,7 @@ void CBasePlayer::SetBackpackState( bool bState )
 {
 	// Bodygroup 1 is the backpack on the player model,
 	// so we simply reuse the head bodygroup for this.
-	SetBodygroup( BGROUP_HEAD, bState ? BGROUP_HEAD_HEADSHOT : BGROUP_HEAD_DEFAULT );
+	SetBodygroup( BGROUP_BACKPACK, bState ? BGROUP_SUB_VALUE1 : BGROUP_SUB_DEFAULT );
 	if ( bState )
 		pev->weapons |= (1 << WEAPON_BACKPACK);
 	else

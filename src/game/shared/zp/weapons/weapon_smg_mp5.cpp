@@ -129,7 +129,7 @@ void CWeaponSMGMP5::Reload(void)
 	else
 	{
 		AddWeaponSound( "weapons/mp5/magout.wav", 1, ATTN_NORM, GetAnimationTime( 4, 20 ) );
-		AddWeaponSound( "weapons/mp5/magin.wav", 1, ATTN_NORM, GetAnimationTime( 26, 20 ) );
+		AddWeaponSound( "weapons/mp5/magin.wav", 1, ATTN_NORM, GetAnimationTime( 24, 20 ) );
 	}
 }
 

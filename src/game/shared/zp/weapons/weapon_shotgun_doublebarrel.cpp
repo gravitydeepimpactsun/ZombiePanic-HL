@@ -189,8 +189,8 @@ void CWeaponShotgunDoubleBarrel::Reload( void )
 		{
 			AddWeaponSound( "weapons/doublebarrel/open.wav", 1, ATTN_NORM, GetAnimationTime( 15, 25 ) );
 			AddWeaponSound( "weapons/doublebarrel/out.wav", 1, ATTN_NORM, GetAnimationTime( 22, 25 ) );
-			AddWeaponSound( "weapons/doublebarrel/load1.wav", 1, ATTN_NORM, GetAnimationTime( 45, 25 ) );
-			AddWeaponSound( "weapons/doublebarrel/close.wav", 1, ATTN_NORM, GetAnimationTime( 55, 25 ) );
+			AddWeaponSound( "weapons/doublebarrel/load1.wav", 1, ATTN_NORM, GetAnimationTime( 43, 25 ) );
+			AddWeaponSound( "weapons/doublebarrel/close.wav", 1, ATTN_NORM, GetAnimationTime( 53, 25 ) );
 		}
 		else
 		{

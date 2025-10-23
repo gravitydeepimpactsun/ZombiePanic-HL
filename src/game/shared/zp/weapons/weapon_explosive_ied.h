@@ -23,15 +23,23 @@ public:
 	float Deploy();
 
 	float DoHolsterAnimation() override;
-	void DeactivateThrow() override;
 	void WeaponIdle();
 	bool BeginThrowOrPlant();
 	bool PlantIED();
 
 private:
-	bool m_bFirstThrow;
-	bool m_bHasThrownSatchel;
-	bool m_bHasDetonatedSatchel;
+
+	enum IEDState
+	{
+		IED_STATE_NORMAL,			// Hasn't thrown yet
+		IED_STATE_THROWING,			// In the process of throwing
+		IED_STATE_HAS_THROWN,		// Has thrown, waiting to detonate
+		IED_STATE_DETONATED,		// Has detonated
+		IED_STATE_OBTAINED_PACKAGE,	// Picked up package after throwing, we need to holster and then deploy it again.
+		IED_STATE_TO_NORMAL			// Transitioning back to normal after obtaining package
+	};
+
+	IEDState m_iIEDState;
 	int m_iPrevClip;
 };
 

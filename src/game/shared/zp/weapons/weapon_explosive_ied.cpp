@@ -29,13 +29,11 @@ void CWeaponExplosiveIED::Spawn()
 	SET_MODEL(ENT(pev), "models/w_satchel.mdl");
 
 	WeaponData slot = GetWeaponSlotInfo( GetWeaponID() );
-	m_iDefaultAmmo = slot.DefaultAmmo;
+	m_iPrevClip = m_iDefaultAmmo = slot.DefaultAmmo;
 
 	FallInit(); // get ready to fall down.
 
-	m_bFirstThrow = false;
-	m_bHasThrownSatchel = false;
-	m_iPrevClip = m_iDefaultAmmo;
+	m_iIEDState = IED_STATE_NORMAL;
 }
 
 void CWeaponExplosiveIED::Precache(void)
@@ -51,24 +49,23 @@ void CWeaponExplosiveIED::Precache(void)
 
 float CWeaponExplosiveIED::Deploy()
 {
-	m_bHasDetonatedSatchel = false;
 	DoDeploy(
 		"models/v_satchel.mdl",
-		m_bHasThrownSatchel ? "models/p_satchel_radio.mdl" : "models/p_satchel.mdl",
-		m_bHasThrownSatchel ? ANIM_SATCHEL_DETONATOR_DRAW : ANIM_SATCHEL_DRAW,
-		m_bHasThrownSatchel ? "hive" : "trip"
+		HasSatchelCharge() ? "models/p_satchel_radio.mdl" : "models/p_satchel.mdl",
+		HasSatchelCharge() ? ANIM_SATCHEL_DETONATOR_DRAW : ANIM_SATCHEL_DRAW,
+		HasSatchelCharge() ? "hive" : "trip"
 	);
-	return GetAnimationTime( m_bHasThrownSatchel ? 18 : 22, 30 );
+	return GetAnimationTime( HasSatchelCharge() ? 18 : 22, 30 );
 }
 
 float CWeaponExplosiveIED::DoHolsterAnimation()
 {
-	bool bHasSatchel = m_bHasThrownSatchel;
+	bool bHasSatchel = HasSatchelCharge();
 	EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_WEAPON, "common/null.wav", 1.0, ATTN_NORM);
 
 	SendWeaponAnim( bHasSatchel ? ANIM_SATCHEL_DETONATOR_HOLSTER : ANIM_SATCHEL_HOLSTER );
 
-	if ( m_iClip <= 0 && !bHasSatchel )
+	if ( m_iIEDState == IED_STATE_DETONATED )
 	{
 #ifndef CLIENT_DLL
 		m_pPlayer->WeaponSlotSet( this, false );
@@ -79,16 +76,10 @@ float CWeaponExplosiveIED::DoHolsterAnimation()
 	return GetAnimationTime( 9, 30 );
 }
 
-void CWeaponExplosiveIED::DeactivateThrow()
-{
-	m_bHasDetonatedSatchel = false;
-}
-
 void CWeaponExplosiveIED::PrimaryAttack( void )
 {
 	if ( BeginThrowOrPlant() ) return;
-	if ( !m_bHasThrownSatchel ) return;
-	if ( m_bFirstThrow ) return;
+	if ( !HasSatchelCharge() ) return;
 
 	AddWeaponSound( "weapons/ied/button_press.wav", 1, ATTN_NORM, GetAnimationTime( 4, 30 ) );
 	SendWeaponAnim( ANIM_SATCHEL_DETONATOR_USE );
@@ -109,13 +100,12 @@ void CWeaponExplosiveIED::PrimaryAttack( void )
 	}
 
 	m_flNextPrimaryAttack = m_flNextSecondaryAttack = m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime( 14, 30 );
-	m_bHasDetonatedSatchel = true;
-	m_bHasThrownSatchel = false;
+	m_iIEDState = IED_STATE_DETONATED;
 }
 
 bool CWeaponExplosiveIED::HasSatchelCharge() const
 {
-	return m_bHasThrownSatchel;
+	return ( m_iIEDState == IED_STATE_HAS_THROWN );
 }
 
 bool CWeaponExplosiveIED::PlantIED( void )
@@ -146,12 +136,11 @@ bool CWeaponExplosiveIED::PlantIED( void )
 			m_pPlayer->SetAnimation(PLAYER_ATTACK1);
 
 			m_iClip = 0;
-			m_iPrevClip = m_iClip;
+			m_iPrevClip = 0;
 
 			m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime(20, 30);
 
-			m_bHasThrownSatchel = true;
-
+			m_iIEDState = IED_STATE_THROWING;
 			return true;
 		}
 	 }
@@ -165,11 +154,8 @@ bool CWeaponExplosiveIED::BeginThrowOrPlant(void)
 	{
 		if ( PlantIED() ) return true;
 
-		if ( !m_bHasThrownSatchel )
-			m_bFirstThrow = true;
 		Vector vecSrc = m_pPlayer->pev->origin;
 		Vector vecThrow = gpGlobals->v_forward * 274 + m_pPlayer->pev->velocity;
-		bool bHasSatchel = HasSatchelCharge();
 
 #ifndef CLIENT_DLL
 		CThrowableSatchelCharge *pSatchel = (CThrowableSatchelCharge *)Create( "monster_satchel", vecSrc, Vector(0, 0, 0), m_pPlayer->edict() );
@@ -179,17 +165,17 @@ bool CWeaponExplosiveIED::BeginThrowOrPlant(void)
 		m_pPlayer->pev->weaponmodel = MAKE_STRING( "models/p_satchel_radio.mdl" );
 		UTIL_strcpy( m_pPlayer->m_szAnimExtention, "hive" );
 #endif
-		SendWeaponAnim( bHasSatchel ? ANIM_SATCHEL_DETONATOR_DROP : ANIM_SATCHEL_DROP );
+		SendWeaponAnim( ANIM_SATCHEL_DROP );
 
 		// player "shoot" animation
 		m_pPlayer->SetAnimation( PLAYER_ATTACK1 );
 
 		m_iClip = 0;
-		m_iPrevClip = m_iClip;
+		m_iPrevClip = 0;
 
-		m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime( bHasSatchel ? 21 : 20, 30 );
+		m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime( 20, 30 );
 
-		m_bHasThrownSatchel = true;
+		m_iIEDState = IED_STATE_THROWING;
 		return true;
 	}
 	return false;
@@ -198,44 +184,55 @@ bool CWeaponExplosiveIED::BeginThrowOrPlant(void)
 void CWeaponExplosiveIED::WeaponIdle( void )
 {
 	if ( m_flTimeWeaponIdle > UTIL_WeaponTimeBase() ) return;
-	bool bHasSatchel = HasSatchelCharge();
 
-	// If we have picked up more satchels,
-	// reset the throw state.
-	if ( m_iClip > m_iPrevClip )
+	switch ( m_iIEDState )
 	{
-		m_iPrevClip = m_iClip;
-		if ( m_bHasThrownSatchel )
+		case IED_STATE_THROWING:
 		{
-			m_bHasThrownSatchel = false;
+			m_iIEDState = IED_STATE_HAS_THROWN;
 			DoDeployAnimation();
+			return;
 		}
-		return;
-	}
+		break;
 
-	// Retire if we are out of ammo,
-	// and have no satchels deployed.
-	if ( !bHasSatchel && m_iClip <= 0 )
-	{
-		DoHolsterAnimation();
-		return;
-	}
+		case IED_STATE_HAS_THROWN:
+		{
+			if ( m_iClip > m_iPrevClip )
+			{
+			    m_iIEDState = IED_STATE_OBTAINED_PACKAGE;
+				m_iPrevClip = m_iClip;
+			    return;
+			}
+			break;
+		}
 
-	if ( m_bFirstThrow )
-	{
-		m_bFirstThrow = false;
-		DoDeployAnimation();
-		return;
-	}
+		case IED_STATE_OBTAINED_PACKAGE:
+		{
+			m_iIEDState = IED_STATE_TO_NORMAL;
+			m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flTimeWeaponIdle = m_pPlayer->m_flNextAttack = DoHolsterAnimation();
+			return;
+		}
+		break;
 
-	if ( m_bHasDetonatedSatchel )
-	{
-		DoDeployAnimation();
-		return;
+		case IED_STATE_TO_NORMAL:
+		{
+			m_iIEDState = IED_STATE_NORMAL;
+			DoDeployAnimation();
+			return;
+		}
+		break;
+
+		case IED_STATE_DETONATED:
+		{
+		    DoHolsterAnimation();
+			return;
+		}
+		break;
 	}
 
 	int iAnimation;
 	float flDelay;
+	bool bHasSatchel = HasSatchelCharge();
 
 	switch ( RANDOM_LONG( 0, 8 ) )
 	{

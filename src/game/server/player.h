@@ -250,7 +250,6 @@ public:
 	void RenewItems(void);
 	void PackDeadPlayerItems(void);
 	void RemoveAllItems(BOOL removeSuit);
-	BOOL SwitchWeapon(CBasePlayerItem *pWeapon);
 
 	// JOHN:  sends custom messages if player HUD data has changed  (eg health, ammo)
 	virtual void UpdateClientData(void);

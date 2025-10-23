@@ -294,7 +294,6 @@ void CBasePlayer::SetCustomDecalFrames(int nFrames) { }
 int CBasePlayer::GetCustomDecalFrames(void) { return -1; }
 void CBasePlayer::DropPlayerItem(char *pszItemName) { }
 BOOL CBasePlayer::HasPlayerItem(CBasePlayerItem *pCheckItem) { return FALSE; }
-BOOL CBasePlayer::SwitchWeapon(CBasePlayerItem *pWeapon) { return FALSE; }
 Vector CBasePlayer::GetGunPosition(void) { return g_vecZero; }
 const char *CBasePlayer::TeamID(void) { return ""; }
 int CBasePlayer::GiveAmmo(int iAmount, ZPAmmoTypes ammotype) { return 0; }

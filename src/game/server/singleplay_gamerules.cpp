@@ -121,10 +121,8 @@ BOOL HLGetNextBestWeapon(CBasePlayer *pPlayer, CBasePlayerItem *pCurrentWeapon)
 				// this weapon is from the same category.
 				if (pCheck->CanDeploy())
 				{
-					if (pPlayer->SwitchWeapon(pCheck))
-					{
-						return TRUE;
-					}
+					pPlayer->SelectWeapon((CBasePlayerWeapon *)pCheck);
+					return TRUE;
 				}
 			}
 			else if (pCheck->iWeight() > iBestWeight && pCheck != pCurrentWeapon) // don't reselect the weapon we're trying to get rid of
@@ -155,7 +153,7 @@ BOOL HLGetNextBestWeapon(CBasePlayer *pPlayer, CBasePlayerItem *pCurrentWeapon)
 		return FALSE;
 	}
 
-	pPlayer->SwitchWeapon(pBest);
+	pPlayer->SelectWeapon((CBasePlayerWeapon *)pBest);
 
 	return TRUE;
 }

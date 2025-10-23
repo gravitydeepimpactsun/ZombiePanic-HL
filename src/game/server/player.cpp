@@ -4631,7 +4631,7 @@ void CBloodSplat::Spray(void)
 
 void CBasePlayer::GiveNamedItem(const char *pszName)
 {
-	if (!IsAlive()) return;
+	if ( !IsAlive() ) return;
 	edict_t *pent;
 
 	int istr = MAKE_STRING(pszName);
@@ -5038,7 +5038,7 @@ int CBasePlayer::AddPlayerItem(CBasePlayerItem *pItem)
 				// If 0, then do not auto switch to the weapon
 				if ( FStrEq( szAutoPickup, "0" ) && bRet ) return TRUE;
 			}
-			SwitchWeapon(pItem);
+			SelectWeapon( (CBasePlayerWeapon *)pItem );
 			m_bJustSpawned = false;
 		}
 
@@ -6526,31 +6526,6 @@ BOOL CBasePlayer::HasPlayerItemFromID(int nID)
 	return FALSE;
 }
 
-//=========================================================
-//
-//=========================================================
-BOOL CBasePlayer ::SwitchWeapon(CBasePlayerItem *pWeapon)
-{
-	// We got nothing to switch to
-	if (!pWeapon) return FALSE;
-	if (!pWeapon->CanDeploy())
-	{
-		return FALSE;
-	}
-
-	ResetAutoaim();
-
-	if (m_pActiveItem)
-		m_pActiveItem->Holster();
-
-	m_pLastItem = m_pActiveItem;
-	m_pActiveItem = pWeapon;
-
-	m_pActiveItem->DoDeployAnimation();
-	m_pActiveItem->UpdateItemInfo();
-
-	return TRUE;
-}
 
 //=========================================================
 // Player Corpse

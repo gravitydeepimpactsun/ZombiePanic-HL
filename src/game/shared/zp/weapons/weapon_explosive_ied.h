@@ -7,9 +7,9 @@
 
 class CBasePlayerItem;
 
-class CWeaponExplosiveSatchel : public CWeaponBase
+class CWeaponExplosiveIED : public CWeaponBase
 {
-	DECLARE_CLASS_SIMPLE( CWeaponExplosiveSatchel, CWeaponBase );
+	DECLARE_CLASS_SIMPLE( CWeaponExplosiveIED, CWeaponBase );
 
 public:
 	bool IsThrowable() override { return true; }
@@ -18,7 +18,6 @@ public:
 	void Precache( void );
 	int AddToPlayer( CBasePlayer *pPlayer );
 	void PrimaryAttack( void );
-	void SecondaryAttack( void );
 	bool HasSatchelCharge() const;
 
 	float Deploy();
@@ -26,7 +25,8 @@ public:
 	float DoHolsterAnimation() override;
 	void DeactivateThrow() override;
 	void WeaponIdle();
-	void Throw();
+	bool BeginThrowOrPlant();
+	bool PlantIED();
 
 private:
 	bool m_bFirstThrow;

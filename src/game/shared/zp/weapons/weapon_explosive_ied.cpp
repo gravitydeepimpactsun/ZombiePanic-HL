@@ -1,17 +1,17 @@
 // ============== Copyright (c) 2025 Monochrome Games ============== \\
 
-#include "weapon_explosive_satchel.h"
+#include "weapon_explosive_ied.h"
 #include "throwable_satchel.h"
 #ifndef CLIENT_DLL
 #include "gamerules.h"
 #endif
 
-LINK_ENTITY_TO_CLASS( weapon_satchel, CWeaponExplosiveSatchel );
-LINK_ENTITY_TO_CLASS( weapon_ied, CWeaponExplosiveSatchel );
+LINK_ENTITY_TO_CLASS( weapon_satchel, CWeaponExplosiveIED );
+LINK_ENTITY_TO_CLASS( weapon_ied, CWeaponExplosiveIED );
 
 //=========================================================
 //=========================================================
-int CWeaponExplosiveSatchel::AddToPlayer(CBasePlayer *pPlayer)
+int CWeaponExplosiveIED::AddToPlayer(CBasePlayer *pPlayer)
 {
 	if ( BaseClass::AddToPlayer( pPlayer ) )
 	{
@@ -21,9 +21,9 @@ int CWeaponExplosiveSatchel::AddToPlayer(CBasePlayer *pPlayer)
 	return FALSE;
 }
 
-void CWeaponExplosiveSatchel::Spawn()
+void CWeaponExplosiveIED::Spawn()
 {
-	pev->classname = MAKE_STRING( "weapon_satchel" );
+	pev->classname = MAKE_STRING( "weapon_ied" );
 
 	Precache();
 	SET_MODEL(ENT(pev), "models/w_satchel.mdl");
@@ -38,7 +38,7 @@ void CWeaponExplosiveSatchel::Spawn()
 	m_iPrevClip = m_iDefaultAmmo;
 }
 
-void CWeaponExplosiveSatchel::Precache(void)
+void CWeaponExplosiveIED::Precache(void)
 {
 	PRECACHE_MODEL("models/v_satchel.mdl");
 	PRECACHE_MODEL("models/w_satchel.mdl");
@@ -49,7 +49,7 @@ void CWeaponExplosiveSatchel::Precache(void)
 	UTIL_PrecacheOther("monster_satchel");
 }
 
-float CWeaponExplosiveSatchel::Deploy()
+float CWeaponExplosiveIED::Deploy()
 {
 	m_bHasDetonatedSatchel = false;
 	DoDeploy(
@@ -61,7 +61,7 @@ float CWeaponExplosiveSatchel::Deploy()
 	return GetAnimationTime( m_bHasThrownSatchel ? 18 : 22, 30 );
 }
 
-float CWeaponExplosiveSatchel::DoHolsterAnimation()
+float CWeaponExplosiveIED::DoHolsterAnimation()
 {
 	bool bHasSatchel = m_bHasThrownSatchel;
 	EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_WEAPON, "common/null.wav", 1.0, ATTN_NORM);
@@ -79,19 +79,15 @@ float CWeaponExplosiveSatchel::DoHolsterAnimation()
 	return GetAnimationTime( 9, 30 );
 }
 
-void CWeaponExplosiveSatchel::DeactivateThrow()
+void CWeaponExplosiveIED::DeactivateThrow()
 {
 	m_bHasDetonatedSatchel = false;
 }
 
-void CWeaponExplosiveSatchel::PrimaryAttack(void)
+void CWeaponExplosiveIED::PrimaryAttack( void )
 {
-	Throw();
-}
-
-void CWeaponExplosiveSatchel::SecondaryAttack()
-{
-	if ( !HasSatchelCharge() ) return;
+	if ( BeginThrowOrPlant() ) return;
+	if ( !m_bHasThrownSatchel ) return;
 	if ( m_bFirstThrow ) return;
 
 	AddWeaponSound( "weapons/ied/button_press.wav", 1, ATTN_NORM, GetAnimationTime( 4, 30 ) );
@@ -117,15 +113,58 @@ void CWeaponExplosiveSatchel::SecondaryAttack()
 	m_bHasThrownSatchel = false;
 }
 
-bool CWeaponExplosiveSatchel::HasSatchelCharge() const
+bool CWeaponExplosiveIED::HasSatchelCharge() const
 {
 	return m_bHasThrownSatchel;
 }
 
-void CWeaponExplosiveSatchel::Throw( void )
+bool CWeaponExplosiveIED::PlantIED( void )
+{
+	// We found a wall? Plant the IED. That's it.
+
+	UTIL_MakeVectors( m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle );
+	Vector vecSrc = m_pPlayer->GetGunPosition();
+	Vector vecAiming = gpGlobals->v_forward;
+	TraceResult tr;
+	UTIL_TraceLine( vecSrc, vecSrc + vecAiming * 128, dont_ignore_monsters, ENT(m_pPlayer->pev), &tr );
+
+	if ( tr.flFraction < 1.0f )
+	{
+		CBaseEntity *pEntity = CBaseEntity::Instance(tr.pHit);
+		if ( pEntity && !(pEntity->pev->flags & FL_CONVEYOR) )
+		{
+#ifndef CLIENT_DLL
+			Vector angles = UTIL_VecToAngles( tr.vecPlaneNormal );
+			CThrowableSatchelCharge *pSatchel = (CThrowableSatchelCharge *)Create( "monster_satchel", tr.vecEndPos + tr.vecPlaneNormal * 8, angles, m_pPlayer->edict() );
+			pSatchel->PlantIED();
+			pSatchel->DisallowPickupFor( 2.0f );
+			UTIL_strcpy( m_pPlayer->m_szAnimExtention, "hive" );
+#endif
+			SendWeaponAnim(ANIM_SATCHEL_DROP);
+
+			// player "shoot" animation
+			m_pPlayer->SetAnimation(PLAYER_ATTACK1);
+
+			m_iClip = 0;
+			m_iPrevClip = m_iClip;
+
+			m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime(20, 30);
+
+			m_bHasThrownSatchel = true;
+
+			return true;
+		}
+	 }
+
+	return false;
+}
+
+bool CWeaponExplosiveIED::BeginThrowOrPlant(void)
 {
 	if ( m_iClip > 0 )
 	{
+		if ( PlantIED() ) return true;
+
 		if ( !m_bHasThrownSatchel )
 			m_bFirstThrow = true;
 		Vector vecSrc = m_pPlayer->pev->origin;
@@ -145,16 +184,18 @@ void CWeaponExplosiveSatchel::Throw( void )
 		// player "shoot" animation
 		m_pPlayer->SetAnimation( PLAYER_ATTACK1 );
 
-		m_iClip--;
+		m_iClip = 0;
 		m_iPrevClip = m_iClip;
 
 		m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime( bHasSatchel ? 21 : 20, 30 );
 
 		m_bHasThrownSatchel = true;
+		return true;
 	}
+	return false;
 }
 
-void CWeaponExplosiveSatchel::WeaponIdle( void )
+void CWeaponExplosiveIED::WeaponIdle( void )
 {
 	if ( m_flTimeWeaponIdle > UTIL_WeaponTimeBase() ) return;
 	bool bHasSatchel = HasSatchelCharge();

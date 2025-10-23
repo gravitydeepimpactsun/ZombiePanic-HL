@@ -6284,6 +6284,7 @@ bool CBasePlayer::DropAmmo( int ammoindex, int amount, Vector Dir, bool pukevel 
 	pAmmoItem->m_iDroppedOverride = pAmmoItem->m_iAmountLeft = amount;
 	pAmmoItem->pev->angles.x = 0;
 	pAmmoItem->pev->angles.z = 0;
+	pAmmoItem->pev->impulse = 1;
 	pAmmoItem->SetSpawnedTroughRandomEntity( true );
 
 	// for gpGlobals->v_forward

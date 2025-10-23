@@ -2008,6 +2008,10 @@ bool CStudioModelRenderer::IsLookingAtWeapon(void)
 		// Is this a weapon model?
 		if ( strnicmp(m_pCurrentEntity->model->name, "models/w_", 9) == 0 )
 		{
+			// Let's make sure this item has our flag byte EFLAG_CAN_PICKUP_ITEM
+			if ( m_pCurrentEntity->curstate.eflags != 3 )
+				return false;
+
 			// Now, let's check if we, the local player, are looking at it
 			cl_entity_t *pLocalPlayer = gEngfuncs.GetLocalPlayer();
 			if ( !pLocalPlayer ) return false;

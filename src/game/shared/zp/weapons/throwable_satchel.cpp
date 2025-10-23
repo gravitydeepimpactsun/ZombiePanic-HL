@@ -139,7 +139,7 @@ void CThrowableSatchelCharge::SatchelUse(CBaseEntity *pActivator, CBaseEntity *p
 					EMIT_SOUND( ENT(pPlayer->pev), CHAN_ITEM, "items/ammo_pickup.wav", 1, ATTN_NORM );
 				}
 				else
-					pPlayer->GiveNamedItem( "weapon_satchel" );
+					pPlayer->GiveNamedItem( "weapon_ied" );
 				SetTouch( NULL );
 				SetThink( &CThrowableSatchelCharge::SUB_Remove );
 				return;
@@ -231,11 +231,59 @@ void CThrowableSatchelCharge::IEDExplode()
 			Create("spark_shower", pev->origin, tr.vecPlaneNormal, NULL);
 	}
 }
+
+void CThrowableSatchelCharge::PlantIED()
+{
+	SET_MODEL( ENT(pev), "models/w_satchel_planted.mdl" );
+	pev->movetype = MOVETYPE_FLY;
+	pev->solid = SOLID_NOT;
+	pev->body = 0;
+	SetTouch( NULL );
+	SetUse( NULL );
+	SetThink( &CThrowableSatchelCharge::PowerupThink );
+	pev->nextthink = gpGlobals->time + 1.0;
+	m_flNextBeep = gpGlobals->time + 1.0;
+	m_bHasBeeped = false;
+}
+
+void CThrowableSatchelCharge::PowerupThink( void )
+{
+	if ( pev->solid == SOLID_NOT )
+	{
+		pev->solid = SOLID_BBOX;
+		UTIL_SetSize( pev, Vector(-4, -4, -4), Vector(4, 4, 4) );
+		SetUse( &CThrowableSatchelCharge::SatchelUse );
+	}
+
+	if ( m_flDisallowPickup != -1 && m_flDisallowPickup - gpGlobals->time <= 0 )
+	{
+		m_flDisallowPickup = -1;
+		m_iThrower = pev->owner ? ENTINDEX( pev->owner ) : 0;
+		pev->owner = nullptr;
+	}
+
+	if ( m_bHasBeeped )
+	{
+		m_bHasBeeped = false;
+		pev->body = 0;
+	}
+
+	if ( m_flNextBeep - gpGlobals->time <= 0 )
+	{
+		EMIT_SOUND_DYN( ENT(pev), CHAN_ITEM, "weapons/ied/beep.wav", 1, ATTN_NORM, 0, 25 );
+		m_flNextBeep = gpGlobals->time + 2.0;
+		m_bHasBeeped = true;
+		pev->body = 1;
+	}
+
+	pev->nextthink = gpGlobals->time + 0.1;
+}
 #endif
 
 void CThrowableSatchelCharge ::Precache(void)
 {
-	PRECACHE_MODEL("models/w_satchel.mdl");
+	PRECACHE_MODEL("models/w_satchel_planted.mdl");
+	PRECACHE_SOUND("weapons/ied/beep.wav");
 	PRECACHE_SOUND("weapons/ied/bounce1.wav");
 	PRECACHE_SOUND("weapons/ied/bounce2.wav");
 	PRECACHE_SOUND("weapons/ied/bounce3.wav");

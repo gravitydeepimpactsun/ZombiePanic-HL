@@ -524,11 +524,6 @@ void ClientCommand(edict_t *pEntity)
 		}
 	}
 #endif
-	else if (FStrEq(pcmd, "drop"))
-	{
-		// player is dropping an item.
-		pPlayer->DropPlayerItem((char *)CMD_ARGV(1));
-	}
 	else if (FStrEq(pcmd, "fov"))
 	{
 		if (g_flWeaponCheat && CMD_ARGC() > 1)
@@ -1406,10 +1401,18 @@ int AddToFullPack(struct entity_state_s *state, int e, edict_t *ent, edict_t *ho
 	}
 
 	CBaseEntity *pEntity = static_cast<CBaseEntity *>(GET_PRIVATE(ent));
-	if (pEntity && pEntity->Classify() != CLASS_NONE && pEntity->Classify() != CLASS_MACHINE)
-		state->eflags |= EFLAG_FLESH_SOUND;
-	else
-		state->eflags &= ~EFLAG_FLESH_SOUND;
+	if ( pEntity )
+	{
+		if ( pEntity->Classify() != CLASS_NONE && pEntity->Classify() != CLASS_MACHINE )
+			state->eflags |= EFLAG_FLESH_SOUND;
+		else
+			state->eflags &= ~EFLAG_FLESH_SOUND;
+
+		if ( pEntity->IsUseableItem() )
+			state->eflags |= EFLAG_CAN_PICKUP_ITEM;
+		else
+			state->eflags &= ~EFLAG_CAN_PICKUP_ITEM;
+	}
 
 	return 1;
 }

@@ -112,8 +112,9 @@
 #define EF_FIBERCAMERA 1024 // fiber camera
 
 // entity flags
-#define EFLAG_SLERP       1 // do studio interpolation of this entity
-#define EFLAG_FLESH_SOUND 2 // JoshA: Whether this entity should sound like flesh. (ie. pEntity->Classify() != CLASS_NONE && pEntity->Classify() != CLASS_MACHINE)
+#define EFLAG_SLERP				1 // do studio interpolation of this entity
+#define EFLAG_FLESH_SOUND		2 // JoshA: Whether this entity should sound like flesh. (ie. pEntity->Classify() != CLASS_NONE && pEntity->Classify() != CLASS_MACHINE)
+#define EFLAG_CAN_PICKUP_ITEM	4 // If the client has this flag, this item can be picked up.
 
 //
 // temp entity events

@@ -19,6 +19,8 @@ class CThrowableSatchelCharge : public CGrenade
 public:
 #ifndef CLIENT_DLL
 	void IEDExplode();
+	void PlantIED();
+	void EXPORT PowerupThink( void );
 #endif
 
 	void Deactivate(void);
@@ -29,6 +31,8 @@ public:
 private:
 	float m_flDisallowPickup = -1;
 	int m_iThrower = -1;
+	float m_flNextBeep = -1;
+	bool m_bHasBeeped = false;
 };
 
 

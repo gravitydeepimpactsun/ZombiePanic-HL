@@ -341,6 +341,7 @@ public:
 			return m_iDroppedOverride;
 		return m_iAmmoToGive;
 	}
+	bool IsUseableItem() const override { return true; }
 
 	CBaseEntity *Respawn(void);
 	void EXPORT Materialize(void);

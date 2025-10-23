@@ -170,6 +170,8 @@ public:
 	virtual void Restart(void);
 #endif
 
+	virtual bool IsUseableItem() const { return false; }
+
 	// Setup the object->object collision box (pev->mins / pev->maxs is the object->world collision box)
 	virtual void SetObjectCollisionBox(void);
 

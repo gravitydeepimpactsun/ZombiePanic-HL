@@ -350,7 +350,7 @@ void ZP::SetupDefaultSpawnList()
 	// Items
 	s_SpawnList.push_back( new SpawnList( "item_healthkit", nItemToSpawn[0], ItemType::TypeItem ) );
 	s_SpawnList.push_back( new SpawnList( "item_battery", nItemToSpawn[1], ItemType::TypeItem ) );
-	s_SpawnList.push_back( new SpawnList( "weapon_satchel", nItemToSpawn[2], ItemType::TypeItem ) );
+	s_SpawnList.push_back( new SpawnList( "weapon_ied", nItemToSpawn[2], ItemType::TypeItem ) );
 	s_SpawnList.push_back( new SpawnList( "weapon_handgrenade", nItemToSpawn[3], ItemType::TypeItem ) );
 
 	// Our current gamemode

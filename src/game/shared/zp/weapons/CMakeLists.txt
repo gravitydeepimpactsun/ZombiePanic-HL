@@ -30,6 +30,6 @@ add_sources(
 	weapon_melee_swipe.h
 	weapon_explosive_tnt.cpp
 	weapon_explosive_tnt.h
-	weapon_explosive_satchel.cpp
-	weapon_explosive_satchel.h
+	weapon_explosive_ied.cpp
+	weapon_explosive_ied.h
 )

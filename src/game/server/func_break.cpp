@@ -49,8 +49,8 @@ const char *CBreakable::pSpawnObjects[] = {
 	"ammo_buckshot",
 	"weapon_357",
 	"ammo_357",
-	"weapon_handgrenade",
-	"weapon_satchel",
+	"weapon_tnt",
+	"weapon_ied",
 	"weapon_mp5",
 	"ammo_mp5clip",
 };

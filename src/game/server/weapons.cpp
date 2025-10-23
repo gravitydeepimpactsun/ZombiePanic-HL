@@ -337,10 +337,10 @@ void EXPORT W_Precache(void)
 	UTIL_PrecacheOther("ammo_357");
 
 	// satchel charge
-	UTIL_PrecacheOtherWeapon("weapon_satchel");
+	UTIL_PrecacheOtherWeapon("weapon_ied");
 
 	// hand grenade
-	UTIL_PrecacheOtherWeapon("weapon_handgrenade");
+	UTIL_PrecacheOtherWeapon("weapon_tnt");
 
 	UTIL_PrecacheOther( "weaponbox" );
 

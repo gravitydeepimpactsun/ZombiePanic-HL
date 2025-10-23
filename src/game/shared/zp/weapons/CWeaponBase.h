@@ -21,6 +21,7 @@ class CWeaponBase : public CBasePlayerWeapon
 
 public:
 	virtual int ObjectCaps(void) { return BaseClass::ObjectCaps() | FCAP_IMPULSE_USE; }
+	bool IsUseableItem() const override { return true; }
 
 	int iItemSlot( void ) override;
 	bool DoDeploy(const char *szViewModel, const char *szWeaponModel, int iAnim, const char *szAnimExt, int skiplocal = 0, int body = 0);

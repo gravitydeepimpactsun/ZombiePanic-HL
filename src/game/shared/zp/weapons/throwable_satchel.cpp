@@ -119,22 +119,22 @@ void CThrowableSatchelCharge::SatchelUse(CBaseEntity *pActivator, CBaseEntity *p
 	{
 #ifndef CLIENT_DLL
 		// Allow for pickup! (if we can)
-		if ( m_iThrower != -1 && pCaller && pCaller->IsPlayer() && pCaller->pev->team == ZP::TEAM_SURVIVIOR )
+		CBasePlayer *pPlayer = dynamic_cast<CBasePlayer *>( pCaller );
+		if ( m_iThrower != -1 && pPlayer && pPlayer->IsPlayer() && pPlayer->pev->team == ZP::TEAM_SURVIVIOR )
 		{
 			CBasePlayer *pOwner = (CBasePlayer *)UTIL_PlayerByIndex( m_iThrower );
 			bool bCanBePickedUp = pOwner ? false : true;
 			if ( pOwner && pOwner->pev->team != pev->team )
 				bCanBePickedUp = true;
-			else if ( pCaller->edict() == pOwner->edict() )
+			else if ( pPlayer->edict() == pOwner->edict() )
 				bCanBePickedUp = true;
 			if ( bCanBePickedUp )
 			{
-				CBasePlayer *pPlayer = (CBasePlayer *)pCaller;
 				CBasePlayerWeapon *pWeapon = pPlayer->GetWeaponFromID( WEAPON_SATCHEL );
 				if ( pWeapon )
 				{
 					// If we already have one, stop.
-					if ( pWeapon->m_iClip == 1 ) return;
+					if ( pWeapon->m_iClip > 0 ) return;
 					pWeapon->m_iClip = 1;
 					EMIT_SOUND( ENT(pPlayer->pev), CHAN_ITEM, "items/ammo_pickup.wav", 1, ATTN_NORM );
 				}

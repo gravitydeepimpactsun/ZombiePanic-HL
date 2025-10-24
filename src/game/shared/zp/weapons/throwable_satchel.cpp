@@ -182,7 +182,7 @@ void CThrowableSatchelCharge::IEDExplode()
 		WRITE_SHORT(g_sModelIndexFireball);
 	else
 		WRITE_SHORT(g_sModelIndexWExplosion);
-	WRITE_BYTE((pev->dmg - 50) * .60); // scale * 10
+	WRITE_BYTE((150 - 50) * .60); // scale * 10
 	WRITE_BYTE(15); // framerate
 	WRITE_BYTE(TE_EXPLFLAG_NONE);
 	MESSAGE_END();

@@ -54,6 +54,7 @@ void CWeaponExplosiveTNT::Precache(void)
 	PRECACHE_MODEL("models/v_tnt.mdl");
 	PRECACHE_MODEL("models/p_tnt.mdl");
 	PRECACHE_SOUND("weapons/tnt/fuse.wav");
+	PRECACHE_SOUND("weapons/tnt/spark.wav");
 }
 
 float CWeaponExplosiveTNT::Deploy()

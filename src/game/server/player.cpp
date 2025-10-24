@@ -5028,17 +5028,12 @@ int CBasePlayer::AddPlayerItem(CBasePlayerItem *pItem)
 			if ( szAutoPickup && szAutoPickup[0] && !m_bJustSpawned )
 			{
 				bool bRet = m_pActiveItem ? true : false;
-				if ( m_pActiveItem )
-				{
-					CBasePlayerWeapon *pWeapon = (CBasePlayerWeapon *)m_pActiveItem;
-					// Force a switch.
-					if ( pWeapon->IsThrowable() && m_rgAmmo[pWeapon->m_iPrimaryAmmoType] == 0 ) bRet = false;
-				}
-
 				// If 0, then do not auto switch to the weapon
 				if ( FStrEq( szAutoPickup, "0" ) && bRet ) return TRUE;
 			}
-			SelectWeapon( (CBasePlayerWeapon *)pItem );
+			CBasePlayerWeapon *pWeapon = dynamic_cast<CBasePlayerWeapon *>( pItem );
+			if ( pWeapon )
+				SelectWeapon( pWeapon );
 			m_bJustSpawned = false;
 		}
 

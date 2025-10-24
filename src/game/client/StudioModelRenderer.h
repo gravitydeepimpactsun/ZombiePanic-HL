@@ -51,6 +51,9 @@ public:
 	// Local interfaces
 	//
 
+	// Determine if lighting adjustments are needed for player model
+	bool IsPlayerRequiresLightingAdjustments( const alight_t &lighting );
+
 	// Returns player model for rendering
 	virtual model_t *GetPlayerModel(int playerIndex);
 

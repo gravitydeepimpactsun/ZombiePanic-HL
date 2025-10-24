@@ -1314,6 +1314,10 @@ int CStudioModelRenderer::StudioDrawModel(int flags)
 
 		IEngineStudio.StudioEntityLight(&lighting);
 
+		// Override lighting to be more visible if we are in complete darkness
+		if ( lighting.shadelight < 60 )
+			lighting.shadelight = 60;
+
 		// model and frame independant
 		IEngineStudio.StudioSetupLighting(&lighting);
 
@@ -1517,6 +1521,20 @@ void CStudioModelRenderer::StudioProcessGait(entity_state_t *pplayer)
 		m_pPlayerInfo->gaitframe += pseqdesc->numframes;
 }
 
+bool CStudioModelRenderer::IsPlayerRequiresLightingAdjustments( const alight_t &lighting )
+{
+	// Make sure we have a valid entity
+	if ( !m_pCurrentEntity ) return false;
+	// Make sure this entity is a player
+	if ( !m_pCurrentEntity->player ) return false;
+	// Grab the player current lighting information,
+	// and check if we need to adjust the lighting for this player
+	// if they are in darknessm, such as pitch black areas.
+	if ( lighting.shadelight < 60 )
+		return true;
+	return false;
+}
+
 /*
 ====================
 GetPlayerModel
@@ -1686,6 +1704,10 @@ int CStudioModelRenderer::StudioDrawPlayer(int flags, entity_state_t *pplayer, b
 		IEngineStudio.StudioDynamicLight(m_pCurrentEntity, &lighting);
 
 		IEngineStudio.StudioEntityLight(&lighting);
+
+		// Override player lighting to be more visible if we are in complete darkness
+		if ( IsPlayerRequiresLightingAdjustments( lighting ) )
+			lighting.shadelight = 60;
 
 		// model and frame independant
 		IEngineStudio.StudioSetupLighting(&lighting);

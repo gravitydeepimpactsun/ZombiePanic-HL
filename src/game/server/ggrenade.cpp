@@ -76,7 +76,7 @@ void CGrenade::Explode(TraceResult *pTrace, int bitsDamageType)
 	{
 		WRITE_SHORT(g_sModelIndexWExplosion);
 	}
-	WRITE_BYTE((pev->dmg - 50) * .60); // scale * 10
+	WRITE_BYTE((100 - 50) * .60); // scale * 10
 	WRITE_BYTE(15); // framerate
 	WRITE_BYTE(TE_EXPLFLAG_NONE);
 	MESSAGE_END();
@@ -144,7 +144,7 @@ void CGrenade::Smoke(void)
 		WRITE_COORD(pev->origin.y);
 		WRITE_COORD(pev->origin.z);
 		WRITE_SHORT(g_sModelIndexSmoke);
-		WRITE_BYTE((pev->dmg - 50) * 0.80); // scale * 10
+		WRITE_BYTE((100 - 50) * 0.80); // scale * 10
 		WRITE_BYTE(12); // framerate
 		MESSAGE_END();
 	}
@@ -268,11 +268,12 @@ void CGrenade::BounceTouch(CBaseEntity *pOther)
 		// play bounce sound
 		BounceSound();
 	}
-	pev->framerate = pev->velocity.Length() / 200.0;
-	if (pev->framerate > 1.0)
-		pev->framerate = 1;
-	else if (pev->framerate < 0.5)
-		pev->framerate = 0;
+
+	float flVelocity = pev->velocity.Length() / 200.0;
+	if ( flVelocity > 1.0 )
+		m_iRequireSequence = LookupSequence( "toss" );
+	else if ( flVelocity < 0.5 )
+		m_iRequireSequence = LookupSequence( "idle" );
 }
 
 void CGrenade::SlideTouch(CBaseEntity *pOther)
@@ -323,6 +324,18 @@ void CGrenade ::TumbleThink(void)
 		return;
 	}
 
+	if ( m_iRequireSequence != -1 )
+	{
+		// If it's -2, then we require the "toss" sequence,
+		// because we recently threw it.
+		if ( m_iRequireSequence == -2 )
+			m_iRequireSequence = LookupSequence( "toss" );
+		pev->sequence = m_iRequireSequence;
+		m_iRequireSequence = -1;
+	}
+
+	EMIT_SOUND( ENT(pev), CHAN_VOICE, "weapons/tnt/spark.wav", 1.0f, ATTN_NORM );
+
 	StudioFrameAdvance();
 	pev->nextthink = gpGlobals->time + 0.1;
 
@@ -338,7 +351,7 @@ void CGrenade ::TumbleThink(void)
 	if (pev->waterlevel != 0)
 	{
 		pev->velocity = pev->velocity * 0.5;
-		pev->framerate = 0.2;
+		//pev->framerate = 0.2;
 	}
 }
 
@@ -406,7 +419,8 @@ CGrenade *CGrenade::ShootTimed(entvars_t *pevOwner, Vector vecStart, Vector vecV
 		pGrenade->pev->velocity = Vector(0, 0, 0);
 	}
 
-	pGrenade->pev->sequence = RANDOM_LONG(3, 6);
+	pGrenade->m_iRequireSequence = -2;
+	pGrenade->pev->sequence = 0;
 	pGrenade->pev->framerate = 1.0;
 
 	// Tumble through the air

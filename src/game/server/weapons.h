@@ -57,6 +57,7 @@ public:
 
 	BOOL m_fRegisteredSound; // whether or not this grenade has issued its DANGER sound to the world sound list yet.
 	float m_flExplodeRange = 320.0f;
+	int m_iRequireSequence = -1;
 };
 
 // constant items

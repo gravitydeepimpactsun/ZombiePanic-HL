@@ -270,7 +270,7 @@ void CThrowableSatchelCharge::PowerupThink( void )
 
 	if ( m_flNextBeep - gpGlobals->time <= 0 )
 	{
-		EMIT_SOUND_DYN( ENT(pev), CHAN_ITEM, "weapons/ied/beep.wav", 1, ATTN_NORM, 0, 25 );
+		EMIT_SOUND_DYN( ENT(pev), CHAN_ITEM, "weapons/ied/beep.wav", 0.6, ATTN_NORM, 0, 25 );
 		m_flNextBeep = gpGlobals->time + 2.0;
 		m_bHasBeeped = true;
 		pev->body = 1;

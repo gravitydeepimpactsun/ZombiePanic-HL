@@ -44,7 +44,7 @@ void CWeaponExplosiveIED::Precache(void)
 	PRECACHE_MODEL("models/p_satchel_radio.mdl");
 	PRECACHE_SOUND("weapons/ied/button_press.wav");
 
-	UTIL_PrecacheOther("monster_satchel");
+	UTIL_PrecacheOther( "monster_satchel" );
 }
 
 float CWeaponExplosiveIED::Deploy()

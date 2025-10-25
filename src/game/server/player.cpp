@@ -2624,6 +2624,10 @@ void CBasePlayer::SelectWeapon( CBasePlayerWeapon *pWeapon )
 		ThrowableDropState throwablestate = IsThrowableAndActive( pBaseWeapon, false );
 		if ( throwablestate == DELETE_ITEM_AND_ACTIVE )
 		{
+			m_pActiveItem = nullptr;
+			pev->viewmodel = 0;
+			pev->weaponmodel = 0;
+
 			// Remove from the player
 			WeaponSlotSet( pBaseWeapon, false );
 			RemovePlayerItem( pBaseWeapon );
@@ -5174,10 +5178,10 @@ Called every frame by the player PreThink
 */
 void CBasePlayer::ItemPreFrame()
 {
-	if ( m_pActiveItem )
-		m_pActiveItem->DoAudioFrame();
+	if ( !m_pActiveItem ) return;
+	m_pActiveItem->DoAudioFrame();
 
-#if defined(CLIENT_WEAPONS)
+#if defined( CLIENT_WEAPONS )
 	if (m_flNextAttack > 0)
 #else
 	if (gpGlobals->time < m_flNextAttack)
@@ -5185,9 +5189,6 @@ void CBasePlayer::ItemPreFrame()
 	{
 		return;
 	}
-
-	if (!m_pActiveItem)
-		return;
 
 	m_pActiveItem->ItemPreFrame();
 }

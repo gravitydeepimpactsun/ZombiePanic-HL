@@ -140,6 +140,7 @@ void CThrowableSatchelCharge::SatchelUse(CBaseEntity *pActivator, CBaseEntity *p
 				}
 				else
 					pPlayer->GiveNamedItem( "weapon_ied" );
+				SetUse( NULL );
 				SetTouch( NULL );
 				SetThink( &CThrowableSatchelCharge::SUB_Remove );
 				return;

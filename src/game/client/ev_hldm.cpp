@@ -65,6 +65,7 @@ static ConVar cl_shellejects_ppk( "cl_shellejects_ppk", "20 -12 4" );
 static ConVar cl_shellejects_mp5( "cl_shellejects_mp5", "13 -12 10" );
 static ConVar cl_shellejects_revolver( "cl_shellejects_revolver", "20 -12 4" );
 static ConVar cl_shellejects_shotgun( "cl_shellejects_shotgun", "8 -12 8" );
+static ConVar cl_shellejects_357shell( "cl_shellejects_357shell", "-10 -14 -5" );
 
 // ------------------------------------------------------------------------
 
@@ -84,6 +85,7 @@ extern "C"
 	void EV_FireMP5(struct event_args_s *args);
 	void EV_FireMP52(struct event_args_s *args);
 	void EV_FirePython(struct event_args_s *args);
+	void EV_PythonShells(struct event_args_s *args);
 	void EV_FireGauss(struct event_args_s *args);
 	void EV_SpinGauss(struct event_args_s *args);
 	void EV_Swipe(struct event_args_s *args);
@@ -964,6 +966,36 @@ void EV_FirePython(event_args_t *args)
 
 	EV_HLDM_FireBullets(idx, forward, right, up, 1, vecSrc, vecAiming, 8192, BULLET_PLAYER_357, 0, NULL, args->fparam1, args->fparam2);
 }
+
+void EV_PythonShells( event_args_t *args )
+{
+	Vector origin;
+	Vector angles;
+	Vector velocity;
+	Vector up, right, forward;
+
+	VectorCopy(args->origin, origin);
+	VectorCopy(args->angles, angles);
+	VectorCopy(args->velocity, velocity);
+
+	AngleVectors(angles, forward, right, up);
+
+	Vector ShellVelocity;
+	Vector ShellOrigin;
+	int shell = gEngfuncs.pEventAPI->EV_FindModelIndex("models/shell.mdl"); // brass shell
+
+	Vector shellOffset;
+	ParseVector( cl_shellejects_357shell.GetString(), shellOffset );
+
+	// Eject 6 shells with some randomization
+	for ( int i = 0; i < 6; i++ )
+	{
+		Vector temp = shellOffset + Vector( gEngfuncs.pfnRandomFloat( -5.0, 5.0 ), gEngfuncs.pfnRandomFloat( -5.0, 5.0 ), gEngfuncs.pfnRandomFloat( -5.0, 5.0 ) );
+		EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, temp.x, temp.y, temp.z );
+		EV_EjectBrass( ShellOrigin, Vector( 0, 0, -20 ), angles[YAW], shell, TE_BOUNCE_SHELL );
+	}
+}
+
 //======================
 //	    PHYTON END
 //	     ( .357 )

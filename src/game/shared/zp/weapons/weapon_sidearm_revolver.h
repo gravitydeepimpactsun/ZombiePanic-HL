@@ -15,12 +15,12 @@ public:
 	void Spawn( void );
 	void Precache( void );
 	int AddToPlayer( CBasePlayer *pPlayer );
-	void Holster( int skiplocal = 0 );
+	void DoAudioFrame( void ) override;
+	float DoHolsterAnimation() override;
 	float Deploy();
 	void Reload( void );
 	void PrimaryAttack( void );
 	void WeaponIdle( void );
-	float m_flSoundDelay = 0.0f;
 };
 
 #endif

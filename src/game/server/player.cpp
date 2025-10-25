@@ -90,7 +90,7 @@ static ConVar sv_player_runspeed_gait_speed( "sv_player_runspeed_gait_speed", "1
 
 #define BGROUP_BODY 0
 #define BGROUP_HEAD 1
-#define BGROUP_BACKPACK 1
+#define BGROUP_BACKPACK 2
 
 #define BGROUP_SUB_DEFAULT 0
 #define BGROUP_SUB_VALUE1 1

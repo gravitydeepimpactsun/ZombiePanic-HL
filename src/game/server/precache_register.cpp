@@ -30,7 +30,6 @@ void CPrecacheRegisterSystem::PrecacheEntities()
 		else
 		    UTIL_PrecacheOther( pItem->GetClassname() );
 	}
-	m_PrecacheItems.clear();
 }
 
 void CPrecacheRegisterSystem::AddPrecacheItem( CPrecacheRegisterItem *pItem )

@@ -177,197 +177,228 @@ void ZP::SpawnItems()
 	s_iCurrentPlayerAmount = 0;
 }
 
+void AddDefaultAmmoSpawn( const char *szClassname, int iLimit, ItemType nType )
+{
+	s_SpawnList.push_back( new SpawnList( szClassname, iLimit, nType ) );
+}
+
 void ZP::SetupDefaultSpawnList()
 {
 	int nPlayers = s_iCurrentPlayerAmount;
-	int nAmmoToSpawn[6];
-	int nWeaponToSpawn[7];
-	int nItemToSpawn[4];
+
+	enum DefaultSpawnIndices
+	{
+		AMMO_9MM = 0,
+		AMMO_556,
+		AMMO_BUCKSHOT,
+		AMMO_357,
+		AMMO_22LRBOX,
+
+		WEAPON_SIG,
+		WEAPON_357,
+		WEAPON_556AR,
+		WEAPON_MP5,
+		WEAPON_SHOTGUN,
+		WEAPON_PPK,
+		WEAPON_DOUBLEBARREL,
+
+		ITEM_HEALTHKIT,
+		ITEM_BATTERY,
+		ITEM_SATCHEL,
+		ITEM_HANDGRENADE,
+
+		MAX_DEFAULT_SPAWNS_COUNT
+	};
+
+	struct DefaultSpawnInfo
+	{
+		const char *szClassname;
+		int iLimit;
+		ItemType nType;
+	};
+
+	DefaultSpawnInfo defaultSpawns[MAX_DEFAULT_SPAWNS_COUNT] =
+	{
+		{ "ammo_9mmbox", 0, ItemType::TypeAmmo },
+		{ "ammo_riflebox", 0, ItemType::TypeAmmo },
+		{ "ammo_buckshot", 0, ItemType::TypeAmmo },
+		{ "ammo_357box", 0, ItemType::TypeAmmo },
+		{ "ammo_22lrbox", 0, ItemType::TypeAmmo },
+
+		{ "weapon_sig", 0, ItemType::TypeWeapon },
+		{ "weapon_357", 0, ItemType::TypeWeapon },
+		{ "weapon_556ar", 0, ItemType::TypeWeapon },
+		{ "weapon_mp5", 0, ItemType::TypeWeapon },
+		{ "weapon_shotgun", 0, ItemType::TypeWeapon },
+		{ "weapon_ppk", 0, ItemType::TypeWeapon },
+		{ "weapon_doublebarrel", 0, ItemType::TypeWeapon },
+
+		{ "item_healthkit", 0, ItemType::TypeItem },
+		{ "item_battery", 0, ItemType::TypeItem },
+		{ "weapon_ied", 0, ItemType::TypeItem },
+		{ "weapon_tnt", 0, ItemType::TypeItem },
+	};
 
 	if ( nPlayers >= 18 )
 	{
-		nAmmoToSpawn[0] = 12; // 0 - ammo_9mmclip
-		nAmmoToSpawn[1] = 8; // 1 - ammo_mp5clip
-		nAmmoToSpawn[2] = 4; // 2 - ammo_556AR
-		nAmmoToSpawn[3] = 4; // 3 - ammo_buckshot
-		nAmmoToSpawn[4] = 4; // 4 - ammo_357
-		nAmmoToSpawn[5] = 11; // 5 - ammo_22lrbox
+		defaultSpawns[AMMO_9MM].iLimit = 12;
+		defaultSpawns[AMMO_556].iLimit = 4;
+		defaultSpawns[AMMO_BUCKSHOT].iLimit = 4;
+		defaultSpawns[AMMO_357].iLimit = 4;
+		defaultSpawns[AMMO_22LRBOX].iLimit = 11;
 
-		nWeaponToSpawn[0] = 3; // 0 - weapon_sig
-		nWeaponToSpawn[1] = 3; // 1 - weapon_357
-		nWeaponToSpawn[2] = 3; // 2 - weapon_556ar
-		nWeaponToSpawn[3] = 3; // 3 - weapon_mp5
-		nWeaponToSpawn[4] = 3; // 4 - weapon_shotgun
-		nWeaponToSpawn[5] = 3; // 5 - weapon_ppk
-		nWeaponToSpawn[6] = 2; // 6 - weapon_doublebarrel
+		defaultSpawns[WEAPON_SIG].iLimit = 3;
+		defaultSpawns[WEAPON_357].iLimit = 3;
+		defaultSpawns[WEAPON_556AR].iLimit = 3;
+		defaultSpawns[WEAPON_MP5].iLimit = 3;
+		defaultSpawns[WEAPON_SHOTGUN].iLimit = 3;
+		defaultSpawns[WEAPON_PPK].iLimit = 3;
+		defaultSpawns[WEAPON_DOUBLEBARREL].iLimit = 2;
 
-		nItemToSpawn[0] = 3; // 0 - item_healthkit
-		nItemToSpawn[1] = 3; // 1 - item_battery
-		nItemToSpawn[2] = 3; // 2 - weapon_satchel
-		nItemToSpawn[3] = 4; // 3 - weapon_handgrenade
+		defaultSpawns[ITEM_HEALTHKIT].iLimit = 3;
+		defaultSpawns[ITEM_BATTERY].iLimit = 3;
+		defaultSpawns[ITEM_SATCHEL].iLimit = 4;
+		defaultSpawns[ITEM_HANDGRENADE].iLimit = 4;
 	}
 	else if ( nPlayers >= 15 )
 	{
-		nAmmoToSpawn[0] = 10; // 0 - ammo_9mmclip
-		nAmmoToSpawn[1] = 5; // 1 - ammo_mp5clip
-		nAmmoToSpawn[2] = 3; // 2 - ammo_556AR
-		nAmmoToSpawn[3] = 3; // 3 - ammo_buckshot
-		nAmmoToSpawn[4] = 3; // 4 - ammo_357
-		nAmmoToSpawn[5] = 10; // 5 - ammo_22lrbox
+		defaultSpawns[AMMO_9MM].iLimit = 11;
+		defaultSpawns[AMMO_556].iLimit = 3;
+		defaultSpawns[AMMO_BUCKSHOT].iLimit = 3;
+		defaultSpawns[AMMO_357].iLimit = 3;
+		defaultSpawns[AMMO_22LRBOX].iLimit = 10;
 
-		nWeaponToSpawn[0] = 2; // 0 - weapon_sig
-		nWeaponToSpawn[1] = 2; // 1 - weapon_357
-		nWeaponToSpawn[2] = 2; // 2 - weapon_556ar
-		nWeaponToSpawn[3] = 2; // 3 - weapon_mp5
-		nWeaponToSpawn[4] = 2; // 4 - weapon_shotgun
-		nWeaponToSpawn[5] = 3; // 5 - weapon_ppk
-		nWeaponToSpawn[6] = 2; // 6 - weapon_doublebarrel
+		defaultSpawns[WEAPON_SIG].iLimit = 2;
+		defaultSpawns[WEAPON_357].iLimit = 2;
+		defaultSpawns[WEAPON_556AR].iLimit = 2;
+		defaultSpawns[WEAPON_MP5].iLimit = 2;
+		defaultSpawns[WEAPON_SHOTGUN].iLimit = 2;
+		defaultSpawns[WEAPON_PPK].iLimit = 3;
+		defaultSpawns[WEAPON_DOUBLEBARREL].iLimit = 2;
 
-		nItemToSpawn[0] = 3; // 0 - item_healthkit
-		nItemToSpawn[1] = 3; // 1 - item_battery
-		nItemToSpawn[2] = 2; // 2 - weapon_satchel
-		nItemToSpawn[3] = 3; // 3 - weapon_handgrenade
+		defaultSpawns[ITEM_HEALTHKIT].iLimit = 3;
+		defaultSpawns[ITEM_BATTERY].iLimit = 3;
+		defaultSpawns[ITEM_SATCHEL].iLimit = 2;
+		defaultSpawns[ITEM_HANDGRENADE].iLimit = 3;
 	}
 	else if ( nPlayers >= 12 )
 	{
-		nAmmoToSpawn[0] = 9; // 0 - ammo_9mmclip
-		nAmmoToSpawn[1] = 5; // 1 - ammo_mp5clip
-		nAmmoToSpawn[2] = 2; // 2 - ammo_556AR
-		nAmmoToSpawn[3] = 2; // 3 - ammo_buckshot
-		nAmmoToSpawn[4] = 3; // 4 - ammo_357
-		nAmmoToSpawn[5] = 9; // 5 - ammo_22lrbox
+		defaultSpawns[AMMO_9MM].iLimit = 10;
+		defaultSpawns[AMMO_556].iLimit = 2;
+		defaultSpawns[AMMO_BUCKSHOT].iLimit = 2;
+		defaultSpawns[AMMO_357].iLimit = 3;
+		defaultSpawns[AMMO_22LRBOX].iLimit = 9;
 
-		nWeaponToSpawn[0] = 2; // 0 - weapon_sig
-		nWeaponToSpawn[1] = 2; // 1 - weapon_357
-		nWeaponToSpawn[2] = 1; // 2 - weapon_556ar
-		nWeaponToSpawn[3] = 2; // 3 - weapon_mp5
-		nWeaponToSpawn[4] = 1; // 4 - weapon_shotgun
-		nWeaponToSpawn[5] = 3; // 5 - weapon_ppk
-		nWeaponToSpawn[6] = 2; // 6 - weapon_doublebarrel
+		defaultSpawns[WEAPON_SIG].iLimit = 2;
+		defaultSpawns[WEAPON_357].iLimit = 2;
+		defaultSpawns[WEAPON_556AR].iLimit = 1;
+		defaultSpawns[WEAPON_MP5].iLimit = 2;
+		defaultSpawns[WEAPON_SHOTGUN].iLimit = 2;
+		defaultSpawns[WEAPON_PPK].iLimit = 3;
+		defaultSpawns[WEAPON_DOUBLEBARREL].iLimit = 2;
 
-		nItemToSpawn[0] = 3; // 0 - item_healthkit
-		nItemToSpawn[1] = 2; // 1 - item_battery
-		nItemToSpawn[2] = 1; // 2 - weapon_satchel
-		nItemToSpawn[3] = 3; // 3 - weapon_handgrenade
+		defaultSpawns[ITEM_HEALTHKIT].iLimit = 3;
+		defaultSpawns[ITEM_BATTERY].iLimit = 2;
+		defaultSpawns[ITEM_SATCHEL].iLimit = 1;
+		defaultSpawns[ITEM_HANDGRENADE].iLimit = 3;
 	}
 	else if ( nPlayers >= 8 )
 	{
-		nAmmoToSpawn[0] = 8; // 0 - ammo_9mmclip
-		nAmmoToSpawn[1] = 3; // 1 - ammo_mp5clip
-		nAmmoToSpawn[2] = 2; // 2 - ammo_556AR
-		nAmmoToSpawn[3] = 2; // 3 - ammo_buckshot
-		nAmmoToSpawn[4] = 3; // 4 - ammo_357
-		nAmmoToSpawn[5] = 6; // 5 - ammo_22lrbox
+		defaultSpawns[AMMO_9MM].iLimit = 9;
+		defaultSpawns[AMMO_556].iLimit = 2;
+		defaultSpawns[AMMO_BUCKSHOT].iLimit = 2;
+		defaultSpawns[AMMO_357].iLimit = 2;
+		defaultSpawns[AMMO_22LRBOX].iLimit = 6;
 
-		nWeaponToSpawn[0] = 2; // 0 - weapon_sig
-		nWeaponToSpawn[1] = 2; // 1 - weapon_357
-		nWeaponToSpawn[2] = 1; // 2 - weapon_556ar
-		nWeaponToSpawn[3] = 1; // 3 - weapon_mp5
-		nWeaponToSpawn[4] = 1; // 4 - weapon_shotgun
-		nWeaponToSpawn[5] = 3; // 5 - weapon_ppk
-		nWeaponToSpawn[6] = 2; // 6 - weapon_doublebarrel
+		defaultSpawns[WEAPON_SIG].iLimit = 2;
+		defaultSpawns[WEAPON_357].iLimit = 2;
+		defaultSpawns[WEAPON_556AR].iLimit = 1;
+		defaultSpawns[WEAPON_MP5].iLimit = 1;
+		defaultSpawns[WEAPON_SHOTGUN].iLimit = 1;
+		defaultSpawns[WEAPON_PPK].iLimit = 3;
+		defaultSpawns[WEAPON_DOUBLEBARREL].iLimit = 2;
 
-		nItemToSpawn[0] = 2; // 0 - item_healthkit
-		nItemToSpawn[1] = 2; // 1 - item_battery
-		nItemToSpawn[2] = 1; // 2 - weapon_satchel
-		nItemToSpawn[3] = 2; // 3 - weapon_handgrenade
+		defaultSpawns[ITEM_HEALTHKIT].iLimit = 2;
+		defaultSpawns[ITEM_BATTERY].iLimit = 2;
+		defaultSpawns[ITEM_SATCHEL].iLimit = 1;
+		defaultSpawns[ITEM_HANDGRENADE].iLimit = 2;
 	}
 	else if ( nPlayers >= 5 )
 	{
-		nAmmoToSpawn[0] = 7; // 0 - ammo_9mmclip
-		nAmmoToSpawn[1] = 2; // 1 - ammo_mp5clip
-		nAmmoToSpawn[2] = 2; // 2 - ammo_556AR
-		nAmmoToSpawn[3] = 1; // 3 - ammo_buckshot
-		nAmmoToSpawn[4] = 2; // 4 - ammo_357
-		nAmmoToSpawn[5] = 5; // 5 - ammo_22lrbox
+		defaultSpawns[AMMO_9MM].iLimit = 8;
+		defaultSpawns[AMMO_556].iLimit = 2;
+		defaultSpawns[AMMO_BUCKSHOT].iLimit = 2;
+		defaultSpawns[AMMO_357].iLimit = 2;
+		defaultSpawns[AMMO_22LRBOX].iLimit = 5;
 
-		nWeaponToSpawn[0] = 2; // 0 - weapon_sig
-		nWeaponToSpawn[1] = 1; // 1 - weapon_357
-		nWeaponToSpawn[2] = 1; // 2 - weapon_556ar
-		nWeaponToSpawn[3] = 1; // 3 - weapon_mp5
-		nWeaponToSpawn[4] = 1; // 4 - weapon_shotgun
-		nWeaponToSpawn[5] = 3; // 5 - weapon_ppk
-		nWeaponToSpawn[6] = 1; // 6 - weapon_doublebarrel
+		defaultSpawns[WEAPON_SIG].iLimit = 2;
+		defaultSpawns[WEAPON_357].iLimit = 1;
+		defaultSpawns[WEAPON_556AR].iLimit = 1;
+		defaultSpawns[WEAPON_MP5].iLimit = 1;
+		defaultSpawns[WEAPON_SHOTGUN].iLimit = 1;
+		defaultSpawns[WEAPON_PPK].iLimit = 3;
+		defaultSpawns[WEAPON_DOUBLEBARREL].iLimit = 1;
 
-		nItemToSpawn[0] = 2; // 0 - item_healthkit
-		nItemToSpawn[1] = 1; // 1 - item_battery
-		nItemToSpawn[2] = 1; // 2 - weapon_satchel
-		nItemToSpawn[3] = 2; // 3 - weapon_handgrenade
+		defaultSpawns[ITEM_HEALTHKIT].iLimit = 2;
+		defaultSpawns[ITEM_BATTERY].iLimit = 1;
+		defaultSpawns[ITEM_SATCHEL].iLimit = 1;
+		defaultSpawns[ITEM_HANDGRENADE].iLimit = 2;
 	}
 	else if ( nPlayers >= 3 )
 	{
-		nAmmoToSpawn[0] = 7; // 0 - ammo_9mmclip
-		nAmmoToSpawn[1] = 1; // 1 - ammo_mp5clip
-		nAmmoToSpawn[2] = 1; // 2 - ammo_556AR
-		nAmmoToSpawn[3] = 1; // 3 - ammo_buckshot
-		nAmmoToSpawn[4] = 2; // 4 - ammo_357
-		nAmmoToSpawn[5] = 4; // 5 - ammo_22lrbox
+		defaultSpawns[AMMO_9MM].iLimit = 7;
+		defaultSpawns[AMMO_556].iLimit = 2;
+		defaultSpawns[AMMO_BUCKSHOT].iLimit = 1;
+		defaultSpawns[AMMO_357].iLimit = 2;
+		defaultSpawns[AMMO_22LRBOX].iLimit = 4;
 
-		nWeaponToSpawn[0] = 2; // 0 - weapon_sig
-		nWeaponToSpawn[1] = 1; // 1 - weapon_357
-		nWeaponToSpawn[2] = 1; // 2 - weapon_556ar
-		nWeaponToSpawn[3] = 1; // 3 - weapon_mp5
-		nWeaponToSpawn[4] = 1; // 4 - weapon_shotgun
-		nWeaponToSpawn[5] = 3; // 5 - weapon_ppk
-		nWeaponToSpawn[6] = 1; // 6 - weapon_doublebarrel
+		defaultSpawns[WEAPON_SIG].iLimit = 2;
+		defaultSpawns[WEAPON_357].iLimit = 1;
+		defaultSpawns[WEAPON_556AR].iLimit = 1;
+		defaultSpawns[WEAPON_MP5].iLimit = 1;
+		defaultSpawns[WEAPON_SHOTGUN].iLimit = 1;
+		defaultSpawns[WEAPON_PPK].iLimit = 3;
+		defaultSpawns[WEAPON_DOUBLEBARREL].iLimit = 1;
 
-		nItemToSpawn[0] = 2; // 0 - item_healthkit
-		nItemToSpawn[1] = 1; // 1 - item_battery
-		nItemToSpawn[2] = 0; // 2 - weapon_satchel
-		nItemToSpawn[3] = 1; // 3 - weapon_handgrenade
+		defaultSpawns[ITEM_HEALTHKIT].iLimit = 1;
+		defaultSpawns[ITEM_BATTERY].iLimit = 1;
+		defaultSpawns[ITEM_SATCHEL].iLimit = 1;
+		defaultSpawns[ITEM_HANDGRENADE].iLimit = 1;
 	}
 	else
 	{
-		nAmmoToSpawn[0] = 6;	// 0 - ammo_9mmclip
-		nAmmoToSpawn[1] = 1;	// 1 - ammo_mp5clip
-		nAmmoToSpawn[2] = 1;	// 2 - ammo_556AR
-		nAmmoToSpawn[3] = 0;	// 3 - ammo_buckshot
-		nAmmoToSpawn[4] = 1;	// 4 - ammo_357
-		nAmmoToSpawn[5] = 4;	// 5 - ammo_22lrbox
+		defaultSpawns[AMMO_9MM].iLimit = 6;
+		defaultSpawns[AMMO_556].iLimit = 1;
+		defaultSpawns[AMMO_BUCKSHOT].iLimit = 1;
+		defaultSpawns[AMMO_357].iLimit = 2;
+		defaultSpawns[AMMO_22LRBOX].iLimit = 4;
 
-		nWeaponToSpawn[0] = 2;	// 0 - weapon_sig
-		nWeaponToSpawn[1] = 1;	// 1 - weapon_357
-		nWeaponToSpawn[2] = 1;	// 2 - weapon_556ar
-		nWeaponToSpawn[3] = 1;	// 3 - weapon_mp5
-		nWeaponToSpawn[4] = 1;	// 4 - weapon_shotgun
-		nWeaponToSpawn[5] = 3;	// 5 - weapon_ppk
-		nWeaponToSpawn[6] = 1;	// 6 - weapon_doublebarrel
+		defaultSpawns[WEAPON_SIG].iLimit = 2;
+		defaultSpawns[WEAPON_357].iLimit = 1;
+		defaultSpawns[WEAPON_556AR].iLimit = 1;
+		defaultSpawns[WEAPON_MP5].iLimit = 1;
+		defaultSpawns[WEAPON_SHOTGUN].iLimit = 1;
+		defaultSpawns[WEAPON_PPK].iLimit = 3;
+		defaultSpawns[WEAPON_DOUBLEBARREL].iLimit = 1;
 
-		nItemToSpawn[0] = 1;	// 0 - item_healthkit
-		nItemToSpawn[1] = 1;	// 1 - item_battery
-		nItemToSpawn[2] = 0;	// 2 - weapon_satchel
-		nItemToSpawn[3] = 1;	// 3 - weapon_handgrenade
+		defaultSpawns[ITEM_HEALTHKIT].iLimit = 1;
+		defaultSpawns[ITEM_BATTERY].iLimit = 1;
+		defaultSpawns[ITEM_SATCHEL].iLimit = 1;
+		defaultSpawns[ITEM_HANDGRENADE].iLimit = 1;
 	}
 
-	// Ammo
-	s_SpawnList.push_back( new SpawnList( "ammo_9mmclip", nAmmoToSpawn[0], ItemType::TypeAmmo ) );
-	s_SpawnList.push_back( new SpawnList( "ammo_mp5clip", nAmmoToSpawn[1], ItemType::TypeAmmo ) );
-	s_SpawnList.push_back( new SpawnList( "ammo_556AR", nAmmoToSpawn[2], ItemType::TypeAmmo ) );
-	s_SpawnList.push_back( new SpawnList( "ammo_buckshot", nAmmoToSpawn[3], ItemType::TypeAmmo ) );
-	s_SpawnList.push_back( new SpawnList( "ammo_357", nAmmoToSpawn[4], ItemType::TypeAmmo ) );
-	s_SpawnList.push_back( new SpawnList( "ammo_22lrbox", nAmmoToSpawn[5], ItemType::TypeAmmo ) );
-
-	// Items
-	s_SpawnList.push_back( new SpawnList( "item_healthkit", nItemToSpawn[0], ItemType::TypeItem ) );
-	s_SpawnList.push_back( new SpawnList( "item_battery", nItemToSpawn[1], ItemType::TypeItem ) );
-	s_SpawnList.push_back( new SpawnList( "weapon_ied", nItemToSpawn[2], ItemType::TypeItem ) );
-	s_SpawnList.push_back( new SpawnList( "weapon_handgrenade", nItemToSpawn[3], ItemType::TypeItem ) );
+	for ( size_t i = 0; i < MAX_DEFAULT_SPAWNS_COUNT; i++ )
+	{
+		DefaultSpawnInfo spawnInfo = defaultSpawns[i];
+		AddDefaultAmmoSpawn( spawnInfo.szClassname, spawnInfo.iLimit, spawnInfo.nType );
+	}
 
 	// Our current gamemode
 	IGameModeBase *pGameMode = ZP::GetCurrentGameMode();
 
 	// In hardcore, add a few backpacks
 	if ( pGameMode && pGameMode->GetGameModeType() == ZP::GameModeType_e::GAMEMODE_HARDCORE )
-		s_SpawnList.push_back( new SpawnList( "item_backpack", 3, ItemType::TypeItem ) );
-
-	// Weapons
-	s_SpawnList.push_back( new SpawnList( "weapon_sig", nWeaponToSpawn[0], ItemType::TypeWeapon ) );
-	s_SpawnList.push_back( new SpawnList( "weapon_357", nWeaponToSpawn[1], ItemType::TypeWeapon ) );
-	s_SpawnList.push_back( new SpawnList( "weapon_556ar", nWeaponToSpawn[2], ItemType::TypeWeapon ) );
-	s_SpawnList.push_back( new SpawnList( "weapon_mp5", nWeaponToSpawn[3], ItemType::TypeWeapon ) );
-	s_SpawnList.push_back( new SpawnList( "weapon_shotgun", nWeaponToSpawn[4], ItemType::TypeWeapon ) );
-	s_SpawnList.push_back( new SpawnList( "weapon_ppk", nWeaponToSpawn[5], ItemType::TypeWeapon ) );
-	s_SpawnList.push_back( new SpawnList( "weapon_doublebarrel", nWeaponToSpawn[6], ItemType::TypeWeapon ) );
+		AddDefaultAmmoSpawn( "item_backpack", 3, ItemType::TypeItem );
 }
 
 void CRandomItemBase::SpawnItem(void)

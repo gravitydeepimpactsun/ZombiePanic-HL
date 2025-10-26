@@ -20,15 +20,15 @@ bool CRandomItemAmmo::IsLimited( SpawnList *item ) const
 
 	std::vector<std::string> entitiesToCheck;
 
-	if ( FStrEq( item->Classname, "ammo_9mmclip" ) ) entitiesToCheck.push_back( "weapon_sig" );
+	if ( FStrEq( item->Classname, "ammo_9mmbox" ) ) entitiesToCheck.push_back( "weapon_sig" );
 	else if ( FStrEq( item->Classname, "ammo_mp5clip" ) ) entitiesToCheck.push_back( "weapon_mp5" );
-	else if ( FStrEq( item->Classname, "ammo_556AR" ) ) entitiesToCheck.push_back( "weapon_556ar" );
+	else if ( FStrEq( item->Classname, "ammo_riflebox" ) ) entitiesToCheck.push_back( "weapon_556ar" );
 	else if ( FStrEq( item->Classname, "ammo_buckshot" ) )
 	{
 		entitiesToCheck.push_back( "weapon_shotgun" );
 		entitiesToCheck.push_back( "weapon_doublebarrel" );
 	}
-	else if ( FStrEq( item->Classname, "ammo_357" ) ) entitiesToCheck.push_back( "weapon_357" );
+	else if ( FStrEq( item->Classname, "ammo_357box" ) ) entitiesToCheck.push_back( "weapon_357" );
 	else if ( FStrEq( item->Classname, "ammo_22lrbox" ) ) entitiesToCheck.push_back( "weapon_ppk" );
 
 	// Make sure we have something to check

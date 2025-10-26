@@ -6144,21 +6144,10 @@ int CBasePlayer::AmmoIndexToDropArray( int ammoindex )
 	return 0;
 }
 
-int CBasePlayer::DefaultAmmoToDrop(int ammoindex)
+int CBasePlayer::DefaultAmmoToDrop( int ammoindex )
 {
 	AmmoData ammo = GetAmmoByAmmoID( ammoindex );
-	switch ( ammo.AmmoType )
-	{
-		case AMMO_PISTOL: return 7;
-		case AMMO_MAGNUM: return 6;
-		case AMMO_SHOTGUN: return 6;
-		case AMMO_RIFLE: return 20;
-		case AMMO_LONGRIFLE: return 10;
-		case AMMO_GRENADE:
-		case AMMO_SATCHEL: return 1;
-		case AMMO_NONE:
-		default: return 0;
-	}
+	return ammo.AmmoBoxGive;
 }
 
 const char *CBasePlayer::szAmmoToDropClassnames(int ammoindex)

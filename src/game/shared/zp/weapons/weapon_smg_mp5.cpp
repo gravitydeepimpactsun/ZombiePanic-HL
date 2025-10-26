@@ -30,7 +30,6 @@ void CWeaponSMGMP5::Precache(void)
 
 	PRECACHE_MODEL("models/shell.mdl"); // brass shellTE_MODEL
 
-	PRECACHE_MODEL("models/w_9mmARclip.mdl");
 	PRECACHE_SOUND("items/ammo_pickup.wav");
 
 	PRECACHE_SOUND("weapons/mp5/dryfire.wav");

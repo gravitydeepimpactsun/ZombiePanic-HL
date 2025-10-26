@@ -31,10 +31,7 @@ class CPrecacheRegisterSystem
 public:
 	static CPrecacheRegisterSystem *GetInstance();
 	void PrecacheEntities();
-	inline void AddPrecacheItem( CPrecacheRegisterItem *pItem )
-	{
-		m_PrecacheItems.push_back( pItem );
-	}
+	void AddPrecacheItem( CPrecacheRegisterItem *pItem );
 
 private:
 	std::vector<CPrecacheRegisterItem *> m_PrecacheItems;

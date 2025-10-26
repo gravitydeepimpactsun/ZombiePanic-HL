@@ -8,6 +8,7 @@
 #endif
 
 LINK_ENTITY_TO_CLASS(monster_satchel, CThrowableSatchelCharge);
+PRECACHE_REGISTER( monster_satchel );
 
 void CThrowableSatchelCharge::Deactivate(void)
 {

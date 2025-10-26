@@ -78,10 +78,11 @@ enum ZPAmmoTypes
 struct AmmoData
 {
 	ZPAmmoTypes AmmoType;
-	const char *AmmoName;
+	char AmmoName[32];
 	int AmmoBoxGive;
 	int MaxCarry;
 	float WeightPerBullet;
+	AmmoData( ZPAmmoTypes nType, const char *szName, int iAmmoBox, int iMaxCarry, float flWeight );
 };
 AmmoData GetAmmoByName( const char *szAmmoType );
 AmmoData GetAmmoByTableIndex( int id );

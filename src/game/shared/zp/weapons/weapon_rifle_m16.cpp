@@ -35,7 +35,6 @@ void CWeaponRifleM16::Precache(void)
 
 	PRECACHE_MODEL("models/grenade.mdl"); // grenade
 
-	PRECACHE_MODEL("models/w_556ARclip.mdl");
 	PRECACHE_SOUND("items/ammo_pickup.wav");
 
 	PRECACHE_SOUND("weapons/556ar/fire1.wav"); // H to the K

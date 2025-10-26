@@ -158,23 +158,31 @@ static DialogAchievementData g_DAchievements[] =
 // Weapon Script
 // =========================================================
 
+AmmoData::AmmoData( ZPAmmoTypes nType, const char *szName, int iAmmoBox, int iMaxCarry, float flWeight )
+{
+	AmmoType = nType;
+	UTIL_strcpy( AmmoName, szName );
+	AmmoBoxGive = iAmmoBox;
+	MaxCarry = iMaxCarry;
+	WeightPerBullet = flWeight;
+}
+
 #define WEAPON_SCRIPT_PATH "scripts/"
 #define WEAPON_SCRIPT_FILE ".txt"
 static std::vector<WeaponData> sWeaponDataList;
 static AmmoData sAmmoDataList[] = {
-	/* { ZPAmmoTypes AmmoType, const char *AmmoName, int AmmoBoxGive, int MaxCarry, float WeightPerBullet } */
-	{ AMMO_PISTOL, "9mm", 15, 150, 0.21f },
-	{ AMMO_MAGNUM, "357", 6, 30, 0.65f },
-	{ AMMO_SHOTGUN, "buckshot", 6, 24, 1.35f },
-	{ AMMO_RIFLE, "556ar", 20, 150, 0.35f },
-	{ AMMO_LONGRIFLE, "longrifle", 10, 100, 0.48f },
+	AmmoData( AMMO_PISTOL, "9mm", 15, 150, 0.21f ),
+	AmmoData( AMMO_MAGNUM, "357", 6, 30, 0.65f ),
+	AmmoData( AMMO_SHOTGUN, "buckshot", 6, 24, 1.35f ),
+	AmmoData( AMMO_RIFLE, "556ar", 20, 150, 0.35f ),
+	AmmoData( AMMO_LONGRIFLE, "longrifle", 10, 100, 0.48f ),
 
-	{ AMMO_GRENADE, "explosive_tnt", 0, 3, 0.1f },
-	{ AMMO_SATCHEL, "explosive_ied", 0, 2, 0.5f },
+	AmmoData( AMMO_GRENADE, "explosive_tnt", 0, 3, 0.1f ),
+	AmmoData( AMMO_SATCHEL, "explosive_ied", 0, 2, 0.5f ),
 
 	// MUST BE LAST, DO NOT CHANGE THIS.
 	// This is used by Crowbar and Swipe (or any other weapon that has no ammo)
-	{ AMMO_NONE, "", 0, -1, 0.0f }
+	AmmoData( AMMO_NONE, "", 0, -1, 0.0f )
 };
 
 static WeaponInfo sWeaponInfoList[] = {

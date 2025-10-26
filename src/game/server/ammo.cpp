@@ -5,19 +5,21 @@
 // Ammo box base
 class CBaseAmmoItem : public CBasePlayerAmmo
 {
-	char *GetModel() const { return "models/w_9mmbox.mdl"; }
-	const char *GetPickupSound() const { return "items/ammo_pickup.wav"; }
-	ZPAmmoTypes GetAmmoType() const { return ZPAmmoTypes::AMMO_NONE; }
+	SET_BASECLASS( CBasePlayerAmmo );
+	virtual char *GetModel() const { return "models/w_9mmbox.mdl"; }
+	virtual const char *GetPickupSound() const { return "items/ammo_pickup.wav"; }
+	virtual ZPAmmoTypes GetAmmoType() const { return ZPAmmoTypes::AMMO_NONE; }
 
-	void Spawn( void )
+public:
+	virtual void Spawn( void )
 	{
 		Precache();
 		SET_MODEL( ENT(pev), GetModel() );
-		CBasePlayerAmmo::Spawn();
-		AmmoData data = GetAmmoByTableIndex( GetAmmoType() );
+		BaseClass::Spawn();
+		AmmoData data = GetAmmoByAmmoID( GetAmmoType() );
 		m_iAmountLeft = m_iAmmoToGive = data.AmmoBoxGive;
 		m_AmmoType = GetAmmoType();
-		strncpy(m_szSound, "items/ammo_pickup.wav", 32);
+		strncpy( m_szSound, "items/ammo_pickup.wav", 32 );
 	}
 	void Precache( void )
 	{
@@ -29,8 +31,14 @@ class CBaseAmmoItem : public CBasePlayerAmmo
 // A very handy but simple macro to register our ammo boxes
 #define REGISTER_AMMO_BOX( className, modelPath, ammoType ) \
 class CAmmoItem_##className : public CBaseAmmoItem { \
-	char *GetModel() const { return modelPath; } \
-	ZPAmmoTypes GetAmmoType() const { return ammoType; } \
+	SET_BASECLASS( CBaseAmmoItem ); \
+	char *GetModel() const override { return modelPath; } \
+	ZPAmmoTypes GetAmmoType() const override { return ammoType; } \
+	void Spawn( void ) override \
+	{ \
+		pev->classname = MAKE_STRING( #className ); \
+		BaseClass::Spawn(); \
+	} \
 }; \
 LINK_ENTITY_TO_CLASS( className, CAmmoItem_##className ); \
 PRECACHE_REGISTER( className )

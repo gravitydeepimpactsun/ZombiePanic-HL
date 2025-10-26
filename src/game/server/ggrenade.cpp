@@ -334,7 +334,7 @@ void CGrenade ::TumbleThink(void)
 		m_iRequireSequence = -1;
 	}
 
-	EMIT_SOUND( ENT(pev), CHAN_VOICE, "weapons/tnt/spark.wav", 1.0f, ATTN_NORM );
+	//EMIT_SOUND( ENT(pev), CHAN_VOICE, "weapons/tnt/spark.wav", 1.0f, ATTN_NORM );
 
 	StudioFrameAdvance();
 	pev->nextthink = gpGlobals->time + 0.1;

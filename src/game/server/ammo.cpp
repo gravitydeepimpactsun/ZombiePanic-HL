@@ -37,27 +37,27 @@ PRECACHE_REGISTER( className )
 
 // A macro to register old ammo box classnames for backward compatibility.
 // So we don't break old maps, because that would be bad.
-#define REGISTER_BACKPWARD_COMPATIBLE_AMMO_BOX( old_class, new_class ) \
+#define REGISTER_BACKWARD_COMPATIBLE_AMMO_BOX( old_class, new_class ) \
 LINK_ENTITY_TO_CLASS( old_class, CAmmoItem_##new_class )
 
 // Now we register our ammo boxes
 
 // Pistol ammo box
 REGISTER_AMMO_BOX( ammo_9mmbox, "models/w_9mmbox.mdl", ZPAmmoTypes::AMMO_PISTOL );
-REGISTER_BACKPWARD_COMPATIBLE_AMMO_BOX( ammo_9mmclip, ammo_9mmbox );
-REGISTER_BACKPWARD_COMPATIBLE_AMMO_BOX( ammo_mp5clip, ammo_9mmbox );
-REGISTER_BACKPWARD_COMPATIBLE_AMMO_BOX( ammo_9mmAR, ammo_9mmbox );
+REGISTER_BACKWARD_COMPATIBLE_AMMO_BOX( ammo_9mmclip, ammo_9mmbox );
+REGISTER_BACKWARD_COMPATIBLE_AMMO_BOX( ammo_mp5clip, ammo_9mmbox );
+REGISTER_BACKWARD_COMPATIBLE_AMMO_BOX( ammo_9mmAR, ammo_9mmbox );
 
 // Magnum ammo box
 REGISTER_AMMO_BOX( ammo_357box, "models/w_357box.mdl", ZPAmmoTypes::AMMO_MAGNUM );
-REGISTER_BACKPWARD_COMPATIBLE_AMMO_BOX( ammo_357, ammo_357box );
+REGISTER_BACKWARD_COMPATIBLE_AMMO_BOX( ammo_357, ammo_357box );
 
 // Shotgun ammo box
 REGISTER_AMMO_BOX( ammo_buckshot, "models/w_shotbox.mdl", ZPAmmoTypes::AMMO_SHOTGUN );
 
 // Rifle ammo box
 REGISTER_AMMO_BOX( ammo_riflebox, "models/w_riflebbox.mdl", ZPAmmoTypes::AMMO_RIFLE );
-REGISTER_BACKPWARD_COMPATIBLE_AMMO_BOX( ammo_556AR, ammo_riflebox );
+REGISTER_BACKWARD_COMPATIBLE_AMMO_BOX( ammo_556AR, ammo_riflebox );
 
 // Long rifle ammo box
 REGISTER_AMMO_BOX( ammo_22lrbox, "models/w_22lrbox.mdl", ZPAmmoTypes::AMMO_LONGRIFLE );

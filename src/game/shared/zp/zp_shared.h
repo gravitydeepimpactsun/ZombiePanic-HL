@@ -79,6 +79,7 @@ struct AmmoData
 {
 	ZPAmmoTypes AmmoType;
 	const char *AmmoName;
+	int AmmoBoxGive;
 	int MaxCarry;
 	float WeightPerBullet;
 };

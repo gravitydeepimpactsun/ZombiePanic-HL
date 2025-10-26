@@ -8,6 +8,7 @@
 
 LINK_ENTITY_TO_CLASS( weapon_satchel, CWeaponExplosiveIED );
 LINK_ENTITY_TO_CLASS( weapon_ied, CWeaponExplosiveIED );
+PRECACHE_WEAPON_REGISTER( weapon_ied );
 
 //=========================================================
 //=========================================================

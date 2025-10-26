@@ -5,6 +5,7 @@
 
 LINK_ENTITY_TO_CLASS(weapon_handgrenade, CWeaponExplosiveTNT); // for backwards compatibility
 LINK_ENTITY_TO_CLASS(weapon_tnt, CWeaponExplosiveTNT);
+PRECACHE_WEAPON_REGISTER( weapon_tnt );
 
 void CWeaponExplosiveTNT::Spawn()
 {

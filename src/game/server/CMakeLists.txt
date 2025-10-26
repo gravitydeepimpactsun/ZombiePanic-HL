@@ -6,6 +6,7 @@ add_sources(
 	../../public/vinterface/interface.h
 	activity.h
 	activitymap.h
+	ammo.cpp
 	airtank.cpp
 	animating.cpp
 	animation.cpp
@@ -74,6 +75,8 @@ add_sources(
 	plats.cpp
 	player.cpp
 	player.h
+	precache_register.cpp
+	precache_register.h
 	rat.cpp
 	roach.cpp
 	saverestore.h

@@ -7,6 +7,7 @@
 #endif
 
 LINK_ENTITY_TO_CLASS( weapon_swipe, CWeaponMeleeSwipe );
+PRECACHE_WEAPON_REGISTER( weapon_swipe );
 
 #define SWIPE_BODYHIT_VOLUME 128
 #define SWIPE_WALLHIT_VOLUME 512

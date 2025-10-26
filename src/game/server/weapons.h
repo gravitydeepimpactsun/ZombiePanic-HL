@@ -17,6 +17,7 @@
 
 #include "effects.h"
 #include "zp/zp_shared.h"
+#include "precache_register.h"
 
 class CBasePlayer;
 extern int gmsgAmmoPickup;

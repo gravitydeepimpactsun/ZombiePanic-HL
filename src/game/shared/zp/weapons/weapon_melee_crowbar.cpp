@@ -7,6 +7,7 @@
 #endif
 
 LINK_ENTITY_TO_CLASS( weapon_crowbar, CWeaponMeleeCrowbar );
+PRECACHE_WEAPON_REGISTER( weapon_crowbar );
 
 #define CROWBAR_BODYHIT_VOLUME 128
 #define CROWBAR_WALLHIT_VOLUME 512

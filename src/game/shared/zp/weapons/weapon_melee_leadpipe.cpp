@@ -7,6 +7,7 @@
 #endif
 
 LINK_ENTITY_TO_CLASS( weapon_leadpipe, CWeaponMeleeLeadPipe );
+PRECACHE_WEAPON_REGISTER( weapon_leadpipe );
 
 #define LEADPIPE_BODYHIT_VOLUME 128
 #define LEADPIPE_WALLHIT_VOLUME 512

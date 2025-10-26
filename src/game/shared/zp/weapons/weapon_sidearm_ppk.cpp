@@ -3,6 +3,7 @@
 #include "weapon_sidearm_ppk.h"
 
 LINK_ENTITY_TO_CLASS( weapon_ppk, CWeaponSideArmPPK );
+PRECACHE_WEAPON_REGISTER( weapon_ppk );
 
 
 float CWeaponSideArmPPK::DoHolsterAnimation()
@@ -163,23 +164,3 @@ void CWeaponSideArmPPK::WeaponIdle(void)
 	SendWeaponAnim(iAnim);
 	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + flTime;
 }
-
-class CLongRifleAmmoBox : public CBasePlayerAmmo
-{
-	void Spawn(void)
-	{
-		Precache();
-		SET_MODEL(ENT(pev), "models/w_22lrbox.mdl");
-		CBasePlayerAmmo::Spawn();
-		WeaponData slot = GetWeaponSlotInfo( ZPWeaponID::WEAPON_PPK );
-		m_iAmountLeft = m_iAmmoToGive = slot.AmmoBox;
-		m_AmmoType = ZPAmmoTypes::AMMO_LONGRIFLE;
-		strncpy(m_szSound, "items/ammo_pickup.wav", 32);
-	}
-	void Precache(void)
-	{
-		PRECACHE_MODEL("models/w_22lrbox.mdl");
-		PRECACHE_SOUND("items/ammo_pickup.wav");
-	}
-};
-LINK_ENTITY_TO_CLASS(ammo_22lrbox, CLongRifleAmmoBox);

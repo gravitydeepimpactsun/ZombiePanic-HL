@@ -4,6 +4,7 @@
 
 LINK_ENTITY_TO_CLASS( weapon_doublebarrel, CWeaponShotgunDoubleBarrel );
 LINK_ENTITY_TO_CLASS( weapon_dbarrel, CWeaponShotgunDoubleBarrel );
+PRECACHE_WEAPON_REGISTER( weapon_doublebarrel );
 
 void CWeaponShotgunDoubleBarrel::Spawn()
 {

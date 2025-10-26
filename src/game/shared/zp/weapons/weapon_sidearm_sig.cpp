@@ -4,6 +4,7 @@
 
 LINK_ENTITY_TO_CLASS(weapon_sig, CWeaponSideArmSig);
 LINK_ENTITY_TO_CLASS(weapon_9mmhandgun, CWeaponSideArmSig); // Only used by old custom maps, don't remove this
+PRECACHE_WEAPON_REGISTER( weapon_sig );
 
 
 float CWeaponSideArmSig::DoHolsterAnimation()
@@ -166,23 +167,3 @@ void CWeaponSideArmSig::WeaponIdle(void)
 	SendWeaponAnim(iAnim);
 	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + flTime;
 }
-
-class C9MMAmmo : public CBasePlayerAmmo
-{
-	void Spawn(void)
-	{
-		Precache();
-		SET_MODEL(ENT(pev), "models/w_9mmclip.mdl");
-		CBasePlayerAmmo::Spawn();
-		WeaponData slot = GetWeaponSlotInfo( ZPWeaponID::WEAPON_SIG );
-		m_iAmountLeft = m_iAmmoToGive = slot.AmmoBox;
-		m_AmmoType = ZPAmmoTypes::AMMO_PISTOL;
-		strncpy(m_szSound, "items/ammo_pickup.wav", 32);
-	}
-	void Precache(void)
-	{
-		PRECACHE_MODEL("models/w_9mmclip.mdl");
-		PRECACHE_SOUND("items/ammo_pickup.wav");
-	}
-};
-LINK_ENTITY_TO_CLASS(ammo_9mmclip, C9MMAmmo);

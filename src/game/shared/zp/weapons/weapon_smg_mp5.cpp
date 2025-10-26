@@ -3,6 +3,7 @@
 #include "weapon_smg_mp5.h"
 
 LINK_ENTITY_TO_CLASS( weapon_mp5, CWeaponSMGMP5 );
+PRECACHE_WEAPON_REGISTER( weapon_mp5 );
 
 float CWeaponSMGMP5::DoHolsterAnimation()
 {
@@ -162,24 +163,3 @@ void CWeaponSMGMP5::WeaponIdle(void)
 
 	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + flDelay;
 }
-
-class CWeaponSMGMP5AmmoClip : public CBasePlayerAmmo
-{
-	void Spawn(void)
-	{
-		Precache();
-		SET_MODEL(ENT(pev), "models/w_9mmARclip.mdl");
-		CBasePlayerAmmo::Spawn();
-		WeaponData slot = GetWeaponSlotInfo( ZPWeaponID::WEAPON_MP5 );
-		m_iAmountLeft = m_iAmmoToGive = slot.AmmoBox;
-		m_AmmoType = ZPAmmoTypes::AMMO_PISTOL;
-		strncpy(m_szSound, "items/ammo_pickup.wav", 32);
-	}
-	void Precache(void)
-	{
-		PRECACHE_MODEL("models/w_9mmARclip.mdl");
-		PRECACHE_SOUND("items/ammo_pickup.wav");
-	}
-};
-LINK_ENTITY_TO_CLASS(ammo_mp5clip, CWeaponSMGMP5AmmoClip);
-LINK_ENTITY_TO_CLASS(ammo_9mmAR, CWeaponSMGMP5AmmoClip);

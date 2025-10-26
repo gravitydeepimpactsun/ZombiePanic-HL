@@ -7,6 +7,7 @@
 
 LINK_ENTITY_TO_CLASS(weapon_python, CWeaponSideArmRevolver);
 LINK_ENTITY_TO_CLASS(weapon_357, CWeaponSideArmRevolver);
+PRECACHE_WEAPON_REGISTER( weapon_357 );
 
 int CWeaponSideArmRevolver::AddToPlayer(CBasePlayer *pPlayer)
 {
@@ -225,23 +226,3 @@ void CWeaponSideArmRevolver::WeaponIdle(void)
 
 	SendWeaponAnim(iAnim, UseDecrement() ? 1 : 0, bUseScope);
 }
-
-class CWeaponSideArmRevolverAmmo : public CBasePlayerAmmo
-{
-	void Spawn(void)
-	{
-		Precache();
-		SET_MODEL(ENT(pev), "models/w_357ammobox.mdl");
-		CBasePlayerAmmo::Spawn();
-		WeaponData slot = GetWeaponSlotInfo( ZPWeaponID::WEAPON_PYTHON );
-		m_iAmountLeft = m_iAmmoToGive = slot.AmmoBox;
-		m_AmmoType = ZPAmmoTypes::AMMO_MAGNUM;
-		strncpy(m_szSound, "items/ammo_pickup.wav", 32);
-	}
-	void Precache(void)
-	{
-		PRECACHE_MODEL("models/w_357ammobox.mdl");
-		PRECACHE_SOUND("items/ammo_pickup.wav");
-	}
-};
-LINK_ENTITY_TO_CLASS(ammo_357, CWeaponSideArmRevolverAmmo);

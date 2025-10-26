@@ -162,19 +162,19 @@ static DialogAchievementData g_DAchievements[] =
 #define WEAPON_SCRIPT_FILE ".txt"
 static std::vector<WeaponData> sWeaponDataList;
 static AmmoData sAmmoDataList[] = {
-	/* { ZPAmmoTypes AmmoType, const char *AmmoName, int MaxCarry, float WeightPerBullet } */
-	{ AMMO_PISTOL, "9mm", 150, 0.21f },
-	{ AMMO_MAGNUM, "357", 30, 0.65f },
-	{ AMMO_SHOTGUN, "buckshot", 24, 1.35f },
-	{ AMMO_RIFLE, "556ar", 150, 0.35f },
-	{ AMMO_LONGRIFLE, "longrifle", 100, 0.48f },
+	/* { ZPAmmoTypes AmmoType, const char *AmmoName, int AmmoBoxGive, int MaxCarry, float WeightPerBullet } */
+	{ AMMO_PISTOL, "9mm", 15, 150, 0.21f },
+	{ AMMO_MAGNUM, "357", 6, 30, 0.65f },
+	{ AMMO_SHOTGUN, "buckshot", 6, 24, 1.35f },
+	{ AMMO_RIFLE, "556ar", 20, 150, 0.35f },
+	{ AMMO_LONGRIFLE, "longrifle", 10, 100, 0.48f },
 
-	{ AMMO_GRENADE, "explosive_tnt", 3, 0.1f },
-	{ AMMO_SATCHEL, "explosive_ied", 2, 0.5f },
+	{ AMMO_GRENADE, "explosive_tnt", 0, 3, 0.1f },
+	{ AMMO_SATCHEL, "explosive_ied", 0, 2, 0.5f },
 
 	// MUST BE LAST, DO NOT CHANGE THIS.
 	// This is used by Crowbar and Swipe (or any other weapon that has no ammo)
-	{ AMMO_NONE, "", -1, 0.0f }
+	{ AMMO_NONE, "", 0, -1, 0.0f }
 };
 
 static WeaponInfo sWeaponInfoList[] = {

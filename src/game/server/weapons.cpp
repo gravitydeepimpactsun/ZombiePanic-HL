@@ -292,57 +292,8 @@ void EXPORT W_Precache(void)
 	UTIL_PrecacheOther("item_security");
 	UTIL_PrecacheOther("item_longjump");
 
-	// Double barrel shotgun
-	UTIL_PrecacheOtherWeapon("weapon_doublebarrel");
-
-	// shotgun
-	UTIL_PrecacheOtherWeapon("weapon_shotgun");
-	UTIL_PrecacheOther("ammo_buckshot");
-
-	// crowbar
-	UTIL_PrecacheOtherWeapon("weapon_crowbar");
-
-	// lead pipe
-	UTIL_PrecacheOtherWeapon("weapon_leadpipe");
-
-	// zombie crowbar
-	UTIL_PrecacheOtherWeapon("weapon_swipe");
-
-	// ppk
-	UTIL_PrecacheOtherWeapon("weapon_ppk");
-	UTIL_PrecacheOther("ammo_22lrbox");
-
-	// sig
-	UTIL_PrecacheOtherWeapon("weapon_sig");
-	UTIL_PrecacheOther("ammo_9mmclip");
-	UTIL_PrecacheOther("ammo_9mmAR");
-
-	// mp5
-	UTIL_PrecacheOtherWeapon("weapon_mp5");
-	UTIL_PrecacheOther("ammo_mp5clip");
-
-	// 9mm ammo box
-	UTIL_PrecacheOther("ammo_9mmbox");
-
-	// 556ar
-	UTIL_PrecacheOtherWeapon("weapon_556ar");
-	UTIL_PrecacheOther("ammo_556AR");
-	UTIL_PrecacheOther("ammo_ARgrenades");
-
-	// 556 ammo box
-	UTIL_PrecacheOther("ammo_556box");
-
-	// python
-	UTIL_PrecacheOtherWeapon("weapon_357");
-	UTIL_PrecacheOther("ammo_357");
-
-	// satchel charge
-	UTIL_PrecacheOtherWeapon("weapon_ied");
-
-	// hand grenade
-	UTIL_PrecacheOtherWeapon("weapon_tnt");
-
-	UTIL_PrecacheOther( "weaponbox" );
+	// Precache our crap
+	CPrecacheRegisterSystem::GetInstance()->PrecacheEntities();
 
 	g_sModelIndexFireball = PRECACHE_MODEL("sprites/zerogxplode.spr"); // fireball
 	g_sModelIndexWExplosion = PRECACHE_MODEL("sprites/WXplo1.spr"); // underwater fireball

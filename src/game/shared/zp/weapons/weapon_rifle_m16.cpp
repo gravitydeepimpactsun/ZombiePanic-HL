@@ -4,6 +4,7 @@
 
 LINK_ENTITY_TO_CLASS( weapon_556ar, CWeaponRifleM16 );
 LINK_ENTITY_TO_CLASS( weapon_9mmar, CWeaponRifleM16 ); // Only for old maps, DO NOT USE THIS.
+PRECACHE_WEAPON_REGISTER( weapon_556ar );
 
 
 float CWeaponRifleM16::DoHolsterAnimation()
@@ -163,43 +164,3 @@ void CWeaponRifleM16::WeaponIdle(void)
 
 	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + flTime;
 }
-
-class CWeaponRifleM16AmmoClip : public CBasePlayerAmmo
-{
-	void Spawn(void)
-	{
-		Precache();
-		SET_MODEL(ENT(pev), "models/w_556ARclip.mdl");
-		CBasePlayerAmmo::Spawn();
-		WeaponData slot = GetWeaponSlotInfo( ZPWeaponID::WEAPON_556AR );
-		m_iAmountLeft = m_iAmmoToGive = slot.AmmoBox;
-		m_AmmoType = ZPAmmoTypes::AMMO_RIFLE;
-		strncpy(m_szSound, "items/ammo_pickup.wav", 32);
-	}
-	void Precache(void)
-	{
-		PRECACHE_MODEL("models/w_556ARclip.mdl");
-		PRECACHE_SOUND("items/ammo_pickup.wav");
-	}
-};
-LINK_ENTITY_TO_CLASS(ammo_556AR, CWeaponRifleM16AmmoClip);
-
-class CWeaponRifleM16Chainammo : public CBasePlayerAmmo
-{
-	void Spawn(void)
-	{
-		Precache();
-		SET_MODEL(ENT(pev), "models/w_556box.mdl");
-		CBasePlayerAmmo::Spawn();
-		WeaponData slot = GetWeaponSlotInfo( ZPWeaponID::WEAPON_556AR );
-		m_iAmountLeft = m_iAmmoToGive = slot.AmmoBox * 2;
-		m_AmmoType = ZPAmmoTypes::AMMO_RIFLE;
-		strncpy(m_szSound, "items/ammo_pickup.wav", 32);
-	}
-	void Precache(void)
-	{
-		PRECACHE_MODEL("models/w_556box.mdl");
-		PRECACHE_SOUND("items/ammo_pickup.wav");
-	}
-};
-LINK_ENTITY_TO_CLASS(ammo_556box, CWeaponRifleM16Chainammo);

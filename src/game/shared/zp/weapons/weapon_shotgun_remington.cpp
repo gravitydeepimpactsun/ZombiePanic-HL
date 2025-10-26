@@ -3,6 +3,7 @@
 #include "weapon_shotgun_remington.h"
 
 LINK_ENTITY_TO_CLASS( weapon_shotgun, CWeaponShotgunRemington );
+PRECACHE_WEAPON_REGISTER( weapon_shotgun );
 
 float CWeaponShotgunRemington::DoHolsterAnimation()
 {
@@ -134,24 +135,3 @@ void CWeaponShotgunRemington::OnWeaponPrimaryAttack()
 	m_pPlayer->GiveAchievement( EAchievements::PUMPUPSHOTGUN );
 #endif
 }
-
-
-class CShotgunAmmo : public CBasePlayerAmmo
-{
-	void Spawn( void )
-	{
-		Precache();
-		SET_MODEL( ENT(pev), "models/w_shotbox.mdl" );
-		CBasePlayerAmmo::Spawn();
-		WeaponData slot = GetWeaponSlotInfo( ZPWeaponID::WEAPON_SHOTGUN );
-		m_iAmountLeft = m_iAmmoToGive = slot.AmmoBox;
-		m_AmmoType = ZPAmmoTypes::AMMO_SHOTGUN;
-		strncpy( m_szSound, "items/ammo_pickup.wav", 32 );
-	}
-	void Precache( void )
-	{
-		PRECACHE_MODEL( "models/w_shotbox.mdl" );
-		PRECACHE_SOUND( "items/ammo_pickup.wav" );
-	}
-};
-LINK_ENTITY_TO_CLASS( ammo_buckshot, CShotgunAmmo );

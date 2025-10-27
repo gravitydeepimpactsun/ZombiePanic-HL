@@ -941,8 +941,7 @@ void CBasePlayer::Killed(entvars_t *pevAttacker, int iGib)
 			EMIT_SOUND(ENT(pev), CHAN_AUTO, "player/pl_headshot2.wav", 1, ATTN_NORM);
 			break;
 		}
-		if ( pev->team == ZP::TEAM_ZOMBIE )
-			SetBodygroup( BGROUP_HEAD, BGROUP_SUB_VALUE1 );
+		SetBodygroup( BGROUP_HEAD, BGROUP_SUB_VALUE1 );
 		// Now create some blood n' shit!
 		Vector headpos = pev->origin + Vector( 0, 0, 13 );
 		CGib::SpawnStickyGibs( pev, headpos, RANDOM_LONG( 4, 8 ) );

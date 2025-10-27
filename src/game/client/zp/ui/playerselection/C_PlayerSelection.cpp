@@ -102,8 +102,8 @@ C_PlayerSelection::C_PlayerSelection(vgui2::Panel *pParent)
 
 	// Set our player model avatar
 	ui_SelectPlayerAvatar = new vgui2::ImagePanel(this, "player_avatar");
-	ui_SelectPlayerAvatar->SetPos(17, 31);
-	ui_SelectPlayerAvatar->SetSize(190, 227);
+	ui_SelectPlayerAvatar->SetPos(17, 66);
+	ui_SelectPlayerAvatar->SetSize(190, 192);
 	ui_SelectPlayerAvatar->SetShouldScaleImage(true);
 
 	// Before we set the default image, lets check our current model

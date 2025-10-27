@@ -3,6 +3,7 @@
 #include "extdll.h"
 #include "util.h"
 #include "player.h"
+#include "maprules.h"
 #include "zp/info_random_base.h"
 #include "zp/info_beacon.h"
 #include "zp/gamemodes/zp_gamemodebase.h"
@@ -587,5 +588,15 @@ void ZP::OnGameModeRoundStart()
 		if ( pBeacon->pev->spawnflags & SP_START_ENABLED )
 			pBeacon->UpdateMessageState();
 		pBeacon = (CInfoBeacon *)UTIL_FindEntityByClassname( pBeacon, "info_beacon" );
+	}
+
+	// Check our game_timer, and see if any has the spawnflag SF_GAMETIMER_START_ON_ROUND
+	CBaseEntity *pTimer = UTIL_FindEntityByClassname( nullptr, "game_timer" );
+	while ( pTimer )
+	{
+		// Start the timer if we find t his flag
+		if ( ( pTimer->pev->spawnflags & SF_GAMETIMER_START_ON_ROUND ) )
+			pTimer->Use( pTimer, pTimer, USE_SET, 0 );
+		pTimer = UTIL_FindEntityByClassname( pTimer, "game_timer" );
 	}
 }

@@ -662,8 +662,6 @@ void CGamePlayerHurt::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYP
 // Flag: Fire once
 // Flag: Reset on Fire
 
-#define SF_GAMETIMER_DISABLED (1<<0)
-
 class CGameTimer : public CRulePointEntity
 {
 public:
@@ -684,7 +682,7 @@ private:
 	int m_iRetryAmount = 1;
 };
 
-LINK_ENTITY_TO_CLASS(game_timer, CGameTimer);
+LINK_ENTITY_TO_CLASS( game_timer, CGameTimer );
 
 void CGameTimer::Spawn(void)
 {
@@ -694,6 +692,9 @@ void CGameTimer::Spawn(void)
 		m_bDisabled = true;
 	else
 		m_bDisabled = false;
+
+	if ( (pev->spawnflags & SF_GAMETIMER_START_ON_ROUND) )
+		return;
 
 	if ( !m_bDisabled )
 		StartTimer();
@@ -773,6 +774,12 @@ void CGameTimer::OnTimerThink()
 
 void CGameTimer::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value)
 {
+	if ( useType == USE_SET )
+	{
+		StartTimer();
+		return;
+	}
+
 	if ( m_bDisabled )
 		StartTimer();
 	else

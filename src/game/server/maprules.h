@@ -16,4 +16,7 @@
 #ifndef MAPRULES_H
 #define MAPRULES_H
 
+#define SF_GAMETIMER_DISABLED       (1 << 0) // Start disabled
+#define SF_GAMETIMER_START_ON_ROUND (1 << 1) // Start the timer when the round actually starts
+
 #endif // MAPRULES_H

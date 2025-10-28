@@ -709,6 +709,9 @@ void CGameTimer::Restart()
 	else
 		m_bDisabled = false;
 
+	if ( (pev->spawnflags & SF_GAMETIMER_START_ON_ROUND) )
+		return;
+
 	if ( !m_bDisabled )
 		StartTimer();
 }

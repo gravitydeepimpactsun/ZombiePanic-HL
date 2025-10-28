@@ -256,9 +256,12 @@ void CBaseMenu::SetMenuBounds( const int &x, const int &y, const int &w, const i
 	// Create our dialog right away!
 	if ( !m_hPatreonButton )
 	{
+		int wide = GetScaledValue( 128 );
+		int tall = GetScaledValue( 64 );
+		int nudge = GetScaledValue( 50 );
 		m_hPatreonButton = new CImageMenuButton( this, "ui/patreon_button", "https://patreon.com/wuffesan" );
 		m_hPatreonButton->MakePopup( false, false );
-		m_hPatreonButton->SetContent( (w - 256) - 50, (t - 128) - 50, 256, 128 );
+		m_hPatreonButton->SetContent( (w - wide) - nudge, (t - tall) - nudge, wide, tall );
 		m_hPatreonButton->MoveToFront();
 	}
 }

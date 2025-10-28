@@ -517,7 +517,11 @@ void ZP::CheckIfBreakableGlass( TraceResult *pTrace, CBaseEntity *pEnt, const Ve
 		Vector vecEnd = pTrace->vecEndPos;
 		UTIL_TraceLine( vecSrc, vecEnd, ignore_monsters, nullptr, &tr );
 		if ( tr.flFraction <= 1.0 )
-			UTIL_DecalTrace( &tr, iDamageFlag );
+		{
+			CBreakable *pBackHit = dynamic_cast<CBreakable*>( CBaseEntity::Instance( tr.pHit ) );
+			if ( pBackHit && pBackHit->m_Material == matGlass )
+				UTIL_DecalTrace( &tr, iDamageFlag );
+		}
 	}
 }
 #endif

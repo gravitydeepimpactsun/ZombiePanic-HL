@@ -2641,12 +2641,13 @@ void CBasePlayer::SelectWeapon( CBasePlayerWeapon *pWeapon )
 		pBaseWeapon->BeginHolster( pWeapon );
 		m_flLastWeaponDrop = gpGlobals->time + pBaseWeapon->GetHolsterTime() + 0.5f;
 	}
-
+	RefuseWeaponAudioCalls( 3.0f );
 	m_pLastItem = m_pActiveItem;
 }
 
 void CBasePlayer::SelectNewActiveWeapon( CBasePlayerWeapon *pWeapon )
 {
+	RefuseWeaponAudioCalls( 0.1f );
 	m_pActiveItem = pWeapon;
 	if ( m_pActiveItem )
 	{
@@ -4127,6 +4128,7 @@ edict_t* EntSelectSpawnPoint(CBasePlayer* pPlayer)
 void CBasePlayer::Spawn(void)
 {
 	m_flStartCharge = gpGlobals->time;
+	m_flRefuseWeaponAudioCalls = gpGlobals->time + 0.5f;
 	m_bConnected = TRUE;
 
 	m_iDeathFlags = 0;
@@ -5177,18 +5179,18 @@ Called every frame by the player PreThink
 */
 void CBasePlayer::ItemPreFrame()
 {
-	if ( !m_pActiveItem ) return;
-	m_pActiveItem->DoAudioFrame();
-
-#if defined( CLIENT_WEAPONS )
-	if (m_flNextAttack > 0)
-#else
-	if (gpGlobals->time < m_flNextAttack)
-#endif
+	if ( m_flRefuseWeaponAudioCalls - gpGlobals->time <= 0 )
 	{
-		return;
+		if ( m_pActiveItem )
+			m_pActiveItem->DoAudioFrame();
 	}
-
+#if defined( CLIENT_WEAPONS )
+	if ( m_flNextAttack > 0 )
+#else
+	if ( gpGlobals->time < m_flNextAttack )
+#endif
+		return;
+	if ( !m_pActiveItem ) return;
 	m_pActiveItem->ItemPreFrame();
 }
 

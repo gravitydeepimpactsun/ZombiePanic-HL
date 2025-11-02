@@ -71,6 +71,7 @@ void CWeaponBase::BeginHolster( CBasePlayerWeapon *pWeapon )
 	m_fInReload = FALSE;
 	m_pPlayer->m_flNextAttack = 0;
 	m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flHolsterTime = m_flTimeWeaponIdle = gpGlobals->time + DoHolsterAnimation();
+	ClearWeaponSounds();
 }
 
 void CWeaponBase::FinishHolster()

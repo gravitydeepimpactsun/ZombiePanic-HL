@@ -426,8 +426,11 @@ private:
 	bool m_bRegenUpdated = false;
 	// Used by trigger_endround and zp_gamerules to check if a survivor has escaped
 	bool m_bHasEscaped = false;
+	float m_flRefuseWeaponAudioCalls;
 
 public:
+
+	inline void RefuseWeaponAudioCalls( float flDelay ) { m_flRefuseWeaponAudioCalls = gpGlobals->time + flDelay; }
 
 	// Has this survivor escaped?
 	bool HasEscaped() { return m_bHasEscaped; }

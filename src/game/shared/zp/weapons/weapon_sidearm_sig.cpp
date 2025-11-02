@@ -37,8 +37,9 @@ void CWeaponSideArmSig::Precache(void)
 
 	PRECACHE_SOUND("weapons/sig/dryfire.wav"); //handgun
 	PRECACHE_SOUND("weapons/sig/fire.wav"); //handgun
-	PRECACHE_SOUND("weapons/sig/reload1.wav"); //handgun
-	PRECACHE_SOUND("weapons/sig/reload2.wav"); //handgun
+	PRECACHE_SOUND("weapons/sig/clipin.wav"); //handgun
+	PRECACHE_SOUND("weapons/sig/clipout.wav"); //handgun
+	PRECACHE_SOUND("weapons/sig/slideforward.wav"); //handgun
 
 	m_nEventPrimary = PRECACHE_EVENT(1, "events/sig.sc");
 }
@@ -126,11 +127,10 @@ void CWeaponSideArmSig::Reload(void)
 	int iResult = DefaultReload( IsEmpty() ? ANIM_PISTOL_RELOAD_EMPTY : ANIM_PISTOL_RELOAD, 1.84f );
 	if ( iResult )
 	{
-		// play reload sound
+		AddWeaponSound( "weapons/sig/clipout.wav", 1, ATTN_NORM, 0.28f );
+		AddWeaponSound( "weapons/sig/clipin.wav", 1, ATTN_NORM, 0.96f );
 		if ( IsEmpty() )
-			AddWeaponSound( "weapons/sig/reload2.wav", 1, ATTN_NORM, 0.28f );
-		else
-			AddWeaponSound( "weapons/sig/reload1.wav", 1, ATTN_NORM, 0.28f );
+			AddWeaponSound( "weapons/sig/slideforward.wav", 1, ATTN_NORM, 1.28f );
 	}
 }
 

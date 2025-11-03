@@ -247,6 +247,10 @@ void CWeaponBase::ClearWeaponSounds()
 
 void CWeaponBase::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
+	// Make sure we cannot steal each other!
+	// This will cause a crash, we don't want that.
+	if ( m_pPlayer ) return;
+
 	// Make sure we have a player
 	CBasePlayer *pPlayer = (CBasePlayer *)pActivator;
 	if ( !pPlayer || !pPlayer->IsPlayer() ) return;

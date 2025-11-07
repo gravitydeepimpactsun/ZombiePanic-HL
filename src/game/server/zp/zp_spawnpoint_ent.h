@@ -23,6 +23,7 @@ private:
 	bool m_bEnabled = true;
 	bool m_bEnabledRem = true;
 	bool m_bOccupied = false;
+	bool m_bHumanSpawn = false;
 	float m_flLastOccupied = -1;
 	float m_flDisableTime = -1;
 };

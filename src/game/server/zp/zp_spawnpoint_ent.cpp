@@ -23,6 +23,11 @@ void CBasePlayerSpawnPoint::Spawn()
 
 	SetEntityScriptCallback( &CBasePlayerSpawnPoint::OnScriptCallBack );
 #endif
+	// Check if this is a human spawn or not
+	if ( FStrEq( STRING(pev->classname), "info_player_team1" ) )
+		m_bHumanSpawn = true;
+	else
+		m_bHumanSpawn = false;
 }
 
 void CBasePlayerSpawnPoint::OnScriptCallBack( KeyValues *pData )
@@ -70,6 +75,11 @@ void CBasePlayerSpawnPoint::DisableSpawn()
 void CBasePlayerSpawnPoint::SetOccupied(bool bOccupied)
 {
 	m_bOccupied = bOccupied;
+	if ( m_bHumanSpawn )
+	{
+		m_flLastOccupied = -1;
+		return;
+	}
 	// If we are occupied, set the timer to 8 seconds from now
 	// This will prevent spawn camping, and players spawning on top of each other
 	if ( ZP::GetCurrentRoundState() == ZP::RoundState::RoundState_RoundHasBegun )

@@ -509,6 +509,7 @@ LINK_ENTITY_TO_CLASS(env_render, CRenderFxManager);
 
 void CRenderFxManager ::Spawn(void)
 {
+	CBaseEntity::Spawn();
 	pev->solid = SOLID_NOT;
 }
 

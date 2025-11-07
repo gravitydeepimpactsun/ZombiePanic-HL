@@ -155,7 +155,11 @@ public:
 	CBaseEntity *m_pLink; // used for temporary link-list operations.
 
 	// initialization functions
+#if defined( SERVER_DLL )
+	virtual void Spawn(void);
+#else
 	virtual void Spawn(void) { return; }
+#endif
 	virtual void Precache(void) { return; }
 #if defined( SERVER_DLL )
 	virtual void KeyValue(KeyValueData *pkvd);
@@ -239,11 +243,7 @@ public:
 			(this->*m_pfnThink)();
 	};
 #ifdef SCRIPT_SYSTEM
-	virtual void ScriptCallback(KeyValues *pData)
-	{
-		if (m_pfnScriptCallback)
-			(this->*m_pfnScriptCallback)(pData);
-	};
+	virtual void ScriptCallback(KeyValues *pData);
 #endif
 	virtual void Touch(CBaseEntity *pOther)
 	{

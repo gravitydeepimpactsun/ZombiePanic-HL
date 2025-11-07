@@ -598,6 +598,49 @@ TYPEDESCRIPTION CBaseEntity::m_SaveData[] = {
 	DEFINE_FIELD(CBaseEntity, m_pfnBlocked, FIELD_FUNCTION),
 };
 
+void CBaseEntity::Spawn()
+{
+#ifdef SCRIPT_SYSTEM
+	// Default register callbacks
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "Use" );
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "Kill" );
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "SetRenderAmount" );
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "SetRenderFX" );
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "SetRenderMode" );
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "SetRenderColor" );
+#endif
+}
+
+#ifdef SCRIPT_SYSTEM
+void CBaseEntity::ScriptCallback( KeyValues *pData )
+{
+	const char *szAction = pData->GetString( "Action" );
+	const char *szValue = pData->GetString( "arg0" );
+
+	// Default IN_USE value
+	if ( FStrEq( szAction, "Use" ) )
+		Use( nullptr, nullptr, USE_TOGGLE, 0 );
+	else if ( FStrEq( szAction, "Kill" ) )
+		Killed( pev, GIB_NORMAL );
+	else if ( FStrEq( szAction, "Explode" ) )
+		Killed( pev, GIB_ALWAYS );
+	else if ( FStrEq( szAction, "SetRenderAmount" ) )
+		pev->renderamt = atof( szValue );
+	else if ( FStrEq( szAction, "SetRenderFX" ) )
+		pev->renderfx = atoi( szValue );
+	else if ( FStrEq( szAction, "SetRenderMode" ) )
+		pev->rendermode = atoi( szValue );
+	else if ( FStrEq( szAction, "SetRenderColor" ) )
+		UTIL_StringToVector( pev->rendercolor, szValue );
+	else
+	{
+		// Call our function
+		if (m_pfnScriptCallback)
+			(this->*m_pfnScriptCallback)(pData);
+	}
+}
+#endif
+
 void CBaseEntity::KeyValue(KeyValueData *pkvd)
 {
 	if (FStrEq(pkvd->szKeyName, "parent"))

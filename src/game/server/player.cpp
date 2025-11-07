@@ -1938,7 +1938,7 @@ void CBasePlayer::PlayerUse(void)
 		//!!!UNDONE: traceline here to prevent USEing buttons through walls
 		int caps = pObject->ObjectCaps();
 
-		if (m_afButtonPressed & IN_USE)
+		if ( ( m_afButtonPressed & IN_USE ) && ( pev->team == ZP::TEAM_SURVIVIOR ) )
 			EMIT_SOUND(ENT(pev), CHAN_ITEM, "common/wpn_select.wav", 0.4, ATTN_NORM);
 
 		if (((pev->button & IN_USE) && (caps & FCAP_CONTINUOUS_USE)) || ((m_afButtonPressed & IN_USE) && (caps & (FCAP_IMPULSE_USE | FCAP_ONOFF_USE))))
@@ -2651,7 +2651,8 @@ void CBasePlayer::SelectNewActiveWeapon( CBasePlayerWeapon *pWeapon )
 	m_pActiveItem = pWeapon;
 	if ( m_pActiveItem )
 	{
-		EMIT_SOUND(ENT(pev), CHAN_ITEM, "common/wpn_select.wav", 1, ATTN_NORM);
+		if ( pev->team == ZP::TEAM_SURVIVIOR )
+			EMIT_SOUND(ENT(pev), CHAN_ITEM, "common/wpn_select.wav", 1, ATTN_NORM);
 		m_pActiveItem->DoDeployAnimation();
 		m_pActiveItem->UpdateItemInfo();
 		m_flLastWeaponDrop = gpGlobals->time + 0.5f;

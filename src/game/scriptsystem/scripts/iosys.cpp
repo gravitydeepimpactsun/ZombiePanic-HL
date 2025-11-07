@@ -29,6 +29,7 @@ static const char *g_IOCommands[IO_MAX] = {
 	"FireOutput",
 	"ASCall",
 	"Wait",
+	"Break",
 	"if",
 	"elseif",
 	"else",
@@ -75,6 +76,16 @@ static std::vector<std::string> Split( const std::string &s, char delimiter )
 	std::istringstream tokenStream(s);
 	while (std::getline(tokenStream, token, delimiter))
 		tokens.push_back(Trim(token));
+	return tokens;
+}
+
+static std::vector<std::string> SplitQoutes( const std::string &s, char delimiter )
+{
+	std::vector<std::string> tokens;
+	std::string token;
+	std::istringstream tokenStream(s);
+	while ( tokenStream >> std::quoted(token) )
+		tokens.push_back( Trim(token) );
 	return tokens;
 }
 
@@ -164,14 +175,15 @@ ScriptCallBackEnum IOSystem::OnCalled(pOnScriptCallbackReturn pfnCallback, KeyVa
 				if ( bIsScriptCall )
 				{
 					// Make sure we call the right entity, if not, ignore.
-					CBaseEntity *pEnt = UTIL_FindEntityByTargetname( nullptr, pData->GetString( "arg1" ) );
-					if ( pEnt )
+					CBaseEntity *pFind = UTIL_FindEntityByTargetname( nullptr, pData->GetString( "arg1" ) );
+					while ( pFind )
 					{
 						KeyValues *pKvNew = new KeyValues( "Items" );
 						pKvNew->SetString( "Action", szFunctionName.c_str() );
 						pKvNew->SetString( "arg0", pData->GetString( "arg2" ) );
-						pEnt->ScriptCallback( pKvNew );
+						pFind->ScriptCallback( pKvNew );
 						pKvNew->deleteThis();
+						pFind = UTIL_FindEntityByTargetname( pFind, pData->GetString( "arg1" ) );
 					}
 				}
 				else
@@ -445,6 +457,7 @@ IOScriptFile::IOScriptFile( const std::string &szFile )
 					break;
 				}
 			}
+			//IO_SPECIAL_FUNCTION
 			cmd.Type = (IOFunctionCommands_t)commandType;
 
 			// Parse arguments according to command type
@@ -458,7 +471,7 @@ IOScriptFile::IOScriptFile( const std::string &szFile )
 				{
 					// Example: FireOutput "my_target" "MyInput" "MyValue" 5.0
 					// EntFire = arg0, Input = arg1, Message = arg2, Delay = arg3
-					auto args = Split(restOfLine, ' ');
+				    auto args = SplitQoutes(restOfLine, ' ');
 					if (args.size() > 0)
 						cmd.EntFire = MessageCleanup( args[0] );
 					if (args.size() > 1)
@@ -466,7 +479,7 @@ IOScriptFile::IOScriptFile( const std::string &szFile )
 					if (args.size() > 2)
 						cmd.Message = MessageCleanup( args[2] );
 					if (args.size() > 3)
-						cmd.Delay = std::stof(args[3]);
+						cmd.Delay = std::stof( args[3] );
 					break;
 				}
 				case IO_WAIT:
@@ -474,6 +487,16 @@ IOScriptFile::IOScriptFile( const std::string &szFile )
 					// Example: Wait 2.5
 					if (!restOfLine.empty())
 						cmd.Delay = std::stof(restOfLine);
+					break;
+				}
+			    case IO_BREAK:
+				{
+				    // Example: Break {param} if "MyValue"
+				    // Message = arg0, Input = arg1
+				    auto args = Split(restOfLine, ' ');
+				    // Replace {param} with %sN%
+					cmd.Message = ReplaceScriptArgs( MessageCleanup( args[0] ), currentFunction.Parameters );
+				    cmd.Input = ReplaceScriptArgs( MessageCleanup( args[2] ), currentFunction.Parameters );
 					break;
 				}
 			    case IO_IF:
@@ -824,6 +847,17 @@ void IOScriptFile::RunCommands( int nID )
 				case IO_IF: pFunctionCall.InsideIfBlock = IOFunctionCallIfBlockStatements::IFBLOCK_IF; break;
 				case IO_ELSE: pFunctionCall.InsideIfBlock = IOFunctionCallIfBlockStatements::IFBLOCK_ELSE; break;
 				case IO_ELSEIF: pFunctionCall.InsideIfBlock = IOFunctionCallIfBlockStatements::IFBLOCK_ELSEIF; break;
+			}
+		}
+
+		if ( cmd.Type == IO_BREAK )
+		{
+			std::string szArgument = GetArgValues( cmd.Message, pFunctionCall.Arguments );
+			std::string szInput = GetArgValues( cmd.Input, pFunctionCall.Arguments );
+			if ( szArgument == szInput )
+			{
+				pFunctionCall.Commands.clear();
+				return;
 			}
 		}
 

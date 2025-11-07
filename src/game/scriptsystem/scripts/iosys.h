@@ -12,6 +12,7 @@ enum IOFunctionCommands_t
 	IO_FIRE_OUTPUT = 0,
 	IO_EXEC_AS,
 	IO_WAIT,
+	IO_BREAK,
 	IO_IF,
 	IO_ELSEIF,
 	IO_ELSE,
@@ -23,7 +24,10 @@ enum IOFunctionCommands_t
 	IO_ADD_TO_SPAWN_LIST,
 	IO_SPAWN_ITEMS,
 
-	IO_MAX
+	IO_MAX,
+
+	// Special stuff
+	IO_SPECIAL_FUNCTION
 };
 
 enum IOFunctions_t

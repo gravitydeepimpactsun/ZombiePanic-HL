@@ -253,6 +253,8 @@ CMenuPage *CBaseMenu::TryCreatePage( MenuPagesTable_t nPage )
 void CBaseMenu::SetMenuBounds( const int &x, const int &y, const int &w, const int &t )
 {
 	SetBounds( x, y, w, t );
+	// Because Steam doesn't want people to support outside of their ecosystem? wow.
+#if 0
 	// Create our dialog right away!
 	if ( !m_hPatreonButton )
 	{
@@ -264,6 +266,7 @@ void CBaseMenu::SetMenuBounds( const int &x, const int &y, const int &w, const i
 		m_hPatreonButton->SetContent( (w - wide) - nudge, (t - tall) - nudge, wide, tall );
 		m_hPatreonButton->MoveToFront();
 	}
+#endif
 }
 
 void CBaseMenu::InternalMousePressed( int code )

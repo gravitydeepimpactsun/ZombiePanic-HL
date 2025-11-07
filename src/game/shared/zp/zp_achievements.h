@@ -75,6 +75,9 @@ enum EStats
 
 	// Maps -- Objective
 	MAP_ZPO_CONTINGENCY,
+	MAP_ZPO_CLUBZOMBO,
+	MAP_ZPO_EASTSIDE,
+	MAP_ZPO_HOTEL,
 
 	// Maps -- Hardcore
 	MAP_ZPH_THELABS,

@@ -28,6 +28,12 @@ void CObjectiveMessage::Spawn( void )
 	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "SetZombieText" );
 	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "SetState" );
 
+	// Outputs
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "OnBegin" );
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "OnProgress" );
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "OnCompleted" );
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "OnFailed" );
+
 	SetEntityScriptCallback( &CObjectiveMessage::OnScriptCallBack );
 #endif
 }
@@ -96,6 +102,17 @@ void CObjectiveMessage::UpdateMessageState()
 	WRITE_STRING( STRING( pev->message ) );
 	WRITE_STRING( STRING( m_ZombieText ) );
 	MESSAGE_END();
+
+	const char *szValue = nullptr;
+	switch ( m_State )
+	{
+		case State_Normal: szValue = "OnBegin"; break;
+		case State_InProgress: szValue = "OnProgress"; break;
+		case State_Completed: szValue = "OnCompleted"; break;
+		case State_Failed: szValue = "OnFailed"; break;
+	}
+	if ( !szValue ) return;
+	FireEntityOutput( this, szValue );
 }
 
 void CObjectiveMessage::CallNewObjective()

@@ -33,6 +33,11 @@
 #include "core.h"
 #endif
 
+// for std::vector random_shuffle
+#include <iterator>
+#include <random>
+#include <algorithm>
+
 class CRuleEntity : public CBaseEntity
 {
 public:
@@ -789,6 +794,79 @@ void CGameTimer::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE use
 		StopTimer();
 	// Toggle it
 	m_bDisabled = !m_bDisabled;
+}
+
+
+//
+// Entity Teleport
+//
+class CEntityTeleport : public CRulePointEntity
+{
+public:
+	void KeyValue( KeyValueData *pkvd );
+	void Spawn( void );
+	void Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value ) override;
+};
+LINK_ENTITY_TO_CLASS( ent_teleport, CEntityTeleport );
+
+void CEntityTeleport::Spawn( void )
+{
+	CRulePointEntity::Spawn();
+}
+
+void CEntityTeleport::KeyValue( KeyValueData *pkvd )
+{
+	if (FStrEq(pkvd->szKeyName, "entity"))
+	{
+		pev->message = ALLOC_STRING( pkvd->szValue );
+		pkvd->fHandled = TRUE;
+	}
+	else if (FStrEq(pkvd->szKeyName, "target"))
+	{
+		pev->target = ALLOC_STRING(pkvd->szValue);
+		pkvd->fHandled = TRUE;
+	}
+	else
+		CRulePointEntity::KeyValue(pkvd);
+}
+
+void CEntityTeleport::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
+{
+	edict_t *pEnt = FIND_ENTITY_BY_TARGETNAME( nullptr, STRING(pev->message) );
+	if ( FNullEnt( pEnt ) ) return;
+
+	// We may have more than 1 target with the same name, find them all, and randomize which once we get.
+	std::vector<edict_t *> m_RandomList;
+	edict_t *pFind = FIND_ENTITY_BY_TARGETNAME( nullptr, STRING(pev->target) );
+	while ( !FNullEnt( pFind ) )
+	{
+		m_RandomList.push_back( pFind );
+		pFind = FIND_ENTITY_BY_TARGETNAME( pFind, STRING(pev->target) );
+	}
+
+	if ( m_RandomList.size() == 0 ) return;
+
+	// If we have a list, let's randomize the order.
+	std::random_device rd;
+	std::mt19937 g( rd() );
+	std::shuffle( m_RandomList.begin(), m_RandomList.end(), g );
+
+	// This is now our target.
+	edict_t *pentTarget = m_RandomList[ RandomInt( 0, m_RandomList.size() - 1 ) ];
+
+	// Clear memory
+	m_RandomList.clear();
+
+	entvars_t *entvars = VARS( pEnt );
+
+	Vector tmp = VARS(pentTarget)->origin;
+	tmp.z++;
+
+	UTIL_SetOrigin( entvars, tmp );
+
+	entvars->angles = pentTarget->v.angles;
+	entvars->fixangle = TRUE;
+	entvars->velocity = entvars->basevelocity = g_vecZero;
 }
 
 //

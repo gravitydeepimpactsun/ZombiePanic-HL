@@ -27,6 +27,9 @@
 #include "animation.h"
 #include "weapons.h"
 #include "player.h"
+#ifdef SCRIPT_SYSTEM
+#include "core.h"
+#endif
 
 #define TEMP_FOR_SCREEN_SHOTS
 #ifdef TEMP_FOR_SCREEN_SHOTS //===================================================
@@ -57,6 +60,9 @@ public:
 	int m_rendermode;
 	float m_renderamt;
 	Vector m_rendercolor;
+
+	Vector m_origspawn;
+	Vector m_origangle;
 };
 
 TYPEDESCRIPTION CCycler::m_SaveData[] = {
@@ -74,6 +80,40 @@ public:
 	void Spawn(void) { GenericCyclerSpawn((char *)STRING(pev->model), Vector(-16, -16, 0), Vector(16, 16, 72)); }
 };
 LINK_ENTITY_TO_CLASS(cycler, CGenericCycler);
+
+//
+// Prop Objective
+//
+class CPropObjective : public CGenericCycler
+{
+public:
+	void Spawn(void)
+	{
+		CGenericCycler::Spawn();
+		pev->classname = MAKE_STRING( "prop_objective" );
+	}
+	void Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value ) override;
+};
+LINK_ENTITY_TO_CLASS( prop_objective, CPropObjective );
+
+void CPropObjective::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
+{
+#ifdef SCRIPT_SYSTEM
+	CBaseEntity *m_pActivator = pActivator;
+	if ( !m_pActivator ) m_pActivator = this;
+	const std::string &szOutput( "OnUse" );
+	ScriptSystem::CallScriptDelay(
+		AvailableScripts_t::InputOutput,
+		nullptr,
+		szOutput,
+		0.0f,
+		2,
+		std::to_string( entindex() ),
+		std::to_string( m_pActivator->entindex() )
+	);
+#endif
+	SoftRemove();
+}
 
 // Probe droid imported for tech demo compatibility
 //
@@ -113,6 +153,8 @@ void CCycler ::GenericCyclerSpawn(char *szModel, Vector vecMin, Vector vecMax)
 
 void CCycler ::Spawn()
 {
+	CBaseEntity::Spawn();
+
 	InitBoneControllers();
 #if defined( HL_CLIENT )
 	pev->solid = SOLID_SLIDEBOX;
@@ -151,6 +193,9 @@ void CCycler ::Spawn()
 	m_rendermode = pev->rendermode;
 	m_renderamt = pev->renderamt;
 	m_rendercolor = pev->rendercolor;
+
+	m_origspawn = pev->origin;
+	m_origangle = pev->angles;
 }
 
 void CCycler ::Restart(void)
@@ -167,6 +212,9 @@ void CCycler ::Restart(void)
 	pev->rendermode = m_rendermode;
 	pev->renderamt = m_renderamt;
 	pev->rendercolor = m_rendercolor;
+
+	UTIL_SetOrigin( pev, m_origspawn );
+	pev->angles = m_origangle;
 }
 
 //

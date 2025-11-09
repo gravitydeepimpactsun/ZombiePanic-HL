@@ -55,6 +55,7 @@ static const char *s_EntitiesRestarts[] = {
 	"trigger_relay",
 	"trigger_auto",
 	"trigger_multiple",
+	"trigger_escape",
 	"info_objective",
 	"info_beacon",
 	"multi_manager",

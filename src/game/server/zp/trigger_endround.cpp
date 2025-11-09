@@ -25,6 +25,7 @@ LINK_ENTITY_TO_CLASS( trigger_escape, CTriggerEndRound );
 
 void CTriggerEndRound::Spawn(void)
 {
+	pev->classname = MAKE_STRING( "trigger_escape" );
 	InitTrigger();
 
 	SetTouch( &CTriggerEndRound::OnEndRoundTouch );

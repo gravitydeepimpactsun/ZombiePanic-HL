@@ -26,11 +26,26 @@ CMusicUI::CMusicUI()
 	vgui2::HScheme scheme = vgui2::scheme()->LoadSchemeFromFile( VGUI2_ROOT_DIR "resource/ChatScheme.res", "ChatScheme" );
 	SetScheme( scheme );
 
-	SetPaintBackgroundEnabled( true );
+	SetPaintBackgroundEnabled( false );
 	SetProportional( true );
+
+	m_flDrawTime = 0;
+
+	m_pTextTitleBG1 = new vgui2::Label( this, "textbg1", "Unknown Track" );
+	m_pTextTitleBG1->SetContentAlignment( vgui2::Label::a_center );
+	m_pTextTitleBG1->SetPaintBackgroundEnabled( false );
+
+	m_pTextTitleBG2 = new vgui2::Label( this, "textbg2", "Unknown Track" );
+	m_pTextTitleBG2->SetContentAlignment( vgui2::Label::a_center );
+	m_pTextTitleBG2->SetPaintBackgroundEnabled( false );
 
 	m_pTextTitle = new vgui2::Label( this, "text", "Unknown Track" );
 	m_pTextTitle->SetContentAlignment( vgui2::Label::a_center );
+	m_pTextTitle->SetPaintBackgroundEnabled( false );
+
+	m_pTextTitle->SetPos( 0, 0 );
+	m_pTextTitleBG1->SetPos( 1, 1 );
+	m_pTextTitleBG2->SetPos( 2, 2 );
 
 	InvalidateLayout();
 }
@@ -39,19 +54,13 @@ void CMusicUI::ApplySchemeSettings( vgui2::IScheme *pScheme )
 {
 	BaseClass::ApplySchemeSettings( pScheme );
 
-	// Setup the background painting style
-	SetPaintBackgroundType( 2 );
-	SetPaintBorderEnabled( true );
-	SetPaintBackgroundEnabled( true );
-
-	// Set the background color
-	m_bgColor = pScheme->GetColor("ChatBgColor", GetBgColor());
-	SetBgColor( Color( m_bgColor.r(), m_bgColor.g(), m_bgColor.b(), 0 ) );
-
 	vgui2::HFont fontNormal = pScheme->GetFont( "Default" );
 	m_pTextTitle->SetFont( fontNormal );
-	m_pTextTitle->SetPaintBackgroundEnabled( false );
 	m_pTextTitle->SetFgColor( Color( 255, 255, 255, 0 ) );
+	m_pTextTitleBG1->SetFont( fontNormal );
+	m_pTextTitleBG1->SetFgColor( Color( 0, 0, 0, 0 ) );
+	m_pTextTitleBG2->SetFont( fontNormal );
+	m_pTextTitleBG2->SetFgColor( Color( 0, 0, 0, 0 ) );
 
 	SetSize( 300, 30 );
 }
@@ -68,6 +77,8 @@ void CMusicUI::NewTrackPlaying()
 	char szNowPlaying[128];
 	g_pVGuiLocalize->ConvertUnicodeToANSI( pString, szNowPlaying, sizeof( szNowPlaying ) );
 	m_pTextTitle->SetColorCodedText( vgui2::VarArgs( "%s %s", szNowPlaying, CMusicManager::GetInstance()->GetTrackName() ) );
+	m_pTextTitleBG1->SetColorCodedText( vgui2::VarArgs( "%s %s", szNowPlaying, CMusicManager::GetInstance()->GetTrackName() ) );
+	m_pTextTitleBG2->SetColorCodedText( vgui2::VarArgs( "%s %s", szNowPlaying, CMusicManager::GetInstance()->GetTrackName() ) );
 	m_flDrawTime = gHUD.m_flTime + 4.0;
 }
 
@@ -83,27 +94,22 @@ void CMusicUI::Paint()
 	}
 
 	m_pTextTitle->SetSize( GetWide(), GetTall() );
+	m_pTextTitleBG1->SetSize( GetWide(), GetTall() );
+	m_pTextTitleBG2->SetSize( GetWide(), GetTall() );
 
 	int middle_pos = ScreenWidth / 2;
 	int half_width = GetWide() / 2;
 
 	int x = middle_pos - half_width;
-	int a1 = m_pTextTitle->GetFgColor().a();
-	int a2 = m_bgColor.a();
+	int a = m_pTextTitle->GetFgColor().a();
 
 	if ( m_flDrawTime - gHUD.m_flTime > 0 )
-	{
-		a1 += 5;
-		a2 += 5;
-	}
+		a += 5;
 	else
-	{
-		a1 -= 3;
-		a2 -= 3;
-	}
+		a -= 3;
 
-	m_pTextTitle->SetFgColor( Color( 255, 255, 255, clamp( a1, 0, 255 ) ) );
-	SetBgColor( Color( m_bgColor.r(), m_bgColor.g(), m_bgColor.b(), clamp( a2, 0, 64 ) ) );
-	SetAlpha( clamp( a2, 0, 64 ) );
+	m_pTextTitle->SetFgColor( Color( 255, 255, 255, clamp( a, 0, 255 ) ) );
+	m_pTextTitleBG1->SetFgColor( Color( 0, 0, 0, clamp( a, 0, 255 ) ) );
+	m_pTextTitleBG2->SetFgColor( Color( 0, 0, 0, clamp( a, 0, 255 ) ) );
 	SetPos( x, 0 );
 }

@@ -15,6 +15,7 @@ public:
 	CMusicUI();
 
 	virtual bool IsAllowedToDraw();
+	virtual void PaintBackground() {}
 	virtual void Paint();
 	virtual void ApplySchemeSettings( vgui2::IScheme *pScheme );
 	void NewTrackPlaying();
@@ -22,6 +23,8 @@ public:
 private:
 
 	vgui2::Label			*m_pTextTitle;
+	vgui2::Label			*m_pTextTitleBG1;
+	vgui2::Label			*m_pTextTitleBG2;
 	float					m_flDrawTime;
 	Color					m_bgColor;
 };

@@ -93,6 +93,7 @@
 #include "zp/hud/zp_ammobank.h"
 #include "zp/hud/zp_objective.h"
 #include "zp/hud/zp_beacons.h"
+#include "zp/music/music_ui.h"
 
 // Adrenaline Gamer HUD Elements
 #include "hud/ag/ag_countdown.h"
@@ -433,6 +434,7 @@ void CHud::Init(void)
 	RegisterHudElem<CHudZombieLives>();
 	RegisterHudElem<CObjectiveText>();
 	RegisterHudElem<CHudAmmoBank>();
+	RegisterHudElem<CMusicUI>();
 	RegisterHudElem<CHudRoundState>();
 	RegisterHudElem<CHudSpeedometer>();
 	RegisterHudElem<CHudJumpspeed>();

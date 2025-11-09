@@ -10,6 +10,10 @@ add_sources(
 	hud/zp_ammobank.h
 	hud/zp_beacons.cpp
 	hud/zp_beacons.h
+	music/music_ui.h
+	music/music_ui.cpp
+	music/music_manager.h
+	music/music_manager.cpp
 	ui/playerselection/C_PlayerSelection.cpp
 	ui/playerselection/C_PlayerSelection.h
 	ui/credits/C_ZPCredits.cpp

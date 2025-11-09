@@ -269,6 +269,15 @@ void CBaseMenu::SetMenuBounds( const int &x, const int &y, const int &w, const i
 #endif
 }
 
+void CBaseMenu::Repopulate()
+{
+	for ( int i = 0; i < MenuPagesTable_t::PAGE_MAX; i++ )
+	{
+		if ( pPage[i] )
+			pPage[i]->PopulateMenu();
+	}
+}
+
 void CBaseMenu::InternalMousePressed( int code )
 {
 	DoDialogHackFix();

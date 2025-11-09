@@ -11,6 +11,8 @@
 #include "client_viewport.h"
 #include "client_motd.h"
 
+#include "zp/music/music_manager.h"
+
 using namespace vgui2;
 
 class CClientMOTDHTML : public vgui2::HTML
@@ -142,6 +144,8 @@ void CClientMOTD::Activate(const char *title, const char *msg)
 	V_StrSubst(msg, "\r\n", "\n", buf, sizeof(buf));
 	Q_UTF8ToWString(buf, wbuf, sizeof(wbuf), STRINGCONVERT_REPLACE);
 	m_pMessage->SetText(wbuf);
+
+	CMusicManager::GetInstance()->OnMapStart();
 }
 
 void CClientMOTD::ActivateHtml(const char *title, const char *msg)
@@ -193,6 +197,8 @@ void CClientMOTD::ActivateHtml(const char *title, const char *msg)
 
 	if (m_iScoreBoardKey == KEY_NONE)
 		m_iScoreBoardKey = g_pGameUIFuncs->GetVGUI2KeyCodeForBind("showscores");
+
+	CMusicManager::GetInstance()->OnMapStart();
 }
 
 void CClientMOTD::Reset()

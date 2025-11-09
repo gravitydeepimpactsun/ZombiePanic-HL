@@ -11,7 +11,9 @@
 #include <FileSystem.h>
 #include "tier1/KeyValues.h"
 #include "zp/ui/workshop/WorkshopItemList.h"
+#include "zp/music/music_manager.h"
 
+extern bool g_bIsConnected;
 extern int UTIL_GetHudSize( const int &wide, const int &tall );
 
 CMenuPage::CMenuPage( vgui2::Panel *pParent, MenuPagesTable_t nType, const char *szTitle )
@@ -33,8 +35,6 @@ CMenuPage::CMenuPage( vgui2::Panel *pParent, MenuPagesTable_t nType, const char 
 	// Invalid by default.
 	for ( int i = 0; i < MAX_PAGE_MENU_ITEMS; i++ )
 		m_pMenuItems[i] = nullptr;
-
-	m_IsConnected = false;
 }
 
 static constexpr MenuItemsMenuAdjustments MENU_ITEM_DATA[] = {
@@ -103,7 +103,7 @@ void CMenuPage::PopulateMenu()
 			if ( m_iMenuItem == MAX_PAGE_MENU_ITEMS )
 				break;
 			bool bIngameItem = kvSub->GetBool( "OnlyInGame", false );
-			if ( bIngameItem && !m_IsConnected )
+			if ( bIngameItem && !g_bIsConnected )
 			{
 				kvSub = kvSub->GetNextKey();
 				continue;
@@ -157,21 +157,6 @@ void CMenuPage::ApplySchemeSettings( vgui2::IScheme *pScheme )
 void CMenuPage::OnThink()
 {
 	BaseClass::OnThink();
-
-	// Are we even ingame/connected?
-	if ( IsVisible() )
-	{
-		char buf[64];
-		buf[0] = 0;
-		V_FileBase( gEngfuncs.pfnGetLevelName(), buf, sizeof(buf) );
-		bool bConnected = false;
-		if ( buf && buf[0] ) bConnected = true;
-		if ( m_IsConnected != bConnected )
-		{
-			m_IsConnected = bConnected;
-			PopulateMenu();
-		}
-	}
 }
 
 void CMenuPage::InternalMousePressed( int code )

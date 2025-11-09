@@ -19,6 +19,7 @@ public:
 	void LoadPage( MenuPagesTable_t nPage );
 	CMenuPage *TryCreatePage( MenuPagesTable_t nPage );
 	void SetMenuBounds( const int &x, const int &y, const int &w, const int &t );
+	void Repopulate();
 
 protected:
 	void InternalMousePressed( int code ) override;

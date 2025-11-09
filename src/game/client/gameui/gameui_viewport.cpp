@@ -19,7 +19,10 @@
 #include <filesystem>
 #include <iostream>
 #include <fstream>
+#include "zp/music/music_manager.h"
 #include "nlohmann/json.hpp"
+
+bool g_bIsConnected = false;
 
 #if defined(_DEBUG)
 CON_COMMAND(gameui_cl_open_test_panel, "Opens a test panel for client GameUI")
@@ -79,6 +82,9 @@ CGameUIViewport::CGameUIViewport()
 	// Don't start with maxplayers set to 1.
 	// Default should be 16.
 	gEngfuncs.pfnClientCmd("maxplayers 16\n");
+
+	// Let's create our music manager after our GameUI is created.
+	new CMusicManager();
 }
 
 CGameUIViewport::~CGameUIViewport()
@@ -165,6 +171,22 @@ vgui2::Panel *CGameUIViewport::GetDialog( GameUIDialogs nDialog )
 void CGameUIViewport::OnThink()
 {
 	BaseClass::OnThink();
+
+	if ( CMusicManager::GetInstance() )
+	{
+		char buf[64];
+		buf[0] = 0;
+		V_FileBase( gEngfuncs.pfnGetLevelName(), buf, sizeof(buf) );
+		bool bConnected = false;
+		if ( buf && buf[0] ) bConnected = true;
+		// Are we even ingame/connected?
+		if ( g_bIsConnected != bConnected )
+		{
+			g_bIsConnected = bConnected;
+			CMusicManager::GetInstance()->OnMapShutdown();
+			m_hMenu->Repopulate();
+		}
+	}
 
 	if (m_bPreventEscape || m_iDelayedPreventEscapeFrame == gHUD.GetFrameCount())
 	{

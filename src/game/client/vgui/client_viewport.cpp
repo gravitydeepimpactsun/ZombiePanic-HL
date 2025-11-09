@@ -291,11 +291,14 @@ void CClientViewport::ShowVGUIMenu(vguiMenuID iMenu)
 	{
 	case MENU_TEAM:
 		m_pTeamMenu->Activate();
+		m_pMOTD->ShowPanel(false);
 		break;
 	case MENU_MOTD:
+		m_pTeamMenu->ShowPanel(false);
 		m_pMOTD->Activate(m_szServerName, m_szMOTD);
 		break;
 	case MENU_HTML_MOTD:
+		m_pTeamMenu->ShowPanel(false);
 		m_pMOTD->ActivateHtml(m_szServerName, m_szMOTD);
 		break;
 

@@ -28,7 +28,6 @@ private:
 	CMenuItem *m_pMenuItems[MAX_PAGE_MENU_ITEMS];
 	MenuPagesTable_t m_nType;
 	vgui2::Label *m_pTitle;
-	bool m_IsConnected;
 };
 
 #endif

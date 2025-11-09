@@ -73,6 +73,7 @@ void CHudAmmoBank::VidInit()
 	int cornerWide, cornerTall;
 	GetCornerTextureSize( cornerWide, cornerTall );
 	m_bHasPanelRect = false;
+	UpdateVisibility( false );
 }
 
 void CHudAmmoBank::ApplySchemeSettings(vgui2::IScheme *pScheme)
@@ -94,6 +95,8 @@ void CHudAmmoBank::ApplySchemeSettings(vgui2::IScheme *pScheme)
 
 	m_pWeightText->SetFont( fontSmall );
 	m_pWeightStatus->SetFont( fontSmall );
+
+	UpdateVisibility( false );
 }
 
 bool CHudAmmoBank::IsAllowedToDraw()

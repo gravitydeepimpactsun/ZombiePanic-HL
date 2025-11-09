@@ -1213,20 +1213,24 @@ void CBaseButton::ButtonActivate()
 		PlayLockSounds(pev, &m_ls, FALSE, TRUE);
 	}
 
+	ASSERT(m_toggle_state == TS_AT_BOTTOM);
+
 #ifdef SCRIPT_SYSTEM
-	const std::string &szOutput( "OnUse" );
-	ScriptSystem::CallScriptDelay(
-		AvailableScripts_t::InputOutput,
-		nullptr,
-		szOutput,
-		0.0f,
-		2,
-		std::to_string( entindex() ),
-		std::to_string( m_hActivator->entindex() )
-	);
+	if ( m_toggle_state == TS_AT_BOTTOM || m_toggle_state == TS_AT_TOP )
+	{
+		const std::string &szOutput( "OnUse" );
+		ScriptSystem::CallScriptDelay(
+			AvailableScripts_t::InputOutput,
+			nullptr,
+			szOutput,
+			0.0f,
+			2,
+			std::to_string( entindex() ),
+			std::to_string( m_hActivator->entindex() )
+		);
+	}
 #endif
 
-	ASSERT(m_toggle_state == TS_AT_BOTTOM);
 	m_toggle_state = TS_GOING_UP;
 
 	SetMoveDone(&CBaseButton::TriggerAndWait);

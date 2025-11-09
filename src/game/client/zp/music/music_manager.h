@@ -7,7 +7,7 @@ struct MusicItem_s
 {
 	char szName[32];
 	char szFile[32];
-	double dTrackTime;
+	float flTrackTime;
 };
 
 class CMusicManager
@@ -23,7 +23,7 @@ public:
 
 	const char *GetTrackName();
 	const char *GetTrackFile();
-	double GetTrackTime();
+	float GetTrackTime();
 
 	void StopTrack();
 	void PlayTrack();
@@ -38,6 +38,7 @@ private:
 	int32 m_ItemIndex;
 	std::vector<MusicItem_s> m_List;
 	float m_flPlayTime;
+	bool m_bHasStarted;
 };
 
 #endif

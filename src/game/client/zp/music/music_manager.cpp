@@ -27,6 +27,7 @@ CMusicManager::CMusicManager()
 	g_MusicManagerInstance = this;
 	m_flPlayTime = -1;
 	m_ItemIndex = 0;
+	m_bHasStarted = false;
 }
 
 CMusicManager *CMusicManager::GetInstance()
@@ -38,16 +39,19 @@ void CMusicManager::OnMapShutdown()
 {
 	m_ItemIndex = 0;
 	StopTrack();
+	m_bHasStarted = false;
 }
 
 void CMusicManager::OnMapStart()
 {
+	if ( m_bHasStarted ) return;
 	// Clear the list, and add new ones.
 	BuildList();
 	if ( !HasPlayableMusic() ) return;
 	ScrambleList();
 	m_ItemIndex = -1;
 	m_flPlayTime = gHUD.m_flTime + 2.0f;
+	m_bHasStarted = true;
 }
 
 void CMusicManager::OnThink()
@@ -67,14 +71,13 @@ void CMusicManager::PlayTrack()
 	if ( !HasPlayableMusic() ) return;
 	// Play the track, and then notify the CMusicUI that a track has begun
 	gEngfuncs.pfnClientCmd( vgui2::VarArgs( "mp3 play \"media/music/%s\"", GetTrackFile() ) );
-	m_flPlayTime = gHUD.m_flTime + GetTrackTime() + 3.55f;
+	m_flPlayTime = gHUD.m_flTime + GetTrackTime() + 4.55f;
 	CMusicUI::Get()->NewTrackPlaying();
 }
 
 void CMusicManager::PlayPrevTrack()
 {
 	if ( !HasPlayableMusic() ) return;
-	StopTrack();
 	m_ItemIndex--;
 	if ( m_ItemIndex < 0 )
 		m_ItemIndex = m_List.size() - 1;
@@ -84,7 +87,6 @@ void CMusicManager::PlayPrevTrack()
 void CMusicManager::PlayNextTrack()
 {
 	if ( !HasPlayableMusic() ) return;
-	StopTrack();
 	m_ItemIndex++;
 	if ( m_ItemIndex >= m_List.size() )
 		m_ItemIndex = 0;
@@ -143,7 +145,7 @@ void CMusicManager::BuildList()
 					MusicItem_s item;
 					Q_snprintf( item.szFile, sizeof( item.szFile ), "%s", szMP3File.c_str() );
 					Q_snprintf( item.szName, sizeof( item.szName ), "%s", szName );
-					item.dTrackTime = pKV->GetFloat( "TrackLength", 1.0 );
+					item.flTrackTime = pKV->GetFloat( "TrackLength", 1.0 );
 					m_List.push_back( item );
 				}
 			}
@@ -173,9 +175,9 @@ const char *CMusicManager::GetTrackFile()
 	return m_List[ m_ItemIndex ].szFile;
 }
 
-double CMusicManager::GetTrackTime()
+float CMusicManager::GetTrackTime()
 {
-	return m_List[ m_ItemIndex ].dTrackTime;
+	return m_List[ m_ItemIndex ].flTrackTime;
 }
 
 
@@ -183,7 +185,6 @@ double CMusicManager::GetTrackTime()
 CON_COMMAND( mp3_play, "Play Track" )
 {
 	if ( !CMusicManager::GetInstance() ) return;
-	CMusicManager::GetInstance()->StopTrack();
 	CMusicManager::GetInstance()->PlayTrack();
 }
 

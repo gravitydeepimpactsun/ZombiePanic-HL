@@ -124,8 +124,13 @@ void CObjectiveMessage::CallNewObjective()
 	ZP::GameModeType_e eGameModeType = ZP::IsValidGameModeMap( STRING( gpGlobals->mapname ) );
 	if ( eGameModeType != ZP::GAMEMODE_OBJECTIVE ) return;
 
-	// Let's search for our new message
-	CBaseEntity *pFind = UTIL_FindEntityByTargetname( nullptr, STRING( m_NextObj ) );
+	// Fire our target too
+	CBaseEntity *pFind = UTIL_FindEntityByTargetname( nullptr, STRING( pev->target ) );
+	if ( pFind )
+		pFind->Use( nullptr, nullptr, USE_TOGGLE, 0 );
+
+	// Go to our next objective
+	pFind = UTIL_FindEntityByTargetname( nullptr, STRING( m_NextObj ) );
 	if ( !pFind ) return;
 	pFind->Use( nullptr, nullptr, USE_ON, 0 );
 }

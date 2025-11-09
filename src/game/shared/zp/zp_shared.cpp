@@ -39,6 +39,9 @@ std::vector<RequiredStepsTable> m_MarathonSteps = {
 	RequiredStepsTable( MAP_ZP_TOWN, 1 ),
 	RequiredStepsTable( MAP_ZP_MANSION, 1 ),
 	RequiredStepsTable( MAP_ZPO_CONTINGENCY, 1 ),
+	RequiredStepsTable( MAP_ZPO_CLUBZOMBO, 1 ),
+	RequiredStepsTable( MAP_ZPO_EASTSIDE, 1 ),
+	RequiredStepsTable( MAP_ZPO_HOTEL, 1 ),
 	RequiredStepsTable( MAP_ZPH_EASTSIDE, 1 ),
 	RequiredStepsTable( MAP_ZPH_INDUSTRY, 1 ),
 	RequiredStepsTable( MAP_ZPH_HAUNTED, 1 ),
@@ -62,7 +65,10 @@ std::vector<RequiredStepsTable> m_MapsSurvivalSteps = {
 };
 
 std::vector<RequiredStepsTable> m_MapsObjectiveSteps = {
-	RequiredStepsTable( MAP_ZPO_CONTINGENCY, 1 )
+	RequiredStepsTable( MAP_ZPO_CONTINGENCY, 1 ),
+	RequiredStepsTable( MAP_ZPO_CLUBZOMBO, 1 ),
+	RequiredStepsTable( MAP_ZPO_HOTEL, 1 ),
+	RequiredStepsTable( MAP_ZPO_EASTSIDE, 1 )
 };
 
 // We only need to check for one single kill for each

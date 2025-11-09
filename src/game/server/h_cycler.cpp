@@ -90,6 +90,9 @@ public:
 	void Spawn(void)
 	{
 		CGenericCycler::Spawn();
+		pev->movetype = MOVETYPE_TOSS;
+		pev->solid = SOLID_BBOX;
+		UTIL_SetSize( pev, Vector(0, 0, 0), Vector(0, 0, 0) );
 		pev->classname = MAKE_STRING( "prop_objective" );
 	}
 	void Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value ) override;

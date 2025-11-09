@@ -11,7 +11,14 @@ class CTriggerEndRound : public CBaseTrigger
 {
 public:
 	void Spawn(void);
+	void Restart(void);
+	void KeyValue( KeyValueData *pkvd );
+	void Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value ) override;
 	void OnEndRoundTouch(CBaseEntity *pOther);
+
+private:
+	bool m_Enabled = true;
+	bool m_EnableRem = false;
 };
 LINK_ENTITY_TO_CLASS( trigger_endround, CTriggerEndRound );		// For backwards compatibility
 LINK_ENTITY_TO_CLASS( trigger_escape, CTriggerEndRound );
@@ -23,8 +30,30 @@ void CTriggerEndRound::Spawn(void)
 	SetTouch( &CTriggerEndRound::OnEndRoundTouch );
 }
 
+void CTriggerEndRound::Restart(void)
+{
+	m_Enabled = m_EnableRem;
+}
+
+void CTriggerEndRound::KeyValue( KeyValueData *pkvd )
+{
+	if ( FStrEq( pkvd->szKeyName, "enabled" ) )
+	{
+		m_EnableRem = m_Enabled = atoi(pkvd->szValue) > 0 ? true : false;
+		pkvd->fHandled = TRUE;
+	}
+	else
+		CBaseTrigger::KeyValue( pkvd );
+}
+
+void CTriggerEndRound::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
+{
+	m_Enabled = !m_Enabled;
+}
+
 void CTriggerEndRound::OnEndRoundTouch( CBaseEntity *pOther )
 {
+	if ( !m_Enabled ) return;
 	if ( !pOther->IsPlayer() ) return;
 	if ( !pOther->IsAlive() ) return;
 	if ( pOther->pev->team != ZP::TEAM_SURVIVIOR ) return;

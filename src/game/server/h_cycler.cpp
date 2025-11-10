@@ -101,6 +101,7 @@ LINK_ENTITY_TO_CLASS( prop_objective, CPropObjective );
 
 void CPropObjective::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
+	if ( pActivator->pev->team != ZP::TEAM_SURVIVIOR ) return;
 #ifdef SCRIPT_SYSTEM
 	CBaseEntity *m_pActivator = pActivator;
 	if ( !m_pActivator ) m_pActivator = this;

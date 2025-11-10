@@ -24,6 +24,7 @@ extern unsigned short m_usResetDecals;
 extern void CleanupBodyQue();
 
 static const char *s_EntitiesRestarts[] = {
+	"prop_objective",
 	"cycler",
 	"cycler_sprite",
 	"light",

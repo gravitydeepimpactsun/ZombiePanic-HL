@@ -240,9 +240,15 @@ class CFuncIllusionary : public CBaseToggle
 {
 public:
 	void Spawn(void);
+	void Restart(void);
 	void EXPORT SloshTouch(CBaseEntity *pOther);
 	void KeyValue(KeyValueData *pkvd);
 	virtual int ObjectCaps(void) { return CBaseEntity ::ObjectCaps() & ~FCAP_ACROSS_TRANSITION; }
+
+private:
+	int saved_renderamt;
+	int saved_renderfx;
+	int saved_rendermode;
 };
 
 LINK_ENTITY_TO_CLASS(func_illusionary, CFuncIllusionary);
@@ -269,6 +275,17 @@ void CFuncIllusionary ::Spawn(void)
 	// these entities after they have been moved to the client, or respawn them ala Quake
 	// Perhaps we can do this in deathmatch only.
 	//	MAKE_STATIC(ENT(pev));
+
+	saved_renderamt = pev->renderamt;
+	saved_renderfx = pev->renderfx;
+	saved_rendermode = pev->rendermode;
+}
+
+void CFuncIllusionary::Restart()
+{
+	pev->renderamt = saved_renderamt;
+	pev->renderfx = saved_renderfx;
+	pev->rendermode = saved_rendermode;
 }
 
 // -------------------------------------------------------------------------------

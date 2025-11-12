@@ -47,6 +47,7 @@ static const char *s_EntitiesRestarts[] = {
 	"trigger_once",
 	"func_wall",
 	"func_wall_toggle",
+	"func_illusionary",
 	"func_healthcharger",
 	"func_recharge",
 	"trigger_hurt",

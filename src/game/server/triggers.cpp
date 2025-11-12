@@ -1109,6 +1109,13 @@ class CTriggerMultiple : public CBaseTrigger
 public:
 	void Spawn(void);
 	void Restart(void);
+	void KeyValue(KeyValueData *pkvd);
+	void Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value ) override;
+	void EXPORT DoMultiTouch(CBaseEntity *pOther);
+
+private:
+	bool m_Enabled = true;
+	bool m_EnableRem = false;
 };
 
 LINK_ENTITY_TO_CLASS(trigger_multiple, CTriggerMultiple);
@@ -1136,15 +1143,38 @@ void CTriggerMultiple ::Spawn(void)
 	//		}
 	//	else
 	{
-		SetTouch(&CTriggerMultiple::MultiTouch);
+		SetTouch( &CTriggerMultiple::DoMultiTouch );
 	}
+}
+
+void CTriggerMultiple::DoMultiTouch( CBaseEntity *pOther )
+{
+	if ( !m_Enabled ) return;
+	CTriggerMultiple::MultiTouch( pOther );
 }
 
 void CTriggerMultiple::Restart()
 {
+	m_Enabled = m_EnableRem;
 	if (m_flWait == 0)
 		m_flWait = 0.2;
-	SetTouch(&CTriggerMultiple::MultiTouch);
+	SetTouch( &CTriggerMultiple::DoMultiTouch );
+}
+
+void CTriggerMultiple::KeyValue( KeyValueData *pkvd )
+{
+	if ( FStrEq( pkvd->szKeyName, "enabled" ) )
+	{
+		m_EnableRem = m_Enabled = atoi(pkvd->szValue) > 0 ? true : false;
+		pkvd->fHandled = TRUE;
+	}
+	else
+		CBaseTrigger::KeyValue( pkvd );
+}
+
+void CTriggerMultiple::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
+{
+	m_Enabled = !m_Enabled;
 }
 
 // ======================== ACHIEVEMENT TRIGGER =====================================

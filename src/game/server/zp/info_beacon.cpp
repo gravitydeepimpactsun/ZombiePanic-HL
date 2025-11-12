@@ -53,23 +53,27 @@ void CInfoBeacon::OnScriptCallBack( KeyValues *pData )
 	}
 	else if ( FStrEq( szAction, "Increment" ) )
 	{
+		float flHealth = pev->health;
 		if ( FStrEq( szValue, "" ) )
-			pev->health++;
+			flHealth++;
 		else
-			pev->health += atoi( szValue );
+			flHealth += atof( szValue );
+		pev->health = clamp( flHealth, 0, 100 );
 		UpdateMessageState();
 	}
 	else if ( FStrEq( szAction, "Decrement" ) )
 	{
+		float flHealth = pev->health;
 		if ( FStrEq( szValue, "" ) )
-			pev->health--;
+			flHealth--;
 		else
-			pev->health -= atoi( szValue );
+			flHealth -= atof( szValue );
+		pev->health = clamp( flHealth, 0, 100 );
 		UpdateMessageState();
 	}
 	else if ( FStrEq( szAction, "Set" ) )
 	{
-		pev->health = clamp( atoi( szValue ), 0, 100 );
+		pev->health = clamp( atof( szValue ), 0, 100 );
 		UpdateMessageState();
 	}
 }

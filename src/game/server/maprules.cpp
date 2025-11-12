@@ -64,6 +64,7 @@ IMPLEMENT_SAVERESTORE(CRuleEntity, CBaseEntity);
 
 void CRuleEntity::Spawn(void)
 {
+	CBaseEntity::Spawn();
 	pev->solid = SOLID_NOT;
 	pev->movetype = MOVETYPE_NONE;
 	pev->effects = EF_NODRAW;
@@ -806,6 +807,7 @@ public:
 	void KeyValue( KeyValueData *pkvd );
 	void Spawn( void );
 	void Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value ) override;
+	void TeleportEntity( edict_t *pEnt, edict_t *pDest );
 };
 LINK_ENTITY_TO_CLASS( ent_teleport, CEntityTeleport );
 
@@ -832,39 +834,85 @@ void CEntityTeleport::KeyValue( KeyValueData *pkvd )
 
 void CEntityTeleport::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
-	edict_t *pEnt = FIND_ENTITY_BY_TARGETNAME( nullptr, STRING(pev->message) );
-	if ( FNullEnt( pEnt ) ) return;
+	// Find our entities, and add them to our list.
+	std::vector<edict_t *> m_EndList;
+	edict_t *pFind = FIND_ENTITY_BY_TARGETNAME( nullptr, STRING(pev->message) );
+	while ( !FNullEnt( pFind ) )
+	{
+		m_EndList.push_back( pFind );
+		pFind = FIND_ENTITY_BY_TARGETNAME( pFind, STRING(pev->message) );
+	}
+	if ( m_EndList.size() == 0 ) return;
 
 	// We may have more than 1 target with the same name, find them all, and randomize which once we get.
 	std::vector<edict_t *> m_RandomList;
-	edict_t *pFind = FIND_ENTITY_BY_TARGETNAME( nullptr, STRING(pev->target) );
+	pFind = FIND_ENTITY_BY_TARGETNAME( nullptr, STRING(pev->target) );
 	while ( !FNullEnt( pFind ) )
 	{
 		m_RandomList.push_back( pFind );
 		pFind = FIND_ENTITY_BY_TARGETNAME( pFind, STRING(pev->target) );
 	}
 
-	if ( m_RandomList.size() == 0 ) return;
+	if ( m_RandomList.size() == 0 )
+	{
+		m_EndList.clear();
+		return;
+	}
 
 	// If we have a list, let's randomize the order.
 	std::random_device rd;
 	std::mt19937 g( rd() );
 	std::shuffle( m_RandomList.begin(), m_RandomList.end(), g );
 
-	// This is now our target.
-	edict_t *pentTarget = m_RandomList[ RandomInt( 0, m_RandomList.size() - 1 ) ];
+	edict_t *pEntTarget = nullptr;
+	for ( size_t i = 0; i < m_EndList.size(); i++ )
+	{
+		// Our entity.
+		edict_t *pEnt = m_EndList[ i ];
 
-	// Clear memory
+		bool bHaveEnoughDestinations = true;
+
+		// Remove from list, so we don't teleport to the same destination.
+		// But if we don't have enough, re-use the previous destination.
+		if ( m_RandomList.size() == 0 ) bHaveEnoughDestinations = false;
+
+		if ( bHaveEnoughDestinations )
+		{
+			// This is now our target.
+			int iIndex = RandomInt( 0, m_RandomList.size() - 1 );
+			pEntTarget = m_RandomList[ iIndex ];
+
+			// Remove from our list.
+			m_RandomList.erase( m_RandomList.begin() + iIndex );
+		}
+		else
+		{
+			Msg(
+				"ent_teleport (%s) does not have enough teleportation destinations.\n%i entities teleported, but we don't have any remaining destination left.\nThe previous teleportation destination will be re-used.\n",
+			    STRING( pev->targetname ),
+				i + 1
+			);
+		}
+
+		// Teleport the entity.
+		TeleportEntity( pEnt, pEntTarget );
+	}
+
+	// Clear any remaining memory.
+	m_EndList.clear();
 	m_RandomList.clear();
+}
 
+void CEntityTeleport::TeleportEntity( edict_t *pEnt, edict_t *pDest )
+{
 	entvars_t *entvars = VARS( pEnt );
 
-	Vector tmp = VARS(pentTarget)->origin;
+	Vector tmp = VARS( pDest )->origin;
 	tmp.z++;
 
 	UTIL_SetOrigin( entvars, tmp );
 
-	entvars->angles = pentTarget->v.angles;
+	entvars->angles = pDest->v.angles;
 	entvars->fixangle = TRUE;
 	entvars->velocity = entvars->basevelocity = g_vecZero;
 }

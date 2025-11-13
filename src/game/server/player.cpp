@@ -5643,7 +5643,7 @@ void CBasePlayer::DoVocalize( PlayerVocalizeType nType, bool bForced )
 	m_flLastVocalize = gpGlobals->time + 1.0f;
 	VocalizeData data = GetVocalizeData( m_iCharacter, nType );
 	if ( data.Type == VOCALIZE_NONE ) return;
-	EMIT_SOUND( ENT(pev), CHAN_VOICE, data.VoiceLine.c_str(), 1, ATTN_NORM );
+	EMIT_SOUND_DYN( ENT(pev), CHAN_VOICE, data.VoiceLine.c_str(), 1, ATTN_NORM, 0, 100 );
 }
 
 void CBasePlayer ::SetPrefsFromUserinfo(char *infobuffer)

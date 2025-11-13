@@ -3572,16 +3572,24 @@ void CBasePlayer::PostThink()
 			// If survivor, do camp noises. But we only do that if we aren't moving.
 			else if ( pev->team == ZP::TEAM_SURVIVIOR )
 			{
-				bool bInWater = ( pev->watertype == CONTENT_WATER ) ? true : false;
+				m_flLastPlayerIdleAudio = gpGlobals->time + 30.0f;
+				DoVocalize( PlayerVocalizeType::VOCALIZE_AUTO_CAMP, true );
+			}
+		}
+		else
+		{
+			// Camp stuff, if not moving (and also the round hasn't begun),
+			// then reset the timer if we are a survivor
+			if ( pev->team == ZP::TEAM_SURVIVIOR )
+			{
 				bool bIsMoving = false;
 				// Are we moving, or pressing any buttons while being on the ground?
-				if ( (pev->button & (IN_FORWARD | IN_BACK | IN_MOVELEFT | IN_MOVERIGHT) || pev->button) && !bInWater )
+				if ( (pev->button & (IN_FORWARD | IN_BACK | IN_MOVELEFT | IN_MOVERIGHT) || pev->button) )
 					bIsMoving = true;
-
-				float flDelay = bIsMoving ? 15.0f : 30.5f;
-				m_flLastPlayerIdleAudio = gpGlobals->time + flDelay;
-				if ( !bIsMoving )
-					DoVocalize( PlayerVocalizeType::VOCALIZE_AUTO_CAMP, true );
+				if ( ZP::GetCurrentRoundState() != ZP::RoundState::RoundState_RoundHasBegun )
+					bIsMoving = true;
+				if ( bIsMoving )
+					m_flLastPlayerIdleAudio = gpGlobals->time + 30.0f;
 			}
 		}
 	}
@@ -5641,8 +5649,10 @@ void CBasePlayer::NotifyOfWeaponPickup(CBasePlayerWeapon *pWeapon)
 
 void CBasePlayer::DoVocalize( PlayerVocalizeType nType, bool bForced )
 {
+	if ( pev->team != ZP::TEAM_SURVIVIOR ) return;
+	if ( !IsAlive() ) return;
 	if ( !bForced && m_flLastVocalize > gpGlobals->time ) return;
-	m_flLastVocalize = gpGlobals->time + 1.0f;
+	m_flLastVocalize = gpGlobals->time + 5.0f;
 	VocalizeData data = GetVocalizeData( m_iCharacter, nType );
 	if ( data.Type == VOCALIZE_NONE ) return;
 	EMIT_SOUND_DYN( ENT(pev), CHAN_VOICE, data.VoiceLine.c_str(), 1, ATTN_NORM, 0, 100 );
@@ -6757,24 +6767,14 @@ void PrecachePlayerVocalizeSounds()
 
 VocalizeData GetVocalizeData( PlayerCharacter nCharacter, PlayerVocalizeType nType )
 {
-	// Add to our temp list, if we find the character and type required
-	std::vector<VocalizeData> m_Temp;
+	std::random_device rd;
+	std::mt19937 g( rd() );
+	std::shuffle( m_VocalizeData.begin(), m_VocalizeData.end(), g );
 	for ( size_t i = 0; i < m_VocalizeData.size(); i++ )
 	{
 		VocalizeData data = m_VocalizeData[ i ];
 		if ( data.Character == nCharacter && data.Type == nType )
-			m_Temp.push_back( data );
+			return data;
 	}
-
-	// Grab and randomize our selection, if we find any
-	if ( m_Temp.size() > 0 )
-	{
-		// If we have a list, let's randomize the order.
-		std::random_device rd;
-		std::mt19937 g( rd() );
-		std::shuffle( m_Temp.begin(), m_Temp.end(), g );
-		return m_Temp[ RandomInt( 0, m_Temp.size() - 1 ) ];
-	}
-
 	return default_vocalize;
 }

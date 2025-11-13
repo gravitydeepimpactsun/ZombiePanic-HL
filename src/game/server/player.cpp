@@ -207,6 +207,7 @@ int gmsgInitHUD = 0;
 int gmsgShowGameTitle = 0;
 int gmsgCurWeapon = 0;
 int gmsgHealth = 0;
+int gmsgPanic = 0;
 int gmsgDamage = 0;
 int gmsgBattery = 0;
 int gmsgRounds = 0;
@@ -283,6 +284,7 @@ void LinkUserMessages(void)
 	gmsgFlashlight = REG_USER_MSG("Flashlight", 3);
 	gmsgFlashBattery = REG_USER_MSG("FlashBat", 1);
 	gmsgHealth = REG_USER_MSG("Health", 1);
+	gmsgPanic = REG_USER_MSG("Panic", 0);
 	gmsgDamage = REG_USER_MSG("Damage", 12);
 	gmsgBattery = REG_USER_MSG("Battery", 2);
 	gmsgZombieLives = REG_USER_MSG("ZombieLives", 2);
@@ -6401,6 +6403,9 @@ void CBasePlayer::DoPanic()
 
 	// Play it right away
 	DoVocalize( PlayerVocalizeType::VOCALIZE_PANIC, true );
+	MESSAGE_BEGIN(MSG_ONE, gmsgPanic, NULL, pev);
+	MESSAGE_END();
+	m_flLastVocalize = gpGlobals->time + 8.0f; // override the time
 
 	// Drop everything in a backpack.
 	DropEverything( true );

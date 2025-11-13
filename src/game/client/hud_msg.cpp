@@ -314,3 +314,11 @@ int CHud::MsgFunc_BeaconReset(const char *pszName, int iSize, void *pbuf)
 	CZPBeacons::Get()->ResetBeacons();
 	return 1;
 }
+
+
+int CHud::MsgFunc_Panic(const char *pszName, int iSize, void *pbuf)
+{
+	// Play the heartbeat, that's it.
+	gEngfuncs.pfnClientCmd( "play vo/shared/panic_heartbeat.wav" );
+	return 1;
+}

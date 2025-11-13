@@ -935,6 +935,7 @@ void ClientPrecache(void)
 
 	// player gib sounds
 	PRECACHE_SOUND("common/bodysplat.wav");
+	PRECACHE_SOUND("vo/shared/panic_heartbeat.wav");
 
 	// Zombie sounds
 	PRECACHE_SOUND("player/zomambient1.wav");

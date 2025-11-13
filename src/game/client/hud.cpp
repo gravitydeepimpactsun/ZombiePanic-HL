@@ -348,6 +348,7 @@ void CHud::Init(void)
 	// Zombie Panic! specific messages
 	HookHudMessage<&CHud::MsgFunc_BeaconDraw>("BcnD");
 	HookHudMessage<&CHud::MsgFunc_BeaconReset>("BcnR");
+	HookHudMessage<&CHud::MsgFunc_Panic>("Panic");
 
 	// TFFree CommandMenu
 	HookCommand("+commandmenu", [] {

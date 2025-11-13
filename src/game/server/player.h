@@ -93,6 +93,43 @@ typedef enum
 	MAX_SURVIVORS = SURVIVOR2
 } PlayerCharacter;
 
+typedef enum
+{
+	// Invalid line
+	VOCALIZE_NONE = 0,
+
+	// Manual
+	VOCALIZE_AGREE,
+	VOCALIZE_DECLINE,
+	VOCALIZE_COVER,
+	VOCALIZE_NEED_AMMO,
+	VOCALIZE_NEED_WEAPON,
+	VOCALIZE_HOLD_HERE,
+	VOCALIZE_OPEN_FIRE,
+	VOCALIZE_TAUNT,
+	VOCALIZE_PANIC,
+
+	// Automatic
+	VOCALIZE_AUTO_ONSTART,
+	VOCALIZE_AUTO_KILL,
+	VOCALIZE_AUTO_CAMP,
+	VOCALIZE_AUTO_PAIN,
+	VOCALIZE_AUTO_PAIN_DROWN,
+	VOCALIZE_AUTO_DEATH,
+	VOCALIZE_AUTO_DEATH_FALL,
+
+	VOCALIZE_MAX
+} PlayerVocalizeType;
+void PrecachePlayerVocalizeSounds();
+
+struct VocalizeData
+{
+	PlayerVocalizeType Type;
+	PlayerCharacter Character;
+	std::string VoiceLine;
+};
+VocalizeData GetVocalizeData( PlayerCharacter nCharacter, PlayerVocalizeType nType );
+
 #define CHAT_FLOOD          3
 #define CHAT_INTERVAL       0.5f
 #define CHAT_PENALTY        2.0f
@@ -403,7 +440,7 @@ public:
 	float m_flLastPanic;
 	float m_flPanicTime;
 	float m_flLastUnusedDrop;
-	float m_flLastZombieMoan;
+	float m_flLastPlayerIdleAudio;
 	bool m_bFallingToMyDeath;
 	int m_iAmmoTypeToDrop;
 	int m_iClientAmmoType;
@@ -418,6 +455,7 @@ public:
 
 #ifdef SERVER_DLL
 private:
+	float m_flLastVocalize;
 	float m_flLastFatigue = -1;
 	bool m_bFatigueUpdated = false;
 
@@ -515,6 +553,9 @@ public:
 	// Get an available weapon from our weapon ID
 	CBasePlayerWeapon *GetWeaponFromID( int iID );
 	void NotifyOfWeaponPickup( CBasePlayerWeapon *pWeapon );
+
+	// The player will now speak
+	void DoVocalize( PlayerVocalizeType nType, bool bForced = false );
 
 	// When we can next switch weapon
 	float m_flNextWeaponSwitch;

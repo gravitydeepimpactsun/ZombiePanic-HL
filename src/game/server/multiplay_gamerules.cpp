@@ -707,6 +707,10 @@ void CHalfLifeMultiplay ::PlayerKilled(CBasePlayer *pVictim, entvars_t *pKiller,
 	}
 	else if (ktmp && ktmp->IsPlayer())
 	{
+		// Player killed another player, congratz
+		if ( peKiller->IsAlive() && RandomFloat( 0.0f, 1.0f ) < 0.1f )
+			peKiller->DoVocalize( PlayerVocalizeType::VOCALIZE_AUTO_KILL, true );
+
 		// if a player dies in a deathmatch game and the killer is a client, award the killer some points
 		pKiller->frags += IPointsForKill(peKiller, pVictim);
 

@@ -9,6 +9,7 @@
 #include "hud.h"
 #include "cl_util.h"
 #include "viewport_panel_names.h"
+#include "client_vgui.h"
 
 ConVar hud_cmdmenu_item_height("hud_cmdmenu_item_height", "22", FCVAR_BHL_ARCHIVE, "Height of command menu items");
 ConVar hud_cmdmenu_noexec("hud_cmdmenu_noexec", "0", FCVAR_BHL_ARCHIVE, "Don't run any command menu commands, print to the console instead");
@@ -22,6 +23,9 @@ CCommandMenu::CCommandMenu()
 	SetProportional(true);
 	UpdateMouseInputEnabled(false);
 	SetKeyBoardInputEnabled(false);
+
+	vgui2::HScheme scheme = vgui2::scheme()->LoadSchemeFromFile( VGUI2_ROOT_DIR "resource/ChatScheme.res", "ChatScheme" );
+	SetScheme( scheme );
 
 	ReloadMenu();
 }
@@ -124,22 +128,20 @@ void CCommandMenu::OnCommand(const char *cmd)
 {
 	if (!strncmp(cmd, "engine_cmd ", 11))
 	{
-		const char *engcmd = cmd + 11;
+		const size_t nAdjust = 11;
+		std::string szCmdRaw( cmd );
+		std::string szCommand( szCmdRaw.substr( nAdjust, szCmdRaw.size() ) );
 
-		if (!engcmd[0])
+		if ( !szCommand[0] )
 		{
-			ConPrintf(ConColor::Red, "Command Menu: Item has empty command.\n");
+			ConPrintf( ConColor::Red, "Command Menu: Item has empty command.\n" );
 			return;
 		}
 
-		if (hud_cmdmenu_noexec.GetBool())
-		{
-			ConPrintf("Command Menu: %s\n", engcmd);
-		}
+		if ( hud_cmdmenu_noexec.GetBool() )
+			ConPrintf( "Command Menu: %s\n", szCommand.c_str() );
 		else
-		{
-			EngineClientCmd(engcmd);
-		}
+			EngineClientCmd( szCommand.c_str() );
 	}
 	else
 	{

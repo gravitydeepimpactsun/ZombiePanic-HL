@@ -41,6 +41,13 @@
 #include "zp/zp_shared.h"
 #include "zp/zp_spawnpoint_ent.h"
 
+#include <tier2/tier2.h>
+
+// for std::vector random_shuffle
+#include <iterator>
+#include <random>
+#include <algorithm>
+
 // #define DUCKFIX
 
 extern DLL_GLOBAL ULONG g_ulModelIndexPlayer;
@@ -70,6 +77,7 @@ PlayerCharacterType g_CharacterTypes[] = {
 	{ SURVIVOR1, "eugene" },
 	{ SURVIVOR2, "marcus" },
 };
+std::vector<VocalizeData> m_VocalizeData;
 
 static ConVar sv_allow_player_decals( "sv_allow_player_decals", "1", FCVAR_SERVER, "Whether player decals are allowed" );
 static ConVar sv_player_runspeed_gait_speed( "sv_player_runspeed_gait_speed", "100", FCVAR_SERVER, "The speed at which the player will switch to the running gait" );
@@ -350,27 +358,10 @@ void CBasePlayer ::Pain(bool bDrown)
 
 	float flRndSound; //sound randomizer
 
-	if (bDrown)
-	{
-		switch (RANDOM_LONG(1, 4))
-		{
-			case 1: EMIT_SOUND(ENT(pev), CHAN_AUTO, "player/pl_drowning1.wav", 1, ATTN_NORM); break;
-			case 2: EMIT_SOUND(ENT(pev), CHAN_AUTO, "player/pl_drowning2.wav", 1, ATTN_NORM); break;
-			case 3: EMIT_SOUND(ENT(pev), CHAN_AUTO, "player/pl_drowning3.wav", 1, ATTN_NORM); break;
-			case 4: EMIT_SOUND(ENT(pev), CHAN_AUTO, "player/pl_drowning4.wav", 1, ATTN_NORM); break;
-		}
-	}
+	if ( bDrown )
+		DoVocalize( PlayerVocalizeType::VOCALIZE_AUTO_PAIN_DROWN, true );
 	else
-	{
-		flRndSound = RANDOM_FLOAT(0, 1);
-
-		if (flRndSound <= 0.33)
-			EMIT_SOUND(ENT(pev), CHAN_AUTO, "player/pl_pain5.wav", 1, ATTN_NORM);
-		else if (flRndSound <= 0.66)
-			EMIT_SOUND(ENT(pev), CHAN_AUTO, "player/pl_pain6.wav", 1, ATTN_NORM);
-		else
-			EMIT_SOUND(ENT(pev), CHAN_AUTO, "player/pl_pain7.wav", 1, ATTN_NORM);
-	}
+		DoVocalize( PlayerVocalizeType::VOCALIZE_AUTO_PAIN, true );
 }
 
 /* 
@@ -485,20 +476,7 @@ void CBasePlayer ::DeathSound(void)
 		}
 	}
 	else
-	{
-		switch (RANDOM_LONG(1, 3))
-		{
-		case 1:
-			EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/deathscream1.wav", 1, ATTN_NORM);
-			break;
-		case 2:
-			EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/deathscream2.wav", 1, ATTN_NORM);
-			break;
-		case 3:
-			EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/deathscream3.wav", 1, ATTN_NORM);
-			break;
-		}
-	}
+		DoVocalize( PlayerVocalizeType::VOCALIZE_AUTO_DEATH, true );
 }
 
 // override takehealth
@@ -3575,22 +3553,35 @@ void CBasePlayer::PostThink()
 		if ( flFallDamage > pev->health )
 		{
 			m_bFallingToMyDeath = true;
-			switch (RANDOM_LONG(1, 2))
-			{
-				case 1:
-					EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/fallscream1.wav", 1, ATTN_NORM);
-					break;
-				case 2:
-					EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/fallscream2.wav", 1, ATTN_NORM);
-					break;
-			}
+			DoVocalize( PlayerVocalizeType::VOCALIZE_AUTO_DEATH_FALL, true );
 		}
 	}
 
-	if ( pev->health > 0 && pev->team == ZP::TEAM_ZOMBIE && ( m_flLastZombieMoan - gpGlobals->time <= 0 ) )
+	if ( pev->health > 0 )
 	{
-		m_flLastZombieMoan = gpGlobals->time + 8.5f;
-		EMIT_SOUND( ENT(pev), CHAN_VOICE, UTIL_VarArgs( "player/zomambient%i.wav", RANDOM_LONG(1, 15) ), 1, ATTN_NORM );
+		if ( ( m_flLastPlayerIdleAudio - gpGlobals->time <= 0 ) )
+		{
+			// If zombie, then moan
+			if ( pev->team == ZP::TEAM_ZOMBIE )
+			{
+				m_flLastPlayerIdleAudio = gpGlobals->time + 8.5f;
+				EMIT_SOUND( ENT(pev), CHAN_VOICE, UTIL_VarArgs( "player/zomambient%i.wav", RANDOM_LONG(1, 15) ), 1, ATTN_NORM );
+			}
+			// If survivor, do camp noises. But we only do that if we aren't moving.
+			else if ( pev->team == ZP::TEAM_SURVIVIOR )
+			{
+				bool bInWater = ( pev->watertype == CONTENT_WATER ) ? true : false;
+				bool bIsMoving = false;
+				// Are we moving, or pressing any buttons while being on the ground?
+				if ( (pev->button & (IN_FORWARD | IN_BACK | IN_MOVELEFT | IN_MOVERIGHT) || pev->button) && !bInWater )
+					bIsMoving = true;
+
+				float flDelay = bIsMoving ? 15.0f : 30.5f;
+				m_flLastPlayerIdleAudio = gpGlobals->time + flDelay;
+				if ( !bIsMoving )
+					DoVocalize( PlayerVocalizeType::VOCALIZE_AUTO_CAMP, true );
+			}
+		}
 	}
 
 	// check to see if player landed hard enough to make a sound
@@ -4128,6 +4119,7 @@ edict_t* EntSelectSpawnPoint(CBasePlayer* pPlayer)
 
 void CBasePlayer::Spawn(void)
 {
+	m_flLastVocalize = gpGlobals->time + 1.0f;
 	m_flStartCharge = gpGlobals->time;
 	m_flRefuseWeaponAudioCalls = gpGlobals->time + 0.5f;
 	m_bConnected = TRUE;
@@ -4268,7 +4260,7 @@ void CBasePlayer::Spawn(void)
 	m_flLastPanic = gpGlobals->time;
 	m_flPanicTime = gpGlobals->time;
 	m_flLastUnusedDrop = gpGlobals->time;
-	m_flLastZombieMoan = gpGlobals->time + RANDOM_FLOAT( 6, 10 );
+	m_flLastPlayerIdleAudio = gpGlobals->time + RANDOM_FLOAT( 6, 10 );
 	m_bFallingToMyDeath = false;
 	m_iAmmoTypeToDrop = 0;
 
@@ -5645,6 +5637,15 @@ void CBasePlayer::NotifyOfWeaponPickup(CBasePlayerWeapon *pWeapon)
 	MESSAGE_END();
 }
 
+void CBasePlayer::DoVocalize( PlayerVocalizeType nType, bool bForced )
+{
+	if ( !bForced && m_flLastVocalize > gpGlobals->time ) return;
+	m_flLastVocalize = gpGlobals->time + 1.0f;
+	VocalizeData data = GetVocalizeData( m_iCharacter, nType );
+	if ( data.Type == VOCALIZE_NONE ) return;
+	EMIT_SOUND( ENT(pev), CHAN_VOICE, data.VoiceLine.c_str(), 1, ATTN_NORM );
+}
+
 void CBasePlayer ::SetPrefsFromUserinfo(char *infobuffer)
 {
 	const char *pszKeyVal;
@@ -6398,15 +6399,8 @@ void CBasePlayer::DoPanic()
 	m_flLastPanic = gpGlobals->time + 30;
 	m_flPanicTime = gpGlobals->time + 3.5;
 
-	switch (RANDOM_LONG(0, 1))
-	{
-	case 0:
-		EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/panicscream1.wav", 1, ATTN_NORM);
-		break;
-	case 1:
-		EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/panicscream2.wav", 1, ATTN_NORM);
-		break;
-	}
+	// Play it right away
+	DoVocalize( PlayerVocalizeType::VOCALIZE_PANIC, true );
 
 	// Drop everything in a backpack.
 	DropEverything( true );
@@ -6694,3 +6688,88 @@ void CInfoIntermission::Think(void)
 }
 
 LINK_ENTITY_TO_CLASS(info_intermission, CInfoIntermission);
+
+//=========================================================
+// Player vocalize
+//=========================================================
+
+static VocalizeData default_vocalize;
+
+void PrecachePlayerVocalizeSounds()
+{
+	// Set the default data
+	default_vocalize.Character = SURVIVOR1;
+	default_vocalize.Type = VOCALIZE_NONE;
+	default_vocalize.VoiceLine = "";
+
+	// Clear previous data, if we have any.
+	m_VocalizeData.clear();
+
+	// Read the manifest file
+	KeyValuesAD kvData( "VocalizeManifest" );
+	if ( kvData->LoadFromFile( g_pFullFileSystem, "sound/vo/manifest.txt" ) )
+	{
+		for ( int i = 0; i < ARRAYSIZE( g_CharacterTypes ); i++ )
+		{
+			KeyValues *pCharacterData = kvData->FindKey( g_CharacterTypes[i].Name );
+			if ( !pCharacterData ) continue;
+			for ( KeyValues *sub = pCharacterData->GetFirstSubKey(); sub != NULL ; sub = sub->GetNextKey() )
+			{
+				int length = Q_strlen( sub->GetString() ) + 1;
+				char *strValue = (char *)malloc( length );
+
+				Q_strcpy( strValue, sub->GetString() );
+
+				// Precache the sound
+				PRECACHE_SOUND( strValue );
+
+				VocalizeData data;
+				data.Character = g_CharacterTypes[i].Type;
+				data.VoiceLine = strValue;
+
+				if ( !Q_stricmp( sub->GetName(), "agree" ) ) data.Type = VOCALIZE_AGREE;
+				else if ( !Q_stricmp( sub->GetName(), "decline" ) ) data.Type = VOCALIZE_DECLINE;
+				else if ( !Q_stricmp( sub->GetName(), "cover_me" ) ) data.Type = VOCALIZE_COVER;
+				else if ( !Q_stricmp( sub->GetName(), "need_ammo" ) ) data.Type = VOCALIZE_NEED_AMMO;
+				else if ( !Q_stricmp( sub->GetName(), "need_weapon" ) ) data.Type = VOCALIZE_NEED_WEAPON;
+				else if ( !Q_stricmp( sub->GetName(), "hold_here" ) ) data.Type = VOCALIZE_HOLD_HERE;
+				else if ( !Q_stricmp( sub->GetName(), "open_fire" ) ) data.Type = VOCALIZE_OPEN_FIRE;
+				else if ( !Q_stricmp( sub->GetName(), "taunt" ) ) data.Type = VOCALIZE_TAUNT;
+				else if ( !Q_stricmp( sub->GetName(), "panic" ) ) data.Type = VOCALIZE_PANIC;
+				else if ( !Q_stricmp( sub->GetName(), "on_start" ) ) data.Type = VOCALIZE_AUTO_ONSTART;
+				else if ( !Q_stricmp( sub->GetName(), "kill" ) ) data.Type = VOCALIZE_AUTO_KILL;
+				else if ( !Q_stricmp( sub->GetName(), "camp" ) ) data.Type = VOCALIZE_AUTO_CAMP;
+				else if ( !Q_stricmp( sub->GetName(), "pain" ) ) data.Type = VOCALIZE_AUTO_PAIN;
+				else if ( !Q_stricmp( sub->GetName(), "pain_drown" ) ) data.Type = VOCALIZE_AUTO_PAIN_DROWN;
+				else if ( !Q_stricmp( sub->GetName(), "death" ) ) data.Type = VOCALIZE_AUTO_DEATH;
+				else if ( !Q_stricmp( sub->GetName(), "death_fall" ) ) data.Type = VOCALIZE_AUTO_DEATH_FALL;
+
+				m_VocalizeData.push_back( data );
+			}
+		}
+	}
+}
+
+VocalizeData GetVocalizeData( PlayerCharacter nCharacter, PlayerVocalizeType nType )
+{
+	// Add to our temp list, if we find the character and type required
+	std::vector<VocalizeData> m_Temp;
+	for ( size_t i = 0; i < m_VocalizeData.size(); i++ )
+	{
+		VocalizeData data = m_VocalizeData[ i ];
+		if ( data.Character == nCharacter && data.Type == nType )
+			m_Temp.push_back( data );
+	}
+
+	// Grab and randomize our selection, if we find any
+	if ( m_Temp.size() > 0 )
+	{
+		// If we have a list, let's randomize the order.
+		std::random_device rd;
+		std::mt19937 g( rd() );
+		std::shuffle( m_Temp.begin(), m_Temp.end(), g );
+		return m_Temp[ RandomInt( 0, m_Temp.size() - 1 ) ];
+	}
+
+	return default_vocalize;
+}

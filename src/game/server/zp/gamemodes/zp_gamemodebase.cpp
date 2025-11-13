@@ -14,6 +14,11 @@
 #include "zp/info_random_base.h"
 #include "zp_gamemodebase.h"
 
+// for std::vector random_shuffle
+#include <iterator>
+#include <random>
+#include <algorithm>
+
 static IGameModeBase *s_GameModeBase = nullptr;
 
 IGameModeBase *ZP::GetCurrentGameMode()
@@ -162,6 +167,7 @@ void CBaseGameMode::OnGameModeThink()
 
 void CBaseGameMode::GiveWeaponsOnRoundStart()
 {
+	std::vector<int> m_Survivors;
 	for ( int i = 1; i <= gpGlobals->maxClients; i++ )
 	{
 		CBasePlayer *plr = (CBasePlayer *)UTIL_PlayerByIndex( i );
@@ -169,7 +175,10 @@ void CBaseGameMode::GiveWeaponsOnRoundStart()
 		{
 			int iTeam = plr->pev->team;
 			if ( iTeam == ZP::TEAM_SURVIVIOR )
+			{
 				GiveWeapons( plr );
+				m_Survivors.push_back( i );
+			}
 			plr->m_iHideHUD = 0;
 			plr->m_flCanSuicide = gpGlobals->time + 20.0f;
 			plr->m_flSuicideTimer = -1; // Just in case if the player manages to frame perfect a "kill" command.
@@ -178,6 +187,15 @@ void CBaseGameMode::GiveWeaponsOnRoundStart()
 				plr->m_iHideHUD |= HIDEHUD_WEAPONS;
 		}
 	}
+
+	// Pick a player, if possible, and make them play "on start" voice line
+	if ( m_Survivors.size() == 0 ) return;
+	std::random_device rd;
+	std::mt19937 g( rd() );
+	std::shuffle( m_Survivors.begin(), m_Survivors.end(), g );
+	CBasePlayer *plr = (CBasePlayer *)UTIL_PlayerByIndex( m_Survivors[ RandomInt( 0, m_Survivors.size() - 1 ) ] );
+	if ( plr && plr->IsAlive() )
+		plr->DoVocalize( PlayerVocalizeType::VOCALIZE_AUTO_ONSTART, true );
 }
 
 void CBaseGameMode::RestartRound()

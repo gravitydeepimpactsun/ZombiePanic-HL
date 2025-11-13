@@ -29,6 +29,7 @@ int g_iUser1 = 0;
 int g_iUser2 = 0;
 int g_iUser3 = 0;
 
+extern bool g_bIsConnected;
 extern ConVar hud_scoreboard_mousebtn;
 
 CClientViewport *g_pViewport = nullptr;
@@ -435,8 +436,13 @@ void CClientViewport::UpdateSpectatorPanel()
 
 void CClientViewport::ShowCommandMenu()
 {
-	if (m_pCommandMenu->IsVisible())
-		return;
+	if ( m_pCommandMenu->IsVisible() ) return;
+	// Make sure we are connected
+	if ( !g_bIsConnected ) return;
+	// only allow if we are on the human team
+	CPlayerInfo *localplayer = GetPlayerInfo( gEngfuncs.GetLocalPlayer()->index );
+	if ( !localplayer->IsConnected() ) return;
+	if ( localplayer->GetTeamNumber() != ZP::TEAM_SURVIVIOR ) return;
 
 	m_flMenuOpenTime = gHUD.m_flTime;
 	m_bMenuIsKeyTapped = false;
@@ -655,7 +661,7 @@ void CClientViewport::MsgFunc_ScoreInfo(const char *pszName, int iSize, void *pb
 		info->m_ExtraInfo.frags = frags;
 		info->m_ExtraInfo.deaths = deaths;
 		info->m_ExtraInfo.playerclass = playerclass;
-		info->m_ExtraInfo.teamnumber = clamp(teamnumber, ZP::TEAM_NONE, ZP::MAX_TEAM);
+		info->m_ExtraInfo.teamnumber = clamp(teamnumber, ZP::TEAM_SURVIVIOR, ZP::MAX_TEAM);
 
 		UpdateOnPlayerInfo(cl);
 	}

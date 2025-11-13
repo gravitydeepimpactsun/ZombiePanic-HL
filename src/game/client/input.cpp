@@ -90,6 +90,12 @@ float GetMaxPossibleSpeed( ZPPlayerMovementDirection_t dir )
 	}
 	return flValue;
 }
+
+CON_COMMAND( commandmenu, "Voice command menu for survivors" )
+{
+	if ( g_pViewport )
+		g_pViewport->ShowCommandMenu();
+}
 // ZOMBIE PANIC - END
 
 /*

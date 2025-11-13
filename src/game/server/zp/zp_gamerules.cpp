@@ -580,7 +580,12 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 		{
 			// Go no more lives? stop.
 			// This only applies if the player is on TEAM_OBSERVER
-			if ( pPlayer->m_bNoLives ) return TRUE;
+			if ( pPlayer->m_bNoLives )
+			{
+				if ( pPlayer->pev->team == ZP::TEAM_OBSERVER && !pPlayer->IsObserver() )
+					pPlayer->StartObserver();
+				return TRUE;
+			}
 
 			// Stop being spec. Thanks.
 			if ( pPlayer->IsObserver() )
@@ -728,6 +733,24 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 				pPlayer->m_LastHitGroup = 0;
 			}
 		}
+		return TRUE;
+	}
+	else if (FStrEq(pcmd, "vocalize"))
+	{
+		const char *szVoice = CMD_ARGV(1);
+		PlayerVocalizeType nType = VOCALIZE_NONE;
+		if ( szVoice && szVoice[0] )
+		{
+			if ( FStrEq( szVoice, "agree" ) ) nType = VOCALIZE_AGREE;
+			else if ( FStrEq( szVoice, "decline" ) ) nType = VOCALIZE_DECLINE;
+			else if ( FStrEq( szVoice, "cover" ) ) nType = VOCALIZE_COVER;
+			else if ( FStrEq( szVoice, "need_ammo" ) ) nType = VOCALIZE_NEED_AMMO;
+			else if ( FStrEq( szVoice, "need_weapon" ) ) nType = VOCALIZE_NEED_WEAPON;
+			else if ( FStrEq( szVoice, "hold" ) ) nType = VOCALIZE_HOLD_HERE;
+			else if ( FStrEq( szVoice, "fire" ) ) nType = VOCALIZE_OPEN_FIRE;
+			else if ( FStrEq( szVoice, "taunt" ) ) nType = VOCALIZE_TAUNT;
+		}
+		pPlayer->DoVocalize( nType );
 		return TRUE;
 	}
 #ifdef SCRIPT_SYSTEM

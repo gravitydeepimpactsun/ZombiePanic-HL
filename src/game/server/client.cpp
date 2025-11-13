@@ -914,11 +914,6 @@ void ClientPrecache(void)
 	PRECACHE_SOUND("player/pl_wade3.wav");
 	PRECACHE_SOUND("player/pl_wade4.wav");
 
-	PRECACHE_SOUND("player/pl_drowning1.wav"); // player is drowning
-	PRECACHE_SOUND("player/pl_drowning2.wav");
-	PRECACHE_SOUND("player/pl_drowning3.wav");
-	PRECACHE_SOUND("player/pl_drowning4.wav");
-
 	PRECACHE_SOUND("debris/wood1.wav"); // hit wood texture
 	PRECACHE_SOUND("debris/wood2.wav");
 	PRECACHE_SOUND("debris/wood3.wav");
@@ -941,24 +936,6 @@ void ClientPrecache(void)
 	// player gib sounds
 	PRECACHE_SOUND("common/bodysplat.wav");
 
-	// player pain sounds
-	PRECACHE_SOUND("player/pl_pain2.wav");
-	PRECACHE_SOUND("player/pl_pain4.wav");
-	PRECACHE_SOUND("player/pl_pain5.wav");
-	PRECACHE_SOUND("player/pl_pain6.wav");
-	PRECACHE_SOUND("player/pl_pain7.wav");
-
-	// Survivor sounds
-	PRECACHE_SOUND("player/deathscream1.wav");
-	PRECACHE_SOUND("player/deathscream2.wav");
-	PRECACHE_SOUND("player/deathscream3.wav");
-	PRECACHE_SOUND("player/fallscream1.wav");
-	PRECACHE_SOUND("player/fallscream2.wav");
-
-	// Panic
-	PRECACHE_SOUND("player/panicscream1.wav");
-	PRECACHE_SOUND("player/panicscream2.wav");
-
 	// Zombie sounds
 	PRECACHE_SOUND("player/zomambient1.wav");
 	PRECACHE_SOUND("player/zomambient2.wav");
@@ -980,10 +957,12 @@ void ClientPrecache(void)
 	PRECACHE_SOUND("player/zombiedeath2.wav");
 	PRECACHE_SOUND("player/zombiedeath3.wav");
 
+	// Precache the models
 	PRECACHE_MODEL("models/player/undead/undead.mdl");
 	PRECACHE_MODEL("models/player/undead2/undead2.mdl");
 	PRECACHE_MODEL("models/player/survivor1/survivor1.mdl");
 	PRECACHE_MODEL("models/player/survivor2/survivor2.mdl");
+
 	// Sticky gibs, used by headshots
 	PRECACHE_MODEL("models/stickygib.mdl");
 
@@ -1016,6 +995,9 @@ void ClientPrecache(void)
 	m_usResetDecals = PRECACHE_EVENT(1, "events/decal_reset.sc");
 
 	PRECACHE_SECRET_SOUNDS();
+
+	// For player vocalize
+	PrecachePlayerVocalizeSounds();
 }
 
 /*

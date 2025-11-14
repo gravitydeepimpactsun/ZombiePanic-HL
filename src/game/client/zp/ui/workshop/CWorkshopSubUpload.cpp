@@ -65,6 +65,7 @@ static const std::vector<std::string> szTags_Generic = {
 static const std::vector<std::string> szTags_GameModes = {
 	"Survival",
 	"Objective",
+	"Hardcore",
 };
 
 CWorkshopSubUpload::CWorkshopSubUpload(vgui2::Panel *parent)

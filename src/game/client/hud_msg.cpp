@@ -22,12 +22,14 @@
 #include "r_efx.h"
 #include "hud/ammo.h"
 #include "hud/status_icons.h"
-#include "hud/ammo.h"
+#include "hud/chat.h"
 #include "engine_builds.h"
 #include "zp/zp_shared.h"
 #include "zp/hud/zp_beacons.h"
 #include "vgui/team_menu.h"
 #include "vgui/client_viewport.h"
+
+#include <vgui/ILocalize.h>
 
 #include "particleman.h"
 extern IParticleMan *g_pParticleMan;
@@ -320,5 +322,51 @@ int CHud::MsgFunc_Panic(const char *pszName, int iSize, void *pbuf)
 {
 	// Play the heartbeat, that's it.
 	gEngfuncs.pfnClientCmd( "play vo/shared/panic_heartbeat.wav" );
+	return 1;
+}
+
+
+int CHud::MsgFunc_Voice(const char *pszName, int iSize, void *pbuf)
+{
+	BEGIN_READ( pbuf, iSize );
+	int iPlayer = READ_SHORT();
+	PlayerVocalizeType nType = (PlayerVocalizeType)READ_SHORT();
+
+	wchar_t *pVocalizeValue = nullptr;
+	switch( nType )
+	{
+		case PlayerVocalizeType::VOCALIZE_AGREE: pVocalizeValue = g_pVGuiLocalize->Find( "ZP_Vocalize_Agree" ); break;
+		case PlayerVocalizeType::VOCALIZE_DECLINE: pVocalizeValue = g_pVGuiLocalize->Find( "ZP_Vocalize_Decline" ); break;
+		case PlayerVocalizeType::VOCALIZE_COVER: pVocalizeValue = g_pVGuiLocalize->Find( "ZP_Vocalize_Cover" ); break;
+		case PlayerVocalizeType::VOCALIZE_NEED_AMMO: pVocalizeValue = g_pVGuiLocalize->Find( "ZP_Vocalize_INeedAmmo" ); break;
+		case PlayerVocalizeType::VOCALIZE_NEED_WEAPON: pVocalizeValue = g_pVGuiLocalize->Find( "ZP_Vocalize_INeedWeapon" ); break;
+		case PlayerVocalizeType::VOCALIZE_HOLD_HERE: pVocalizeValue = g_pVGuiLocalize->Find( "ZP_Vocalize_Hold" ); break;
+		case PlayerVocalizeType::VOCALIZE_OPEN_FIRE: pVocalizeValue = g_pVGuiLocalize->Find( "ZP_Vocalize_Fire" ); break;
+	}
+	if ( !pVocalizeValue ) return 1;
+
+	wchar_t *pFormat = g_pVGuiLocalize->Find( "ZP_Vocalize_Format" );
+	if ( !pFormat ) return 1;
+
+	wchar_t wcPlayerName[32];
+	char szPlayerName[32];
+	if ( CPlayerInfo *pi = GetPlayerInfoSafe( iPlayer ) )
+		Q_snprintf( szPlayerName, sizeof( szPlayerName ), "%s", pi->Update()->GetDisplayName() );
+	else
+		Q_snprintf( szPlayerName, sizeof( szPlayerName ), "Unknown" );
+	g_pVGuiLocalize->ConvertANSIToUnicode( szPlayerName, wcPlayerName, sizeof( wcPlayerName ) );
+
+	wchar_t wcOutput[512];
+	g_pVGuiLocalize->ConstructString(
+	    wcOutput, sizeof(wcOutput),
+	    pFormat, 2,
+	    wcPlayerName,
+	    pVocalizeValue
+	);
+
+	char szOut[512];
+	g_pVGuiLocalize->ConvertUnicodeToANSI( wcOutput, szOut, sizeof(szOut) );
+
+	CHudChat::Get()->ChatPrintf( -1, "%s", szOut );
 	return 1;
 }

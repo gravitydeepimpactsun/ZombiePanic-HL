@@ -920,7 +920,7 @@ void CHudChatLine::InsertAndColorizeText(wchar_t *buf, int clientIndex)
 			{
 				TextRange range;
 				int idx = *(buf2 + 1) - '0';
-				if (idx == 0 || idx == 9)
+				if (idx == 0)
 				{
 					if (pos <= m_iNameStart + m_iNameLength && is_player_msg)
 						range.color = pChat->GetTextColorForClient(COLOR_PLAYERNAME, clientIndex);

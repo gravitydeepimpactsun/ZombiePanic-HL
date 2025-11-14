@@ -210,6 +210,7 @@ public:
 	int MsgFunc_BeaconDraw(const char *pszName, int iSize, void *pbuf);
 	int MsgFunc_BeaconReset(const char *pszName, int iSize, void *pbuf);
 	int MsgFunc_Panic(const char *pszName, int iSize, void *pbuf);
+	int MsgFunc_Voice(const char *pszName, int iSize, void *pbuf);
 
 	float GetSensitivity();
 	EBHopCap GetBHopCapState();

@@ -171,7 +171,7 @@ static Color s_DefaultColorCodeColors[10] = {
 	Color(0xFF, 0x00, 0xFF, 0xFF), // ^6 magenta
 	Color(0x88, 0x88, 0x88, 0xFF), // ^7 grey
 	Color(0xFF, 0xFF, 0xFF, 0xFF), // ^8 white
-	Color(0xFF, 0xAA, 0x00, 0xFF), // ^9 orange/reset
+	Color(153, 204, 255, 255), // ^9 survivor team
 };
 
 const Color NoTeamColor::Orange = Color(255, 178, 0, 255);
@@ -349,6 +349,7 @@ void CHud::Init(void)
 	HookHudMessage<&CHud::MsgFunc_BeaconDraw>("BcnD");
 	HookHudMessage<&CHud::MsgFunc_BeaconReset>("BcnR");
 	HookHudMessage<&CHud::MsgFunc_Panic>("Panic");
+	HookHudMessage<&CHud::MsgFunc_Voice>("Voice");
 
 	// TFFree CommandMenu
 	HookCommand("+commandmenu", [] {

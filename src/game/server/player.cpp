@@ -208,6 +208,7 @@ int gmsgShowGameTitle = 0;
 int gmsgCurWeapon = 0;
 int gmsgHealth = 0;
 int gmsgPanic = 0;
+int gmsgVocalize = 0;
 int gmsgDamage = 0;
 int gmsgBattery = 0;
 int gmsgRounds = 0;
@@ -285,6 +286,7 @@ void LinkUserMessages(void)
 	gmsgFlashBattery = REG_USER_MSG("FlashBat", 1);
 	gmsgHealth = REG_USER_MSG("Health", 1);
 	gmsgPanic = REG_USER_MSG("Panic", 0);
+	gmsgVocalize = REG_USER_MSG("Voice", -1);
 	gmsgDamage = REG_USER_MSG("Damage", 12);
 	gmsgBattery = REG_USER_MSG("Battery", 2);
 	gmsgZombieLives = REG_USER_MSG("ZombieLives", 2);
@@ -5655,6 +5657,10 @@ void CBasePlayer::DoVocalize( PlayerVocalizeType nType, bool bForced )
 	m_flLastVocalize = gpGlobals->time + 5.0f;
 	VocalizeData data = GetVocalizeData( m_iCharacter, nType );
 	if ( data.Type == VOCALIZE_NONE ) return;
+	MESSAGE_BEGIN( MSG_ALL, gmsgVocalize );
+	WRITE_SHORT( entindex() );
+	WRITE_SHORT( nType );
+	MESSAGE_END();
 	EMIT_SOUND_DYN( ENT(pev), CHAN_VOICE, data.VoiceLine.c_str(), 1, ATTN_NORM, 0, 100 );
 }
 

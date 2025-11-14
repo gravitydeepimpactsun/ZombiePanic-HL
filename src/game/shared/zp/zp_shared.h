@@ -22,6 +22,37 @@ enum ObjectiveState
 };
 
 /// <summary>
+/// Player vocalize types
+/// </summary>
+typedef enum
+{
+	// Invalid line
+	VOCALIZE_NONE = 0,
+
+	// Manual
+	VOCALIZE_AGREE,
+	VOCALIZE_DECLINE,
+	VOCALIZE_COVER,
+	VOCALIZE_NEED_AMMO,
+	VOCALIZE_NEED_WEAPON,
+	VOCALIZE_HOLD_HERE,
+	VOCALIZE_OPEN_FIRE,
+	VOCALIZE_TAUNT,
+	VOCALIZE_PANIC,
+
+	// Automatic
+	VOCALIZE_AUTO_ONSTART,
+	VOCALIZE_AUTO_KILL,
+	VOCALIZE_AUTO_CAMP,
+	VOCALIZE_AUTO_PAIN,
+	VOCALIZE_AUTO_PAIN_DROWN,
+	VOCALIZE_AUTO_DEATH,
+	VOCALIZE_AUTO_DEATH_FALL,
+
+	VOCALIZE_MAX
+} PlayerVocalizeType;
+
+/// <summary>
 /// The WeaponID's used by Zombie Panic!
 /// </summary>
 enum ZPWeaponID

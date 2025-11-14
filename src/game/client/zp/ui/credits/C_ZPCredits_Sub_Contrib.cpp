@@ -127,7 +127,7 @@ void C_ZPCredits_Sub_Contrib::SetupPages()
 	wchar_t output[128];
 	g_pVGuiLocalize->ConstructString(
 		output, sizeof(output),
-		g_pVGuiLocalize->Find( "ZP_UI_Page" ), 2,
+		pString, 2,
 	    wcPageNum,
 	    wcMaxPages
 	);

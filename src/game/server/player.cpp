@@ -360,12 +360,12 @@ void CBasePlayer ::Pain(bool bDrown)
 		return;
 	}
 
-	float flRndSound; //sound randomizer
-
 	if ( bDrown )
 		DoVocalize( PlayerVocalizeType::VOCALIZE_AUTO_PAIN_DROWN, true );
 	else
 		DoVocalize( PlayerVocalizeType::VOCALIZE_AUTO_PAIN, true );
+
+	m_flImHurtDelay = gpGlobals->time + 13.0f;
 }
 
 /* 
@@ -2316,6 +2316,43 @@ void CBasePlayer::UpdateHealthRegen()
 	GiveAchievement( EAchievements::REGEN_10K );
 }
 
+void CBasePlayer::DoBloodLossDecal( float flDelay )
+{
+	if ( m_flBloodLoss - gpGlobals->time > 0 ) return;
+	TraceResult tr;
+	const Vector start( pev->origin );
+	const Vector end( pev->origin + Vector( 0, 0, -128 ) );
+	UTIL_TraceLine( start, end, ignore_monsters, pev->owner, &tr );
+	UTIL_BloodDecalTrace( &tr, BLOOD_COLOR_RED, false );
+	m_flBloodLoss = gpGlobals->time + flDelay;
+}
+
+void CBasePlayer::DoBloodLoss()
+{
+	if ( !IsAlive() ) return;
+
+	const int iHealth = pev->health;
+	float flDelay = 0;
+	// A lot of blood
+	if ( iHealth <= 10 ) flDelay = 0.5f;
+	else if ( iHealth <= 15 ) flDelay = 0.8f;
+	else if ( iHealth <= 20 ) flDelay = 1.0f;
+	else if ( iHealth <= 25 ) flDelay = 1.3f;
+	else if ( iHealth <= 30 ) flDelay = 1.6f;
+	else if ( iHealth <= 35 ) flDelay = 2.0f;
+	else if ( iHealth <= 40 ) flDelay = 2.3f;
+	else if ( iHealth <= 45 ) flDelay = 2.6f;
+	else if ( iHealth <= 49 ) flDelay = 3.0f;
+	else return;
+
+	// Aim straight down, and do some blood
+	DoBloodLossDecal( flDelay );
+
+	if ( m_flImHurtDelay - gpGlobals->time > 0 ) return;
+	m_flImHurtDelay = gpGlobals->time + 13.0f;
+	DoVocalize( PlayerVocalizeType::VOCALIZE_AUTO_HURT, true );
+}
+
 void CBasePlayer::GiveAchievement( EAchievements eAchivement )
 {
 	// Only if we're connected
@@ -3544,6 +3581,9 @@ void CBasePlayer::PostThink()
 	// Update zombie health regen
 	UpdateHealthRegen();
 
+	// Are we hurt? Shit out blood
+	DoBloodLoss();
+
 	// If the player is falling to their death (survivor only) cause them to scream in agony!!
 	// And make sure they are not on the ground
 	if ( !(FBitSet(pev->flags, FL_ONGROUND)) &&
@@ -3586,7 +3626,7 @@ void CBasePlayer::PostThink()
 			{
 				bool bIsMoving = false;
 				// Are we moving, or pressing any buttons while being on the ground?
-				if ( (pev->button & (IN_FORWARD | IN_BACK | IN_MOVELEFT | IN_MOVERIGHT) || pev->button) )
+				if ( (pev->button & (IN_FORWARD | IN_BACK | IN_MOVELEFT | IN_MOVERIGHT)) )
 					bIsMoving = true;
 				if ( ZP::GetCurrentRoundState() != ZP::RoundState::RoundState_RoundHasBegun )
 					bIsMoving = true;
@@ -4132,6 +4172,8 @@ edict_t* EntSelectSpawnPoint(CBasePlayer* pPlayer)
 void CBasePlayer::Spawn(void)
 {
 	m_flLastVocalize = gpGlobals->time + 1.0f;
+	m_flBloodLoss = gpGlobals->time + 1.0f;
+	m_flImHurtDelay = gpGlobals->time + 1.0f;
 	m_flStartCharge = gpGlobals->time;
 	m_flRefuseWeaponAudioCalls = gpGlobals->time + 0.5f;
 	m_bConnected = TRUE;
@@ -5653,8 +5695,11 @@ void CBasePlayer::DoVocalize( PlayerVocalizeType nType, bool bForced )
 {
 	if ( pev->team != ZP::TEAM_SURVIVIOR ) return;
 	if ( !IsAlive() ) return;
-	if ( !bForced && m_flLastVocalize > gpGlobals->time ) return;
-	m_flLastVocalize = gpGlobals->time + 5.0f;
+	bool bCanSpeak = ( m_flLastVocalize - gpGlobals->time <= 0 ) ? true : false;
+	if ( bForced ) bCanSpeak = true;
+	if ( !bCanSpeak ) return;
+	const float flDelay = bForced ? 1.0f : 5.0f;
+	m_flLastVocalize = gpGlobals->time + flDelay;
 	VocalizeData data = GetVocalizeData( m_iCharacter, nType );
 	if ( data.Type == VOCALIZE_NONE ) return;
 	MESSAGE_BEGIN( MSG_ALL, gmsgVocalize );
@@ -6760,6 +6805,7 @@ void PrecachePlayerVocalizeSounds()
 				else if ( !Q_stricmp( sub->GetName(), "on_start" ) ) data.Type = VOCALIZE_AUTO_ONSTART;
 				else if ( !Q_stricmp( sub->GetName(), "kill" ) ) data.Type = VOCALIZE_AUTO_KILL;
 				else if ( !Q_stricmp( sub->GetName(), "camp" ) ) data.Type = VOCALIZE_AUTO_CAMP;
+				else if ( !Q_stricmp( sub->GetName(), "hurt" ) ) data.Type = VOCALIZE_AUTO_HURT;
 				else if ( !Q_stricmp( sub->GetName(), "pain" ) ) data.Type = VOCALIZE_AUTO_PAIN;
 				else if ( !Q_stricmp( sub->GetName(), "pain_drown" ) ) data.Type = VOCALIZE_AUTO_PAIN_DROWN;
 				else if ( !Q_stricmp( sub->GetName(), "death" ) ) data.Type = VOCALIZE_AUTO_DEATH;

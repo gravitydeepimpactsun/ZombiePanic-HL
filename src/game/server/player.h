@@ -428,6 +428,8 @@ public:
 
 #ifdef SERVER_DLL
 private:
+	float m_flBloodLoss;
+	float m_flImHurtDelay;
 	float m_flLastVocalize;
 	float m_flLastFatigue = -1;
 	bool m_bFatigueUpdated = false;
@@ -465,6 +467,10 @@ public:
 
 	// Zombie health regen
 	void UpdateHealthRegen();
+
+	// Fires decals at the ground
+	void DoBloodLoss();
+	void DoBloodLossDecal( float flDelay );
 
 	// Give achivement
 	void GiveAchievement( EAchievements eAchivement );

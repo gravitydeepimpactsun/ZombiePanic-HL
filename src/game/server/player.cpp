@@ -2340,16 +2340,18 @@ void CBasePlayer::DoBloodLoss()
 	else if ( iHealth <= 25 ) flDelay = 1.3f;
 	else if ( iHealth <= 30 ) flDelay = 1.6f;
 	else if ( iHealth <= 35 ) flDelay = 2.0f;
+/*
 	else if ( iHealth <= 40 ) flDelay = 2.3f;
 	else if ( iHealth <= 45 ) flDelay = 2.6f;
 	else if ( iHealth <= 49 ) flDelay = 3.0f;
+*/
 	else return;
 
 	// Aim straight down, and do some blood
 	DoBloodLossDecal( flDelay );
 
 	if ( m_flImHurtDelay - gpGlobals->time > 0 ) return;
-	m_flImHurtDelay = gpGlobals->time + 13.0f;
+	m_flImHurtDelay = gpGlobals->time + 30.0f;
 	DoVocalize( PlayerVocalizeType::VOCALIZE_AUTO_HURT, true );
 }
 

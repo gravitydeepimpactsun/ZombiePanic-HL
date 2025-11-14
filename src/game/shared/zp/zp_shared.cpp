@@ -34,10 +34,10 @@ std::vector<RequiredStepsTable> m_MarathonSteps = {
 	RequiredStepsTable( MAP_ZP_INDUSTRY, 1 ),
 	RequiredStepsTable( MAP_ZP_CONTINGENCY, 1 ),
 	RequiredStepsTable( MAP_ZP_HAUNTED, 1 ),
-	RequiredStepsTable( MAP_ZP_RUINS, 1 ),
-	RequiredStepsTable( MAP_ZP_HOTEL, 1 ),
-	RequiredStepsTable( MAP_ZP_TOWN, 1 ),
-	RequiredStepsTable( MAP_ZP_MANSION, 1 ),
+	//RequiredStepsTable( MAP_ZP_RUINS, 1 ),
+	//RequiredStepsTable( MAP_ZP_HOTEL, 1 ),
+	//RequiredStepsTable( MAP_ZP_TOWN, 1 ),
+	//RequiredStepsTable( MAP_ZP_MANSION, 1 ),
 	RequiredStepsTable( MAP_ZPO_CONTINGENCY, 1 ),
 	RequiredStepsTable( MAP_ZPO_CLUBZOMBO, 1 ),
 	RequiredStepsTable( MAP_ZPO_EASTSIDE, 1 ),
@@ -58,10 +58,10 @@ std::vector<RequiredStepsTable> m_MapsSurvivalSteps = {
 	RequiredStepsTable( MAP_ZP_INDUSTRY, 1 ),
 	RequiredStepsTable( MAP_ZP_CONTINGENCY, 1 ),
 	RequiredStepsTable( MAP_ZP_HAUNTED, 1 ),
-	RequiredStepsTable( MAP_ZP_RUINS, 1 ),
-	RequiredStepsTable( MAP_ZP_HOTEL, 1 ),
-	RequiredStepsTable( MAP_ZP_TOWN, 1 ),
-	RequiredStepsTable( MAP_ZP_MANSION, 1 )
+	//RequiredStepsTable( MAP_ZP_RUINS, 1 ),
+	//RequiredStepsTable( MAP_ZP_HOTEL, 1 ),
+	//RequiredStepsTable( MAP_ZP_TOWN, 1 ),
+	//RequiredStepsTable( MAP_ZP_MANSION, 1 )
 };
 
 std::vector<RequiredStepsTable> m_MapsObjectiveSteps = {

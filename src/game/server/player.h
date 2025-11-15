@@ -440,6 +440,12 @@ private:
 	// Used by trigger_endround and zp_gamerules to check if a survivor has escaped
 	bool m_bHasEscaped = false;
 	float m_flRefuseWeaponAudioCalls;
+	// Used by hardcore
+	bool m_bIsBleeding = false;
+	bool m_bGotBandage = false;
+	bool m_bGotPainkiller = false;
+	float m_flPainPillHealthDelay;
+	int m_iPillAmount;
 
 public:
 
@@ -471,6 +477,9 @@ public:
 	// Fires decals at the ground
 	void DoBloodLoss();
 	void DoBloodLossDecal( float flDelay );
+
+	bool GotBandage();
+	bool GotPainKiller();
 
 	// Give achivement
 	void GiveAchievement( EAchievements eAchivement );

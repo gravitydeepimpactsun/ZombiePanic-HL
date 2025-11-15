@@ -704,7 +704,16 @@ int CBasePlayer ::TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, fl
 	m_bitsHUDDamage = -1; // make sure the damage bits get resent
 
 	if ( fTookDamage )
+	{
+		bool bIsInHardcore = ( ZP::GetCurrentGameMode()->GetGameModeType() == ZP::GameModeType_e::GAMEMODE_HARDCORE );
+		if ( (bitsDamage & DMG_SLASH) && bIsInHardcore )
+		{
+			m_bIsBleeding = true;
+			m_bGotBandage = false;
+		}
+
 		Pain( (bitsDamage & DMG_DROWN) );
+	}
 
 	pev->punchangle.x = -2;
 
@@ -2325,6 +2334,31 @@ void CBasePlayer::DoBloodLossDecal( float flDelay )
 	UTIL_TraceLine( start, end, ignore_monsters, pev->owner, &tr );
 	UTIL_BloodDecalTrace( &tr, BLOOD_COLOR_RED, false );
 	m_flBloodLoss = gpGlobals->time + flDelay;
+
+	// Loose blood, but only if we have more than 1hp
+	if ( m_bIsBleeding && pev->health > 1 )
+	{
+		int iHealth = pev->health;
+		iHealth -= 2;
+		if ( iHealth < 1 ) iHealth = 1;
+		pev->health = iHealth;
+	}
+}
+
+bool CBasePlayer::GotBandage()
+{
+	m_bIsBleeding = false;
+	m_bGotBandage = true;
+	return TakeHealth( 10, DMG_GENERIC );
+}
+
+bool CBasePlayer::GotPainKiller()
+{
+	if ( pev->health >= pev->max_health ) return false;
+	m_bGotPainkiller = true;
+	m_flPainPillHealthDelay = gpGlobals->time + 2.0f;
+	m_iPillAmount = 0;
+	return TakeHealth( 5, DMG_GENERIC );
 }
 
 void CBasePlayer::DoBloodLoss()
@@ -2333,22 +2367,37 @@ void CBasePlayer::DoBloodLoss()
 
 	const int iHealth = pev->health;
 	float flDelay = 0;
-	// A lot of blood
-	if ( iHealth <= 10 ) flDelay = 0.5f;
-	else if ( iHealth <= 15 ) flDelay = 0.8f;
-	else if ( iHealth <= 20 ) flDelay = 1.0f;
-	else if ( iHealth <= 25 ) flDelay = 1.3f;
-	else if ( iHealth <= 30 ) flDelay = 1.6f;
-	else if ( iHealth <= 35 ) flDelay = 2.0f;
-/*
-	else if ( iHealth <= 40 ) flDelay = 2.3f;
-	else if ( iHealth <= 45 ) flDelay = 2.6f;
-	else if ( iHealth <= 49 ) flDelay = 3.0f;
-*/
-	else return;
+
+	if ( m_bIsBleeding )
+		flDelay = 1.6f;
+	else
+	{
+		// A lot of blood
+		if ( iHealth <= 10 ) flDelay = 0.5f;
+		else if ( iHealth <= 15 ) flDelay = 0.8f;
+		else if ( iHealth <= 20 ) flDelay = 1.0f;
+		else if ( iHealth <= 25 ) flDelay = 1.3f;
+		else if ( iHealth <= 30 ) flDelay = 1.6f;
+		else if ( iHealth <= 35 ) flDelay = 2.0f;
+		/*
+		else if ( iHealth <= 40 ) flDelay = 2.3f;
+		else if ( iHealth <= 45 ) flDelay = 2.6f;
+		else if ( iHealth <= 49 ) flDelay = 3.0f;
+		*/
+		else
+		{
+			m_bGotBandage = false;
+			return;
+		}
+	}
+
+	if ( m_bGotBandage ) return;
 
 	// Aim straight down, and do some blood
 	DoBloodLossDecal( flDelay );
+
+	// Got painkiller?
+	if ( m_bGotPainkiller ) return;
 
 	if ( m_flImHurtDelay - gpGlobals->time > 0 ) return;
 	m_flImHurtDelay = gpGlobals->time + 30.0f;
@@ -3586,6 +3635,28 @@ void CBasePlayer::PostThink()
 	// Are we hurt? Shit out blood
 	DoBloodLoss();
 
+	// Pain killer stuff
+	if ( pev->health > 0 && m_flPainPillHealthDelay != -1 )
+	{
+		if ( m_flPainPillHealthDelay - gpGlobals->time <= 0 )
+		{
+			m_iPillAmount++;
+			int iHealth = pev->health;
+			iHealth += 1;
+			if ( iHealth > pev->max_health )
+			{
+				iHealth = pev->max_health;
+				m_iPillAmount = 25;
+			}
+			pev->health = iHealth;
+
+			if ( m_iPillAmount == 25 )
+				m_flPainPillHealthDelay = -1;
+			else
+				m_flPainPillHealthDelay = gpGlobals->time + 2.0f;
+		}
+	}
+
 	// If the player is falling to their death (survivor only) cause them to scream in agony!!
 	// And make sure they are not on the ground
 	if ( !(FBitSet(pev->flags, FL_ONGROUND)) &&
@@ -4193,6 +4264,14 @@ void CBasePlayer::Spawn(void)
 
 	// We just spawned, allow auto weapon switch
 	m_bJustSpawned = true;
+
+	// We are no longer bleeding.
+	m_bIsBleeding = false;
+	m_bGotBandage = false;
+	// No pills
+	m_bGotPainkiller = false;
+	m_flPainPillHealthDelay = -1;
+	m_iPillAmount = 0;
 
 	// Clear it
 	m_AssistedDamage.clear();

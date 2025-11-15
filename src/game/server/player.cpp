@@ -2400,7 +2400,7 @@ void CBasePlayer::DoBloodLoss()
 	if ( m_bGotPainkiller ) return;
 
 	if ( m_flImHurtDelay - gpGlobals->time > 0 ) return;
-	m_flImHurtDelay = gpGlobals->time + 30.0f;
+	m_flImHurtDelay = gpGlobals->time + 60.0f;
 	DoVocalize( PlayerVocalizeType::VOCALIZE_AUTO_HURT, true );
 }
 

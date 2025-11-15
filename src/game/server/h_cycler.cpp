@@ -95,6 +95,10 @@ public:
 		UTIL_SetSize( pev, Vector(0, 0, 0), Vector(0, 0, 0) );
 		pev->classname = MAKE_STRING( "prop_objective" );
 	}
+	void Restart()
+	{
+		CGenericCycler::Restart();
+	}
 	void Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value ) override;
 };
 LINK_ENTITY_TO_CLASS( prop_objective, CPropObjective );
@@ -103,6 +107,7 @@ void CPropObjective::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYP
 {
 	if ( pActivator->pev->team != ZP::TEAM_SURVIVIOR ) return;
 	if ( pev->effects == EF_NODRAW ) return;
+	SoftRemove();
 #ifdef SCRIPT_SYSTEM
 	CBaseEntity *m_pActivator = pActivator;
 	if ( !m_pActivator ) m_pActivator = this;
@@ -117,7 +122,6 @@ void CPropObjective::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYP
 		std::to_string( m_pActivator->entindex() )
 	);
 #endif
-	SoftRemove();
 }
 
 // Probe droid imported for tech demo compatibility

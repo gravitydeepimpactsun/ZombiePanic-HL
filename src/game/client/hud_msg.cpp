@@ -332,6 +332,12 @@ int CHud::MsgFunc_Voice(const char *pszName, int iSize, void *pbuf)
 	int iPlayer = READ_SHORT();
 	PlayerVocalizeType nType = (PlayerVocalizeType)READ_SHORT();
 
+	// Only allow if the local player is on the human team.
+	CPlayerInfo *localplayer = GetPlayerInfo( gEngfuncs.GetLocalPlayer()->index );
+	if ( !localplayer ) return 1;
+	if ( !localplayer->IsConnected() ) return 1;
+	if ( localplayer->GetTeamNumber() != ZP::TEAM_SURVIVIOR ) return 1;
+
 	wchar_t *pVocalizeValue = nullptr;
 	switch( nType )
 	{

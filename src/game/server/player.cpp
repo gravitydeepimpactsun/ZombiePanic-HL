@@ -2339,7 +2339,7 @@ void CBasePlayer::DoBloodLossDecal( float flDelay )
 	if ( m_bIsBleeding && pev->health > 1 )
 	{
 		int iHealth = pev->health;
-		iHealth -= 2;
+		iHealth -= 1;
 		if ( iHealth < 1 ) iHealth = 1;
 		pev->health = iHealth;
 	}
@@ -2369,7 +2369,7 @@ void CBasePlayer::DoBloodLoss()
 	float flDelay = 0;
 
 	if ( m_bIsBleeding )
-		flDelay = 1.6f;
+		flDelay = 3.5f;
 	else
 	{
 		// A lot of blood

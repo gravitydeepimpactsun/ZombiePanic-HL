@@ -961,6 +961,11 @@ void CGameCounter::Spawn(void)
 	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "IncreaseValue" );
 	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "DecreaseValue" );
 	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "SetValue" );
+
+	// Outputs
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "OnValueChanged" );
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "OnHitLimit" );
+
 	SetEntityScriptCallback( &CGameCounter::OnScriptCallBack );
 #endif
 }
@@ -1008,6 +1013,19 @@ void CGameCounter::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE u
 		break;
 	}
 
+#ifdef SCRIPT_SYSTEM
+	const std::string &szOutput( "OnValueChanged" );
+	ScriptSystem::CallScriptDelay(
+		AvailableScripts_t::InputOutput,
+		nullptr,
+		szOutput,
+		0.0f,
+		2,
+		std::to_string( entindex() ),
+		std::to_string( CountValue() )
+	);
+#endif
+
 	if (HitLimit())
 	{
 		SUB_UseTargets(pActivator, USE_TOGGLE, 0);
@@ -1018,6 +1036,18 @@ void CGameCounter::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE u
 		{
 			ResetCount();
 		}
+
+#ifdef SCRIPT_SYSTEM
+		const std::string &szOutput2( "OnHitLimit" );
+		ScriptSystem::CallScriptDelay(
+			AvailableScripts_t::InputOutput,
+			nullptr,
+		    szOutput2,
+			0.0f,
+			1,
+			std::to_string( entindex() )
+		);
+#endif
 	}
 }
 

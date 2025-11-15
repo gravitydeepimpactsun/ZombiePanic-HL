@@ -61,6 +61,7 @@ static const char *s_EntitiesRestarts[] = {
 	"info_objective",
 	"info_beacon",
 	"multi_manager",
+	"multi_relay",
 	"game_counter",
 	"game_counter_set",
 	"game_timer",

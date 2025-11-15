@@ -5775,7 +5775,6 @@ void CBasePlayer::NotifyOfWeaponPickup(CBasePlayerWeapon *pWeapon)
 void CBasePlayer::DoVocalize( PlayerVocalizeType nType, bool bForced )
 {
 	if ( pev->team != ZP::TEAM_SURVIVIOR ) return;
-	if ( !IsAlive() ) return;
 	bool bCanSpeak = ( m_flLastVocalize - gpGlobals->time <= 0 ) ? true : false;
 	if ( bForced ) bCanSpeak = true;
 	if ( !bCanSpeak ) return;

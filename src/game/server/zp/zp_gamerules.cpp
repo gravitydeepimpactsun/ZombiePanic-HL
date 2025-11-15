@@ -751,7 +751,8 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 			else if ( FStrEq( szVoice, "fire" ) ) nType = VOCALIZE_OPEN_FIRE;
 			else if ( FStrEq( szVoice, "taunt" ) ) nType = VOCALIZE_TAUNT;
 		}
-		pPlayer->DoVocalize( nType );
+		if ( pPlayer->IsAlive() )
+			pPlayer->DoVocalize( nType );
 		return TRUE;
 	}
 #ifdef SCRIPT_SYSTEM

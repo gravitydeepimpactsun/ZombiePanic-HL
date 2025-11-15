@@ -117,7 +117,7 @@ bool CWeaponExplosiveIED::PlantIED( void )
 	Vector vecSrc = m_pPlayer->GetGunPosition();
 	Vector vecAiming = gpGlobals->v_forward;
 	TraceResult tr;
-	UTIL_TraceLine( vecSrc, vecSrc + vecAiming * 128, dont_ignore_monsters, ENT(m_pPlayer->pev), &tr );
+	UTIL_TraceLine( vecSrc, vecSrc + vecAiming * 32, ignore_monsters, ENT(m_pPlayer->pev), &tr );
 
 	if ( tr.flFraction < 1.0f )
 	{

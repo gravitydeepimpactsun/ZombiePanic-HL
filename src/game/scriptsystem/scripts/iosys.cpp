@@ -8,11 +8,14 @@
 #include <tier2/tier2.h>
 #include "FileSystem.h"
 #include <KeyValues.h>
+#include <convar.h>
 
 // For giving stuff for our players.
 #include "player.h"
 
 #include "zp/info_random_base.h"
+
+static ConVar sv_ss_debug( "sv_ss_debug", "0", FCVAR_CHEATS );
 
 // A simple static list of our I/O IOFunctions_t
 static const char *g_IOFunctions[IO_ON_MAX] = {
@@ -174,6 +177,13 @@ ScriptCallBackEnum IOSystem::OnCalled(pOnScriptCallbackReturn pfnCallback, KeyVa
 			{
 				if ( bIsScriptCall )
 				{
+					if ( sv_ss_debug.GetBool() )
+					{
+						Msg( "Action: %s\n", szFunctionName.c_str() );
+						Msg( "Argument 1: %s\n", pData->GetString( "arg1" ) );
+						Msg( "Argument 2: %s\n", pData->GetString( "arg2" ) );
+					}
+
 					// Make sure we call the right entity, if not, ignore.
 					CBaseEntity *pFind = UTIL_FindEntityByTargetname( nullptr, pData->GetString( "arg1" ) );
 					while ( pFind )
@@ -185,17 +195,27 @@ ScriptCallBackEnum IOSystem::OnCalled(pOnScriptCallbackReturn pfnCallback, KeyVa
 						pKvNew->deleteThis();
 						pFind = UTIL_FindEntityByTargetname( pFind, pData->GetString( "arg1" ) );
 					}
+					break;
 				}
 				else
 				{
 					CBaseEntity *pEntity = (CBaseEntity *)GET_PRIVATE( ScriptFunction.Entity );
 					if ( pEntity && pEntity->entindex() == atoi( pData->GetString( "arg0" ) ) )
 					{
+						if ( sv_ss_debug.GetBool() )
+						{
+							Msg( "Entity: %s\n", pData->GetString( "arg0" ) );
+							Msg( "Action: %s\n", szFunctionName.c_str() );
+							Msg( "Argument 1: %s\n", pData->GetString( "arg1" ) );
+							Msg( "Argument 2: %s\n", pData->GetString( "arg2" ) );
+						}
+
 						KeyValues *pKvNew = new KeyValues( "Items" );
 						pKvNew->SetString( "Action", szFunctionName.c_str() );
 						pKvNew->SetString( "arg0", pData->GetString( "arg1" ) );
 						pEntity->ScriptCallback( pKvNew );
 						pKvNew->deleteThis();
+						break;
 					}
 				}
 			}

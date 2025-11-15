@@ -88,6 +88,96 @@ BOOL CHealthKit::MyTouch(CBasePlayer *pPlayer)
 }
 
 //-------------------------------------------------------------
+// Bandage
+//-------------------------------------------------------------
+
+class CBandageItem : public CItem
+{
+	void Spawn(void);
+	void Precache(void);
+	BOOL MyTouch(CBasePlayer *pPlayer);
+};
+LINK_ENTITY_TO_CLASS( item_bandage, CBandageItem );
+PRECACHE_REGISTER( item_bandage );
+
+void CBandageItem::Spawn()
+{
+	Precache();
+	SET_MODEL(ENT(pev), "models/w_bandage.mdl");
+	CItem::Spawn();
+}
+
+void CBandageItem::Precache(void)
+{
+	PRECACHE_MODEL("models/w_bandage.mdl");
+	PRECACHE_SOUND("items/bandage_use.wav");
+}
+
+BOOL CBandageItem::MyTouch(CBasePlayer *pPlayer)
+{
+	if (pPlayer->pev->deadflag != DEAD_NO)
+		return FALSE;
+
+	if ( pPlayer->pev->team == ZP::TEAM_ZOMBIE )
+		return FALSE;
+
+	if (pPlayer->GotBandage())
+	{
+		CItem::SendItemPickup(pPlayer);
+		EMIT_SOUND(ENT(pPlayer->pev), CHAN_ITEM, "items/bandage_use.wav", 1, ATTN_NORM);
+		SoftRemove();
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+//-------------------------------------------------------------
+// Painkiller
+//-------------------------------------------------------------
+
+class CPainKiller : public CItem
+{
+	void Spawn(void);
+	void Precache(void);
+	BOOL MyTouch(CBasePlayer *pPlayer);
+};
+LINK_ENTITY_TO_CLASS( item_painkiller, CPainKiller );
+PRECACHE_REGISTER( item_painkiller );
+
+void CPainKiller::Spawn()
+{
+	Precache();
+	SET_MODEL(ENT(pev), "models/w_painkiller.mdl");
+	CItem::Spawn();
+}
+
+void CPainKiller::Precache(void)
+{
+	PRECACHE_MODEL("models/w_painkiller.mdl");
+	PRECACHE_SOUND("items/pills_use.wav");
+}
+
+BOOL CPainKiller::MyTouch(CBasePlayer *pPlayer)
+{
+	if (pPlayer->pev->deadflag != DEAD_NO)
+		return FALSE;
+
+	if ( pPlayer->pev->team == ZP::TEAM_ZOMBIE )
+		return FALSE;
+
+	if (pPlayer->GotPainKiller())
+	{
+		CItem::SendItemPickup(pPlayer);
+		EMIT_SOUND(ENT(pPlayer->pev), CHAN_ITEM, "items/pills_use.wav", 1, ATTN_NORM);
+		SoftRemove();
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+//-------------------------------------------------------------
 // Wall mounted health kit
 //-------------------------------------------------------------
 class CWallHealth : public CBaseToggle

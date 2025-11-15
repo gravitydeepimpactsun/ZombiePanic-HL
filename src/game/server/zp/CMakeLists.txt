@@ -2,6 +2,7 @@ add_sources(
 	CMakeLists.txt
 	info_objective.h
 	info_objective.cpp
+	multi_relay.cpp
 	info_beacon.cpp
 	info_beacon.h
 	trigger_spawnblocker.cpp

@@ -2345,11 +2345,11 @@ void CBasePlayer::DoBloodLossDecal( float flDelay )
 	}
 }
 
-bool CBasePlayer::GotBandage()
+bool CBasePlayer::GotBandage( bool bGiveHealth )
 {
 	m_bIsBleeding = false;
 	m_bGotBandage = true;
-	return TakeHealth( 10, DMG_GENERIC );
+	return bGiveHealth ? TakeHealth( 10, DMG_GENERIC ) : true;
 }
 
 bool CBasePlayer::GotPainKiller()

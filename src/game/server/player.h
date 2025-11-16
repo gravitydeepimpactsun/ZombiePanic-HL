@@ -478,7 +478,7 @@ public:
 	void DoBloodLoss();
 	void DoBloodLossDecal( float flDelay );
 
-	bool GotBandage();
+	bool GotBandage( bool bGiveHealth );
 	bool GotPainKiller();
 
 	// Give achivement

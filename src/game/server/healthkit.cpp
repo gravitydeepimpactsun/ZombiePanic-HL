@@ -79,6 +79,8 @@ BOOL CHealthKit::MyTouch(CBasePlayer *pPlayer)
 
 		EMIT_SOUND(ENT(pPlayer->pev), CHAN_ITEM, "items/smallmedkit1.wav", 1, ATTN_NORM);
 
+		pPlayer->GotBandage( false );
+
 		SoftRemove();
 
 		return TRUE;
@@ -121,7 +123,7 @@ BOOL CBandageItem::MyTouch(CBasePlayer *pPlayer)
 	if ( pPlayer->pev->team == ZP::TEAM_ZOMBIE )
 		return FALSE;
 
-	if (pPlayer->GotBandage())
+	if (pPlayer->GotBandage(true))
 	{
 		CItem::SendItemPickup(pPlayer);
 		EMIT_SOUND(ENT(pPlayer->pev), CHAN_ITEM, "items/bandage_use.wav", 1, ATTN_NORM);

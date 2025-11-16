@@ -4436,6 +4436,9 @@ void CBasePlayer::Spawn(void)
 	// Probably from the chat and/or the scoreboard?
 	MESSAGE_BEGIN(MSG_ONE, gmsgMouseFix, NULL, pev);
 	MESSAGE_END();
+
+	// Stop current voiceline
+	EMIT_SOUND_DYN( ENT(pev), CHAN_VOICE, "common/null.wav", 0, ATTN_NORM, 0, 100 );
 }
 
 void CBasePlayer ::Precache(void)

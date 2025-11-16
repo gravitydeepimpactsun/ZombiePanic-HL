@@ -3649,6 +3649,12 @@ void CBasePlayer::PostThink()
 	// Are we hurt? Shit out blood
 	DoBloodLoss();
 
+	// Got backpack? Then make sure we have the right bodygroup applied
+	if ( HasBackpack() )
+		SetBodygroup( BGROUP_BACKPACK, BGROUP_SUB_VALUE1 );
+	else
+		SetBodygroup( BGROUP_BACKPACK, BGROUP_SUB_DEFAULT );
+
 	// Pain killer stuff
 	if ( pev->health > 0 && m_flPainPillHealthDelay != -1 )
 	{

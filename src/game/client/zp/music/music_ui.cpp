@@ -84,9 +84,6 @@ void CMusicUI::NewTrackPlaying()
 
 void CMusicUI::Paint()
 {
-	if ( CMusicManager::GetInstance() )
-		CMusicManager::GetInstance()->OnThink();
-
 	if ( !IsAllowedToDraw() )
 	{
 		m_pTextTitle->SetFgColor( Color( 255, 255, 255, 0 ) );

@@ -31,6 +31,7 @@ public:
 	void PlayNextTrack();
 
 private:
+	float GetEngineTime();
 	bool HasPlayableMusic();
 	void BuildList();
 	void ScrambleList();

@@ -45,19 +45,19 @@ void CMusicManager::OnMapShutdown()
 void CMusicManager::OnMapStart()
 {
 	if ( m_bHasStarted ) return;
+	m_flPlayTime = GetEngineTime() + 3.5f;
 	// Clear the list, and add new ones.
 	BuildList();
 	if ( !HasPlayableMusic() ) return;
 	ScrambleList();
 	m_ItemIndex = -1;
-	m_flPlayTime = gHUD.m_flTime + 2.0f;
 	m_bHasStarted = true;
 }
 
 void CMusicManager::OnThink()
 {
 	if ( !HasPlayableMusic() ) return;
-	if ( m_flPlayTime - gHUD.m_flTime > 0 ) return;
+	if ( m_flPlayTime - GetEngineTime() > 0 ) return;
 	PlayNextTrack();
 }
 
@@ -71,7 +71,7 @@ void CMusicManager::PlayTrack()
 	if ( !HasPlayableMusic() ) return;
 	// Play the track, and then notify the CMusicUI that a track has begun
 	gEngfuncs.pfnClientCmd( vgui2::VarArgs( "mp3 play \"media/music/%s\"", GetTrackFile() ) );
-	m_flPlayTime = gHUD.m_flTime + GetTrackTime() + 4.55f;
+	m_flPlayTime = GetEngineTime() + GetTrackTime() + 4.55f;
 	CMusicUI::Get()->NewTrackPlaying();
 }
 
@@ -91,6 +91,11 @@ void CMusicManager::PlayNextTrack()
 	if ( m_ItemIndex >= m_List.size() )
 		m_ItemIndex = 0;
 	PlayTrack();
+}
+
+float CMusicManager::GetEngineTime()
+{
+	return gEngfuncs.GetClientTime();
 }
 
 bool CMusicManager::HasPlayableMusic()

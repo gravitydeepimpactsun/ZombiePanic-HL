@@ -46,6 +46,9 @@
 #include "engine_builds.h"
 #include "steam/steam_api.h"
 
+// Music manager
+#include "zp/music/music_manager.h"
+
 CHud gHUD;
 
 void InitInput(void);
@@ -435,6 +438,10 @@ void CL_DLLEXPORT HUD_Frame(double time)
 	ServerClientVar_Updatecl_keepzombovision();
 	ServerClientVar_Updatecl_panictomelee();
 	ServerClientVar_Updatecl_character();
+
+	// Make sure our music manager is thinking
+	if ( CMusicManager::GetInstance() )
+		CMusicManager::GetInstance()->OnThink();
 }
 
 /*

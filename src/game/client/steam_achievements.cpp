@@ -131,7 +131,13 @@ void STAT_ResetAllStats()
 	{
 		StatData_t &stat = g_SteamStats[i];
 		stat.Value = 0;
+		GetSteamAPI()->SteamUserStats()->SetStat( stat.Name, stat.Value );
 	}
+
+#if defined( _DEBUG )
+	StatData_t statReset = GrabStat( ZP_RESET_ALL );
+	GetSteamAPI()->SteamUserStats()->SetStat( statReset.Name, 1 );
+#endif
 }
 
 void STAT_OnUserStatsReceived( UserStatsReceived_t *pCallback )
@@ -165,13 +171,9 @@ void STAT_OnUserStatsReceived( UserStatsReceived_t *pCallback )
 		STAT_ResetAllStats();
 		// Reset everything, even our achievements.
 		GetSteamAPI()->SteamUserStats()->ResetAllStats( true );
-		// Make sure this is set to 0, so we don't reset again.
-		GetSteamAPI()->SteamUserStats()->SetStat( statReset.Name, 0 );
 		// Reset all our achievements.
 		for ( int i = 0; i < ACHV_MAX; i++ )
 			SetAchievementCompletedByID( GetAchievementByID( i ), false );
-		// Store the reset stats.
-		GetSteamAPI()->SteamUserStats()->StoreStats();
 	}
 #else
 	// Ditto, but inverted for debug mode.
@@ -183,13 +185,9 @@ void STAT_OnUserStatsReceived( UserStatsReceived_t *pCallback )
 		STAT_ResetAllStats();
 		// Reset everything, even our achievements.
 		GetSteamAPI()->SteamUserStats()->ResetAllStats( true );
-		// Make sure this is set to 1, so we don't reset again.
-		GetSteamAPI()->SteamUserStats()->SetStat( statReset.Name, 1 );
 		// Reset all our achievements.
 		for ( int i = 0; i < ACHV_MAX; i++ )
 			SetAchievementCompletedByID( GetAchievementByID( i ), false );
-		// Store the reset stats.
-		GetSteamAPI()->SteamUserStats()->StoreStats();
 	}
 #endif
 }
@@ -206,11 +204,7 @@ CON_COMMAND( zp_reset_all_stats, "Reset all Steam stats and achievements." )
 	// Reset all our achievements.
 	for ( int i = 0; i < ACHV_MAX; i++ )
 		SetAchievementCompletedByID( GetAchievementByID( i ), false );
-	// Store the reset stats.
-	GetSteamAPI()->SteamUserStats()->StoreStats();
-	// Make sure this is set to 1, so we don't reset again.
-	StatData_t statReset = GrabStat( ZP_RESET_ALL );
-	GetSteamAPI()->SteamUserStats()->SetStat( statReset.Name, 1 );
+	Msg( "All stats has been reset!\n" );
 }
 #endif
 

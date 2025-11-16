@@ -94,6 +94,7 @@ public:
 	void SetWorkshopInfoBoxProgress( float flProgress );
 
 	bool WorkshopIDIsMounted( PublishedFileId_t nWorkshopID );
+	bool ShouldAutoMount( PublishedFileId_t nWorkshopID );
 
 	void OpenFileExplorer( int eFilter, const char *szFolder, const char *szPathID, DialogSelected_t pFunction );
 	void OpenFileExplorer( const char *szFolder, const char *szPathID, DialogSelected_t pFunction );

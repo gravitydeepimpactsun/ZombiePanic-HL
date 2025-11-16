@@ -704,7 +704,7 @@ void CHudAchievementNotification::ShowAchievement( int iAchievement )
 			for ( size_t i = 0; i < m_iMaxValue; i++ )
 			{
 				// Check if this step is completed.
-				if ( GrabStat( AchievementData.GetRequiredStepID( i ).Stat ).Value == 1 )
+				if ( GrabStat( AchievementData.GetRequiredStepID( i ).Stat ).Value >= 1 )
 					m_iValue++;
 			}
 		}

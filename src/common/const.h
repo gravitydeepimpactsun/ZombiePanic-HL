@@ -40,7 +40,7 @@
 
 // UNDONE: Do we need these?
 #define FL_IMMUNE_WATER (1 << 17)
-#define FL_IMMUNE_SLIME (1 << 18)
+#define FL_ZOMBIE_PLAYER (1 << 18) // was FL_IMMUNE_SLIME
 #define FL_IMMUNE_LAVA  (1 << 19)
 
 #define FL_PROXY        (1 << 20) // This is a spectator proxy
@@ -599,6 +599,7 @@
 #define CONTENT_FLYFIELD         -17
 #define CONTENT_GRAVITY_FLYFIELD -18
 #define CONTENT_FOG              -19
+#define CONTENTS_LADDER_ZOMBIE   -20
 
 #define CONTENT_EMPTY -1
 #define CONTENT_SOLID -2

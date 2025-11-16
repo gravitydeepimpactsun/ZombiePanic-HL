@@ -1954,6 +1954,24 @@ void CLadder ::Spawn(void)
 	pev->movetype = MOVETYPE_PUSH;
 }
 
+
+class CLadderZombie : public CLadder
+{
+public:
+	void Precache();
+};
+LINK_ENTITY_TO_CLASS( func_ladder_zombie, CLadderZombie );
+
+// Zombie only ladder
+void CLadderZombie::Precache()
+{
+	pev->skin = CONTENTS_LADDER_ZOMBIE;
+	pev->solid = SOLID_NOT;
+	pev->rendermode = kRenderTransTexture;
+	pev->renderamt = 0;
+	pev->effects = 0;
+}
+
 // ========================== A TRIGGER THAT PUSHES YOU ===============================
 
 class CTriggerPush : public CBaseTrigger

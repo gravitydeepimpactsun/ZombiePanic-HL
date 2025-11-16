@@ -2580,33 +2580,52 @@ void PM_LadderMove(physent_t *pLadder)
 	}
 }
 
+physent_t *CheckLadderEntity( physent_t *pe )
+{
+	bool bIsLadder = ( pe->skin == CONTENTS_LADDER ) ? true : false;
+
+	// Check for zombie ladder too, but only if player is a zombie
+	if ( pe->skin == CONTENTS_LADDER_ZOMBIE && (pmove->flags & FL_ZOMBIE_PLAYER) )
+		bIsLadder = true;
+
+	if ( pe->model && (modtype_t)pmove->PM_GetModelType(pe->model) == mod_brush && bIsLadder )
+	{
+		Vector test;
+		hull_t *hull = (hull_t *)pmove->PM_HullForBsp(pe, test);
+		int num = hull->firstclipnode;
+
+		// Offset the test point appropriately for this hull.
+		VectorSubtract(pmove->origin, test, test);
+
+		// Test the player's hull for intersection with this model
+		int contents = pmove->PM_HullPointContents(hull, num, test);
+		if ( contents == CONTENTS_EMPTY )
+			return NULL;
+
+		return pe;
+	}
+
+	return NULL;
+}
+
 physent_t *PM_Ladder(void)
 {
 	int i;
 	physent_t *pe;
-	hull_t *hull;
-	int num;
-	Vector test;
+
+	// Custom ladder entities
+	for (i = 0; i < pmove->numphysent; i++)
+	{
+		pe = &pmove->physents[i];
+		if ( CheckLadderEntity( pe ) )
+			return pe;
+	}
 
 	for (i = 0; i < pmove->nummoveent; i++)
 	{
 		pe = &pmove->moveents[i];
-
-		if (pe->model && (modtype_t)pmove->PM_GetModelType(pe->model) == mod_brush && pe->skin == CONTENTS_LADDER)
-		{
-
-			hull = (hull_t *)pmove->PM_HullForBsp(pe, test);
-			num = hull->firstclipnode;
-
-			// Offset the test point appropriately for this hull.
-			VectorSubtract(pmove->origin, test, test);
-
-			// Test the player's hull for intersection with this model
-			if (pmove->PM_HullPointContents(hull, num, test) == CONTENTS_EMPTY)
-				continue;
-
+		if ( CheckLadderEntity( pe ) )
 			return pe;
-		}
 	}
 
 	return NULL;

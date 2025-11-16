@@ -4301,6 +4301,9 @@ void CBasePlayer::Spawn(void)
 	pev->max_health = pev->health;
 	pev->flags &= FL_PROXY; // keep proxy flag set by engine, clear others
 	pev->flags |= FL_CLIENT;
+	// Set or remove zombie player flag
+	if ( pev->team == ZP::TEAM_ZOMBIE )
+		pev->flags |= FL_ZOMBIE_PLAYER;
 	pev->air_finished = gpGlobals->time + 12;
 	pev->dmg = 2; // initial water damage
 	pev->effects = 0;
@@ -4540,6 +4543,9 @@ int CBasePlayer::Restore(CRestore &restore)
 	{
 		UTIL_SetSize(pev, VEC_HULL_MIN, VEC_HULL_MAX);
 	}
+
+	if ( pev->team == ZP::TEAM_ZOMBIE )
+		pev->flags |= FL_ZOMBIE_PLAYER;
 
 	g_engfuncs.pfnSetPhysicsKeyValue(edict(), "hl", "1");
 

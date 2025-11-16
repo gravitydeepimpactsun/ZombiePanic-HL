@@ -16,6 +16,8 @@
 
 DEFINE_HUD_ELEM(CHudRoundState);
 
+extern void Input_StopAllMovements();
+
 ConVar cl_zpssound("cl_zpssound", "0", FCVAR_BHL_ARCHIVE, "Play ZPS themed sounds");
 
 CHudRoundState::CHudRoundState()
@@ -82,6 +84,10 @@ void CHudRoundState::Paint()
 			m_pText->SetBounds( 0, m_iRoundIsOverYPos, w, m_iRoundIsOverTall );
 			if ( !m_pText->IsVisible() )
 				m_pText->SetVisible( true );
+		    // Make sure every movement input is stopped
+			// when the round is over every frame to prevent
+			// the player from moving around.
+		    Input_StopAllMovements();
 		}
 		break;
 	}

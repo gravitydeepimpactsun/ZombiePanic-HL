@@ -2468,7 +2468,6 @@ void CBasePlayer::SetTheCorrectPlayerModel()
 	pev->model = MODEL_INDEX( szModel );
 
 	SetBodygroup( BGROUP_HEAD, BGROUP_SUB_DEFAULT );
-	SetBodygroup( BGROUP_BACKPACK, BGROUP_SUB_DEFAULT );
 
 	if ( iTeam == ZP::TEAM_SURVIVIOR )
 		pev->maxspeed = ZP::MaxSpeeds[0];
@@ -2834,9 +2833,6 @@ void CBasePlayer::DropWeapon( CBasePlayerWeapon *pWeapon, bool bAutoSwitch, bool
 
 void CBasePlayer::SetBackpackState( bool bState )
 {
-	// Bodygroup 1 is the backpack on the player model,
-	// so we simply reuse the head bodygroup for this.
-	SetBodygroup( BGROUP_BACKPACK, bState ? BGROUP_SUB_VALUE1 : BGROUP_SUB_DEFAULT );
 	if ( bState )
 		pev->weapons |= (1 << WEAPON_BACKPACK);
 	else

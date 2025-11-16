@@ -60,7 +60,7 @@ void CHealthKit ::Spawn(void)
 void CHealthKit::Precache(void)
 {
 	PRECACHE_MODEL("models/w_medkit.mdl");
-	PRECACHE_SOUND("items/smallmedkit1.wav");
+	PRECACHE_SOUND("items/medkit_use.wav");
 }
 
 BOOL CHealthKit::MyTouch(CBasePlayer *pPlayer)
@@ -77,7 +77,7 @@ BOOL CHealthKit::MyTouch(CBasePlayer *pPlayer)
 	{
 		CItem::SendItemPickup(pPlayer);
 
-		EMIT_SOUND(ENT(pPlayer->pev), CHAN_ITEM, "items/smallmedkit1.wav", 1, ATTN_NORM);
+		EMIT_SOUND(ENT(pPlayer->pev), CHAN_ITEM, "items/medkit_use.wav", 1, ATTN_NORM);
 
 		pPlayer->GotBandage( false );
 

@@ -51,6 +51,8 @@ StatData_t g_SteamStats[] = {
 	_STAT_ID(ZP_KILLS_DBARREL, 80),
 	_STAT_ID(ZP_KILLS_LEADPIPE, 120),
 	_STAT_ID(ZP_KILLS_PISTOL, 40),
+	_STAT_ID(ZP_KILLS_PPK, 40),
+	_STAT_ID(ZP_KILLS_PPK_HS, 10),
 	_STAT_ID(ZP_KILLS_REVOLVER, 25),
 	_STAT_ID(ZP_KILLS_RIFLE, 30),
 	_STAT_ID(ZP_KILLS_SHOTGUN, 35),
@@ -168,6 +170,8 @@ void STAT_OnUserStatsReceived( UserStatsReceived_t *pCallback )
 		// Reset all our achievements.
 		for ( int i = 0; i < ACHV_MAX; i++ )
 			SetAchievementCompletedByID( GetAchievementByID( i ), false );
+		// Store the reset stats.
+		GetSteamAPI()->SteamUserStats()->StoreStats();
 	}
 #else
 	// Ditto, but inverted for debug mode.
@@ -179,14 +183,36 @@ void STAT_OnUserStatsReceived( UserStatsReceived_t *pCallback )
 		STAT_ResetAllStats();
 		// Reset everything, even our achievements.
 		GetSteamAPI()->SteamUserStats()->ResetAllStats( true );
-		// Make sure this is set to 0, so we don't reset again.
+		// Make sure this is set to 1, so we don't reset again.
 		GetSteamAPI()->SteamUserStats()->SetStat( statReset.Name, 1 );
 		// Reset all our achievements.
 		for ( int i = 0; i < ACHV_MAX; i++ )
 			SetAchievementCompletedByID( GetAchievementByID( i ), false );
+		// Store the reset stats.
+		GetSteamAPI()->SteamUserStats()->StoreStats();
 	}
 #endif
 }
+
+#if defined( _DEBUG )
+CON_COMMAND( zp_reset_all_stats, "Reset all Steam stats and achievements." )
+{
+	if ( !GetSteamAPI() ) return;
+	if ( !GetSteamAPI()->SteamUserStats() ) return;
+	// Reset our local stats.
+	STAT_ResetAllStats();
+	// Reset everything, even our achievements.
+	GetSteamAPI()->SteamUserStats()->ResetAllStats( true );
+	// Reset all our achievements.
+	for ( int i = 0; i < ACHV_MAX; i++ )
+		SetAchievementCompletedByID( GetAchievementByID( i ), false );
+	// Store the reset stats.
+	GetSteamAPI()->SteamUserStats()->StoreStats();
+	// Make sure this is set to 1, so we don't reset again.
+	StatData_t statReset = GrabStat( ZP_RESET_ALL );
+	GetSteamAPI()->SteamUserStats()->SetStat( statReset.Name, 1 );
+}
+#endif
 
 // ================================================================= \\
 

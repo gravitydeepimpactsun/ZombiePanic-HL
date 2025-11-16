@@ -910,16 +910,24 @@ void CHalfLifeMultiplay::DeathNotice(CBasePlayer *pVictim, entvars_t *pKiller, e
 		CBasePlayer *pAttacker = (CBasePlayer *)UTIL_PlayerByIndex( killer_index );
 		if ( pAttacker && pAttacker->IsPlayer() )
 		{
+			bool bWasMeleeKill = false;
 			if (!strcmp(killer_weapon_name, "crowbar"))
 			{
 				pAttacker->GiveAchievement( KILLS_CROWBAR );
-				IGameModeBase *pGameMode = ZP::GetCurrentGameMode();
-				// If hardcore mode, and we managed to get a crowbar kill while over encumbered. (90 Lb)
-				if ( pGameMode && pGameMode->GetGameModeType() == ZP::GAMEMODE_HARDCORE && pAttacker->GetTotalWeight() > 90 )
-					pAttacker->GiveAchievement( HC_OVERWEIGHTKILLER );
+				bWasMeleeKill = true;
 			}
-			else if (!strcmp(killer_weapon_name, "leadpipe")) pAttacker->GiveAchievement( KILLS_LEADPIPE );
+			else if (!strcmp(killer_weapon_name, "leadpipe"))
+			{
+				pAttacker->GiveAchievement( KILLS_LEADPIPE );
+				bWasMeleeKill = true;
+			}
 			else if (!strcmp(killer_weapon_name, "sig")) pAttacker->GiveAchievement( KILLS_PISTOL );
+			else if (!strcmp(killer_weapon_name, "ppk"))
+			{
+				pAttacker->GiveAchievement( KILLS_PPK );
+				if ( ( pVictim->m_iDeathFlags & PLR_DEATH_FLAG_HEADSHOT ) != 0 )
+					pAttacker->GiveAchievement( KILLS_PPK_HEADSHOT );
+			}
 			else if (!strcmp(killer_weapon_name, "357"))
 			{
 				pAttacker->GiveAchievement( KILLS_REVOLVER );
@@ -977,6 +985,14 @@ void CHalfLifeMultiplay::DeathNotice(CBasePlayer *pVictim, entvars_t *pKiller, e
 						pAttacker->GiveAchievement( RABBITBEAST );
 				}
 			}
+
+			IGameModeBase *pGameMode = ZP::GetCurrentGameMode();
+			// If hardcore mode, and we managed to get a crowbar kill while over encumbered. (90 Lb)
+			if ( pGameMode
+				&& pGameMode->GetGameModeType() == ZP::GAMEMODE_HARDCORE
+				&& pAttacker->GetTotalWeight() > 90
+				&& bWasMeleeKill )
+				pAttacker->GiveAchievement( HC_OVERWEIGHTKILLER );
 
 			pAttacker->GiveAchievement( JACKOFTRADES );
 

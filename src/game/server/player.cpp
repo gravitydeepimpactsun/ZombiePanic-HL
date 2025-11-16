@@ -607,9 +607,10 @@ int CBasePlayer ::TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, fl
 	// go take the damage first
 
 	CBaseEntity *pInflictor = CBaseEntity::Instance(pevInflictor);
-	CBaseEntity *pAttacker = CBaseEntity::Instance(pevAttacker);
+	CBaseEntity *pAttackerEntity = CBaseEntity::Instance(pevAttacker);
+	CBasePlayer *pAttacker = dynamic_cast<CBasePlayer *>( pAttackerEntity );
 
-	if (!g_pGameRules->FPlayerCanTakeDamage(this, pInflictor, pAttacker))
+	if (!g_pGameRules->FPlayerCanTakeDamage(this, pInflictor, pAttackerEntity))
 	{
 		// Refuse the damage
 		return 0;
@@ -641,8 +642,8 @@ int CBasePlayer ::TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, fl
 		flDamage = flNew;
 	}
 
-	if ( pAttacker->IsPlayer() )
-		AddToAssistDamage( (CBasePlayer *)pAttacker, flDamage );
+	if ( pAttacker )
+		AddToAssistDamage( pAttacker, flDamage );
 
 	// Are we in buddha mode?
 	bool bBuddhaDamage = false;
@@ -706,8 +707,12 @@ int CBasePlayer ::TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, fl
 	if ( fTookDamage )
 	{
 		bool bIsInHardcore = ( ZP::GetCurrentGameMode()->GetGameModeType() == ZP::GameModeType_e::GAMEMODE_HARDCORE );
-		if ( (bitsDamage & DMG_SLASH) && bIsInHardcore && pev->team == ZP::TEAM_SURVIVIOR )
+		if ( (bitsDamage & DMG_SLASH)
+			&& bIsInHardcore
+		    && pAttacker
+			&& pev->team == ZP::TEAM_SURVIVIOR )
 		{
+			pAttacker->IncreaseBleed();
 			UTIL_ScreenFade( this, Vector(128, 0, 0), 2, 0.1, 80, FFADE_IN );
 			m_bIsBleeding = true;
 			m_bGotBandage = false;
@@ -2349,6 +2354,10 @@ void CBasePlayer::DoBloodLossDecal( float flDelay )
 
 bool CBasePlayer::GotBandage( bool bGiveHealth )
 {
+	bool bIsInHardcore = ( ZP::GetCurrentGameMode()->GetGameModeType() == ZP::GameModeType_e::GAMEMODE_HARDCORE );
+	if ( bIsInHardcore )
+		GiveAchievement( HC_STOP_THE_BLEEDIN );
+
 	m_bIsBleeding = false;
 	m_bGotBandage = true;
 	return bGiveHealth ? TakeHealth( 10, DMG_GENERIC ) : true;
@@ -2357,6 +2366,9 @@ bool CBasePlayer::GotBandage( bool bGiveHealth )
 bool CBasePlayer::GotPainKiller()
 {
 	if ( pev->health >= pev->max_health ) return false;
+	m_iPillsTaken++;
+	if ( m_iPillsTaken == 3 )
+		GiveAchievement( INTERFECTUM );
 	m_bGotPainkiller = true;
 	m_flPainPillHealthDelay = gpGlobals->time + 2.0f;
 	m_iPillAmount = 0;
@@ -4268,12 +4280,14 @@ void CBasePlayer::Spawn(void)
 	m_bJustSpawned = true;
 
 	// We are no longer bleeding.
+	m_iCausedBleed = 0;
 	m_bIsBleeding = false;
 	m_bGotBandage = false;
 	// No pills
 	m_bGotPainkiller = false;
 	m_flPainPillHealthDelay = -1;
 	m_iPillAmount = 0;
+	m_iPillsTaken = 0;
 
 	// Clear it
 	m_AssistedDamage.clear();
@@ -5772,6 +5786,13 @@ void CBasePlayer::NotifyOfWeaponPickup(CBasePlayerWeapon *pWeapon)
 	WRITE_BYTE(pWeapon->m_iAssignedSlotPosition);
 	WRITE_BYTE(pWeapon->m_iClip); // Fixes the clip value being maxed out
 	MESSAGE_END();
+}
+
+void CBasePlayer::IncreaseBleed()
+{
+	m_iCausedBleed++;
+	if ( m_iCausedBleed == 4 )
+		GiveAchievement( HC_BLOODHARVEST );
 }
 
 void CBasePlayer::DoVocalize( PlayerVocalizeType nType, bool bForced )

@@ -527,11 +527,13 @@ void CHudAchievementNotification::ApplySchemeSettings( vgui2::IScheme *pScheme )
 void CHudAchievementNotification::Init()
 {
 	ClearData();
+	PrecacheImages();
 }
 
 void CHudAchievementNotification::VidInit()
 {
 	ClearData();
+	PrecacheImages();
 }
 
 void CHudAchievementNotification::Think()
@@ -648,6 +650,18 @@ void CHudAchievementNotification::ClearData()
 		int iAchievement = m_Queue[0];
 		m_Queue.erase( m_Queue.begin() );
 		ShowAchievement( iAchievement );
+	}
+}
+
+void CHudAchievementNotification::PrecacheImages()
+{
+	// Precache all achievement images.
+	for ( int i = 0; i < ACHV_MAX; i++ )
+	{
+		DialogAchievementData AchievementData = GetAchievementByID( i );
+		char buffer[158];
+		Q_snprintf( buffer, sizeof( buffer ), "ui/achievements/%s", AchievementData.GetAchievementName() );
+		vgui2::scheme()->GetImage( buffer, false );
 	}
 }
 

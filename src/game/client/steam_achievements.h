@@ -51,6 +51,7 @@ public:
 	void Think( void ) override;
 	void Paint( void ) override;
 	void ClearData();
+	void PrecacheImages();
 	void ShowAchievement( int iAchievement );
 
 private:

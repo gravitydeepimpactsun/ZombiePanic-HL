@@ -706,8 +706,9 @@ int CBasePlayer ::TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, fl
 	if ( fTookDamage )
 	{
 		bool bIsInHardcore = ( ZP::GetCurrentGameMode()->GetGameModeType() == ZP::GameModeType_e::GAMEMODE_HARDCORE );
-		if ( (bitsDamage & DMG_SLASH) && bIsInHardcore )
+		if ( (bitsDamage & DMG_SLASH) && bIsInHardcore && pev->team == ZP::TEAM_SURVIVIOR )
 		{
+			UTIL_ScreenFade( this, Vector(128, 0, 0), 2, 0.1, 80, FFADE_IN );
 			m_bIsBleeding = true;
 			m_bGotBandage = false;
 		}
@@ -2342,6 +2343,7 @@ void CBasePlayer::DoBloodLossDecal( float flDelay )
 		iHealth -= 1;
 		if ( iHealth < 1 ) iHealth = 1;
 		pev->health = iHealth;
+		UTIL_ScreenFade( this, Vector(128, 0, 0), 2, 0.1, 10, FFADE_IN );
 	}
 }
 

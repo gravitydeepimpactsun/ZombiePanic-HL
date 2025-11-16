@@ -13,6 +13,8 @@
 #include "event_api.h"
 #include "zp/zp_shared.h"
 
+extern void Input_StopAllMovements();
+
 CTeamMenu::CTeamMenu()
     : BaseClass(nullptr, VIEWPORT_PANEL_TEAM_MENU)
 {
@@ -172,6 +174,8 @@ void CTeamMenu::Activate()
 {
 	Update();
 	ShowPanel(true);
+	// Stop player movement, so let's tell our input system about it.
+	Input_StopAllMovements();
 }
 
 void CTeamMenu::Paint()

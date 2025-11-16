@@ -675,6 +675,20 @@ void IN_MLookUp(void)
 	}
 }
 
+void Input_StopAllMovements()
+{
+	KeyUp(&in_duck);
+	KeyUp(&in_back);
+	KeyUp(&in_forward);
+	KeyUp(&in_left);
+	KeyUp(&in_right);
+	KeyUp(&in_strafe);
+	KeyUp(&in_moveleft);
+	KeyUp(&in_moveright);
+	KeyUp(&in_down);
+	KeyUp(&in_up);
+}
+
 /*
 ===============
 CL_KeyState

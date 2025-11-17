@@ -2775,6 +2775,11 @@ void CBasePlayer::DropEverything( bool bDontDropPrimary )
 			}
 		}
 	}
+
+	// Spawn a backpack if we had one.
+	if ( HasBackpack() )
+		CBaseEntity::Create( "item_backpack", pev->origin, pev->angles, nullptr );
+
 	// Now drop all ammo types we no longer need.
 	DropUnuseableAmmo();
 }

@@ -33,6 +33,7 @@
 #include "player.h"
 #include "weapons.h"
 #include "gamerules.h"
+#include "zp/zp_gamerules.h"
 #include "teamplay_gamerules.h"
 
 #include <tier0/dbg.h>
@@ -550,13 +551,20 @@ void CWorld ::Precache(void)
 
 	CVAR_SET_STRING("room_type", "0"); // clear DSP
 
+	// Make sure to keep the old cheat session value
+	bool bOldCheatSession = false;
+	if ( ZPGameRules() )
+		bOldCheatSession = ZPGameRules()->WasCheatsOnThisSession();
+
 	// Set up game rules
-	if (g_pGameRules)
-	{
+	if ( g_pGameRules )
 		delete g_pGameRules;
-	}
 
 	g_pGameRules = InstallGameRules();
+
+	// Apply the old cheat session value
+	if ( ZPGameRules() )
+		ZPGameRules()->SetCheatsOnThisSession( bOldCheatSession );
 
 	//!!!UNDONE why is there so much Spawn code in the Precache function? I'll just keep it here
 

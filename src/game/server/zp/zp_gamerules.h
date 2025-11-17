@@ -59,6 +59,7 @@ public:
 	BOOL FAllowMonsters( void ) override { return FALSE; }
 
 	bool WasCheatsOnThisSession() const;
+	inline void SetCheatsOnThisSession( bool bCheats ) { m_bCheatsOnThisSession = bCheats; }
 
 private:
 	void CheckCheats();

@@ -2359,6 +2359,8 @@ bool CBasePlayer::GotBandage( bool bGiveHealth )
 	if ( bIsInHardcore )
 		GiveAchievement( HC_STOP_THE_BLEEDIN );
 
+	UTIL_ScreenFade( this, Vector(0, 128, 0), 2, 0.1, 10, FFADE_IN );
+
 	m_bIsBleeding = false;
 	m_bGotBandage = true;
 	return bGiveHealth ? TakeHealth( 10, DMG_GENERIC ) : true;

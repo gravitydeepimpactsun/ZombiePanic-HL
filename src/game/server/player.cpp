@@ -489,7 +489,7 @@ void CBasePlayer ::DeathSound(void)
 
 int CBasePlayer ::TakeHealth(float flHealth, int bitsDamageType)
 {
-	UTIL_ScreenFade( this, Vector(0, 128, 0), 2, 0.1, 10, FFADE_IN );
+	UTIL_ScreenFade( this, Vector(0, 255, 255), 2, 0.1, 10, FFADE_IN );
 	return CBaseMonster ::TakeHealth(flHealth, bitsDamageType);
 }
 

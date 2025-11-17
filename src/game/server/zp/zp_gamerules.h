@@ -58,7 +58,10 @@ public:
 
 	BOOL FAllowMonsters( void ) override { return FALSE; }
 
+	bool WasCheatsOnThisSession() const;
+
 private:
+	void CheckCheats();
 	void SetPlayerModel(CBasePlayer *pPlayer);
 
 	BOOL m_DisableDeathMessages;
@@ -71,6 +74,8 @@ private:
 	float m_flRoundRestartDelay;
 	float m_flRoundJustBegun;
 	int m_iRounds;
+	bool m_bCheatsOnThisSession;
 };
+CZombiePanicGameRules *ZPGameRules();
 
 #endif

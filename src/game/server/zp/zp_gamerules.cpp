@@ -106,6 +106,9 @@ void CZombiePanicGameRules ::Think(void)
 {
 	CGameRules::Think();
 
+	// Check if cheats were enabled this session
+	CheckCheats();
+
 #ifdef SCRIPT_SYSTEM
 	ScriptSystem::OnThink();
 #endif
@@ -896,6 +899,17 @@ void CZombiePanicGameRules::ClientDisconnected(edict_t *pClient)
 	BaseClass::ClientDisconnected( pClient );
 }
 
+bool CZombiePanicGameRules::WasCheatsOnThisSession() const
+{
+	return m_bCheatsOnThisSession;
+}
+
+void CZombiePanicGameRules::CheckCheats()
+{
+	if ( CVAR_GET_FLOAT("sv_cheats") >= 1 )
+		m_bCheatsOnThisSession = true;
+}
+
 void CZombiePanicGameRules::SetPlayerModel(CBasePlayer *pPlayer)
 {
 	// Moved to this function instead.
@@ -1099,4 +1113,9 @@ const char *CZombiePanicGameRules::GetIndexedTeamName(int teamIndex)
 BOOL CZombiePanicGameRules::IsValidTeam(const char *pTeamName)
 {
 	return (GetTeamIndex(pTeamName) != -1) ? TRUE : FALSE;
+}
+
+CZombiePanicGameRules *ZPGameRules()
+{
+	return dynamic_cast< CZombiePanicGameRules *>( g_pGameRules );
 }

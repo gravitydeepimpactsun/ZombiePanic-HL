@@ -38,6 +38,7 @@
 #include "zp/gamemodes/zp_gamemodebase.h"
 #include "zp/weapons/CWeaponBase.h"
 #include "zp/weapons/CWeaponBaseSingleAction.h"
+#include "zp/zp_gamerules.h"
 #include "zp/zp_shared.h"
 #include "zp/zp_spawnpoint_ent.h"
 
@@ -712,7 +713,7 @@ int CBasePlayer ::TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, fl
 		    && pAttacker
 			&& pev->team == ZP::TEAM_SURVIVIOR )
 		{
-			pAttacker->IncreaseBleed();
+			pAttacker->IncreaseBleed( entindex() );
 			UTIL_ScreenFade( this, Vector(128, 0, 0), 2, 0.1, 80, FFADE_IN );
 			m_bIsBleeding = true;
 			m_bGotBandage = false;
@@ -2422,6 +2423,8 @@ void CBasePlayer::GiveAchievement( EAchievements eAchivement )
 {
 	// Only if we're connected
 	if ( !IsConnected() ) return;
+	if ( !ZPGameRules() ) return;
+	if ( ZPGameRules()->WasCheatsOnThisSession() ) return;
 	MESSAGE_BEGIN( MSG_ONE, gmsgAchievement, NULL, pev );
 	WRITE_SHORT( eAchivement );
 	MESSAGE_END();
@@ -4282,7 +4285,8 @@ void CBasePlayer::Spawn(void)
 	m_bJustSpawned = true;
 
 	// We are no longer bleeding.
-	m_iCausedBleed = 0;
+	for ( int i = 0; i < 4; i++ )
+		m_iBleedHit[i] = 0;
 	m_bIsBleeding = false;
 	m_bGotBandage = false;
 	// No pills
@@ -5799,10 +5803,22 @@ void CBasePlayer::NotifyOfWeaponPickup(CBasePlayerWeapon *pWeapon)
 	MESSAGE_END();
 }
 
-void CBasePlayer::IncreaseBleed()
+void CBasePlayer::IncreaseBleed( int iIndex )
 {
-	m_iCausedBleed++;
-	if ( m_iCausedBleed == 4 )
+	int iAmountHit = 0;
+	for ( int i = 0; i < 4; i++ )
+	{
+		if ( m_iBleedHit[i] == iIndex ) return;
+		if ( m_iBleedHit[i] != 0 )
+		{
+			iAmountHit++;
+			continue;
+		}
+		m_iBleedHit[i] = iIndex;
+		iAmountHit++;
+		break;
+	}
+	if ( iAmountHit == 4 )
 		GiveAchievement( HC_BLOODHARVEST );
 }
 

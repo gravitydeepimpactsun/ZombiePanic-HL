@@ -441,16 +441,16 @@ private:
 	bool m_bHasEscaped = false;
 	float m_flRefuseWeaponAudioCalls;
 	// Used by hardcore
-	int m_iCausedBleed;
 	bool m_bIsBleeding = false;
 	bool m_bGotBandage = false;
 	bool m_bGotPainkiller = false;
 	float m_flPainPillHealthDelay;
 	int m_iPillAmount;
 	int m_iPillsTaken;
+	int m_iBleedHit[4]; // Track who we hit.
 
 public:
-	void IncreaseBleed();
+	void IncreaseBleed( int iIndex );
 
 	inline void RefuseWeaponAudioCalls( float flDelay ) { m_flRefuseWeaponAudioCalls = gpGlobals->time + flDelay; }
 

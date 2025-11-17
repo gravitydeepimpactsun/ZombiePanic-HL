@@ -76,6 +76,7 @@ CZombiePanicGameRules::CZombiePanicGameRules()
 	m_DisableDeathMessages = FALSE;
 	m_DisableDeathPenalty = FALSE;
 	m_bHasPickedVolunteer = false;
+	m_bCheatsOnThisSession = false;
 	m_flRoundRestartDelay = -1;
 	m_flRoundJustBegun = -1;
 	m_Volunteers.clear();

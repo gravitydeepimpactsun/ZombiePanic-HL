@@ -2339,7 +2339,7 @@ void CBasePlayer::DoBloodLossDecal( float flDelay )
 	const Vector start( pev->origin );
 	const Vector end( pev->origin + Vector( 0, 0, -128 ) );
 	UTIL_TraceLine( start, end, ignore_monsters, pev->owner, &tr );
-	UTIL_BloodDecalTrace( &tr, BLOOD_COLOR_RED, false );
+	UTIL_DecalTrace( &tr, DECAL_BLEEDING1 + RANDOM_LONG(0, 4) );
 	m_flBloodLoss = gpGlobals->time + flDelay;
 
 	// Loose blood, but only if we have more than 1hp

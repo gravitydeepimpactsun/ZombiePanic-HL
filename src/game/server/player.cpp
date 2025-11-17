@@ -489,6 +489,7 @@ void CBasePlayer ::DeathSound(void)
 
 int CBasePlayer ::TakeHealth(float flHealth, int bitsDamageType)
 {
+	UTIL_ScreenFade( this, Vector(0, 128, 0), 2, 0.1, 10, FFADE_IN );
 	return CBaseMonster ::TakeHealth(flHealth, bitsDamageType);
 }
 
@@ -709,16 +710,19 @@ int CBasePlayer ::TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, fl
 	{
 		bool bIsInHardcore = ( ZP::GetCurrentGameMode()->GetGameModeType() == ZP::GameModeType_e::GAMEMODE_HARDCORE );
 		if ( (bitsDamage & DMG_SLASH)
-			&& bIsInHardcore
 		    && pAttacker
 			&& pev->team == ZP::TEAM_SURVIVIOR )
 		{
-			pAttacker->IncreaseBleed( entindex() );
+			if ( bIsInHardcore )
+			{
+				pAttacker->IncreaseBleed( entindex() );
+				m_bIsBleeding = true;
+				m_bGotBandage = false;
+			}
 			UTIL_ScreenFade( this, Vector(128, 0, 0), 2, 0.1, 80, FFADE_IN );
-			m_bIsBleeding = true;
-			m_bGotBandage = false;
 		}
-
+		else
+			UTIL_ScreenFade( this, Vector(128, 0, 0), 2, 0.1, 10, FFADE_IN );
 		Pain( (bitsDamage & DMG_DROWN) );
 	}
 
@@ -2350,6 +2354,7 @@ void CBasePlayer::DoBloodLossDecal( float flDelay )
 		if ( iHealth < 1 ) iHealth = 1;
 		pev->health = iHealth;
 		UTIL_ScreenFade( this, Vector(128, 0, 0), 2, 0.1, 10, FFADE_IN );
+		pev->punchangle.x = -2;
 	}
 }
 
@@ -2358,8 +2363,6 @@ bool CBasePlayer::GotBandage( bool bGiveHealth )
 	bool bIsInHardcore = ( ZP::GetCurrentGameMode()->GetGameModeType() == ZP::GameModeType_e::GAMEMODE_HARDCORE );
 	if ( bIsInHardcore )
 		GiveAchievement( HC_STOP_THE_BLEEDIN );
-
-	UTIL_ScreenFade( this, Vector(0, 128, 0), 2, 0.1, 10, FFADE_IN );
 
 	m_bIsBleeding = false;
 	m_bGotBandage = true;

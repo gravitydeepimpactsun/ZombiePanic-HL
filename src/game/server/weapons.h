@@ -366,6 +366,7 @@ extern DLL_GLOBAL short g_sModelIndexWExplosion; // holds the index for the unde
 extern DLL_GLOBAL short g_sModelIndexBubbles; // holds the index for the bubbles model
 extern DLL_GLOBAL short g_sModelIndexBloodDrop; // holds the sprite index for blood drops
 extern DLL_GLOBAL short g_sModelIndexBloodSpray; // holds the sprite index for blood spray (bigger)
+extern DLL_GLOBAL short g_sModelIndexBloodSprayHeadShot; // holds the sprite index for blood spray (headshot)
 
 extern void EXPORT ClearMultiDamage(void);
 extern void EXPORT ApplyMultiDamage(entvars_t *pevInflictor, entvars_t *pevAttacker);

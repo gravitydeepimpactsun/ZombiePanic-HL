@@ -451,6 +451,7 @@ private:
 
 public:
 	void IncreaseBleed( int iIndex );
+	void DoHeadshotBlood( const Vector &vecPos, int iAmount );
 
 	inline void RefuseWeaponAudioCalls( float flDelay ) { m_flRefuseWeaponAudioCalls = gpGlobals->time + flDelay; }
 

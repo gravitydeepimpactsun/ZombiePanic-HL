@@ -504,6 +504,25 @@ Vector CBasePlayer ::GetGunPosition()
 	return origin;
 }
 
+void CBasePlayer::DoHeadshotBlood( const Vector &vecPos, int iAmount )
+{
+	if ( iAmount > 255 ) iAmount = 255;
+
+	int iSize = clamp( iAmount / 10, 3, 16 );
+
+	MESSAGE_BEGIN( MSG_PVS, SVC_TEMPENTITY, vecPos );
+	WRITE_BYTE( TE_BLOODSPRITE );
+	WRITE_COORD( vecPos.x ); // pos
+	WRITE_COORD( vecPos.y );
+	WRITE_COORD( vecPos.z );
+	WRITE_SHORT( g_sModelIndexBloodSprayHeadShot ); // initial sprite model
+	WRITE_SHORT( g_sModelIndexBloodDrop ); // droplet sprite models
+	WRITE_BYTE( BloodColor() ); // color index into host_basepal
+	WRITE_BYTE( iSize ); // size
+	MESSAGE_END();
+}
+
+
 //=========================================================
 // TraceAttack
 //=========================================================
@@ -559,6 +578,9 @@ void CBasePlayer ::TraceAttack(entvars_t *pevAttacker, float flDamage, Vector ve
 					flDamage *= 0.5f;
 			}
 		}
+
+		if ( m_LastHitGroup == HITGROUP_HEAD )
+			DoHeadshotBlood( ptr->vecEndPos, (int)flDamage + 15 );
 
 		SpawnBlood(ptr->vecEndPos, BloodColor(), flDamage); // a little surface blood.
 		TraceBleed(flDamage, vecDir, ptr, bitsDamageType);

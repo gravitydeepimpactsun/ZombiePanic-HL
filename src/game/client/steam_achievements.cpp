@@ -72,6 +72,7 @@ StatData_t g_SteamStats[] = {
 	_STAT_ID(ZP_HC_SNACKTIME, 200),
 	_STAT_ID(ZP_GENOCIDESTEP3, 6666),
 	_STAT_ID(ZP_KILLYOSELF, 100),
+	_STAT_ID(ZP_EFFED_FACE, 50),
 
 	_STAT_ID(MAP_ZP_SANTERIA, 1),
 	_STAT_ID(MAP_ZP_CLUBZOMBO, 1),
@@ -357,6 +358,12 @@ static bool CheckIfMarathonIsComplete()
 	return bAllCompleted;
 }
 
+bool IsAtCertainPoint( int32 iValue, int32 iMaxValuem, float flProgress )
+{
+	float flValue = float(iValue) / iMaxValuem;
+	return ( flValue == flProgress ) ? true : false;
+}
+
 void CLIENT_UTIL_GiveAchievement( int iAchievement )
 {
 	if ( !GetSteamAPI() ) return;
@@ -443,14 +450,14 @@ void CLIENT_UTIL_GiveAchievement( int iAchievement )
 		SetStat( GetAchievementByID( iAchievement ).GetData().ID, value );
 
 		// Check if we have enough.
-		if ( value < GetAchievementByID( iAchievement ).GetData().MaxValue )
+		int32 maxvalue = GetAchievementByID( iAchievement ).GetData().MaxValue;
+		if ( value < maxvalue )
 		{
-			double dValue = value;
 			bool bShouldDraw = false;
 			// 25%, 50% or 90% of the way?
-			if ( value == int32(dValue * 0.25) ) bShouldDraw = true;
-			else if ( !bShouldDraw && value == int32(dValue * 0.5) ) bShouldDraw = true;
-			else if ( !bShouldDraw && value == int32(dValue * 0.9) ) bShouldDraw = true;
+			if ( IsAtCertainPoint( value, maxvalue, 0.25 ) ) bShouldDraw = true;
+			else if ( !bShouldDraw && IsAtCertainPoint( value, maxvalue, 0.5 ) ) bShouldDraw = true;
+			else if ( !bShouldDraw && IsAtCertainPoint( value, maxvalue, 0.9 ) ) bShouldDraw = true;
 			if ( bShouldDraw )
 				CHudAchievementNotification::Get()->ShowAchievement( iAchievement );
 			return;

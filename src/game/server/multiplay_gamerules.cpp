@@ -983,6 +983,8 @@ void CHalfLifeMultiplay::DeathNotice(CBasePlayer *pVictim, entvars_t *pKiller, e
 					pAttacker->m_iWeaponKillCount++;
 					if ( pAttacker->m_iWeaponKillCount == 3 )
 						pAttacker->GiveAchievement( RABBITBEAST );
+					if ( ( pVictim->m_iDeathFlags & PLR_DEATH_FLAG_HEADSHOT ) != 0 )
+						pAttacker->GiveAchievement( EFFED_FACE );
 				}
 			}
 

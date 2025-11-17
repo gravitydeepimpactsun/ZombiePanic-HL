@@ -18,7 +18,9 @@
 
 DEFINE_HUD_ELEM( CZPBeacons );
 
-static const char *g_BeaconTypeIcons[] =
+#define MAX_BEACON_TYPES 5
+
+static const char *g_BeaconTypeIcons[MAX_BEACON_TYPES] =
 {
 	"ui/icons/beacons/button",
 	"ui/icons/beacons/defend",
@@ -27,7 +29,7 @@ static const char *g_BeaconTypeIcons[] =
 	"ui/icons/beacons/capturepoint",
 };
 
-static const char *g_BeaconTypeIcons_Zombie[] =
+static const char *g_BeaconTypeIcons_Zombie[MAX_BEACON_TYPES] =
 {
 	"ui/icons/beacons/zp_button",
 	"ui/icons/beacons/zp_destroy",
@@ -68,12 +70,38 @@ void CZPBeacons::Init()
 	vgui2::surface()->GetScreenSize( w, t );
 	SetWide( w );
 	SetTall( t );
+
+	PrecacheImages();
 }
 
 void CZPBeacons::VidInit()
 {
 	BaseHudClass::VidInit();
 	m_Beacons.clear();
+	PrecacheImages();
+}
+
+void CZPBeacons::PrecacheImages()
+{
+	// Precache all beacon icons
+	g_BeaconTextures.clear();
+	for ( int i = 0; i < MAX_BEACON_TYPES; i++ )
+	{
+		// Normal icons
+		GetBeaconTextureID( g_BeaconTypeIcons[i] );
+		GetBeaconTextureID( g_BeaconTypeIcons_Zombie[i] );
+
+		// Human main icons
+		char szIconPath[256];
+		szIconPath[0] = '\0';
+		sprintf( szIconPath, "%s_main", g_BeaconTypeIcons[ i ] );
+		GetBeaconTextureID( szIconPath );
+
+		// Zombie main icons
+		szIconPath[0] = '\0';
+		sprintf( szIconPath, "%s_main", g_BeaconTypeIcons[ i ] );
+		GetBeaconTextureID( szIconPath );
+	}
 }
 
 void CZPBeacons::Paint()

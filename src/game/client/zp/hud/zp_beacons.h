@@ -53,6 +53,7 @@ public:
 	void Init();
 	void VidInit();
 	void Paint();
+	void PrecacheImages();
 
 	virtual void DrawPositions();
 	int GetBeaconTextureID( const char *szIcon ) const;

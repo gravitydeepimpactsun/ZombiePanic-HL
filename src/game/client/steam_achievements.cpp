@@ -8,6 +8,9 @@
 
 // ================================================================= \\
 
+extern void DoSteamStatReset();
+extern void CallSteamStatReset( float flDelay );
+
 // Let's construct our MapStatCheck_t array here.
 
 #define _MAP_STAT(map, mapid, statid) { mapid, #map, statid }
@@ -168,13 +171,8 @@ void STAT_OnUserStatsReceived( UserStatsReceived_t *pCallback )
 	StatData_t statReset = GrabStat( ZP_RESET_ALL );
 	if ( statReset.Value == 1 )
 	{
-		// Reset our local stats.
-		STAT_ResetAllStats();
-		// Reset everything, even our achievements.
-		GetSteamAPI()->SteamUserStats()->ResetAllStats( true );
-		// Reset all our achievements.
-		for ( int i = 0; i < ACHV_MAX; i++ )
-			SetAchievementCompletedByID( GetAchievementByID( i ), false );
+		DoSteamStatReset();
+		CallSteamStatReset( 5.0f ); // Delay it a bit to make sure Steam processes it.
 	}
 #else
 	// Ditto, but inverted for debug mode.
@@ -182,13 +180,8 @@ void STAT_OnUserStatsReceived( UserStatsReceived_t *pCallback )
 	StatData_t statReset = GrabStat( ZP_RESET_ALL );
 	if ( statReset.Value == 0 )
 	{
-		// Reset our local stats.
-		STAT_ResetAllStats();
-		// Reset everything, even our achievements.
-		GetSteamAPI()->SteamUserStats()->ResetAllStats( true );
-		// Reset all our achievements.
-		for ( int i = 0; i < ACHV_MAX; i++ )
-			SetAchievementCompletedByID( GetAchievementByID( i ), false );
+		DoSteamStatReset();
+		CallSteamStatReset( 5.0f ); // Delay it a bit to make sure Steam processes it.
 	}
 #endif
 }
@@ -196,15 +189,8 @@ void STAT_OnUserStatsReceived( UserStatsReceived_t *pCallback )
 #if defined( _DEBUG )
 CON_COMMAND( zp_reset_all_stats, "Reset all Steam stats and achievements." )
 {
-	if ( !GetSteamAPI() ) return;
-	if ( !GetSteamAPI()->SteamUserStats() ) return;
-	// Reset our local stats.
-	STAT_ResetAllStats();
-	// Reset everything, even our achievements.
-	GetSteamAPI()->SteamUserStats()->ResetAllStats( true );
-	// Reset all our achievements.
-	for ( int i = 0; i < ACHV_MAX; i++ )
-		SetAchievementCompletedByID( GetAchievementByID( i ), false );
+	DoSteamStatReset();
+	CallSteamStatReset( 5.0f ); // Delay it a bit to make sure Steam processes it.
 	Msg( "All stats has been reset!\n" );
 }
 #endif

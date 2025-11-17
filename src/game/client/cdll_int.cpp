@@ -425,6 +425,27 @@ Called by engine every frame that client .dll is loaded
 ==========================
 */
 
+static float s_flSteamStatResetDelay = -1.0f;
+extern void STAT_ResetAllStats();
+
+void DoSteamStatReset()
+{
+	if ( !GetSteamAPI() ) return;
+	if ( !GetSteamAPI()->SteamUserStats() ) return;
+	// Reset our local stats.
+	STAT_ResetAllStats();
+	// Reset everything, even our achievements.
+	GetSteamAPI()->SteamUserStats()->ResetAllStats( true );
+	// Reset all our achievements.
+	for ( int i = 0; i < ACHV_MAX; i++ )
+		SetAchievementCompletedByID( GetAchievementByID( i ), false );
+}
+
+void CallSteamStatReset( float flDelay )
+{
+	s_flSteamStatResetDelay = gEngfuncs.GetClientTime() + flDelay;
+}
+
 void CL_DLLEXPORT HUD_Frame(double time)
 {
 	//	RecClHudFrame(time);
@@ -442,6 +463,13 @@ void CL_DLLEXPORT HUD_Frame(double time)
 	// Make sure our music manager is thinking
 	if ( CMusicManager::GetInstance() )
 		CMusicManager::GetInstance()->OnThink();
+
+	// Reset Steam stats if requested
+	if ( s_flSteamStatResetDelay != -1.0f && gEngfuncs.GetClientTime() >= s_flSteamStatResetDelay )
+	{
+		DoSteamStatReset();
+		s_flSteamStatResetDelay = -1.0f;
+	}
 }
 
 /*

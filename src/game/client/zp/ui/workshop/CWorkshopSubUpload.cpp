@@ -35,22 +35,26 @@
 static CWorkshopSubUpload *pUploader = nullptr;
 
 static const std::vector<std::string> szTags_Weapons = {
-	"Crowbar",
+	"Melee",
 	"Zombie Arms",
 	"Sig Sauer",
+	"PPK",
 	"Revolver",
-	"M4",
+	"556 AR",
 	"MP5",
 	"Shotgun",
+	"Double Barrel",
 };
 
 static const std::vector<std::string> szTags_Items = {
 	"Medkit",
+	"Bandage",
+	"Pills",
 	"Armor",
 	"Ammo Boxes",
 	"Backpack",
 	"TNT",
-	"Satchel Charge",
+	"IED",
 };
 
 static const std::vector<std::string> szTags_Generic = {

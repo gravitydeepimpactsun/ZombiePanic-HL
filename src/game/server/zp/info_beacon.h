@@ -19,6 +19,7 @@ public:
 	void KeyValue( KeyValueData *pkvd ) override;
 	void Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
 	void UpdateMessageState();
+	void UpdateMessageStateForEntity( CBasePlayer *pPlayer );
 	virtual int ObjectCaps(void) { return CBaseEntity::ObjectCaps() | FCAP_MUST_RESET; }
 	bool IsActive() const { return m_bActive && !m_bForcedOff; }
 	inline void UpdateHealth( int health ) { pev->health = clamp( health, 0, 100 ); UpdateMessageState(); }

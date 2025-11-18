@@ -4,6 +4,7 @@
 #include "util.h"
 #include "eiface.h"
 #include "zp/info_beacon.h"
+#include "player.h"
 #ifdef SCRIPT_SYSTEM
 #include "core.h"
 #endif
@@ -195,6 +196,42 @@ void CInfoBeacon::UpdateMessageState()
 
 	    // If the zombie text isn't empty, use that instead.
 	    if ( FStringNull( m_TextZombie ) == FALSE )
+			strncpy( szText, STRING(m_TextZombie), sizeof( szText ) );
+		WRITE_STRING( szText ); // Text to display below the beacon icon
+	MESSAGE_END();
+}
+
+void CInfoBeacon::UpdateMessageStateForEntity( CBasePlayer *pPlayer )
+{
+	// Only send if we are active.
+	// If not, ignore it.
+	if ( !m_bActive ) return;
+	// Make sure we are sending this to a valid player
+	if ( !pPlayer ) return;
+	// Same as the normal UpdateMessageState, but only for a specific player.
+	// Used for late joiners, so they can see the beacons that are already active.
+	MESSAGE_BEGIN( MSG_ONE, gmsgBeaconDraw, nullptr, pPlayer->pev );
+		WRITE_SHORT( ENTINDEX( edict() ) ); // Unique ID for this beacon, so we can update/remove it later. It's using the entity index of the info_beacon entity.
+		WRITE_BYTE( m_bActive ? 1 : 0 ); // Is the beacon active or not
+		WRITE_BYTE( m_bImportant ? 1 : 0 ); // If true, the beacon is drawn with golden colors
+		WRITE_SHORT( (int)m_Type ); // Type of beacon, for the icon. Zombies have a different icon that reads from their own seperate file.
+		WRITE_SHORT( (int)m_DrawType ); // When to draw the beacon
+		WRITE_BYTE( m_bShowHealth ? 1 : 0 ); // If true, show health bar below the beacon icon. Very useful for defend, destroy and capture point beacons.
+		WRITE_SHORT( pev->health ); // Current health of the beacon, only used if m_bShowHealth is true
+		WRITE_SHORT( m_teamfilter ); // Team filter, 0 = all, 1 = humans only, 2 = zombies only (Only matters if we just want zombie or human only beacons)
+		WRITE_COORD( pev->origin.x ); // World position of the beacon
+		WRITE_COORD( pev->origin.y );
+		WRITE_COORD( pev->origin.z );
+		WRITE_FLOAT( m_Range ); // Range in units for the beacon to be visible, 0 = always visible
+		static char szText[512];
+		szText[0] = 0;
+		if ( FStringNull( m_TextHuman ) == FALSE )
+			strncpy( szText, STRING(m_TextHuman), sizeof( szText ) );
+		else
+			strncpy( szText, "Example Text", sizeof( szText ) );
+		WRITE_STRING( szText ); // Text to display below the beacon icon
+		// If the zombie text isn't empty, use that instead.
+		if ( FStringNull( m_TextZombie ) == FALSE )
 			strncpy( szText, STRING(m_TextZombie), sizeof( szText ) );
 		WRITE_STRING( szText ); // Text to display below the beacon icon
 	MESSAGE_END();

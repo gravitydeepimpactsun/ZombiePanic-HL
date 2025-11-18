@@ -10,6 +10,7 @@
 #include "game.h"
 #include "shake.h"
 #include "zp/info_random_base.h"
+#include "zp/info_beacon.h"
 #ifdef SCRIPT_SYSTEM
 #include "core.h"
 #endif
@@ -587,7 +588,7 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 			// This only applies if the player is on TEAM_OBSERVER
 			if ( pPlayer->m_bNoLives )
 			{
-				if ( pPlayer->pev->team == ZP::TEAM_OBSERVER && !pPlayer->IsObserver() )
+				if ( !pPlayer->IsObserver() )
 					pPlayer->StartObserver();
 				return TRUE;
 			}
@@ -603,6 +604,18 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 					m_Volunteers.push_back( pPlayer->entindex() );
 			}
 			bool bLateJoin = ( m_pGameMode->GetRoundState() == ZP::RoundState::RoundState_RoundHasBegun ) ? true : false;
+
+			// If we are late joining, make sure we activate beacons that are active.
+			if ( bLateJoin )
+			{
+				CInfoBeacon *pBeacon = (CInfoBeacon *)UTIL_FindEntityByClassname( nullptr, "info_beacon" );
+				while ( pBeacon )
+				{
+					pBeacon->UpdateMessageStateForEntity( pPlayer );
+					pBeacon = (CInfoBeacon *)UTIL_FindEntityByClassname( pBeacon, "info_beacon" );
+				}
+			}
+
 			if ( bLateJoin
 				&& m_flRoundJustBegun - gpGlobals->time > 0
 				&& !m_pGameMode->HasLeftMidRound( pPlayer ) )

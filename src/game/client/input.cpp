@@ -483,6 +483,8 @@ static bool IsConnected()
 bool HasRoundBegun()
 {
 	if ( !IsConnected() ) return false;
+	// If we are an observer, allow free movement
+	if ( g_iUser1 ) return true;
 	// Do not move before the round starts
 	if ( gHUD.m_RoundState < ZP::RoundState::RoundState_RoundHasBegun )
 	{
@@ -677,7 +679,8 @@ void IN_MLookUp(void)
 
 void Input_StopAllMovements()
 {
-	KeyUp(&in_duck);
+	// If we are an observer, allow free movement
+	if ( g_iUser1 ) return;
 	KeyUp(&in_back);
 	KeyUp(&in_forward);
 	KeyUp(&in_left);

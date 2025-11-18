@@ -152,7 +152,7 @@ void CBasePlayer::Observer_SetMode(int iMode)
 		return;
 
 	// is valid mode ?
-	if (iMode < OBS_CHASE_LOCKED || iMode > OBS_MAP_CHASE)
+	if (iMode < OBS_CHASE_LOCKED || iMode > OBS_IN_EYE)
 		iMode = OBS_ROAMING; // now it is
 
 	if (iMode == OBS_ROAMING && m_hObserverTarget)

@@ -136,8 +136,7 @@ void CSpectatorPanel::PaintBackground()
 {
 	// Tell the client we can press our crouch button to get back
 	// to our team menu.
-	CPlayerInfo *localplayer = GetPlayerInfo( gEngfuncs.GetLocalPlayer()->index );
-	if ( localplayer && localplayer->IsConnected() && localplayer->GetTeamNumber() == ZP::TEAM_OBSERVER )
+	if ( g_iUser1 )
 	{
 		// Get default font
 		vgui2::surface()->DrawSetTextFont( m_hHintFont );

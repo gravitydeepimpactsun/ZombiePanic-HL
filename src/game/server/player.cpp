@@ -2441,6 +2441,7 @@ bool CBasePlayer::GotPainKiller()
 
 void CBasePlayer::DoBloodLoss()
 {
+	if ( pev->team != ZP::TEAM_SURVIVIOR ) return;
 	if ( !IsAlive() ) return;
 
 	const int iHealth = pev->health;

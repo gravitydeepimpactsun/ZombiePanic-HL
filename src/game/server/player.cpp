@@ -524,7 +524,7 @@ void CBasePlayer::DoHeadshotBlood( const Vector &vecPos, int iAmount )
 
 void CBasePlayer::DoHeadshotChunk( const Vector &vecPos, short modelIndex, int iAmount, int iScale )
 {
-	Vector vecDir = vecPos + Vector( 0, 0, 100 );
+	Vector vecDir = vecPos + Vector( 0, 0, 18 );
 	MESSAGE_BEGIN( MSG_PVS, SVC_TEMPENTITY, vecPos );
 	WRITE_BYTE( TE_SPRITETRAIL );
 	WRITE_COORD( vecPos.x ); // start
@@ -535,24 +535,25 @@ void CBasePlayer::DoHeadshotChunk( const Vector &vecPos, short modelIndex, int i
 	WRITE_COORD( vecDir.z );
 	WRITE_SHORT( modelIndex ); // sprite model
 	WRITE_BYTE( iAmount ); // count
-	WRITE_BYTE( 25 ); // life
+	WRITE_BYTE( 40 ); // life
 	WRITE_BYTE( iScale ); // scale
-	WRITE_BYTE( 100 ); // velocity
-	WRITE_BYTE( RandomInt( 10, 100 ) ); // randomness of velocity
+	WRITE_BYTE( 15 ); // velocity
+	WRITE_BYTE( RandomInt( 3, 10 ) ); // randomness of velocity
 	MESSAGE_END();
 }
 
 void CBasePlayer::DoHeadshotExploded( const Vector &vecPos )
 {
-	int iSize = 3;
+	int iSize = 1;
+	int iSize_large = 2;
 	DoHeadshotChunk( vecPos, g_sModelIndexHeadshotChunk_EyeBall, 2, iSize );
-	DoHeadshotChunk( vecPos, g_sModelIndexHeadshotChunk_Bone1, 1, iSize );
-	DoHeadshotChunk( vecPos, g_sModelIndexHeadshotChunk_Bone2, 1, iSize );
-	DoHeadshotChunk( vecPos, g_sModelIndexHeadshotChunk_Bone3, 1, iSize );
-	DoHeadshotChunk( vecPos, g_sModelIndexHeadshotChunk_Bone4, 1, iSize );
+	DoHeadshotChunk( vecPos, g_sModelIndexHeadshotChunk_Bone1, 1, iSize_large );
+	DoHeadshotChunk( vecPos, g_sModelIndexHeadshotChunk_Bone2, 1, iSize_large );
+	DoHeadshotChunk( vecPos, g_sModelIndexHeadshotChunk_Bone3, 1, iSize_large );
+	DoHeadshotChunk( vecPos, g_sModelIndexHeadshotChunk_Bone4, 1, iSize_large );
 	DoHeadshotChunk( vecPos, g_sModelIndexHeadshotChunk_Teeth, 4, iSize );
-	DoHeadshotChunk( vecPos, g_sModelIndexHeadshotChunk_Jaw1, 1, iSize );
-	DoHeadshotChunk( vecPos, g_sModelIndexHeadshotChunk_Jaw2, 1, iSize );
+	DoHeadshotChunk( vecPos, g_sModelIndexHeadshotChunk_Jaw1, 1, iSize_large );
+	DoHeadshotChunk( vecPos, g_sModelIndexHeadshotChunk_Jaw2, 1, iSize_large );
 }
 
 

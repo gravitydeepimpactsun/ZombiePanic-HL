@@ -51,6 +51,14 @@ DLL_GLOBAL short g_sModelIndexBubbles; // holds the index for the bubbles model
 DLL_GLOBAL short g_sModelIndexBloodDrop; // holds the sprite index for the initial blood
 DLL_GLOBAL short g_sModelIndexBloodSpray; // holds the sprite index for splattered blood
 DLL_GLOBAL short g_sModelIndexBloodSprayHeadShot; // holds the sprite index for splattered blood (headshot)
+DLL_GLOBAL short g_sModelIndexHeadshotChunk_EyeBall; // headshot chunk - eyeball
+DLL_GLOBAL short g_sModelIndexHeadshotChunk_Bone1; // headshot chunk - skull piece 1
+DLL_GLOBAL short g_sModelIndexHeadshotChunk_Bone2; // headshot chunk - skull piece 2
+DLL_GLOBAL short g_sModelIndexHeadshotChunk_Bone3; // headshot chunk - skull piece 3
+DLL_GLOBAL short g_sModelIndexHeadshotChunk_Bone4; // headshot chunk - skull piece 4
+DLL_GLOBAL short g_sModelIndexHeadshotChunk_Jaw1; // headshot chunk - upper jaw
+DLL_GLOBAL short g_sModelIndexHeadshotChunk_Jaw2; // headshot chunk - lower jaw
+DLL_GLOBAL short g_sModelIndexHeadshotChunk_Teeth; // headshot chunk - teeth
 
 ItemInfo CBasePlayerItem::ItemInfoArray[MAX_WEAPONS];
 
@@ -303,6 +311,16 @@ void EXPORT W_Precache(void)
 	g_sModelIndexBloodSpray = PRECACHE_MODEL("sprites/bloodspray.spr"); // initial blood
 	g_sModelIndexBloodSprayHeadShot = PRECACHE_MODEL("sprites/bloodspray_hs.spr"); // initial blood
 	g_sModelIndexBloodDrop = PRECACHE_MODEL("sprites/blood.spr"); // splattered blood
+
+	// Headshot chunks
+	g_sModelIndexHeadshotChunk_EyeBall = PRECACHE_MODEL("sprites/hs_chunk_eye.spr");
+	g_sModelIndexHeadshotChunk_Bone1 = PRECACHE_MODEL("sprites/hs_chunk_skull1.spr");
+	g_sModelIndexHeadshotChunk_Bone2 = PRECACHE_MODEL("sprites/hs_chunk_skull2.spr");
+	g_sModelIndexHeadshotChunk_Bone3 = PRECACHE_MODEL("sprites/hs_chunk_skull3.spr");
+	g_sModelIndexHeadshotChunk_Bone4 = PRECACHE_MODEL("sprites/hs_chunk_skull4.spr");
+	g_sModelIndexHeadshotChunk_Jaw1 = PRECACHE_MODEL("sprites/hs_chunk_jaw1.spr");
+	g_sModelIndexHeadshotChunk_Jaw2 = PRECACHE_MODEL("sprites/hs_chunk_jaw2.spr");
+	g_sModelIndexHeadshotChunk_Teeth = PRECACHE_MODEL("sprites/hs_chunk_teeth.spr");
 
 	g_sModelIndexLaser = PRECACHE_MODEL((char *)g_pModelNameLaser);
 	g_sModelIndexLaserDot = PRECACHE_MODEL("sprites/laserdot.spr");

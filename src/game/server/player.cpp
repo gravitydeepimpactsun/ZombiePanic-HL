@@ -522,6 +522,39 @@ void CBasePlayer::DoHeadshotBlood( const Vector &vecPos, int iAmount )
 	MESSAGE_END();
 }
 
+void CBasePlayer::DoHeadshotChunk( const Vector &vecPos, short modelIndex, int iAmount, int iScale )
+{
+	Vector vecDir = vecPos + Vector( 0, 0, 100 );
+	MESSAGE_BEGIN( MSG_PVS, SVC_TEMPENTITY, vecPos );
+	WRITE_BYTE( TE_SPRITETRAIL );
+	WRITE_COORD( vecPos.x ); // start
+	WRITE_COORD( vecPos.y );
+	WRITE_COORD( vecPos.z );
+	WRITE_COORD( vecDir.x ); // end
+	WRITE_COORD( vecDir.y );
+	WRITE_COORD( vecDir.z );
+	WRITE_SHORT( modelIndex ); // sprite model
+	WRITE_BYTE( iAmount ); // count
+	WRITE_BYTE( 25 ); // life
+	WRITE_BYTE( iScale ); // scale
+	WRITE_BYTE( 100 ); // velocity
+	WRITE_BYTE( RandomInt( 10, 100 ) ); // randomness of velocity
+	MESSAGE_END();
+}
+
+void CBasePlayer::DoHeadshotExploded( const Vector &vecPos )
+{
+	int iSize = 3;
+	DoHeadshotChunk( vecPos, g_sModelIndexHeadshotChunk_EyeBall, 2, iSize );
+	DoHeadshotChunk( vecPos, g_sModelIndexHeadshotChunk_Bone1, 1, iSize );
+	DoHeadshotChunk( vecPos, g_sModelIndexHeadshotChunk_Bone2, 1, iSize );
+	DoHeadshotChunk( vecPos, g_sModelIndexHeadshotChunk_Bone3, 1, iSize );
+	DoHeadshotChunk( vecPos, g_sModelIndexHeadshotChunk_Bone4, 1, iSize );
+	DoHeadshotChunk( vecPos, g_sModelIndexHeadshotChunk_Teeth, 4, iSize );
+	DoHeadshotChunk( vecPos, g_sModelIndexHeadshotChunk_Jaw1, 1, iSize );
+	DoHeadshotChunk( vecPos, g_sModelIndexHeadshotChunk_Jaw2, 1, iSize );
+}
+
 
 //=========================================================
 // TraceAttack
@@ -968,6 +1001,8 @@ void CBasePlayer::Killed(entvars_t *pevAttacker, int iGib)
 		SetBodygroup( BGROUP_HEAD, BGROUP_SUB_VALUE1 );
 		// Now create some blood n' shit!
 		Vector headpos = pev->origin + Vector( 0, 0, 13 );
+		if ( !bShouldGib )
+			DoHeadshotExploded( headpos );
 		CGib::SpawnStickyGibs( pev, headpos, RANDOM_LONG( 4, 8 ) );
 	}
 
@@ -5835,7 +5870,7 @@ void CBasePlayer::NotifyOfWeaponPickup(CBasePlayerWeapon *pWeapon)
 	MESSAGE_END();
 }
 
-void CBasePlayer::IncreaseBleed( int iIndex )
+void CBasePlayer::IncreaseBleed(int iIndex)
 {
 	int iAmountHit = 0;
 	for ( int i = 0; i < 4; i++ )

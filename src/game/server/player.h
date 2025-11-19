@@ -449,9 +449,11 @@ private:
 	int m_iPillsTaken;
 	int m_iBleedHit[4]; // Track who we hit.
 
+	void DoHeadshotChunk( const Vector &vecPos, short modelIndex, int iAmount, int iScale );
 public:
 	void IncreaseBleed( int iIndex );
 	void DoHeadshotBlood( const Vector &vecPos, int iAmount );
+	void DoHeadshotExploded( const Vector &vecPos );
 
 	inline void RefuseWeaponAudioCalls( float flDelay ) { m_flRefuseWeaponAudioCalls = gpGlobals->time + flDelay; }
 

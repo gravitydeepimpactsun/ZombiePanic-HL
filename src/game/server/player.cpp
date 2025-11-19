@@ -535,7 +535,7 @@ void CBasePlayer::DoHeadshotChunk( const Vector &vecPos, short modelIndex, int i
 	WRITE_COORD( vecDir.z );
 	WRITE_SHORT( modelIndex ); // sprite model
 	WRITE_BYTE( iAmount ); // count
-	WRITE_BYTE( 40 ); // life
+	WRITE_BYTE( 20 ); // life
 	WRITE_BYTE( iScale ); // scale
 	WRITE_BYTE( 15 ); // velocity
 	WRITE_BYTE( RandomInt( 3, 10 ) ); // randomness of velocity

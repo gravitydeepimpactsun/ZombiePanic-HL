@@ -363,6 +363,11 @@ void CMultiManager ::Spawn(void)
 	SetUse(&CMultiManager::ManagerUse);
 	SetThink(&CMultiManager::ManagerThink);
 
+#ifdef SCRIPT_SYSTEM
+	// Outputs
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "OnTrigger" );
+#endif
+
 	// Sort targets
 	// Quick and dirty bubble sort
 	int swapped = 1;
@@ -466,6 +471,18 @@ void CMultiManager ::ManagerUse(CBaseEntity *pActivator, CBaseEntity *pCaller, U
 	m_startTime = gpGlobals->time;
 
 	SetUse(NULL); // disable use until all targets have fired
+
+#ifdef SCRIPT_SYSTEM
+	const std::string &szOutput( "OnTrigger" );
+	ScriptSystem::CallScriptDelay(
+		AvailableScripts_t::InputOutput,
+		nullptr,
+		szOutput,
+		0.0f,
+		1,
+		std::to_string( entindex() )
+	);
+#endif
 
 	SetThink(&CMultiManager::ManagerThink);
 	pev->nextthink = gpGlobals->time;

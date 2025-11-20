@@ -206,7 +206,7 @@ void CZPBeacons::DrawPositions()
 				pmtrace_t tr;
 				gEngfuncs.pEventAPI->EV_SetTraceHull( 2 ); // Point hull
 				gEngfuncs.pEventAPI->EV_PlayerTrace( beacon.position, v_origin, 0xFFFFFFFF, -1, &tr );
-				if ( tr.fraction < 0.99f ) // If we hit something, the beacon is visible
+				if ( tr.fraction < 0.99f && drawState != DRAWSTATE_NO ) // If we hit something, the beacon is visible
 					drawState = DRAWSTATE_YES;
 			    else
 					drawState = DRAWSTATE_NO;

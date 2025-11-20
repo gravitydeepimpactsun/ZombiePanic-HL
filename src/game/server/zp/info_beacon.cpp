@@ -79,6 +79,11 @@ void CInfoBeacon::OnScriptCallBack( KeyValues *pData )
 	}
 }
 
+void CInfoBeacon::Think()
+{
+	SetParentPositions();
+}
+
 void CInfoBeacon::Restart()
 {
 	// Reset our state

@@ -27,6 +27,7 @@
 #include "animation.h"
 #include "weapons.h"
 #include "player.h"
+#include "zp/info_beacon.h"
 #ifdef SCRIPT_SYSTEM
 #include "core.h"
 #endif
@@ -42,7 +43,7 @@ public:
 	int TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int bitsDamageType);
 	void Spawn(void);
 	void Restart(void);
-	void Think(void);
+	virtual void Think(void);
 	//void Pain( float flDamage );
 	void Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
 
@@ -90,24 +91,108 @@ public:
 	void Spawn(void)
 	{
 		CGenericCycler::Spawn();
+#ifdef SCRIPT_SYSTEM
+		// Outputs
+		ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "OnUse" );
+#endif
+
 		pev->movetype = MOVETYPE_TOSS;
 		pev->solid = SOLID_BBOX;
 		UTIL_SetSize( pev, Vector(0, 0, 0), Vector(0, 0, 0) );
 		pev->classname = MAKE_STRING( "prop_objective" );
+
+		if ( FStringNull( m_iszBeacon ) == FALSE )
+		{
+			m_bApplyBeaconOffset = true;
+			SetThink( &CPropObjective::SetBeaconParent );
+			pev->nextthink = gpGlobals->time + 2.5f;
+		}
 	}
 	void Restart()
 	{
 		CGenericCycler::Restart();
+		if ( FStringNull( m_iszBeacon ) == FALSE )
+		{
+			SetThink( &CPropObjective::SetBeaconParent );
+			pev->nextthink = gpGlobals->time;
+		}
 	}
+	void Think(void)
+	{
+		CGenericCycler::Think();
+		CBaseEntity::Think();
+	}
+	void EXPORT SetBeaconParent();
 	void Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value ) override;
+	void KeyValue( KeyValueData *pkvd )
+	{
+		if ( FStrEq( pkvd->szKeyName, "beacon" ) )
+		{
+			m_iszBeacon = ALLOC_STRING(pkvd->szValue);
+			pkvd->fHandled = TRUE;
+		}
+		else
+			CGenericCycler::KeyValue( pkvd );
+	}
+private:
+	string_t m_iszBeacon;
+	Vector m_vecBeaconOffset;
+	bool m_bApplyBeaconOffset;
 };
 LINK_ENTITY_TO_CLASS( prop_objective, CPropObjective );
+
+
+void CPropObjective::SetBeaconParent()
+{
+	CBaseEntity *pEnt = UTIL_FindEntityByTargetname( nullptr, STRING(m_iszBeacon) );
+	if ( pEnt )
+	{
+		if ( m_bApplyBeaconOffset )
+		{
+			// Apply offset from beacon to prop objective
+			m_vecBeaconOffset = pEnt->pev->origin - pev->origin;
+			Vector vecDesiredOrigin = pEnt->pev->origin + m_vecBeaconOffset;
+			UTIL_SetOrigin( pev, vecDesiredOrigin );
+			m_bApplyBeaconOffset = false;
+		}
+		else
+		{
+			Vector vecDesiredOrigin = m_vecBeaconOffset + pev->origin;
+			Vector vecCurrentOrigin = pEnt->pev->origin;
+			UTIL_SetOrigin( pEnt->pev, vecDesiredOrigin );
+			bool bIsCorrectOrigin = true;
+
+			// If our previous desired origin is not the same as our current origin, update the beacon state
+			if ( vecDesiredOrigin != vecCurrentOrigin )
+				bIsCorrectOrigin = false;
+
+			// Tell our client that something has changed
+			CInfoBeacon *pBeacon = dynamic_cast<CInfoBeacon *>(pEnt);
+			if ( pBeacon && !bIsCorrectOrigin )
+				pBeacon->UpdateMessageState();
+		}
+	}
+	pev->nextthink = gpGlobals->time + 0.1f;
+}
 
 void CPropObjective::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
 	if ( pActivator->pev->team != ZP::TEAM_SURVIVIOR ) return;
 	if ( pev->effects == EF_NODRAW ) return;
 	SoftRemove();
+
+	// Turn off the beacon
+	if ( FStringNull( m_iszBeacon ) == FALSE )
+	{
+		CBaseEntity *pEnt = UTIL_FindEntityByTargetname( nullptr, STRING(m_iszBeacon) );
+		if ( pEnt )
+		{
+			CInfoBeacon *pBeacon = dynamic_cast<CInfoBeacon *>(pEnt);
+			if ( pBeacon )
+				pBeacon->Use( pActivator, this, USE_OFF, 0.0f );
+		}
+	}
+
 #ifdef SCRIPT_SYSTEM
 	CBaseEntity *m_pActivator = pActivator;
 	if ( !m_pActivator ) m_pActivator = this;

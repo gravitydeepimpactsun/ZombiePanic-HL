@@ -15,6 +15,7 @@ class CInfoBeacon : public CPointEntity
 
 public:
 	void Spawn( void );
+	void Think();
 	void Restart();
 	void KeyValue( KeyValueData *pkvd ) override;
 	void Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );

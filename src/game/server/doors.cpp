@@ -22,6 +22,9 @@
 #include "util.h"
 #include "cbase.h"
 #include "doors.h"
+#ifdef SCRIPT_SYSTEM
+#include "core.h"
+#endif
 
 extern void SetMovedir(entvars_t *ev);
 
@@ -31,6 +34,9 @@ extern void SetMovedir(entvars_t *ev);
 class CBaseDoor : public CBaseToggle
 {
 public:
+	void RegisterIO();
+	void OnScriptCallBack( KeyValues *pData );
+
 	void Spawn(void);
 	void Restart(void);
 	void Precache(void);
@@ -73,6 +79,7 @@ public:
 	BYTE m_bLockedSentence;
 	BYTE m_bUnlockedSound;
 	BYTE m_bUnlockedSentence;
+	bool m_bIsLocked;
 };
 
 TYPEDESCRIPTION CBaseDoor::m_SaveData[] = {
@@ -88,6 +95,36 @@ TYPEDESCRIPTION CBaseDoor::m_SaveData[] = {
 };
 
 IMPLEMENT_SAVERESTORE(CBaseDoor, CBaseToggle);
+
+void CBaseDoor::RegisterIO()
+{
+	m_bIsLocked = false;
+
+#ifdef SCRIPT_SYSTEM
+	// Outputs
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "OnLocked" );
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "OnUnLocked" );
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "OnUse" );
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "OnLockedUse" );
+
+	// Inputs
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "SetLocked" );
+
+	SetEntityScriptCallback( &CBaseDoor::OnScriptCallBack );
+#endif
+}
+
+void CBaseDoor::OnScriptCallBack( KeyValues *pData )
+{
+	const char *szAction = pData->GetString( "Action" );
+	const char *szValue = pData->GetString( "arg0" );
+	// Check what kind of action we got
+	if ( FStrEq( szAction, "SetLocked" ) )
+	{
+		m_bIsLocked = atoi( szValue );
+		FireEntityOutput( this, m_bIsLocked ? "OnLocked" : "OnUnLocked" );
+	}
+}
 
 #define DOOR_SENTENCEWAIT 6
 #define DOOR_SOUNDWAIT    3
@@ -273,6 +310,7 @@ LINK_ENTITY_TO_CLASS(func_water, CBaseDoor);
 
 void CBaseDoor::Spawn()
 {
+	RegisterIO();
 	Precache();
 	SetMovedir(pev);
 
@@ -320,6 +358,7 @@ void CBaseDoor::Spawn()
 
 void CBaseDoor::Restart()
 {
+	m_bIsLocked = false;
 	SetMovedir(pev);
 	DoorGoDown();
 	m_toggle_state = TS_AT_BOTTOM;
@@ -560,6 +599,25 @@ void CBaseDoor::DoorTouch(CBaseEntity *pOther)
 //
 void CBaseDoor::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value)
 {
+	if (m_bIsLocked)
+	{
+		// play button locked sound
+		PlayLockSounds(pev, &m_ls, TRUE, TRUE);
+#ifdef SCRIPT_SYSTEM
+		const std::string &szOutput( "OnLockedUse" );
+		ScriptSystem::CallScriptDelay(
+			AvailableScripts_t::InputOutput,
+			nullptr,
+			szOutput,
+			0.0f,
+			2,
+			std::to_string( entindex() ),
+			std::to_string( pActivator ? pActivator->entindex() : entindex() )
+		);
+#endif
+		return;
+	}
+
 	m_hActivator = pActivator;
 	// if not ready to be used, ignore "use" command.
 	if (m_toggle_state == TS_AT_BOTTOM || FBitSet(pev->spawnflags, SF_DOOR_NO_AUTO_RETURN) && m_toggle_state == TS_AT_TOP)
@@ -573,6 +631,22 @@ int CBaseDoor::DoorActivate()
 {
 	if (!UTIL_IsMasterTriggered(m_sMaster, m_hActivator))
 		return 0;
+
+#ifdef SCRIPT_SYSTEM
+	if ( m_toggle_state == TS_AT_BOTTOM || m_toggle_state == TS_AT_TOP )
+	{
+		const std::string &szOutput( "OnUse" );
+		ScriptSystem::CallScriptDelay(
+			AvailableScripts_t::InputOutput,
+			nullptr,
+			szOutput,
+			0.0f,
+			2,
+			std::to_string( entindex() ),
+			std::to_string( m_hActivator ? m_hActivator->entindex() : entindex() )
+		);
+	}
+#endif
 
 	if (FBitSet(pev->spawnflags, SF_DOOR_NO_AUTO_RETURN) && m_toggle_state == TS_AT_TOP)
 	{ // door should close
@@ -865,6 +939,7 @@ LINK_ENTITY_TO_CLASS(func_door_rotating, CRotDoor);
 
 void CRotDoor::Spawn(void)
 {
+	RegisterIO();
 	Precache();
 	// set the axis of rotation
 	CBaseToggle::AxisDir(pev);
@@ -914,6 +989,8 @@ void CRotDoor::Spawn(void)
 
 void CRotDoor::Restart()
 {
+	m_bIsLocked = false;
+
 	CBaseToggle::AxisDir(pev);
 
 	if (pev->spawnflags & SF_DOOR_ROTATE_BACKWARDS)

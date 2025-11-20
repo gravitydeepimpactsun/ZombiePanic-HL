@@ -822,6 +822,7 @@ void CBaseEntity::SetupParentFromKV()
 void CBaseEntity::SetParent( CBaseEntity *pEnt )
 {
 	m_pParent = pEnt->edict();
+	m_vecParentOffset = pev->origin - pEnt->pev->origin;
 }
 
 CBaseEntity *CBaseEntity::GetParent()
@@ -871,6 +872,18 @@ void CBaseEntity::Restart()
 		),
 		this
 	);
+}
+
+void CBaseEntity::SetParentPositions(void)
+{
+	if ( !GetParent() ) return;
+
+	// Note: This function "parents" the entity to another entity by maintaining an offset from the parent's origin.
+	// It's similar to how Source Engine does it, but we do some little hacking to replicate it in GoldSrc.
+	// If the parent moves, we move along with it.
+
+	// Always make sure we teleport to our parent position plus offset
+	UTIL_SetOrigin( pev, m_vecParentOffset + GetParent()->pev->origin );
 }
 
 // NOTE: szName must be a pointer to constant memory, e.g. "monster_class" because the entity

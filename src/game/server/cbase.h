@@ -172,6 +172,7 @@ public:
 	virtual void Activate(void) { }
 #if defined( SERVER_DLL )
 	virtual void Restart(void);
+	virtual void SetParentPositions(void);
 #endif
 
 	virtual bool IsUseableItem() const { return false; }
@@ -239,6 +240,9 @@ public:
 
 	virtual void Think(void)
 	{
+#if defined( SERVER_DLL )
+		SetParentPositions();
+#endif
 		if (m_pfnThink)
 			(this->*m_pfnThink)();
 	};
@@ -359,6 +363,7 @@ public:
 
 	string_t m_szParent = NULL;
 	edict_t *m_pParent = nullptr;
+	Vector m_vecParentOffset = g_vecZero;
 
 	void SetupParentFromKV();
 	void SetParent( CBaseEntity *pEnt );

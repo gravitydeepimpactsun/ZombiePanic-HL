@@ -14,7 +14,9 @@ public:
 
 	CHudAmmoBank();
 
+	void Init() override;
 	void VidInit() override;
+	void SetDefaultPos();
 
 	virtual bool IsAllowedToDraw();
 	virtual void PaintBackground();

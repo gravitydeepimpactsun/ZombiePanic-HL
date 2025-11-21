@@ -68,12 +68,32 @@ CHudAmmoBank::CHudAmmoBank()
 	HookMessage<&CHudAmmoBank::MsgFunc_AmmoBankUpdate>("AmmoBank");
 }
 
+void CHudAmmoBank::Init()
+{
+	int cornerWide, cornerTall;
+	GetCornerTextureSize( cornerWide, cornerTall );
+	m_bHasPanelRect = false;
+	UpdateVisibility( false );
+	SetDefaultPos();
+}
+
 void CHudAmmoBank::VidInit()
 {
 	int cornerWide, cornerTall;
 	GetCornerTextureSize( cornerWide, cornerTall );
 	m_bHasPanelRect = false;
 	UpdateVisibility( false );
+	SetDefaultPos();
+}
+
+void CHudAmmoBank::SetDefaultPos()
+{
+	int wide, tall;
+	vgui2::surface()->GetScreenSize( wide, tall );
+	panelrect.x = wide;
+	panelrect.y = tall;
+	panelrect.width = 1;
+	panelrect.height = 1;
 }
 
 void CHudAmmoBank::ApplySchemeSettings(vgui2::IScheme *pScheme)
@@ -101,6 +121,8 @@ void CHudAmmoBank::ApplySchemeSettings(vgui2::IScheme *pScheme)
 
 bool CHudAmmoBank::IsAllowedToDraw()
 {
+	// Spectator? Don't.
+	if ( g_iUser1 ) return false;
 	if ( gHUD.m_RoundState < ZP::RoundState::RoundState_RoundHasBegunPost ) return false;
 	if ( g_pViewport->IsVGUIVisible( MENU_TEAM ) ) return false;
 	if ( g_pViewport->IsVGUIVisible( MENU_MOTD ) ) return false;

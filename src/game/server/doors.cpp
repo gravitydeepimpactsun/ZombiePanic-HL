@@ -654,14 +654,12 @@ int CBaseDoor::DoorActivate()
 	}
 	else
 	{ // door should open
-#if defined( HL_CLIENT )
 		if (m_hActivator != NULL && m_hActivator->IsPlayer())
 		{ // give health if player opened the door (medikit)
 			// VARS( m_eoActivator )->health += m_bHealthValue;
 
 			m_hActivator->TakeHealth(m_bHealthValue, DMG_GENERIC);
 		}
-#endif
 
 		// play door unlock sounds
 		PlayLockSounds(pev, &m_ls, FALSE, FALSE);

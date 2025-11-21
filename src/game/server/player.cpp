@@ -489,7 +489,12 @@ void CBasePlayer ::DeathSound(void)
 
 int CBasePlayer ::TakeHealth(float flHealth, int bitsDamageType)
 {
-	UTIL_ScreenFade( this, Vector(0, 255, 255), 2, 0.1, 10, FFADE_IN );
+	// Don't heal if already at max health
+	if ( pev->health >= pev->max_health )
+		return 0;
+	// Only screen fade if we actually healed some health
+	if ( flHealth > 0 )
+		UTIL_ScreenFade( this, Vector(0, 255, 255), 2, 0.1, 10, FFADE_IN );
 	return CBaseMonster ::TakeHealth(flHealth, bitsDamageType);
 }
 

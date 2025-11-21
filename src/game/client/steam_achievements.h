@@ -53,6 +53,7 @@ public:
 	void ClearData();
 	void PrecacheImages();
 	void ShowAchievement( int iAchievement );
+	void SetDefaultPos();
 
 private:
 	float m_flStartTime;

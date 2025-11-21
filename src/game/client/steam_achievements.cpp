@@ -521,12 +521,25 @@ void CHudAchievementNotification::Init()
 {
 	ClearData();
 	PrecacheImages();
+	// Make sure its at the bottom.
+	SetDefaultPos();
 }
 
 void CHudAchievementNotification::VidInit()
 {
 	ClearData();
 	PrecacheImages();
+	// Make sure its at the bottom.
+	SetDefaultPos();
+}
+
+void CHudAchievementNotification::SetDefaultPos()
+{
+	int wide, tall;
+	vgui2::surface()->GetScreenSize( wide, tall );
+	// Make sure we're at the bottom center of the screen.
+	wide = (wide / 2) - ( GetScaledValue( NOTIFICATION_WIDTH ) / 2);
+	SetPos( wide, tall + GetScaledValue( NOTIFICATION_HEIGHT ) );
 }
 
 void CHudAchievementNotification::Think()
@@ -631,11 +644,7 @@ void CHudAchievementNotification::ClearData()
 	m_iMaxValue = 0;
 	m_bShowingAchievement = false;
 
-	int wide, tall;
-	vgui2::surface()->GetScreenSize( wide, tall );
-	// Make sure we're at the bottom center of the screen.
-	wide = (wide / 2) - ( GetScaledValue( NOTIFICATION_WIDTH ) / 2);
-	SetPos( wide, tall + GetScaledValue( NOTIFICATION_HEIGHT ) );
+	SetDefaultPos();
 
 	// Process our queue.
 	if ( m_Queue.size() > 0 )

@@ -677,10 +677,11 @@ void IN_MLookUp(void)
 	}
 }
 
-void Input_StopAllMovements()
+void Input_StopAllMovements( bool bForce )
 {
 	// If we are an observer, allow free movement
-	if ( g_iUser1 ) return;
+	// But if we force it, we stop everything
+	if ( g_iUser1 && !bForce ) return;
 	KeyUp(&in_back);
 	KeyUp(&in_forward);
 	KeyUp(&in_left);

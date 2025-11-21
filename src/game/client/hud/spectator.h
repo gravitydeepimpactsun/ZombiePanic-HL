@@ -24,6 +24,18 @@
 #define OVERVIEW_TILE_SIZE  128 // don't change this
 #define OVERVIEW_MAX_LAYERS 1
 
+#define SUPPORT_MAP_OVERVIEW 0
+#define SUPORT_PICTURE_IN_PICTURE 0
+
+// Moved here instead of being included in all those fucking CPP files...
+#if SUPORT_PICTURE_IN_PICTURE
+#define IS_FIRSTPERSON_SPEC            (g_iUser1 == OBS_IN_EYE || (g_iUser1 && (CHudSpectator::Get()->m_pip->value == INSET_IN_EYE)))
+#define IS_NOT_MAPROAM_AND_ROAMING_SPEC (g_iUser1 != OBS_MAP_FREE && g_iUser1 != OBS_ROAMING || CHudSpectator::Get()->m_pip->value)
+#else
+#define IS_FIRSTPERSON_SPEC (g_iUser1 == OBS_IN_EYE)
+#define IS_NOT_MAPROAM_AND_ROAMING_SPEC (g_iUser1 != OBS_MAP_FREE && g_iUser1 != OBS_ROAMING)
+#endif
+
 extern void VectorAngles(const float *forward, float *angles);
 void NormalizeAngles(float *angles);
 
@@ -117,7 +129,9 @@ public:
 	cvar_t *m_drawcone;
 	cvar_t *m_drawstatus;
 	cvar_t *m_autoDirector;
+#if SUPORT_PICTURE_IN_PICTURE
 	cvar_t *m_pip;
+#endif
 	qboolean m_chatEnabled;
 
 	qboolean m_IsInterpolating;

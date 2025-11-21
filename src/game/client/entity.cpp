@@ -82,7 +82,7 @@ int CL_DLLEXPORT HUD_AddEntity(int type, struct cl_entity_s *ent, const char *mo
 	{
 		CHudSpectator::Get()->AddOverviewEntity(type, ent, modelname);
 
-		if ((g_iUser1 == OBS_IN_EYE || CHudSpectator::Get()->m_pip->value == INSET_IN_EYE) && ent->index == g_iUser2)
+		if (IS_FIRSTPERSON_SPEC && ent->index == g_iUser2)
 			return 0; // don't draw the player we are following in eye
 	}
 

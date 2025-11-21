@@ -141,9 +141,18 @@ void CHudSpectator::Init()
 	m_drawcone = gEngfuncs.pfnRegisterVariable("spec_drawcone", "1", 0);
 	m_drawstatus = gEngfuncs.pfnRegisterVariable("spec_drawstatus", "1", 0);
 	m_autoDirector = gEngfuncs.pfnRegisterVariable("spec_autodirector", "1", 0);
+#if SUPORT_PICTURE_IN_PICTURE
 	m_pip = gEngfuncs.pfnRegisterVariable("spec_pip", "1", 0);
+#endif
 
-	if (!m_drawnames || !m_drawcone || !m_drawstatus || !m_autoDirector || !m_pip)
+	if ( !m_drawnames
+		|| !m_drawcone
+		|| !m_drawstatus
+		|| !m_autoDirector
+#if SUPORT_PICTURE_IN_PICTURE
+		|| !m_pip
+#endif
+)
 	{
 		gEngfuncs.Con_Printf("ERROR! Couldn't register all spectator variables.\n");
 	}
@@ -404,6 +413,7 @@ void CHudSpectator::SetWayInterpolation(cameraWayPoint_t *prev, cameraWayPoint_t
 
 bool CHudSpectator::ShouldDrawOverview()
 {
+#if SUPPORT_MAP_OVERVIEW
 	// draw only in sepctator mode
 	if (!g_iUser1)
 		return false;
@@ -412,10 +422,15 @@ bool CHudSpectator::ShouldDrawOverview()
 	if (m_iDrawCycle == 0 && ((g_iUser1 != OBS_MAP_FREE) && (g_iUser1 != OBS_MAP_CHASE)))
 		return false;
 
+#if SUPORT_PICTURE_IN_PICTURE
 	if (m_iDrawCycle == 1 && m_pip->value < INSET_MAP_FREE)
 		return false;
+#endif
 
 	return true;
+#else
+	return false;
+#endif
 }
 
 bool CHudSpectator::GetDirectorCamera(Vector &position, Vector &angle)
@@ -617,12 +632,14 @@ void CHudSpectator::Draw(float flTime)
 		if (!pi->IsConnected() || m_vPlayerPos[i][2] < 0) // marked as invisible ?
 			continue;
 
+#if SUPORT_PICTURE_IN_PICTURE
 		// check if name would be in inset window
 		if (m_pip->value != INSET_OFF)
 		{
 			if (m_vPlayerPos[i][0] > XRES(m_OverviewData.insetWindowX) && m_vPlayerPos[i][1] > YRES(m_OverviewData.insetWindowY) && m_vPlayerPos[i][0] < XRES(m_OverviewData.insetWindowX + m_OverviewData.insetWindowWidth) && m_vPlayerPos[i][1] < YRES(m_OverviewData.insetWindowY + m_OverviewData.insetWindowHeight))
 				continue;
 		}
+#endif
 
 		gHUD.GetClientColorAsFloat(i + 1, color, NoTeamColor::Orange);
 
@@ -973,7 +990,11 @@ void CHudSpectator::HandleButtonsDown(int ButtonPressed)
 	double time = gEngfuncs.GetClientTime();
 
 	int newMainMode = g_iUser1;
+#if SUPORT_PICTURE_IN_PICTURE
 	int newInsetMode = m_pip->value;
+#else
+	int newInsetMode = INSET_OFF;
+#endif
 
 	// gEngfuncs.Con_Printf(" HandleButtons:%i\n", ButtonPressed );
 
@@ -1088,11 +1109,13 @@ void CHudSpectator::SetModes(int iNewMainMode, int iNewInsetMode)
 	if (iNewMainMode == -1)
 		iNewMainMode = g_iUser1;
 
+#if SUPORT_PICTURE_IN_PICTURE
 	if (iNewInsetMode == -1)
 		iNewInsetMode = m_pip->value;
 
 	// inset mode is handled only clients side
 	m_pip->value = iNewInsetMode;
+#endif
 
 	if (iNewMainMode < OBS_CHASE_LOCKED || iNewMainMode > OBS_MAP_CHASE)
 	{
@@ -1619,6 +1642,8 @@ void CHudSpectator::DrawOverviewEntities()
 		m_vPlayerPos[playerNum][2] = 1; // mark player as visible
 	}
 
+	// Only draw this if we support it.
+#if SUPORT_PICTURE_IN_PICTURE
 	if (!m_pip->value || !m_drawcone->value)
 		return;
 
@@ -1678,6 +1703,7 @@ void CHudSpectator::DrawOverviewEntities()
 	gEngfuncs.pTriAPI->TexCoord2f(1, 1);
 	gEngfuncs.pTriAPI->Vertex3f(x + left[0], y + left[1], (z + left[2]) * zScale);
 	gEngfuncs.pTriAPI->End();
+#endif
 }
 
 void CHudSpectator::DrawOverview()
@@ -1780,7 +1806,7 @@ bool CHudSpectator::AddOverviewEntityToList(HSPRITE sprite, cl_entity_t *ent, do
 void CHudSpectator::CheckSettings()
 {
 	// disallow same inset mode as main mode:
-
+#if SUPORT_PICTURE_IN_PICTURE
 	m_pip->value = (int)m_pip->value;
 
 	if ((g_iUser1 < OBS_MAP_FREE) && (m_pip->value == INSET_CHASE_FREE || m_pip->value == INSET_IN_EYE))
@@ -1798,6 +1824,7 @@ void CHudSpectator::CheckSettings()
 	// disble in intermission screen
 	if (gHUD.m_iIntermission)
 		m_pip->value = INSET_OFF;
+#endif
 
 	static wrect_t nullrc;
 
@@ -1824,15 +1851,20 @@ void CHudSpectator::CheckSettings()
 	// in First Person mode since this is our resticted forcecamera mode 2
 	// team number 3 = SPECTATOR see player.h
 
+#if SUPORT_PICTURE_IN_PICTURE
 	if (((g_iTeamNumber == 1) || (g_iTeamNumber == 2)) && (g_iUser1 == OBS_IN_EYE))
 		m_pip->value = INSET_OFF;
 
 	// draw small border around inset view, adjust upper black bar
 	g_pViewport->GetSpectator()->EnableInsetView(m_pip->value != INSET_OFF);
+#else
+	g_pViewport->GetSpectator()->EnableInsetView( false );
+#endif
 }
 
 int CHudSpectator::ToggleInset(bool allowOff)
 {
+#if SUPORT_PICTURE_IN_PICTURE
 	int newInsetMode = (int)m_pip->value + 1;
 
 	if (g_iUser1 < OBS_MAP_FREE)
@@ -1860,6 +1892,9 @@ int CHudSpectator::ToggleInset(bool allowOff)
 	}
 
 	return newInsetMode;
+#else
+	return INSET_OFF;
+#endif
 }
 void CHudSpectator::Reset()
 {

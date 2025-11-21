@@ -28,8 +28,6 @@
 
 #include "StudioModelRenderer.h"
 
-#define IS_FIRSTPERSON_SPEC (g_iUser1 == OBS_IN_EYE || (g_iUser1 && (CHudSpectator::Get()->m_pip->value == INSET_IN_EYE)))
-
 extern ConVar cl_righthand;
 extern ConVar cl_viewmodel_ofs_right;
 extern ConVar cl_viewmodel_ofs_forward;

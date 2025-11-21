@@ -1541,7 +1541,7 @@ void V_CalcSpectatorRefdef(struct ref_params_s *pparams)
 	VectorCopy(pparams->viewangles, v_angles);
 	VectorCopy(pparams->vieworg, v_origin);
 
-	if ((g_iUser1 == OBS_IN_EYE || CHudSpectator::Get()->m_pip->value == INSET_IN_EYE) && ent)
+	if (IS_FIRSTPERSON_SPEC && ent)
 	{
 		// calculate player velocity
 		float timeDiff = ent->curstate.msg_time - ent->prevstate.msg_time;
@@ -1646,8 +1646,10 @@ void V_CalcSpectatorRefdef(struct ref_params_s *pparams)
 			break;
 		}
 
+#if SUPPORT_PICTURE_IN_PICTURE
 		if (CHudSpectator::Get()->m_pip->value)
 			pparams->nextView = 1; // force a second renderer view
+#endif
 
 		CHudSpectator::Get()->m_iDrawCycle = 0;
 	}
@@ -1663,6 +1665,7 @@ void V_CalcSpectatorRefdef(struct ref_params_s *pparams)
 		pparams->nextView = 0; // on further view
 
 		// override some settings in certain modes
+#if SUPPORT_PICTURE_IN_PICTURE
 		switch ((int)CHudSpectator::Get()->m_pip->value)
 		{
 		case INSET_CHASE_FREE:
@@ -1688,6 +1691,7 @@ void V_CalcSpectatorRefdef(struct ref_params_s *pparams)
 
 			break;
 		}
+#endif
 
 		CHudSpectator::Get()->m_iDrawCycle = 1;
 	}

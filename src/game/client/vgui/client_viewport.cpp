@@ -413,7 +413,7 @@ void CClientViewport::UpdateSpectatorPanel()
 		}
 
 		// special case in free map and inset off, don't show names
-		if ((g_iUser1 != OBS_MAP_FREE && g_iUser1 != OBS_ROAMING || CHudSpectator::Get()->m_pip->value) && player && GetPlayerInfo(player)->Update()->IsConnected())
+		if (IS_NOT_MAPROAM_AND_ROAMING_SPEC && player && GetPlayerInfo(player)->Update()->IsConnected())
 		{
 			m_pSpectatorPanel->UpdateSpectatingPlayer(player);
 		}

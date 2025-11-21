@@ -386,6 +386,30 @@ void CGameUIViewport::LoadWorkshopItems( bool bWorkshopFolder )
 					}
 				}
 				manifest->deleteThis();
+
+				// If filter flag has FILTER_MAP, we need to grab the .bsp files and tie them to this addon.
+				// This is used if we are hosting a Peer-2-Peer server, to let clients download the map through the workshop.
+				// The rest is read by the server, all we do here is grab the files, read them,
+				// and then store their path and addon ID into a simple struct.
+				if ( MountAddon.iFilterFlag & vgui2::FILTER_MAP && MountAddon.uWorkshopID != 0 )
+				{
+					FileFindHandle_t mapfh;
+					char const *mapfn = g_pFullFileSystem->FindFirst( vgui2::VarArgs( "%s/maps/*.bsp", strFile ), &mapfh, bWorkshopFolder ? "WORKSHOPDL" : "WORKSHOP" );
+					if ( mapfn )
+					{
+						do
+						{
+							KeyValuesAD autoMapData( new KeyValues( "Workshop" ) );
+							autoMapData->LoadFromFile( g_pFullFileSystem, "workshop_maps.kv", "WORKSHOP" );
+							autoMapData->SetString( mapfn, vgui2::VarArgs( "id=%llu", MountAddon.uWorkshopID ) );
+							autoMapData->SaveToFile( g_pFullFileSystem, "workshop_maps.kv", "WORKSHOP" );
+							gEngfuncs.PlayerInfo_SetValueForKey( "workshop_id", vgui2::VarArgs( "%llu", MountAddon.uWorkshopID ) );
+						}
+						while ( ( mapfn = g_pFullFileSystem->FindNext( mapfh ) ) != NULL );
+						g_pFullFileSystem->FindClose( mapfh );
+					}
+				}
+
 #if defined( _DEBUG )
 				// Only show on Debug mode
 				ConPrintf(

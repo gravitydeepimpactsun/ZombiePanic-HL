@@ -16,6 +16,7 @@
 #endif
 
 extern DLL_GLOBAL BOOL g_fGameOver;
+extern uint64 g_ulCurrentWorkshopID;
 
 // Our max rounds! (before we change to another level)
 extern cvar_t roundlimit;
@@ -903,31 +904,15 @@ extern void RemovePlayerLastSpawnPointData( CBasePlayer *pPlayer );
 
 bool CZombiePanicGameRules::DownloadMissingWorkshopItem( edict_t *pClient )
 {
-	// TODO: Implement Workshop item checking and downloading logic here.
-
-	// Download the required Workshop item automatically.
-	// cl_workshop_download <item> <rejoin_server>
-	// item - The Workshop item ID to download.
-	// rejoin_server - 1 to rejoin the server after download. If not 1, the client will stay at the main menu.
-	//CLIENT_COMMAND( pEntity, "cl_workshop_download %llu 1\n", item );
-	return false;
+	if ( g_ulCurrentWorkshopID == 0 ) return false;
+	// Download the required Workshop item automatically (if the client does not have said item)
+	CLIENT_COMMAND( pClient, "cl_workshop_download %llu\n", g_ulCurrentWorkshopID );
+	return true;
 }
 
 BOOL CZombiePanicGameRules::ClientConnected(edict_t *pClient, const char *pszName, const char *pszAddress, char szRejectReason[128])
 {
-	// New player, check our Workshop items,
-	// Then compare them to our new player. If they don't have the current item,
-	// Send a client message to them so they know they need to download it automatically.
-	// We also need to make sure we disconnect the player so they can properly download the item.
-	if ( DownloadMissingWorkshopItem( pClient ) )
-	{
-		UTIL_PrintConsole( "Downloading required Workshop item, please wait...\n", (CBasePlayer *)CBaseEntity::Instance( pClient ) );
-		CLIENT_COMMAND( pClient, "disconnect\n" );
-		// We don't return FALSE here, as we want the client to disconnect themselves because
-		// we don't want to show the darn message box that we rejected them.
-		return TRUE;
-	}
-
+	DownloadMissingWorkshopItem( pClient );
 	return BaseClass::ClientConnected( pClient, pszName, pszAddress, szRejectReason );
 }
 

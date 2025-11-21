@@ -40,6 +40,8 @@
 #include <tier1/interface.h>
 #include <tier1/tier1.h>
 #include "../../source_sdk/tier2/KeyValuesCompat.h"
+#include <tier1/KeyValues.h>
+#include <tier2/tier2.h>
 
 #ifdef SCRIPT_SYSTEM
 #include "core.h"
@@ -56,6 +58,8 @@ CGlobalState gGlobalState;
 extern DLL_GLOBAL int gDisplayTitle;
 
 extern void W_Precache(void);
+void CheckIfWorkshopMap( const char *szMapName );
+uint64 g_ulCurrentWorkshopID = 0;
 
 ConVar mp_hidecorpses("mp_hidecorpses", "0", FCVAR_SERVER, "Disables player corpses");
 
@@ -728,6 +732,9 @@ void CWorld ::Precache(void)
 		gDisplayTitle = TRUE; // display the game title if this key is set
 	else
 		gDisplayTitle = FALSE;
+
+	// Check if the current map is from workshop
+	CheckIfWorkshopMap( STRING(gpGlobals->mapname) );
 }
 
 void CWorld::OnWorldCreated()
@@ -875,4 +882,32 @@ void CCorpse::CreateBloodPool()
 	Vector vecSpot = pev->origin + Vector(0, 0, 8);
 	UTIL_TraceLine( vecSpot, pev->origin + Vector(0, 0, -136), ignore_monsters, ENT(pev), &tr );
 	UTIL_DecalTrace( &tr, DECAL_BLOODPOOL1 );
+}
+
+void CheckIfWorkshopMap( const char *szMapName )
+{
+	// Always reset first
+	g_ulCurrentWorkshopID = 0;
+
+	// We only do this for Peer-2-Peer games
+	if ( IS_DEDICATED_SERVER() )
+		return; // Dedicated servers don't need this
+
+	char szMapFile[ MAX_PATH ];
+	UTIL_strcpy( szMapFile, szMapName );
+	strcat( szMapFile, ".bsp" );
+
+	// Load the workshop maps data.
+	// If we don't find the map, we just return with ID 0
+	KeyValuesAD autoMapData( new KeyValues( "Workshop" ) );
+	if ( autoMapData->LoadFromFile( g_pFullFileSystem, "workshop_maps.kv", "WORKSHOP" ) )
+	{
+		std::string strID( autoMapData->GetString( szMapFile ) );
+		strID = strID.substr( 3, strID.length() - 3 ); // Remove "id=" prefix
+		if ( !strID.empty() )
+			g_ulCurrentWorkshopID = atoll( strID.c_str() );
+	}
+
+	if ( g_ulCurrentWorkshopID != 0 )
+		Msg( "Loading Workshop map %s (ID: %llu)\n", szMapName, g_ulCurrentWorkshopID );
 }

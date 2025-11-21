@@ -326,6 +326,9 @@ int CL_DLLEXPORT HUD_VidInit(void)
 	ServerClientVar_Resetcl_panictomelee();
 	ServerClientVar_Resetcl_character();
 
+	// TODO: Do we have time to check the workshop stuff here?
+	// If so, check if we need to download the current map's workshop addon.
+
 	return 1;
 }
 

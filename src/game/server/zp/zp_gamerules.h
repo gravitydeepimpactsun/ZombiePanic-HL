@@ -54,7 +54,8 @@ public:
 
 	void OnWeaponGive( CBasePlayer *pPlayer, const char *szItem );
 
-	BOOL ClientConnected(edict_t *pEntity, const char *pszName, const char *pszAddress, char szRejectReason[128]) override;
+	bool DownloadMissingWorkshopItem( edict_t *pClient );
+	BOOL ClientConnected(edict_t *pClient, const char *pszName, const char *pszAddress, char szRejectReason[128]) override;
 	void ClientDisconnected(edict_t *pClient) override;
 
 	BOOL FAllowMonsters( void ) override { return FALSE; }

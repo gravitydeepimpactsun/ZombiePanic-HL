@@ -901,6 +901,36 @@ void CZombiePanicGameRules::OnWeaponGive( CBasePlayer *pPlayer, const char *szIt
 
 extern void RemovePlayerLastSpawnPointData( CBasePlayer *pPlayer );
 
+bool CZombiePanicGameRules::DownloadMissingWorkshopItem( edict_s *pEntity )
+{
+	// TODO: Implement Workshop item checking and downloading logic here.
+
+	// Download the required Workshop item automatically.
+	// cl_workshop_download <item> <rejoin_server>
+	// item - The Workshop item ID to download.
+	// rejoin_server - 1 to rejoin the server after download. If not 1, the client will stay at the main menu.
+	//CLIENT_COMMAND( pEntity, "cl_workshop_download %llu 1\n", item );
+	return false;
+}
+
+BOOL CZombiePanicGameRules::ClientConnected(edict_t *pEntity, const char *pszName, const char *pszAddress, char szRejectReason[128])
+{
+	// New player, check our Workshop items,
+	// Then compare them to our new player. If they don't have the current item,
+	// Send a client message to them so they know they need to download it automatically.
+	// We also need to make sure we disconnect the player so they can properly download the item.
+	if ( DownloadMissingWorkshopItem( pEntity ) )
+	{
+		UTIL_PrintConsole( "Downloading required Workshop item, please wait...\n", (CBasePlayer *)CBaseEntity::Instance( pEntity ) );
+		CLIENT_COMMAND( pEntity, "disconnect\n" );
+		// We don't return FALSE here, as we want the client to disconnect themselves because
+		// we don't want to show the darn message box that we rejected them.
+		return TRUE;
+	}
+
+	return BaseClass::ClientConnected( pEntity, pszName, pszAddress, szRejectReason );
+}
+
 void CZombiePanicGameRules::ClientDisconnected(edict_t *pClient)
 {
 	CBasePlayer *pPlayer = (CBasePlayer *)CBaseEntity::Instance(pClient);

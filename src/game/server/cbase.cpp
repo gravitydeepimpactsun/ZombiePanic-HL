@@ -903,7 +903,7 @@ void CBaseEntity::SetParentPositions(void)
 	Vector vecDesiredOrigin = m_vecParentOffset + GetParent()->pev->origin;
 	SetOrigin( vecDesiredOrigin );
 
-	// Angles, for now are not parented as it will cause some visual bugs.
+	// Angles, for now it's not parented as it will cause some visual bugs.
 	//Vector vecDesiredAngles = m_vecParentAngles + GetParent()->pev->angles;
 	//SetAngles( vecDesiredAngles );
 }

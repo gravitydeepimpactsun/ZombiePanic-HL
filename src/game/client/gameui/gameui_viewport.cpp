@@ -403,7 +403,6 @@ void CGameUIViewport::LoadWorkshopItems( bool bWorkshopFolder )
 							autoMapData->LoadFromFile( g_pFullFileSystem, "workshop_maps.kv", "WORKSHOP" );
 							autoMapData->SetString( mapfn, vgui2::VarArgs( "id=%llu", MountAddon.uWorkshopID ) );
 							autoMapData->SaveToFile( g_pFullFileSystem, "workshop_maps.kv", "WORKSHOP" );
-							gEngfuncs.PlayerInfo_SetValueForKey( "workshop_id", vgui2::VarArgs( "%llu", MountAddon.uWorkshopID ) );
 						}
 						while ( ( mapfn = g_pFullFileSystem->FindNext( mapfh ) ) != NULL );
 						g_pFullFileSystem->FindClose( mapfh );

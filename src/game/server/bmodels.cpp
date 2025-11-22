@@ -124,14 +124,14 @@ void CFuncWallToggle ::TurnOff(void)
 {
 	pev->solid = SOLID_NOT;
 	pev->effects |= EF_NODRAW;
-	UTIL_SetOrigin(pev, pev->origin);
+	SetOrigin(pev->origin);
 }
 
 void CFuncWallToggle ::TurnOn(void)
 {
 	pev->solid = SOLID_BSP;
 	pev->effects &= ~EF_NODRAW;
-	UTIL_SetOrigin(pev, pev->origin);
+	SetOrigin(pev->origin);
 }
 
 BOOL CFuncWallToggle ::IsOn(void)
@@ -364,7 +364,7 @@ void CFuncRotating::Restart()
 	EMIT_SOUND_DYN(ENT(pev), CHAN_STATIC, (char *)STRING(pev->noiseRunning), 0, ATTN_NONE, SND_STOP, m_pitch);
 
 	// restore angles
-	pev->angles = m_angles;
+	SetAngles( m_angles );
 	pev->avelocity = g_vecZero;
 
 	// some rotating objects like fake volumetric lights will not be solid.
@@ -380,7 +380,7 @@ void CFuncRotating::Restart()
 		pev->movetype = MOVETYPE_PUSH;
 	}
 
-	UTIL_SetOrigin(pev, pev->origin);
+	SetOrigin( pev->origin );
 	SET_MODEL(ENT(pev), STRING(pev->model));
 
 	SetUse(&CFuncRotating::RotatingUse);
@@ -512,7 +512,7 @@ void CFuncRotating ::Spawn()
 		pev->movetype = MOVETYPE_PUSH;
 	}
 
-	UTIL_SetOrigin(pev, pev->origin);
+	SetOrigin( pev->origin );
 	SET_MODEL(ENT(pev), STRING(pev->model));
 
 	SetUse(&CFuncRotating::RotatingUse);
@@ -876,7 +876,7 @@ void CPendulum ::Spawn(void)
 	else
 		pev->solid = SOLID_BSP;
 	pev->movetype = MOVETYPE_PUSH;
-	UTIL_SetOrigin(pev, pev->origin);
+	SetOrigin( pev->origin );
 	SET_MODEL(ENT(pev), STRING(pev->model));
 
 	if (m_distance == 0)
@@ -936,7 +936,7 @@ void CPendulum ::PendulumUse(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_
 
 void CPendulum ::Stop(void)
 {
-	pev->angles = m_start;
+	SetAngles( m_start );
 	pev->speed = 0;
 	SetThink(NULL);
 	pev->avelocity = g_vecZero;
@@ -975,7 +975,7 @@ void CPendulum ::Swing(void)
 		m_dampSpeed -= m_damp * m_dampSpeed * dt;
 		if (m_dampSpeed < 30.0)
 		{
-			pev->angles = m_center;
+			SetAngles( m_center );
 			pev->speed = 0;
 			SetThink(NULL);
 			pev->avelocity = g_vecZero;

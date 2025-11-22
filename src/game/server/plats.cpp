@@ -617,6 +617,7 @@ public:
 	void Restart(void);
 	void Precache(void);
 	void Activate(void);
+	void DelayTeleport(void);
 	void OverrideReset(void);
 
 	void Blocked(CBaseEntity *pOther);
@@ -787,7 +788,14 @@ void CFuncTrain ::Next(void)
 	}
 }
 
-void CFuncTrain ::Activate(void)
+void CFuncTrain::Activate(void)
+{
+	// Delay it a little, so we can parent crap to this train.
+	pev->nextthink = pev->ltime + 0.25;
+	SetThink( &CFuncTrain::DelayTeleport );
+}
+
+void CFuncTrain::DelayTeleport(void)
 {
 	// Not yet active, so teleport to first target
 	if (!m_activated)
@@ -891,7 +899,7 @@ void CFuncTrain::Restart()
 		EMIT_SOUND(ENT(pev), CHAN_VOICE, (char *)STRING(pev->noiseStopMoving), m_volume, ATTN_NORM);
 	}
 
-	Activate();
+	DelayTeleport();
 }
 
 void CFuncTrain::Precache(void)

@@ -30,6 +30,7 @@ extern edict_t *EntSelectSpawnPoint(CBasePlayer *pPlayer);
 
 DLL_GLOBAL CGameRules *g_pGameRules = NULL;
 extern DLL_GLOBAL BOOL g_fGameOver;
+extern bool g_bReadParentKV;
 extern int gmsgDeathMsg; // client dll messages
 extern int gmsgMOTD;
 
@@ -327,6 +328,8 @@ void CGameRules::RefreshSkillData(void)
 
 CGameRules *InstallGameRules(void)
 {
+	// We just created our game rules object, let's also reset the parent KV load flag
+	g_bReadParentKV = false;
 	SERVER_COMMAND("exec game.cfg\n");
 	SERVER_EXECUTE_HL();
 	return new CZombiePanicGameRules;

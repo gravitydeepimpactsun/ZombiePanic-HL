@@ -1420,7 +1420,7 @@ void CRotButton::Spawn(void)
 
 void CRotButton::Restart()
 {
-	pev->angles = m_vecSpawn;
+	SetAngles( m_vecSpawn );
 	Spawn();
 }
 
@@ -1590,13 +1590,13 @@ void CMomentaryRotButton::UpdateSelf(float value)
 	if (m_direction > 0 && value >= 1.0)
 	{
 		pev->avelocity = g_vecZero;
-		pev->angles = m_end;
+		SetAngles( m_end );
 		return;
 	}
 	else if (m_direction < 0 && value <= 0)
 	{
 		pev->avelocity = g_vecZero;
-		pev->angles = m_start;
+		SetAngles( m_start );
 		return;
 	}
 
@@ -1660,7 +1660,7 @@ void CMomentaryRotButton::UpdateSelfReturn(float value)
 	if (value <= 0)
 	{
 		pev->avelocity = g_vecZero;
-		pev->angles = m_start;
+		SetAngles( m_start );
 		pev->nextthink = -1;
 		SetThink(NULL);
 	}

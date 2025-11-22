@@ -811,18 +811,31 @@ int CBaseEntity ::DamageDecal(int bitsDamageType)
 	return ZP::GrabCorrectDecal( bitsDamageType );
 }
 
+void CBaseEntity::SetAngles( const Vector &vAngles )
+{
+	pev->angles = vAngles;
+}
+
+void CBaseEntity::SetOrigin( const Vector &vOrigin )
+{
+	SET_ORIGIN( edict(), vOrigin );
+	if ( GetParent() )
+		m_vecParentOffset = pev->origin - GetParent()->pev->origin;
+}
+
 void CBaseEntity::SetupParentFromKV()
 {
 	if ( FStringNull(m_szParent) ) return;
 	CBaseEntity *pEnt = UTIL_FindEntityByTargetname( nullptr, STRING(m_szParent) );
-	if (pEnt)
-		m_pParent = pEnt->edict();
+	if ( pEnt )
+		SetParent( pEnt );
 }
 
 void CBaseEntity::SetParent( CBaseEntity *pEnt )
 {
 	m_pParent = pEnt->edict();
 	m_vecParentOffset = pev->origin - pEnt->pev->origin;
+	m_vecParentAngles = pev->angles - pEnt->pev->angles;
 }
 
 CBaseEntity *CBaseEntity::GetParent()
@@ -878,12 +891,21 @@ void CBaseEntity::SetParentPositions(void)
 {
 	if ( !GetParent() ) return;
 
+	// NOTE: This function is experimental, and may cause some bugs.
+	// Only use this for entities that absolutely need to be parented.
+
 	// Note: This function "parents" the entity to another entity by maintaining an offset from the parent's origin.
 	// It's similar to how Source Engine does it, but we do some little hacking to replicate it in GoldSrc.
 	// If the parent moves, we move along with it.
 
-	// Always make sure we teleport to our parent position plus offset
-	UTIL_SetOrigin( pev, m_vecParentOffset + GetParent()->pev->origin );
+	// Position
+	// BUGBUG: If the entity moves, it will jerk back to the parent's offset position.
+	Vector vecDesiredOrigin = m_vecParentOffset + GetParent()->pev->origin;
+	SetOrigin( vecDesiredOrigin );
+
+	// Angles, for now are not parented as it will cause some visual bugs.
+	//Vector vecDesiredAngles = m_vecParentAngles + GetParent()->pev->angles;
+	//SetAngles( vecDesiredAngles );
 }
 
 // NOTE: szName must be a pointer to constant memory, e.g. "monster_class" because the entity
@@ -901,8 +923,8 @@ CBaseEntity *CBaseEntity::Create(char *szName, const Vector &vecOrigin, const Ve
 	}
 	pEntity = Instance(pent);
 	pEntity->pev->owner = pentOwner;
-	pEntity->pev->origin = vecOrigin;
-	pEntity->pev->angles = vecAngles;
+	pEntity->SetOrigin( vecOrigin );
+	pEntity->SetAngles( vecAngles );
 	DispatchSpawn(pEntity->edict());
 	return pEntity;
 }

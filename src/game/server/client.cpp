@@ -49,6 +49,7 @@ extern DLL_GLOBAL ULONG g_ulModelIndexPlayer;
 extern DLL_GLOBAL BOOL g_fGameOver;
 extern DLL_GLOBAL int g_iSkillLevel;
 extern DLL_GLOBAL ULONG g_ulFrameCount;
+bool g_bReadParentKV = false;
 
 extern int giPrecacheGrunt;
 extern int gmsgSayText;
@@ -781,8 +782,30 @@ void StartFrame(void)
 	if (g_pGameRules)
 		g_pGameRules->Think();
 
-	if (g_fGameOver)
+	// Update parented entity positions
+	for ( int i = 0; i < gpGlobals->maxEntities; i++ )
+	{
+		edict_t *pEdict = INDEXENT( i );
+		if ( pEdict && !pEdict->free )
+		{
+			CBaseEntity *pEnt = CBaseEntity::Instance( pEdict );
+			if ( !pEnt ) continue;
+			if ( !g_bReadParentKV )
+				pEnt->SetupParentFromKV();
+			pEnt->SetParentPositions();
+		}
+	}
+
+	if ( g_fGameOver )
+	{
+		// Reset parented entity setup for next level / round
+		g_bReadParentKV = false;
 		return;
+	}
+
+	// Ensure parented entities have their parents setup from KV only once per level
+	if ( !g_bReadParentKV )
+		g_bReadParentKV = true;
 
 	gpGlobals->teamplay = teamplay.value;
 	g_ulFrameCount++;

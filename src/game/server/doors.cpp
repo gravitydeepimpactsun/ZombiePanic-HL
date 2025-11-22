@@ -969,7 +969,7 @@ void CRotDoor::Spawn(void)
 	// but spawn in the open position
 	if (FBitSet(pev->spawnflags, SF_DOOR_START_OPEN))
 	{ // swap pos1 and pos2, put door at pos2, invert movement direction
-		pev->angles = m_vecAngle2;
+		SetAngles( m_vecAngle2 );
 		Vector vecSav = m_vecAngle1;
 		m_vecAngle2 = m_vecAngle1;
 		m_vecAngle1 = vecSav;
@@ -1005,9 +1005,9 @@ void CRotDoor::Restart()
 	if (pev->spawnflags & SF_DOOR_START_OPEN)
 	{
 #ifdef REGAMEDLL_FIXES
-		pev->angles = m_vecAngle1;
+		SetAngles( m_vecAngle1 );
 #else
-		pev->angles = m_vecAngle2;
+		SetAngles( m_vecAngle2 );
 
 		Vector vecSav = m_vecAngle1;
 		m_vecAngle2 = m_vecAngle1;
@@ -1019,7 +1019,7 @@ void CRotDoor::Restart()
 #ifdef REGAMEDLL_FIXES
 	else if (pev->netname.IsNull())
 	{
-		pev->angles = m_vecAngle1;
+		SetAngles( m_vecAngle1 );
 	}
 #endif
 
@@ -1030,9 +1030,9 @@ void CRotDoor::Restart()
 void CRotDoor ::SetToggleState(int state)
 {
 	if (state == TS_AT_TOP)
-		pev->angles = m_vecAngle2;
+		SetAngles( m_vecAngle2 );
 	else
-		pev->angles = m_vecAngle1;
+		SetAngles( m_vecAngle1 );
 
 	UTIL_SetOrigin(pev, pev->origin);
 }

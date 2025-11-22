@@ -788,18 +788,6 @@ void CWorld::OnWorldCreated()
 #ifdef SCRIPT_SYSTEM
 	ScriptSystem::ScriptFunctionCall( ScriptSystem::ScriptFunctionCall_t::POST_LEVEL_INIT );
 #endif
-
-	// Go through our entities, and check our parents
-	for ( int i = 0; i < gpGlobals->maxEntities; i++ )
-	{
-		edict_t *pEdict = INDEXENT( i );
-		if ( pEdict && !pEdict->free )
-		{
-			CBaseEntity *pEnt = CBaseEntity::Instance( pEdict );
-			if ( pEnt )
-				pEnt->SetupParentFromKV();
-		}
-	}
 }
 
 //
@@ -903,6 +891,7 @@ void CheckIfWorkshopMap( const char *szMapName )
 	if ( autoMapData->LoadFromFile( g_pFullFileSystem, "workshop_maps.kv", "WORKSHOP" ) )
 	{
 		std::string strID( autoMapData->GetString( szMapFile ) );
+		if ( strID.size() <= 3 ) return; // Not found or invalid
 		strID = strID.substr( 3, strID.length() - 3 ); // Remove "id=" prefix
 		if ( !strID.empty() )
 			g_ulCurrentWorkshopID = atoll( strID.c_str() );

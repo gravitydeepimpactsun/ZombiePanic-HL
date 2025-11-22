@@ -240,9 +240,6 @@ public:
 
 	virtual void Think(void)
 	{
-#if defined( SERVER_DLL )
-		SetParentPositions();
-#endif
 		if (m_pfnThink)
 			(this->*m_pfnThink)();
 	};
@@ -364,6 +361,12 @@ public:
 	string_t m_szParent = NULL;
 	edict_t *m_pParent = nullptr;
 	Vector m_vecParentOffset = g_vecZero;
+	Vector m_vecParentAngles = g_vecZero;
+
+#if defined( SERVER_DLL )
+	void SetAngles( const Vector &vAngles );
+	void SetOrigin( const Vector &vOrigin );
+#endif
 
 	void SetupParentFromKV();
 	void SetParent( CBaseEntity *pEnt );

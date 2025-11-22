@@ -899,7 +899,7 @@ void CFuncTrain::Restart()
 		EMIT_SOUND(ENT(pev), CHAN_VOICE, (char *)STRING(pev->noiseStopMoving), m_volume, ATTN_NORM);
 	}
 
-	DelayTeleport();
+	Activate();
 }
 
 void CFuncTrain::Precache(void)

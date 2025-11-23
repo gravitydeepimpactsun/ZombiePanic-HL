@@ -77,6 +77,7 @@ struct PlayerCharacterType
 PlayerCharacterType g_CharacterTypes[] = {
 	{ SURVIVOR1, "eugene" },
 	{ SURVIVOR2, "marcus" },
+	{ SURVIVOR3, "david" },
 };
 std::vector<VocalizeData> m_VocalizeData;
 

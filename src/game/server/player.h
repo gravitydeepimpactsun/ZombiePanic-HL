@@ -88,8 +88,9 @@ enum sbar_data
 typedef enum
 {
 	ANY = -1,
-	SURVIVOR1 = 0,
-	SURVIVOR2,
+	SURVIVOR1 = 0,		// Eugene
+	SURVIVOR2,			// Marcus
+	SURVIVOR3,			// David
 	MAX_SURVIVORS = SURVIVOR2
 } PlayerCharacter;
 

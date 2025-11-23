@@ -2531,6 +2531,7 @@ void CBasePlayer::SetTheCorrectPlayerModel()
 		default:
 		case PlayerCharacter::SURVIVOR1: szModel = bIsZombie ? "undead" : "survivor1"; break;
 		case PlayerCharacter::SURVIVOR2: szModel = bIsZombie ? "undead2" : "survivor2"; break;
+		case PlayerCharacter::SURVIVOR3: szModel = bIsZombie ? "undead3" : "survivor3"; break;
 	}
 
 	g_engfuncs.pfnSetClientKeyValue( entindex(), g_engfuncs.pfnGetInfoKeyBuffer( edict() ), "model", szModel );

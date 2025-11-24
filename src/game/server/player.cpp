@@ -1274,6 +1274,18 @@ void CBasePlayer::SetAnimation(PLAYER_ANIM playerAnim)
 				UTIL_strcpy(szAnim, "ref_shoot_");
 		}
 		strcat(szAnim, m_szAnimExtention);
+		if ( FStrEq( m_szAnimExtention, "swipe" ) )
+		{
+			// Randomize the swipe attack animation
+			// We have left, right and both swipe animations
+			int swipeAnim = RANDOM_LONG( 1, 3 );
+			switch ( swipeAnim )
+			{
+				case 1: strcat( szAnim, "_left" ); break;
+			    case 2: strcat( szAnim, "_right" ); break;
+			    case 3: strcat( szAnim, "_both" ); break;
+			}
+		}
 		animDesired = LookupSequence(szAnim);
 		if (animDesired == -1)
 			animDesired = 0;

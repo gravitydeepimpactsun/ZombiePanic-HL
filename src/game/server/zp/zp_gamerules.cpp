@@ -852,6 +852,37 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 			}
 			return TRUE;
 		}
+		// Round related
+		else if (FStrEq(pcmd, "dev_resetround"))
+		{
+			m_pGameMode->SetWinState( IGameModeBase::WinState_e::State_Draw );
+			m_pGameMode->SetRoundState( ZP::RoundState::RoundState_RoundIsOver );
+			return TRUE;
+		}
+		else if (FStrEq(pcmd, "dev_roundend"))
+		{
+			const char *pSetCommand = CMD_ARGV(1);
+			int nValue = 0;
+			if ( pSetCommand && pSetCommand[0] )
+				nValue = atoi( pSetCommand );
+			switch ( nValue )
+			{
+				case 1: m_pGameMode->SetWinState( IGameModeBase::WinState_e::State_SurvivorWin ); break;
+				case 2: m_pGameMode->SetWinState( IGameModeBase::WinState_e::State_Draw ); break;
+				default: m_pGameMode->SetWinState( IGameModeBase::WinState_e::State_ZombieWin ); break;
+			}
+			return TRUE;
+		}
+	}
+	else
+	{
+		// If we are not in test mode, but someone tries to use dev_ related commands,
+		// tell them that test mode is not active.
+		if ( V_strnicmp( pcmd, "dev_", 4 ) == 0 )
+		{
+			UTIL_PrintConsole( "sv_testmode is not active. dev_ related commands are disabled.\n", pPlayer );
+			return TRUE;
+		}
 	}
 	return BaseClass::ClientCommand(pPlayer, pcmd);
 }

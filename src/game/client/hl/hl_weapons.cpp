@@ -397,6 +397,13 @@ void CBasePlayerWeapon::ItemPostFrame(void)
 			return;
 		}
 
+		// weapon is useable. Reload if empty and weapon has waited as long as it has to after firing
+		if ((m_pPlayer->pev->button & (IN_UNLOAD)) && m_iClip > 0 && m_flNextPrimaryAttack < 0.0)
+		{
+			Unload();
+			return;
+		}
+
 		WeaponIdle();
 		return;
 	}

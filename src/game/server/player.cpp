@@ -5227,6 +5227,9 @@ bool CBasePlayer::AlreadyOwnWeapon( CBasePlayerItem *pWeapon )
 //
 int CBasePlayer::AddPlayerItem(CBasePlayerItem *pItem)
 {
+	CBasePlayerWeapon *pWeapon = dynamic_cast<CBasePlayerWeapon *>( pItem );
+	if ( !pWeapon ) return FALSE;
+
 	CBasePlayerItem *pInsert;
 
 	pInsert = m_rgpPlayerItems[pItem->iItemSlot()];
@@ -5236,7 +5239,20 @@ int CBasePlayer::AddPlayerItem(CBasePlayerItem *pItem)
 		if (FClassnameIs(pInsert->pev, STRING(pItem->pev->classname)))
 		{
 			// Already own it? don't pick it up!
-			if (AlreadyOwnWeapon( pItem )) return FALSE;
+			// But do grab it's ammo, its very yummy for us!
+			if ( AlreadyOwnWeapon( pItem ) )
+			{
+				int iClip = pWeapon->m_iClip;
+				if ( iClip > 0 )
+				{
+					int iAmount = GiveAmmo( iClip, (char *)pWeapon->GetData().Ammo1 );
+					if ( iAmount > 0 )
+						EMIT_SOUND( ENT(pWeapon->pev), CHAN_ITEM, "items/ammo_pickup.wav", 1, ATTN_NORM );
+					pWeapon->m_iClip -= iAmount;
+					return TRUE;
+				}
+				return FALSE;
+			}
 			if (pItem->AddDuplicate(pInsert))
 			{
 				g_pGameRules->PlayerGotWeapon(this, pItem);
@@ -5283,9 +5299,7 @@ int CBasePlayer::AddPlayerItem(CBasePlayerItem *pItem)
 				// If 0, then do not auto switch to the weapon
 				if ( FStrEq( szAutoPickup, "0" ) && bRet ) return TRUE;
 			}
-			CBasePlayerWeapon *pWeapon = dynamic_cast<CBasePlayerWeapon *>( pItem );
-			if ( pWeapon )
-				SelectWeapon( pWeapon );
+			SelectWeapon( pWeapon );
 			m_bJustSpawned = false;
 		}
 

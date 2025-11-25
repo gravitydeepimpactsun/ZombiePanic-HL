@@ -206,9 +206,43 @@ void CWeaponBase::ItemPostFrame( void )
 			return;
 		}
 
+		// Weapon unload
+		if ((pPlayer->pev->button & (IN_UNLOAD)) && m_iClip > 0 && m_flNextPrimaryAttack - gpGlobals->time < 0.0f)
+		{
+			Unload();
+			return;
+		}
+
 		WeaponIdle();
 		return;
 	}
+}
+
+void CWeaponBase::Unload()
+{
+	// Player isn't valid, skip.
+	if ( !m_pPlayer ) return;
+	// Make sure we have a valid ammo type
+	if ( m_iPrimaryAmmoType < 0 ) return;
+	// Can't unload while reloading
+	if ( m_fInReload ) return;
+	// Can't unload while holstering
+	if ( IsHolstering() ) return;
+	// Can't unload an empty weapon
+	if ( m_iClip <= 0 ) return;
+	// How much ammo to unload
+	int iUnloadAmount = UnloadAmount();
+	// Check how much we can give the player
+	int iGiveAmmo = m_pPlayer->PickupAmmo( iUnloadAmount, GetAmmoByAmmoID( m_iPrimaryAmmoType ) );
+	if ( iGiveAmmo <= 0 ) return; // Couldn't give any ammo
+	// Remove the ammo from the clip
+	m_iClip -= iGiveAmmo;
+	// Let's tell our weapon classes to play a specific animation.
+	float flDelay = DoWeaponUnload();
+	m_flNextPrimaryAttack = m_flNextSecondaryAttack
+		= m_flTimeWeaponIdle
+		= m_pPlayer->m_flNextAttack
+		= UTIL_WeaponTimeBase() + flDelay;
 }
 
 void CWeaponBase::DoAudioFrame( void )

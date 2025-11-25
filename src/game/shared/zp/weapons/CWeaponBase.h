@@ -52,6 +52,11 @@ public:
 #endif
 	}
 
+	// Unload the weapon, and grab it's ammo
+	virtual void Unload();
+	virtual int UnloadAmount() { return m_iClip; }
+	virtual float DoWeaponUnload() { return 0.1f; }
+
 	// Get the duration of an animation in seconds
 	float GetAnimationTime( int iFrames, int iFrameRate )
 	{

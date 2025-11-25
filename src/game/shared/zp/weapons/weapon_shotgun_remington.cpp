@@ -70,6 +70,14 @@ float CWeaponShotgunRemington::Deploy()
 	return GetAnimationTime( 19, 30 );
 }
 
+float CWeaponShotgunRemington::DoWeaponUnload()
+{
+	// Similar to OnRequestedAnimation( CWeaponBaseSingleAction::ANIM_PUMP );
+	SendWeaponAnim( ANIM_SHOTGUN_PUMP );
+	EMIT_SOUND_DYN( ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/shotgun/pump.wav", 1, ATTN_NORM, 0, 105 );
+	return 0.73f;
+}
+
 void CWeaponShotgunRemington::OnRequestedAnimation( SingleActionAnimReq act )
 {
 	switch ( act )

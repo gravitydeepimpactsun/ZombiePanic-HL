@@ -17,6 +17,8 @@ public:
 	void Precache( void );
 	int AddToPlayer( CBasePlayer *pPlayer );
 	float Deploy();
+	int UnloadAmount() override { return 1; }
+	float DoWeaponUnload();
 	void OnRequestedAnimation( SingleActionAnimReq act );
 	void OnWeaponPrimaryAttack();
 };

@@ -287,6 +287,7 @@ public:
 	virtual void PrimaryAttack(void) { return; } // do "+ATTACK"
 	virtual void SecondaryAttack(void) { return; } // do "+ATTACK2"
 	virtual void Reload(void) { return; } // do "+RELOAD"
+	virtual void Unload(void) { return; } // do "+UNLOAD"
 	virtual void WeaponIdle(void) { return; } // called when no buttons pressed
 	virtual int UpdateClientData(CBasePlayer *pPlayer); // sends hud info to client dll, if things have changed
 	virtual void RetireWeapon(void);

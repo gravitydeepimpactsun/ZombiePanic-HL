@@ -17,6 +17,7 @@ public:
 	void Precache( void );
 	int AddToPlayer( CBasePlayer *pPlayer );
 	float Deploy();
+	float DoWeaponUnload();
 	void Reload( void );
 	void PrimaryAttack( void );
 	void WeaponIdle( void );

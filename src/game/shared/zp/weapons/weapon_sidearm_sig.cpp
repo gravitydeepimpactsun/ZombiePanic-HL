@@ -13,16 +13,20 @@ float CWeaponSideArmSig::DoHolsterAnimation()
 	return 0.33;
 }
 
+float CWeaponSideArmSig::DoWeaponUnload()
+{
+	SendWeaponAnim( ANIM_PISTOL_UNLOAD );
+	AddWeaponSound( "weapons/sig/clipout.wav", 1, ATTN_NORM, 0.28f );
+	AddWeaponSound( "weapons/sig/clipin.wav", 1, ATTN_NORM, 0.96f );
+	return 1.84f;
+}
+
 void CWeaponSideArmSig::Spawn()
 {
 	pev->classname = MAKE_STRING( "weapon_sig" );
 	Precache();
 	SET_MODEL(ENT(pev), "models/w_9mmhandgun.mdl");
-
-	WeaponData slot = GetWeaponSlotInfo( GetWeaponID() );
-	m_iDefaultAmmo = slot.DefaultAmmo;
-
-	FallInit(); // get ready to fall down.
+	DefaultSpawn();
 }
 
 void CWeaponSideArmSig::Precache(void)

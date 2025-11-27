@@ -12,15 +12,19 @@ float CWeaponSideArmPPK::DoHolsterAnimation()
 	return 0.33;
 }
 
+float CWeaponSideArmPPK::DoWeaponUnload()
+{
+	SendWeaponAnim( ANIM_PISTOL_UNLOAD );
+	AddWeaponSound( "weapons/ppk/clipout.wav", 1, ATTN_NORM, 0.28f );
+	AddWeaponSound( "weapons/ppk/clipin.wav", 1, ATTN_NORM, 0.96f );
+	return 1.84f;
+}
+
 void CWeaponSideArmPPK::Spawn()
 {
 	Precache();
 	SET_MODEL(ENT(pev), "models/w_ppk.mdl");
-
-	WeaponData slot = GetWeaponSlotInfo( GetWeaponID() );
-	m_iDefaultAmmo = slot.DefaultAmmo;
-
-	FallInit(); // get ready to fall down.
+	DefaultSpawn();
 }
 
 void CWeaponSideArmPPK::Precache(void)

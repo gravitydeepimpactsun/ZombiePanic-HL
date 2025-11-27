@@ -18,6 +18,7 @@ public:
 	void DoAudioFrame( void ) override;
 	float DoHolsterAnimation() override;
 	float Deploy();
+	float DoWeaponUnload();
 	void Reload( void );
 	void PrimaryAttack( void );
 	void WeaponIdle( void );

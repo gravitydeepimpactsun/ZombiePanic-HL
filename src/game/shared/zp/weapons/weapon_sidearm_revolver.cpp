@@ -71,11 +71,7 @@ void CWeaponSideArmRevolver::Spawn()
 	pev->classname = MAKE_STRING("weapon_357"); // hack to allow for old names
 	Precache();
 	SET_MODEL(ENT(pev), "models/w_357.mdl");
-
-	WeaponData slot = GetWeaponSlotInfo( GetWeaponID() );
-	m_iDefaultAmmo = slot.DefaultAmmo;
-
-	FallInit(); // get ready to fall down.
+	DefaultSpawn();
 }
 
 void CWeaponSideArmRevolver::Precache(void)
@@ -106,6 +102,15 @@ float CWeaponSideArmRevolver::Deploy()
 #endif
 	DoDeploy( "models/v_357.mdl", "models/p_357.mdl", ANIM_357_DRAW, "python" );
 	return GetAnimationTime( 21, 16 );
+}
+
+float CWeaponSideArmRevolver::DoWeaponUnload()
+{
+	SendWeaponAnim( ANIM_357_UNLOAD );
+	AddWeaponSound( "weapons/revolver/open.wav", 1, ATTN_NORM, GetAnimationTime( 16, 20 ) );
+	AddWeaponSound( "weapons/revolver/remove.wav", 1, ATTN_NORM, GetAnimationTime( 23, 20 ) );
+	AddWeaponSound( "weapons/revolver/close.wav", 1, ATTN_NORM, GetAnimationTime( 55, 20 ) );
+	return 1.84f;
 }
 
 void CWeaponSideArmRevolver::PrimaryAttack()

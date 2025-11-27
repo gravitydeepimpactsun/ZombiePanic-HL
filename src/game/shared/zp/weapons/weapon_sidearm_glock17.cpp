@@ -63,6 +63,11 @@ float CWeaponSideArmGlock17::Deploy()
 	return 1.0f;
 }
 
+float CWeaponSideArmGlock17::DoWeaponUnload()
+{
+	return 1.0f;
+}
+
 void CWeaponSideArmGlock17::PrimaryAttack(void)
 {
 	if (m_iClip <= 0)

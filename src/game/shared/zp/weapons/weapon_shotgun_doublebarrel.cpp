@@ -11,11 +11,7 @@ void CWeaponShotgunDoubleBarrel::Spawn()
 	pev->classname = MAKE_STRING( "weapon_doublebarrel" );
 	Precache();
 	SET_MODEL(ENT(pev), "models/w_doublebarrel.mdl");
-
-	WeaponData slot = GetWeaponSlotInfo( GetWeaponID() );
-	m_iDefaultAmmo = slot.DefaultAmmo;
-
-	FallInit(); // get ready to fall down.
+	DefaultSpawn();
 }
 
 void CWeaponShotgunDoubleBarrel::Precache(void)
@@ -57,6 +53,12 @@ float CWeaponShotgunDoubleBarrel::Deploy()
 float CWeaponShotgunDoubleBarrel::DoHolsterAnimation()
 {
 	SendWeaponAnim( ANIM_DBARREL_HOLSTER );
+	return GetAnimationTime( 11, 30 );
+}
+
+float CWeaponShotgunDoubleBarrel::DoWeaponUnload()
+{
+	SendWeaponAnim( ANIM_DBARREL_UNLOAD );
 	return GetAnimationTime( 11, 30 );
 }
 

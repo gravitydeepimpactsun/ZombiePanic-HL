@@ -18,11 +18,7 @@ void CWeaponShotgunRemington::Spawn(void)
 {
 	Precache();
 	SET_MODEL(ENT(pev), "models/w_shotgun.mdl");
-
-	WeaponData slot = GetWeaponSlotInfo( GetWeaponID() );
-	m_iDefaultAmmo = slot.DefaultAmmo;
-
-	FallInit(); // get ready to fall
+	DefaultSpawn();
 }
 
 void CWeaponShotgunRemington::Precache( void )

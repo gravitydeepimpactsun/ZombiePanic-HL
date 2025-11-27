@@ -2210,6 +2210,8 @@ bool CBasePlayer::CanActiveInteruptAnimation()
 {
 	switch ( m_Activity )
 	{
+		case ACT_RELOAD:
+		case ACT_RELOAD_EMPTY:
 		case ACT_RANGE_ATTACK1:
 		case ACT_RANGE_ATTACK2:
 		case ACT_MELEE_HEAVY_ATTACK_PRE:

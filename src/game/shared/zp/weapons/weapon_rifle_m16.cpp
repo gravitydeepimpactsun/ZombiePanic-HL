@@ -13,16 +13,20 @@ float CWeaponRifleM16::DoHolsterAnimation()
 	return 0.55;
 }
 
+float CWeaponRifleM16::DoWeaponUnload()
+{
+	SendWeaponAnim( ANIM_AR556_UNLOAD );
+	AddWeaponSound( "weapons/556ar/magout_unload.wav", 1, ATTN_NORM, GetAnimationTime( 15, 20 ) );
+	AddWeaponSound( "weapons/556ar/magin_unload.wav", 1, ATTN_NORM, GetAnimationTime( 28, 20 ) );
+	return GetAnimationTime( 50, 20 );
+}
+
 void CWeaponRifleM16::Spawn()
 {
 	pev->classname = MAKE_STRING( "weapon_556ar" );
 	Precache();
 	SET_MODEL(ENT(pev), "models/w_556AR.mdl");
-
-	WeaponData slot = GetWeaponSlotInfo( GetWeaponID() );
-	m_iDefaultAmmo = slot.DefaultAmmo;
-
-	FallInit(); // get ready to fall down.
+	DefaultSpawn();
 }
 
 void CWeaponRifleM16::Precache(void)
@@ -42,6 +46,8 @@ void CWeaponRifleM16::Precache(void)
 	PRECACHE_SOUND("weapons/556ar/dryfire.wav");
 	PRECACHE_SOUND("weapons/556ar/magout.wav");
 	PRECACHE_SOUND("weapons/556ar/magin.wav");
+	PRECACHE_SOUND("weapons/556ar/magout_unload.wav");
+	PRECACHE_SOUND("weapons/556ar/magin_unload.wav");
 	PRECACHE_SOUND("weapons/556ar/charge.wav");
 
 	m_nEventPrimary = PRECACHE_EVENT(1, "events/m16.sc");

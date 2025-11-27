@@ -20,6 +20,7 @@ int CWeaponBase::iItemSlot( void )
 bool CWeaponBase::DoDeploy( const char *szViewModel, const char *szWeaponModel, int iAnim, const char *szAnimExt, int skiplocal, int body )
 {
 	m_bIsHolstering = false;
+	m_bIsUnloading = false;
 	ClearWeaponSounds();
 
 #ifndef CLIENT_DLL
@@ -113,6 +114,9 @@ void CWeaponBase::ItemPostFrame( void )
 			FinishHolster();
 		return;
 	}
+
+	if ( m_bIsUnloading )
+		FinishUnloading();
 
 	if ((m_fInReload) && (pPlayer->m_flNextAttack <= UTIL_WeaponTimeBase()))
 	{
@@ -232,17 +236,28 @@ void CWeaponBase::Unload()
 	if ( m_iClip <= 0 ) return;
 	// How much ammo to unload
 	int iUnloadAmount = UnloadAmount();
-	// Check how much we can give the player
-	int iGiveAmmo = m_pPlayer->PickupAmmo( iUnloadAmount, GetAmmoByAmmoID( m_iPrimaryAmmoType ) );
-	if ( iGiveAmmo <= 0 ) return; // Couldn't give any ammo
-	// Remove the ammo from the clip
-	m_iClip -= iGiveAmmo;
+	// Can we give ammo to the player?
+	if ( !m_pPlayer->CanGiveAmmo( iUnloadAmount, GetAmmoByAmmoID( m_iPrimaryAmmoType ) ) ) return;
 	// Let's tell our weapon classes to play a specific animation.
 	float flDelay = DoWeaponUnload();
 	m_flNextPrimaryAttack = m_flNextSecondaryAttack
 		= m_flTimeWeaponIdle
 		= m_pPlayer->m_flNextAttack
 		= UTIL_WeaponTimeBase() + flDelay;
+	m_bIsUnloading = true;
+}
+
+void CWeaponBase::FinishUnloading()
+{
+	// Turn it off.
+	m_bIsUnloading = false;
+	// How much ammo to unload
+	int iUnloadAmount = UnloadAmount();
+	// Check how much we can give the player
+	int iGiveAmmo = m_pPlayer->PickupAmmo( iUnloadAmount, GetAmmoByAmmoID( m_iPrimaryAmmoType ) );
+	if ( iGiveAmmo <= 0 ) return; // Couldn't give any ammo
+	// Remove the ammo from the clip
+	m_iClip -= iGiveAmmo;
 }
 
 void CWeaponBase::DoAudioFrame( void )
@@ -299,6 +314,15 @@ void CWeaponBase::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE u
 	}
 
 	BaseClass::Use( pActivator, pCaller, useType, value );
+}
+
+void CWeaponBase::DefaultSpawn()
+{
+	FallInit(); // get ready to fall down.
+
+	WeaponData slot = GetWeaponSlotInfo( GetWeaponID() );
+	m_iDefaultAmmo = slot.DefaultAmmo;
+	m_iClip = m_iDefaultAmmo;
 }
 
 /// <summary>

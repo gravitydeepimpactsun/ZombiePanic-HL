@@ -56,6 +56,7 @@ public:
 	virtual void Unload();
 	virtual int UnloadAmount() { return m_iClip; }
 	virtual float DoWeaponUnload() { return 0.1f; }
+	void FinishUnloading();
 
 	// Get the duration of an animation in seconds
 	float GetAnimationTime( int iFrames, int iFrameRate )
@@ -74,6 +75,7 @@ public:
 	float GetHolsterTime( void ) const { return m_flHolsterTime; }
 
 protected:
+	void DefaultSpawn();
 	bool CanAttack( float attack_time, float curtime, bool isPredicted );
 
 	unsigned short m_nEventPrimary;
@@ -89,9 +91,11 @@ protected:
 	std::vector<WeaponSoundData> m_vecWeaponSoundData;
 
 	float m_flHolsterTime = 0.0f; // Time when we holstered the weapon
+	float m_flUnloadTime = 0.0f; // Time when we unloaded the weapon
 
 private:
 	bool m_bIsHolstering = false; // Are we holstering the weapon?
+	bool m_bIsUnloading = false; // Are we unloading the weapon?
 	CBasePlayerWeapon *m_pNewWeapon = nullptr; // The weapon to switch to after holstering
 };
 

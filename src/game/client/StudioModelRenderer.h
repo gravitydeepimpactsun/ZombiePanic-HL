@@ -41,6 +41,7 @@ public:
 
 	// Initialization
 	virtual void Init(void);
+	virtual void LateChromeLoad();
 
 public:
 	// Public Interfaces
@@ -208,6 +209,7 @@ public:
 	//
 	// Sprite model used for drawing studio model chrome
 	model_t *m_pChromeSprite;
+	model_t *m_pChromeWeapon;
 
 	// Caching
 	// Number of bones in bone cache

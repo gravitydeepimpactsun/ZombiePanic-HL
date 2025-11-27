@@ -981,6 +981,9 @@ void ClientPrecache(void)
 	PRECACHE_SOUND("player/zombiedeath2.wav");
 	PRECACHE_SOUND("player/zombiedeath3.wav");
 
+	// Weapon chrome
+	PRECACHE_MODEL("sprites/weapon_highlight.spr");
+
 	// Precache the models
 	PRECACHE_MODEL("models/player/undead/undead.mdl");
 	PRECACHE_MODEL("models/player/undead2/undead2.mdl");

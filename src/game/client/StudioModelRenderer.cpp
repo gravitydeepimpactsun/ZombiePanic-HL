@@ -179,6 +179,23 @@ void CStudioModelRenderer::Init(void)
 	m_protationmatrix = (float(*)[3][4])IEngineStudio.StudioGetRotationMatrix();
 }
 
+// The default amount
+static ConVar weapon_chrome_amount( "weapon_chrome_amount", "3" );
+
+void CStudioModelRenderer::LateChromeLoad()
+{
+	// We do this only once
+	if ( m_pChromeWeapon ) return;
+
+	int iWeaponChrome;
+	m_pChromeWeapon = gEngfuncs.CL_LoadModel( "sprites/weapon_highlight.spr", &iWeaponChrome );
+	if ( iWeaponChrome == -1 )
+	{
+		Msg( "Failed to load the [sprites/weapon_highlight.spr] sprite.\n" );
+		m_pChromeWeapon = m_pChromeSprite;
+	}
+}
+
 /*
 ====================
 CStudioModelRenderer
@@ -193,6 +210,7 @@ CStudioModelRenderer::CStudioModelRenderer(void)
 	m_pCvarHiModels = NULL;
 	m_pCvarDeveloper = NULL;
 	m_pCvarDrawEntities = NULL;
+	m_pChromeWeapon = NULL;
 	m_pChromeSprite = NULL;
 	m_pStudioModelCount = NULL;
 	m_pModelsDrawn = NULL;
@@ -1855,6 +1873,9 @@ void CStudioModelRenderer::StudioRenderModel(void)
 		// A weapon 
 		if ( bLookingAtWeapon )
 		{
+			// This is stupid and shit, but we only get a valid precached chrome sprite
+			// after the player joins a server.
+			LateChromeLoad();
 			Color parsed;
 			color24 glow_color;
 			// Is this weapon empty? glows red if so, otherwise yellow.
@@ -1872,9 +1893,10 @@ void CStudioModelRenderer::StudioRenderModel(void)
 			glow_color.g = parsed.g();
 			glow_color.b = parsed.b();
 			m_pCurrentEntity->curstate.rendercolor = glow_color;
+			m_pCurrentEntity->curstate.renderamt = weapon_chrome_amount.GetInt();
 		}
 
-		gEngfuncs.pTriAPI->SpriteTexture(m_pChromeSprite, 0);
+		gEngfuncs.pTriAPI->SpriteTexture( bLookingAtWeapon ? m_pChromeWeapon : m_pChromeSprite, 0 );
 		m_pCurrentEntity->curstate.renderfx = kRenderFxGlowShell;
 
 		StudioRenderFinal();

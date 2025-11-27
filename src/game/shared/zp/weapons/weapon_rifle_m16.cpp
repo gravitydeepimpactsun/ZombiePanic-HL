@@ -65,7 +65,7 @@ int CWeaponRifleM16::AddToPlayer(CBasePlayer *pPlayer)
 
 float CWeaponRifleM16::Deploy()
 {
-	DoDeploy( "models/v_556AR.mdl", "models/p_556AR.mdl", ANIM_AR556_DEPLOY, "mp5" );
+	DoDeploy( "models/v_556AR.mdl", "models/p_556AR.mdl", ANIM_AR556_DEPLOY, "556ar" );
 	return GetAnimationTime( 21, 30 );
 }
 

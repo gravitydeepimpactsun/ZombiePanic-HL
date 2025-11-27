@@ -70,6 +70,8 @@ float CWeaponShotgunRemington::DoWeaponUnload()
 {
 	// Similar to OnRequestedAnimation( CWeaponBaseSingleAction::ANIM_PUMP );
 	SendWeaponAnim( ANIM_SHOTGUN_PUMP );
+	// Pump it up!
+	m_pPlayer->SetAnimation( PLAYER_RELOAD );
 	EMIT_SOUND_DYN( ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/shotgun/pump.wav", 1, ATTN_NORM, 0, 105 );
 	return 0.73f;
 }
@@ -85,6 +87,8 @@ void CWeaponShotgunRemington::OnRequestedAnimation( SingleActionAnimReq act )
 		{
 			// reload debounce has timed out
 			SendWeaponAnim( ANIM_SHOTGUN_PUMP );
+			// Pump it up!
+			m_pPlayer->SetAnimation( PLAYER_RELOAD );
 			// play cocking sound
 			EMIT_SOUND_DYN( ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/shotgun/pump.wav", 1, ATTN_NORM, 0, 105 );
 			m_flTimeWeaponIdle = m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + 0.73f;

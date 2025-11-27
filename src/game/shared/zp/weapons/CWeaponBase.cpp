@@ -50,6 +50,9 @@ int CWeaponBase::DefaultReload(int iAnim, float fDelay, int body)
 
 	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + fDelay;
 
+	// Play our animation!
+	m_pPlayer->SetAnimation( IsEmpty() ? PLAYER_RELOAD_EMPTY : PLAYER_RELOAD );
+
 	SendWeaponAnim(iAnim, 0, body);
 
 	m_fInReload = TRUE;

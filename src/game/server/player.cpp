@@ -1138,6 +1138,14 @@ void CBasePlayer::SetAnimation(PLAYER_ANIM playerAnim)
 
 	switch (playerAnim)
 	{
+	case PLAYER_RELOAD:
+		m_IdealActivity = ACT_RELOAD;
+		break;
+
+	case PLAYER_RELOAD_EMPTY:
+		m_IdealActivity = ACT_RELOAD_EMPTY;
+		break;
+
 	case PLAYER_JUMP:
 		m_IdealActivity = ACT_HOP;
 		break;
@@ -1256,6 +1264,54 @@ void CBasePlayer::SetAnimation(PLAYER_ANIM playerAnim)
 		pev->frame = 0;
 		ResetSequenceInfo();
 		return;
+
+	case ACT_RELOAD:
+		UTIL_strcpy( szAnim, m_szAnimExtention );
+		strcat( szAnim, "_reload" );
+
+		animDesired = LookupSequence(szAnim);
+		if ( animDesired == -1 )
+			animDesired = 0;
+
+		if (pev->sequence != animDesired || !m_fSequenceLoops)
+		{
+			pev->frame = 0;
+		}
+
+		if (!m_fSequenceLoops)
+		{
+			pev->effects |= EF_NOINTERP;
+		}
+
+		m_Activity = m_IdealActivity;
+
+		pev->sequence = animDesired;
+		ResetSequenceInfo();
+		break;
+
+	case ACT_RELOAD_EMPTY:
+		UTIL_strcpy( szAnim, m_szAnimExtention );
+		strcat( szAnim, "_reload_empty" );
+
+		animDesired = LookupSequence(szAnim);
+		if ( animDesired == -1 )
+			animDesired = 0;
+
+		if (pev->sequence != animDesired || !m_fSequenceLoops)
+		{
+			pev->frame = 0;
+		}
+
+		if (!m_fSequenceLoops)
+		{
+			pev->effects |= EF_NOINTERP;
+		}
+
+		m_Activity = m_IdealActivity;
+
+		pev->sequence = animDesired;
+		ResetSequenceInfo();
+		break;
 
 	case ACT_RANGE_ATTACK1:
 		// If m_szAnimExtention is empty, then we change it to use "empty"

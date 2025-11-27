@@ -1146,6 +1146,18 @@ void CBasePlayer::SetAnimation(PLAYER_ANIM playerAnim)
 		m_IdealActivity = ACT_RELOAD_EMPTY;
 		break;
 
+	case PLAYER_RELOAD_START:
+		m_IdealActivity = ACT_RELOAD_START;
+		break;
+
+	case PLAYER_RELOAD_END:
+		m_IdealActivity = ACT_RELOAD_END;
+		break;
+
+	case PLAYER_PUMP:
+		m_IdealActivity = ACT_PUMP;
+		break;
+
 	case PLAYER_JUMP:
 		m_IdealActivity = ACT_HOP;
 		break;
@@ -1292,6 +1304,78 @@ void CBasePlayer::SetAnimation(PLAYER_ANIM playerAnim)
 	case ACT_RELOAD_EMPTY:
 		UTIL_strcpy( szAnim, m_szAnimExtention );
 		strcat( szAnim, "_reload_empty" );
+
+		animDesired = LookupSequence(szAnim);
+		if ( animDesired == -1 )
+			animDesired = 0;
+
+		if (pev->sequence != animDesired || !m_fSequenceLoops)
+		{
+			pev->frame = 0;
+		}
+
+		if (!m_fSequenceLoops)
+		{
+			pev->effects |= EF_NOINTERP;
+		}
+
+		m_Activity = m_IdealActivity;
+
+		pev->sequence = animDesired;
+		ResetSequenceInfo();
+		break;
+
+	case ACT_RELOAD_START:
+		UTIL_strcpy( szAnim, m_szAnimExtention );
+		strcat( szAnim, "_reload_start" );
+
+		animDesired = LookupSequence(szAnim);
+		if ( animDesired == -1 )
+			animDesired = 0;
+
+		if (pev->sequence != animDesired || !m_fSequenceLoops)
+		{
+			pev->frame = 0;
+		}
+
+		if (!m_fSequenceLoops)
+		{
+			pev->effects |= EF_NOINTERP;
+		}
+
+		m_Activity = m_IdealActivity;
+
+		pev->sequence = animDesired;
+		ResetSequenceInfo();
+		break;
+
+	case ACT_RELOAD_END:
+		UTIL_strcpy( szAnim, m_szAnimExtention );
+		strcat( szAnim, "_reload_end" );
+
+		animDesired = LookupSequence(szAnim);
+		if ( animDesired == -1 )
+			animDesired = 0;
+
+		if (pev->sequence != animDesired || !m_fSequenceLoops)
+		{
+			pev->frame = 0;
+		}
+
+		if (!m_fSequenceLoops)
+		{
+			pev->effects |= EF_NOINTERP;
+		}
+
+		m_Activity = m_IdealActivity;
+
+		pev->sequence = animDesired;
+		ResetSequenceInfo();
+		break;
+
+	case ACT_PUMP:
+		UTIL_strcpy( szAnim, m_szAnimExtention );
+		strcat( szAnim, "_pump" );
 
 		animDesired = LookupSequence(szAnim);
 		if ( animDesired == -1 )
@@ -2212,6 +2296,9 @@ bool CBasePlayer::CanActiveInteruptAnimation()
 	{
 		case ACT_RELOAD:
 		case ACT_RELOAD_EMPTY:
+	    case ACT_RELOAD_START:
+	    case ACT_RELOAD_END:
+	    case ACT_PUMP:
 		case ACT_RANGE_ATTACK1:
 		case ACT_RANGE_ATTACK2:
 		case ACT_MELEE_HEAVY_ATTACK_PRE:

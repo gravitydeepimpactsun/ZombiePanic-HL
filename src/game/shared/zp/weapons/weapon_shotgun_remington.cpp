@@ -71,7 +71,7 @@ float CWeaponShotgunRemington::DoWeaponUnload()
 	// Similar to OnRequestedAnimation( CWeaponBaseSingleAction::ANIM_PUMP );
 	SendWeaponAnim( ANIM_SHOTGUN_PUMP );
 	// Pump it up!
-	m_pPlayer->SetAnimation( PLAYER_RELOAD );
+	m_pPlayer->SetAnimation( PLAYER_PUMP );
 	EMIT_SOUND_DYN( ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/shotgun/pump.wav", 1, ATTN_NORM, 0, 105 );
 	return 0.73f;
 }
@@ -88,13 +88,18 @@ void CWeaponShotgunRemington::OnRequestedAnimation( SingleActionAnimReq act )
 			// reload debounce has timed out
 			SendWeaponAnim( ANIM_SHOTGUN_PUMP );
 			// Pump it up!
-			m_pPlayer->SetAnimation( PLAYER_RELOAD );
+			m_pPlayer->SetAnimation( PLAYER_PUMP );
 			// play cocking sound
 			EMIT_SOUND_DYN( ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/shotgun/pump.wav", 1, ATTN_NORM, 0, 105 );
 			m_flTimeWeaponIdle = m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + 0.73f;
 		}
 		break;
-		case CWeaponBaseSingleAction::ANIM_RELOAD_START: SendWeaponAnim( ANIM_SHOTGUN_RELOAD_START ); break;
+		case CWeaponBaseSingleAction::ANIM_RELOAD_START:
+		{
+			SendWeaponAnim( ANIM_SHOTGUN_RELOAD_START );
+			m_pPlayer->SetAnimation( PLAYER_RELOAD_START );
+		}
+		break;
 		case CWeaponBaseSingleAction::ANIM_RELOAD:
 		{
 		    if (RANDOM_LONG(0, 1))
@@ -103,6 +108,7 @@ void CWeaponShotgunRemington::OnRequestedAnimation( SingleActionAnimReq act )
 			    EMIT_SOUND_DYN( ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/shotgun/reload2.wav", 1, ATTN_NORM, 0, 85 + RANDOM_LONG(0, 0x1f) );
 
 		    SendWeaponAnim( ANIM_SHOTGUN_RELOAD );
+			m_pPlayer->SetAnimation( PLAYER_RELOAD );
 
 #if defined( SERVER_DLL )
 			m_pPlayer->m_iWeaponKillCount = 0;
@@ -115,6 +121,7 @@ void CWeaponShotgunRemington::OnRequestedAnimation( SingleActionAnimReq act )
 		case CWeaponBaseSingleAction::ANIM_RELOAD_END:
 		{
 			SendWeaponAnim( ANIM_SHOTGUN_RELOAD_END );
+			m_pPlayer->SetAnimation( PLAYER_RELOAD_END );
 			EMIT_SOUND_DYN( ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/shotgun/pump.wav", 1, ATTN_NORM, 0, 105 );
 			m_flNextReload = UTIL_WeaponTimeBase() + 0.81;
 			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.81;

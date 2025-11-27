@@ -296,6 +296,7 @@ void CBasePlayer::DropPlayerItem(char *pszItemName) { }
 BOOL CBasePlayer::HasPlayerItem(CBasePlayerItem *pCheckItem) { return FALSE; }
 Vector CBasePlayer::GetGunPosition(void) { return g_vecZero; }
 const char *CBasePlayer::TeamID(void) { return ""; }
+bool CBasePlayer::CanGiveAmmo(int iAmount, AmmoData data) { return false; }
 int CBasePlayer::PickupAmmo(int iAmount, AmmoData data) { return 0; }
 int CBasePlayer::GiveAmmo(int iAmount, ZPAmmoTypes ammotype) { return 0; }
 int CBasePlayer::GiveAmmo(int iCount, char *szName) { return 0; }

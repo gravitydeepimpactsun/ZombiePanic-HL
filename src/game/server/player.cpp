@@ -5245,11 +5245,20 @@ int CBasePlayer::AddPlayerItem(CBasePlayerItem *pItem)
 				int iClip = pWeapon->m_iClip;
 				if ( iClip > 0 )
 				{
-					int iAmount = GiveAmmo( iClip, (char *)pWeapon->GetData().Ammo1 );
+					AmmoData nAmmoData = GetAmmoByName( pWeapon->GetData().Ammo1 );
+					int iAmount = PickupAmmo( iClip, nAmmoData );
 					if ( iAmount > 0 )
+					{
 						EMIT_SOUND( ENT(pWeapon->pev), CHAN_ITEM, "items/ammo_pickup.wav", 1, ATTN_NORM );
-					pWeapon->m_iClip -= iAmount;
-					return TRUE;
+						// Nudge the weapon towards me!
+						Vector vNewVel( 0, 0, 15 );
+						UTIL_MakeVectors( pev->v_angle );
+						Vector vecThrow = gpGlobals->v_forward * 25;
+						vNewVel -= vecThrow;
+						pWeapon->pev->velocity = vNewVel;
+						pWeapon->m_iClip -= iAmount;
+						pWeapon->pev->playerclass = (pWeapon->m_iClip == 0) ? 1 : 0; // if iuser1 is 1, it's empty
+					}
 				}
 				return FALSE;
 			}
@@ -6058,6 +6067,26 @@ int CBasePlayer::PickupAmmo( int iAmount, AmmoData data )
 
 	TabulateAmmo();
 	return iAdd;
+}
+
+bool CBasePlayer::CanGiveAmmo(int iAmount, AmmoData data)
+{
+	int iMaxCarry = data.MaxCarry;
+	bool bIsInHardcore = ( ZP::GetCurrentGameMode()->GetGameModeType() == ZP::GameModeType_e::GAMEMODE_HARDCORE );
+	// If in hardcore mode and don't have a backpack, halve the max carry.
+	if ( bIsInHardcore && !HasBackpack() )
+		iMaxCarry = (int)( (float)iMaxCarry * 0.5f );
+
+	if ( !g_pGameRules->CanHaveAmmo( this, data.AmmoName, iMaxCarry ) )
+		return false;
+
+	int i = data.AmmoType;
+	if ( i < 0 || i >= ZPAmmoTypes::AMMO_MAX ) return -1;
+
+	int iAdd = min(iAmount, iMaxCarry - m_rgAmmo[i]);
+	if ( iAdd < 1 ) return false;
+
+	return true;
 }
 
 #define DOT_1DEGREE  0.9998476951564

@@ -332,6 +332,7 @@ public:
 	void EnableControl(BOOL fControl);
 
 	int PickupAmmo(int iAmount, AmmoData data);
+	bool CanGiveAmmo(int iAmount, AmmoData data);
 
 	int GiveAmmo(int iAmount, ZPAmmoTypes ammotype );
 	int GiveAmmo(int iAmount, char *szName);

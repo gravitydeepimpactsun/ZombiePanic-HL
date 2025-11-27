@@ -289,6 +289,7 @@ public:
 	bool CanActiveInteruptAnimation();
 	void EXPORT SetAnimation(PLAYER_ANIM playerAnim);
 	void SetWeaponAnimType(const char *szExtention);
+	int SetNewActivity(const char *szActivity, bool bUseExt);
 	char m_szAnimExtention[32];
 
 	// custom player functions

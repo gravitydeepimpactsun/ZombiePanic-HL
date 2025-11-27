@@ -1278,123 +1278,23 @@ void CBasePlayer::SetAnimation(PLAYER_ANIM playerAnim)
 		return;
 
 	case ACT_RELOAD:
-		UTIL_strcpy( szAnim, m_szAnimExtention );
-		strcat( szAnim, "_reload" );
-
-		animDesired = LookupSequence(szAnim);
-		if ( animDesired == -1 )
-			animDesired = 0;
-
-		if (pev->sequence != animDesired || !m_fSequenceLoops)
-		{
-			pev->frame = 0;
-		}
-
-		if (!m_fSequenceLoops)
-		{
-			pev->effects |= EF_NOINTERP;
-		}
-
-		m_Activity = m_IdealActivity;
-
-		pev->sequence = animDesired;
-		ResetSequenceInfo();
+		animDesired = SetNewActivity( "_reload", true );
 		break;
 
 	case ACT_RELOAD_EMPTY:
-		UTIL_strcpy( szAnim, m_szAnimExtention );
-		strcat( szAnim, "_reload_empty" );
-
-		animDesired = LookupSequence(szAnim);
-		if ( animDesired == -1 )
-			animDesired = 0;
-
-		if (pev->sequence != animDesired || !m_fSequenceLoops)
-		{
-			pev->frame = 0;
-		}
-
-		if (!m_fSequenceLoops)
-		{
-			pev->effects |= EF_NOINTERP;
-		}
-
-		m_Activity = m_IdealActivity;
-
-		pev->sequence = animDesired;
-		ResetSequenceInfo();
+		animDesired = SetNewActivity( "_reload_empty", true );
 		break;
 
 	case ACT_RELOAD_START:
-		UTIL_strcpy( szAnim, m_szAnimExtention );
-		strcat( szAnim, "_reload_start" );
-
-		animDesired = LookupSequence(szAnim);
-		if ( animDesired == -1 )
-			animDesired = 0;
-
-		if (pev->sequence != animDesired || !m_fSequenceLoops)
-		{
-			pev->frame = 0;
-		}
-
-		if (!m_fSequenceLoops)
-		{
-			pev->effects |= EF_NOINTERP;
-		}
-
-		m_Activity = m_IdealActivity;
-
-		pev->sequence = animDesired;
-		ResetSequenceInfo();
+		animDesired = SetNewActivity( "_reload_start", true );
 		break;
 
 	case ACT_RELOAD_END:
-		UTIL_strcpy( szAnim, m_szAnimExtention );
-		strcat( szAnim, "_reload_end" );
-
-		animDesired = LookupSequence(szAnim);
-		if ( animDesired == -1 )
-			animDesired = 0;
-
-		if (pev->sequence != animDesired || !m_fSequenceLoops)
-		{
-			pev->frame = 0;
-		}
-
-		if (!m_fSequenceLoops)
-		{
-			pev->effects |= EF_NOINTERP;
-		}
-
-		m_Activity = m_IdealActivity;
-
-		pev->sequence = animDesired;
-		ResetSequenceInfo();
+		animDesired = SetNewActivity( "_reload_end", true );
 		break;
 
 	case ACT_PUMP:
-		UTIL_strcpy( szAnim, m_szAnimExtention );
-		strcat( szAnim, "_pump" );
-
-		animDesired = LookupSequence(szAnim);
-		if ( animDesired == -1 )
-			animDesired = 0;
-
-		if (pev->sequence != animDesired || !m_fSequenceLoops)
-		{
-			pev->frame = 0;
-		}
-
-		if (!m_fSequenceLoops)
-		{
-			pev->effects |= EF_NOINTERP;
-		}
-
-		m_Activity = m_IdealActivity;
-
-		pev->sequence = animDesired;
-		ResetSequenceInfo();
+		animDesired = SetNewActivity( "_pump", true );
 		break;
 
 	case ACT_RANGE_ATTACK1:
@@ -1426,24 +1326,7 @@ void CBasePlayer::SetAnimation(PLAYER_ANIM playerAnim)
 			    case 3: strcat( szAnim, "_both" ); break;
 			}
 		}
-		animDesired = LookupSequence(szAnim);
-		if (animDesired == -1)
-			animDesired = 0;
-
-		if (pev->sequence != animDesired || !m_fSequenceLoops)
-		{
-			pev->frame = 0;
-		}
-
-		if (!m_fSequenceLoops)
-		{
-			pev->effects |= EF_NOINTERP;
-		}
-
-		m_Activity = m_IdealActivity;
-
-		pev->sequence = animDesired;
-		ResetSequenceInfo();
+		animDesired = SetNewActivity( szAnim, false );
 		break;
 
 	case ACT_MELEE_HEAVY_ATTACK_PRE:
@@ -1451,24 +1334,7 @@ void CBasePlayer::SetAnimation(PLAYER_ANIM playerAnim)
 			UTIL_strcpy(szAnim, "crouch_shoot_heavy_pre");
 		else
 			UTIL_strcpy(szAnim, "ref_shoot_heavy_pre");
-		animDesired = LookupSequence(szAnim);
-		if (animDesired == -1)
-			animDesired = 0;
-
-		if (pev->sequence != animDesired || !m_fSequenceLoops)
-		{
-			pev->frame = 0;
-		}
-
-		if (!m_fSequenceLoops)
-		{
-			pev->effects |= EF_NOINTERP;
-		}
-
-		m_Activity = m_IdealActivity;
-
-		pev->sequence = animDesired;
-		ResetSequenceInfo();
+		animDesired = SetNewActivity( szAnim, false );
 		break;
 
 	case ACT_MELEE_HEAVY_ATTACK_LOOP:
@@ -1476,24 +1342,7 @@ void CBasePlayer::SetAnimation(PLAYER_ANIM playerAnim)
 			UTIL_strcpy(szAnim, "crouch_shoot_heavy_loop");
 		else
 			UTIL_strcpy(szAnim, "ref_shoot_heavy_loop");
-		animDesired = LookupSequence(szAnim);
-		if (animDesired == -1)
-			animDesired = 0;
-
-		if (pev->sequence != animDesired || !m_fSequenceLoops)
-		{
-			pev->frame = 0;
-		}
-
-		if (!m_fSequenceLoops)
-		{
-			pev->effects |= EF_NOINTERP;
-		}
-
-		m_Activity = m_IdealActivity;
-
-		pev->sequence = animDesired;
-		ResetSequenceInfo();
+		animDesired = SetNewActivity( szAnim, false );
 		break;
 
 	case ACT_MELEE_HEAVY_ATTACK_POST:
@@ -1501,24 +1350,7 @@ void CBasePlayer::SetAnimation(PLAYER_ANIM playerAnim)
 			UTIL_strcpy(szAnim, "crouch_shoot_heavy_post");
 		else
 			UTIL_strcpy(szAnim, "ref_shoot_heavy_post");
-		animDesired = LookupSequence(szAnim);
-		if (animDesired == -1)
-			animDesired = 0;
-
-		if (pev->sequence != animDesired || !m_fSequenceLoops)
-		{
-			pev->frame = 0;
-		}
-
-		if (!m_fSequenceLoops)
-		{
-			pev->effects |= EF_NOINTERP;
-		}
-
-		m_Activity = m_IdealActivity;
-
-		pev->sequence = animDesired;
-		ResetSequenceInfo();
+		animDesired = SetNewActivity( szAnim, false );
 		break;
 
 	case ACT_WALK:
@@ -1586,6 +1418,38 @@ void CBasePlayer::SetAnimation(PLAYER_ANIM playerAnim)
 	pev->sequence = animDesired;
 	pev->frame = 0;
 	ResetSequenceInfo();
+}
+
+int CBasePlayer::SetNewActivity(const char *szActivity, bool bUseExt)
+{
+	char szAnim[64];
+	if ( bUseExt )
+	{
+		UTIL_strcpy( szAnim, m_szAnimExtention );
+		strcat( szAnim, szActivity );
+	}
+	else
+		UTIL_strcpy( szAnim, szActivity );
+
+	int animDesired = LookupSequence(szAnim);
+	if ( animDesired == -1 )
+		animDesired = 0;
+
+	if (pev->sequence != animDesired || !m_fSequenceLoops)
+	{
+		pev->frame = 0;
+	}
+
+	if (!m_fSequenceLoops)
+	{
+		pev->effects |= EF_NOINTERP;
+	}
+
+	m_Activity = m_IdealActivity;
+
+	pev->sequence = animDesired;
+	ResetSequenceInfo();
+	return animDesired;
 }
 
 /*

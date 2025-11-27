@@ -1158,6 +1158,14 @@ void CBasePlayer::SetAnimation(PLAYER_ANIM playerAnim)
 		m_IdealActivity = ACT_PUMP;
 		break;
 
+	case PLAYER_DRAW:
+		m_IdealActivity = ACT_ARM;
+		break;
+
+	case PLAYER_HOLSTER:
+		m_IdealActivity = ACT_DISARM;
+		break;
+
 	case PLAYER_JUMP:
 		m_IdealActivity = ACT_HOP;
 		break;
@@ -1277,25 +1285,13 @@ void CBasePlayer::SetAnimation(PLAYER_ANIM playerAnim)
 		ResetSequenceInfo();
 		return;
 
-	case ACT_RELOAD:
-		animDesired = SetNewActivity( "_reload", true );
-		break;
-
-	case ACT_RELOAD_EMPTY:
-		animDesired = SetNewActivity( "_reload_empty", true );
-		break;
-
-	case ACT_RELOAD_START:
-		animDesired = SetNewActivity( "_reload_start", true );
-		break;
-
-	case ACT_RELOAD_END:
-		animDesired = SetNewActivity( "_reload_end", true );
-		break;
-
-	case ACT_PUMP:
-		animDesired = SetNewActivity( "_pump", true );
-		break;
+	case ACT_RELOAD: animDesired = SetNewActivity( "_reload", true ); break;
+	case ACT_RELOAD_EMPTY: animDesired = SetNewActivity( "_reload_empty", true ); break;
+	case ACT_RELOAD_START: animDesired = SetNewActivity( "_reload_start", true ); break;
+	case ACT_RELOAD_END: animDesired = SetNewActivity( "_reload_end", true ); break;
+	case ACT_PUMP: animDesired = SetNewActivity( "_pump", true ); break;
+	case ACT_ARM: animDesired = SetNewActivity( "_draw", true ); break;
+	case ACT_DISARM: animDesired = SetNewActivity( "_holster", true ); break;
 
 	case ACT_RANGE_ATTACK1:
 		// If m_szAnimExtention is empty, then we change it to use "empty"
@@ -2163,6 +2159,8 @@ bool CBasePlayer::CanActiveInteruptAnimation()
 	    case ACT_RELOAD_START:
 	    case ACT_RELOAD_END:
 	    case ACT_PUMP:
+	    case ACT_ARM:
+	    case ACT_DISARM:
 		case ACT_RANGE_ATTACK1:
 		case ACT_RANGE_ATTACK2:
 		case ACT_MELEE_HEAVY_ATTACK_PRE:

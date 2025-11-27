@@ -66,10 +66,12 @@ void CWeaponBase::DoDeployAnimation()
 	float flDeploy = Deploy();
 	m_flHolsterTime = -1;
 	m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flTimeWeaponIdle = m_pPlayer->m_flNextAttack = flDeploy;
+	m_pPlayer->SetAnimation( PLAYER_DRAW );
 }
 
 void CWeaponBase::BeginHolster( CBasePlayerWeapon *pWeapon )
 {
+	m_pPlayer->SetAnimation( PLAYER_HOLSTER );
 	m_pNewWeapon = pWeapon;
 	m_bIsHolstering = true;
 	m_fInReload = FALSE;
@@ -248,6 +250,7 @@ void CWeaponBase::Unload()
 		= m_pPlayer->m_flNextAttack
 		= UTIL_WeaponTimeBase() + flDelay;
 	m_bIsUnloading = true;
+	m_pPlayer->SetAnimation( PLAYER_RELOAD );
 }
 
 void CWeaponBase::FinishUnloading()

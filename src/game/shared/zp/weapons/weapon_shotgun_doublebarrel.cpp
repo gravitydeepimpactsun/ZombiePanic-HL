@@ -46,7 +46,7 @@ int CWeaponShotgunDoubleBarrel::AddToPlayer(CBasePlayer *pPlayer)
 
 float CWeaponShotgunDoubleBarrel::Deploy()
 {
-	DoDeploy( "models/v_doublebarrel.mdl", "models/p_doublebarrel.mdl", ANIM_DBARREL_DRAW, "shotgun" );
+	DoDeploy( "models/v_doublebarrel.mdl", "models/p_doublebarrel.mdl", ANIM_DBARREL_DRAW, "dbarrel" );
 	return GetAnimationTime( 21, 20 );
 }
 

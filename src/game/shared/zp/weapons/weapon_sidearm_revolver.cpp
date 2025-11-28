@@ -178,6 +178,8 @@ void CWeaponSideArmRevolver::Reload(void)
 	if ( m_pPlayer->ammo_357 <= 0 ) return;
 	if ( DefaultReload( ANIM_357_RELOAD, GetAnimationTime( 75, 20 ) ) )
 	{
+		// Make sure we only use PLAYER_RELOAD and not empty, since we only have 1 reload animation anyway.
+		m_pPlayer->SetAnimation( PLAYER_RELOAD );
 #if defined( SERVER_DLL )
 		m_pPlayer->m_iWeaponKillCount = 0;
 #endif

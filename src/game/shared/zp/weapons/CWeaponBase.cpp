@@ -243,6 +243,8 @@ void CWeaponBase::Unload()
 	int iUnloadAmount = UnloadAmount();
 	// Can we give ammo to the player?
 	if ( !m_pPlayer->CanGiveAmmo( iUnloadAmount, GetAmmoByAmmoID( m_iPrimaryAmmoType ) ) ) return;
+	// Play this first, so we can override it on DoWeaponUnload on our child classes.
+	m_pPlayer->SetAnimation( PLAYER_RELOAD );
 	// Let's tell our weapon classes to play a specific animation.
 	float flDelay = DoWeaponUnload();
 	m_flNextPrimaryAttack = m_flNextSecondaryAttack
@@ -250,7 +252,6 @@ void CWeaponBase::Unload()
 		= m_pPlayer->m_flNextAttack
 		= UTIL_WeaponTimeBase() + flDelay;
 	m_bIsUnloading = true;
-	m_pPlayer->SetAnimation( PLAYER_RELOAD );
 }
 
 void CWeaponBase::FinishUnloading()

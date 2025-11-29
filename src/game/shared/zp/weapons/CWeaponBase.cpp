@@ -329,7 +329,7 @@ void CWeaponBase::DefaultSpawn()
 
 	WeaponData slot = GetWeaponSlotInfo( GetWeaponID() );
 	m_iDefaultAmmo = slot.DefaultAmmo;
-	m_iClip = m_iDefaultAmmo;
+	m_iClip = slot.DefaultAmmo;
 }
 
 /// <summary>

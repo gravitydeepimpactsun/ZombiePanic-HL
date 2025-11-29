@@ -10,14 +10,9 @@ PRECACHE_WEAPON_REGISTER( weapon_tnt );
 void CWeaponExplosiveTNT::Spawn()
 {
 	pev->classname = MAKE_STRING( "weapon_tnt" );
-
 	Precache();
 	SET_MODEL(ENT(pev), "models/w_tnt.mdl");
-
-	WeaponData slot = GetWeaponSlotInfo( GetWeaponID() );
-	m_iDefaultAmmo = slot.DefaultAmmo;
-
-	FallInit(); // get ready to fall down.
+	DefaultSpawn();
 }
 
 void CWeaponExplosiveTNT::DeactivateThrow()

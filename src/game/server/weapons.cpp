@@ -1150,9 +1150,11 @@ int CBasePlayerWeapon::ExtractAmmo(CBasePlayerWeapon *pWeapon)
 
 	if (HasValidAmmoType( true ) != NULL)
 	{
+#if defined( HL_DLL )
 		// blindly call with m_iDefaultAmmo. It's either going to be a value or zero. If it is zero,
 		// we only get the ammo in the weapon's clip, which is what we want.
 		iReturn = pWeapon->AddPrimaryAmmo(m_iDefaultAmmo, (char *)GetData().Ammo1, iMaxClip(), iMaxAmmo1());
+#endif
 		m_iDefaultAmmo = 0;
 	}
 

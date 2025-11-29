@@ -28,11 +28,10 @@ void CWeaponExplosiveIED::Spawn()
 
 	Precache();
 	SET_MODEL(ENT(pev), "models/w_satchel.mdl");
+	DefaultSpawn();
 
 	WeaponData slot = GetWeaponSlotInfo( GetWeaponID() );
-	m_iPrevClip = m_iDefaultAmmo = slot.DefaultAmmo;
-
-	FallInit(); // get ready to fall down.
+	m_iPrevClip = slot.DefaultAmmo;
 
 	m_iIEDState = IED_STATE_NORMAL;
 }

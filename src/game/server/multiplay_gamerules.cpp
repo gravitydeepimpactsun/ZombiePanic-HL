@@ -989,10 +989,10 @@ void CHalfLifeMultiplay::DeathNotice(CBasePlayer *pVictim, entvars_t *pKiller, e
 			}
 
 			IGameModeBase *pGameMode = ZP::GetCurrentGameMode();
-			// If hardcore mode, and we managed to get a crowbar kill while over encumbered. (90 Lb)
+			// If hardcore mode, and we managed to get a melee kill while having a backpack.
 			if ( pGameMode
 				&& pGameMode->GetGameModeType() == ZP::GAMEMODE_HARDCORE
-				&& pAttacker->GetTotalWeight() > 50
+			    && pAttacker->HasBackpack()
 				&& bWasMeleeKill )
 				pAttacker->GiveAchievement( HC_OVERWEIGHTKILLER );
 

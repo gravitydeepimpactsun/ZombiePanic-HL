@@ -84,7 +84,7 @@ ConVar mp_blastradius("mp_blastradius", "1.0", 0, "Explosion radius scale.");
 cvar_t mp_dmg_crowbar = { "mp_dmg_crowbar", "25", FCVAR_SERVER };
 cvar_t mp_dmg_leadpipe = { "mp_dmg_leadpipe", "32", FCVAR_SERVER };
 cvar_t mp_dmg_leadpipe_heavy = { "mp_dmg_leadpipe_heavy", "45", FCVAR_SERVER };
-cvar_t mp_dmg_swipe = { "mp_dmg_swipe", "35", FCVAR_SERVER };
+cvar_t mp_dmg_swipe = { "mp_dmg_swipe", "30", FCVAR_SERVER };
 cvar_t mp_dmg_sig = { "mp_dmg_sig", "12", FCVAR_SERVER };
 cvar_t mp_dmg_ppk = { "mp_dmg_ppk", "8", FCVAR_SERVER };
 cvar_t mp_dmg_glock = { "mp_dmg_glock", "18", FCVAR_SERVER };

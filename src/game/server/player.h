@@ -101,6 +101,14 @@ typedef enum
 	MAX_SURVIVORS = SURVIVOR2
 } PlayerCharacter;
 
+struct PlayerCharacterType
+{
+	PlayerCharacter Type;
+	const char *Name;
+	const char *Survivor;
+	const char *Zombie;
+};
+
 void PrecachePlayerVocalizeSounds();
 
 struct VocalizeData
@@ -510,6 +518,7 @@ public:
 	// Apply our correct model!
 	void SetTheCorrectPlayerModel();
 	PlayerCharacter GetCharacter( const char *szType );
+	PlayerCharacterType GetPlayerCharacterType();
 
 	int m_iWeaponKillCount = 0;
 	PlayerCharacter m_iCharacter = PlayerCharacter::ANY;
@@ -605,5 +614,8 @@ public:
 
 extern int gmsgHudText;
 extern BOOL gInitHUD;
+
+void PrecachePlayerModels();
+bool UTIL_IsValidPlayerModel( const char *szModel, bool bIsZombie );
 
 #endif // PLAYER_H

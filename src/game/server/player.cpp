@@ -68,17 +68,35 @@ extern bool IsBustingGame();
 // the world node graph
 extern CGraph WorldGraph;
 
-struct PlayerCharacterType
-{
-	PlayerCharacter Type;
-	const char *Name;
+PlayerCharacterType g_CharacterTypes[] = {
+	{ SURVIVOR1, "eugene", "survivor1", "undead" },
+	{ SURVIVOR2, "marcus", "survivor2", "undead2" },
+	{ SURVIVOR3, "david", "survivor3", "undead3" },
 };
 
-PlayerCharacterType g_CharacterTypes[] = {
-	{ SURVIVOR1, "eugene" },
-	{ SURVIVOR2, "marcus" },
-	{ SURVIVOR3, "david" },
-};
+void PrecachePlayerModels()
+{
+	// Survivors
+	PRECACHE_MODEL( "models/player/survivor1/survivor1.mdl" );
+	PRECACHE_MODEL( "models/player/survivor2/survivor2.mdl" );
+	PRECACHE_MODEL( "models/player/survivor3/survivor3.mdl" );
+
+	// Zombies
+	PRECACHE_MODEL( "models/player/undead/undead.mdl" );
+	PRECACHE_MODEL( "models/player/undead2/undead2.mdl" );
+	PRECACHE_MODEL( "models/player/undead3/undead3.mdl" );
+}
+
+bool UTIL_IsValidPlayerModel( const char *szModel, bool bIsZombie )
+{
+	for ( int i = 0; i < ARRAYSIZE( g_CharacterTypes ); i++ )
+	{
+		const char *szModelCheck = bIsZombie ? g_CharacterTypes[i].Zombie : g_CharacterTypes[i].Survivor;
+		if ( FStrEq( szModel, szModelCheck ) ) return true;
+	}
+	return false;
+}
+
 std::vector<VocalizeData> m_VocalizeData;
 
 static ConVar sv_allow_player_decals( "sv_allow_player_decals", "1", FCVAR_SERVER, "Whether player decals are allowed" );
@@ -2545,13 +2563,8 @@ void CBasePlayer::SetTheCorrectPlayerModel()
 	else
 		m_iCharacter = iPrefferedChar;
 
-	switch ( m_iCharacter )
-	{
-		default:
-		case PlayerCharacter::SURVIVOR1: szModel = bIsZombie ? "undead" : "survivor1"; break;
-		case PlayerCharacter::SURVIVOR2: szModel = bIsZombie ? "undead2" : "survivor2"; break;
-		case PlayerCharacter::SURVIVOR3: szModel = bIsZombie ? "undead3" : "survivor3"; break;
-	}
+	PlayerCharacterType PlayerType = GetPlayerCharacterType();
+	szModel = bIsZombie ? PlayerType.Zombie : PlayerType.Survivor;
 
 	g_engfuncs.pfnSetClientKeyValue( entindex(), g_engfuncs.pfnGetInfoKeyBuffer( edict() ), "model", szModel );
 
@@ -2580,6 +2593,16 @@ PlayerCharacter CBasePlayer::GetCharacter( const char *szType )
 			return g_CharacterTypes[i].Type;
 	}
 	return PlayerCharacter::ANY;
+}
+
+PlayerCharacterType CBasePlayer::GetPlayerCharacterType()
+{
+	for ( int i = 0; i < ARRAYSIZE( g_CharacterTypes ); i++ )
+	{
+		if ( m_iCharacter == g_CharacterTypes[i].Type )
+			return g_CharacterTypes[i];
+	}
+	return g_CharacterTypes[0];
 }
 
 void CBasePlayer::InAchievementTrigger( string_t iszAchievementID )

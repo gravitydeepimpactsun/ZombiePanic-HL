@@ -161,24 +161,37 @@ void CheckPlayerModel(CBasePlayer *pPlayer, char *infobuffer)
 		if (mdls[0] == 0 || strlen(mdls) > MAX_TEAM_NAME - 1 || !IsValidFilename(mdls))
 		{
 			if (prevModel[0] == 0)
-				UTIL_strncpy(prevModel, "gordon", MAX_TEAM_NAME); // default model if empty
+				UTIL_strncpy(prevModel, "survivor1", MAX_TEAM_NAME); // default model if empty
 
 			// Set previous model back into info buffer
-			g_engfuncs.pfnSetClientKeyValue(clientIndex, infobuffer, "model", prevModel);
+			//g_engfuncs.pfnSetClientKeyValue(clientIndex, infobuffer, "model", prevModel);
 
 			// Inform player
 			sprintf(text, "* Model should be non-empty, less then %d characters and can't contain special characters like: <>:\"/\\|?*\n* Your current model remains: \"%s\"\n", MAX_TEAM_NAME - 1, prevModel);
 			UTIL_SayText(text, pPlayer);
 
+			pPlayer->SetTheCorrectPlayerModel();
+			return;
+		}
+
+		bool bIsZombie = ( pPlayer->pev->team == ZP::TEAM_ZOMBIE ) ? true : false;
+		if ( !UTIL_IsValidPlayerModel( mdls, bIsZombie ) )
+		{
+			if (prevModel[0] == 0)
+				UTIL_strncpy(prevModel, "survivor1", MAX_TEAM_NAME); // default model if empty
+			//g_engfuncs.pfnSetClientKeyValue(clientIndex, infobuffer, "model", prevModel);
+			pPlayer->SetTheCorrectPlayerModel();
 			return;
 		}
 
 		// Set changed model back into info buffer
-		if (changed)
-			g_engfuncs.pfnSetClientKeyValue(clientIndex, infobuffer, "model", mdls);
+		//if (changed)
+		//	g_engfuncs.pfnSetClientKeyValue(clientIndex, infobuffer, "model", mdls);
 
 		// Remember model player has set
 		UTIL_strncpy(prevModel, mdls, MAX_TEAM_NAME);
+
+		pPlayer->SetTheCorrectPlayerModel();
 	}
 }
 
@@ -984,13 +997,8 @@ void ClientPrecache(void)
 	// Weapon chrome
 	PRECACHE_MODEL("sprites/weapon_highlight.spr");
 
-	// Precache the models
-	PRECACHE_MODEL("models/player/undead/undead.mdl");
-	PRECACHE_MODEL("models/player/undead2/undead2.mdl");
-	PRECACHE_MODEL("models/player/undead3/undead3.mdl");
-	PRECACHE_MODEL("models/player/survivor1/survivor1.mdl");
-	PRECACHE_MODEL("models/player/survivor2/survivor2.mdl");
-	PRECACHE_MODEL("models/player/survivor3/survivor3.mdl");
+	// Precache the player models
+	PrecachePlayerModels();
 
 	// Sticky gibs, used by headshots
 	PRECACHE_MODEL("models/stickygib.mdl");

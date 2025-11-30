@@ -59,7 +59,7 @@ float CWeaponShotgunDoubleBarrel::DoHolsterAnimation()
 float CWeaponShotgunDoubleBarrel::DoWeaponUnload()
 {
 	SendWeaponAnim( ANIM_DBARREL_UNLOAD );
-	return GetAnimationTime( 11, 30 );
+	return GetAnimationTime( 56, 20 );
 }
 
 void CWeaponShotgunDoubleBarrel::DoAudioFrame( void )

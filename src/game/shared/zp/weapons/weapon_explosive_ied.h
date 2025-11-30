@@ -12,6 +12,7 @@ class CWeaponExplosiveIED : public CWeaponBase
 	DECLARE_CLASS_SIMPLE( CWeaponExplosiveIED, CWeaponBase );
 
 public:
+	bool AllowAmmoSteal() const override { return true; }
 	bool IsThrowable() override { return true; }
 	ZPWeaponID GetWeaponID() override { return WEAPON_SATCHEL; }
 	void Spawn( void );

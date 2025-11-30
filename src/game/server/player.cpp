@@ -5257,7 +5257,7 @@ bool CBasePlayer::AlreadyOwnWeapon( CBasePlayerItem *pWeapon )
 //
 int CBasePlayer::AddPlayerItem(CBasePlayerItem *pItem)
 {
-	CBasePlayerWeapon *pWeapon = dynamic_cast<CBasePlayerWeapon *>( pItem );
+	CWeaponBase *pWeapon = dynamic_cast<CWeaponBase *>( pItem );
 	if ( !pWeapon ) return FALSE;
 
 	CBasePlayerItem *pInsert;
@@ -5272,6 +5272,7 @@ int CBasePlayer::AddPlayerItem(CBasePlayerItem *pItem)
 			// But do grab it's ammo, its very yummy for us!
 			if ( AlreadyOwnWeapon( pItem ) )
 			{
+				if ( !pWeapon->AllowAmmoSteal() ) return FALSE;
 				int iClip = pWeapon->m_iClip;
 				if ( iClip > 0 )
 				{

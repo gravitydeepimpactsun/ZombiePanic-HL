@@ -26,6 +26,8 @@ void CWeaponShotgunDoubleBarrel::Precache(void)
 	PRECACHE_SOUND("weapons/doublebarrel/fire.wav");
 	PRECACHE_SOUND("weapons/doublebarrel/open.wav");
 	PRECACHE_SOUND("weapons/doublebarrel/out.wav");
+	PRECACHE_SOUND("weapons/doublebarrel/unload_1.wav");
+	PRECACHE_SOUND("weapons/doublebarrel/unload_2.wav");
 	PRECACHE_SOUND("weapons/doublebarrel/load1.wav");
 	PRECACHE_SOUND("weapons/doublebarrel/load2.wav");
 	PRECACHE_SOUND("weapons/doublebarrel/close.wav");
@@ -59,7 +61,13 @@ float CWeaponShotgunDoubleBarrel::DoHolsterAnimation()
 float CWeaponShotgunDoubleBarrel::DoWeaponUnload()
 {
 	SendWeaponAnim( ANIM_DBARREL_UNLOAD );
-	return GetAnimationTime( 56, 20 );
+	AddWeaponSound( "weapons/doublebarrel/open.wav", 1, ATTN_NORM, GetAnimationTime( 12, 20 ) );
+	AddWeaponSound( "weapons/doublebarrel/unload_1.wav", 1, ATTN_NORM, GetAnimationTime( 29, 20 ) );
+	AddWeaponSound( "weapons/doublebarrel/unload_2.wav", 1, ATTN_NORM, GetAnimationTime( 31, 20 ) );
+	AddWeaponSound( "weapons/doublebarrel/load1.wav", 1, ATTN_NORM, GetAnimationTime( 53, 20 ) );
+	AddWeaponSound( "weapons/doublebarrel/load2.wav", 1, ATTN_NORM, GetAnimationTime( 61, 20 ) );
+	AddWeaponSound( "weapons/doublebarrel/close.wav", 1, ATTN_NORM, GetAnimationTime( 72, 20 ) );
+	return GetAnimationTime( 89, 20 );
 }
 
 void CWeaponShotgunDoubleBarrel::DoAudioFrame( void )

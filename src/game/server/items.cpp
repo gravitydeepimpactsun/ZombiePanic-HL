@@ -237,7 +237,7 @@ class CItemSuit : public CItem
 	{
 		// If we write "give item_suit", let's quickly remove it
 		// if the player already have said "weapon"
-		if (pPlayer->pev->weapons & (1 << WEAPON_SUIT))
+		if ( pPlayer->GetWeaponOwn( WEAPON_SUIT ) )
 		{
 			SUB_Remove();
 			return TRUE;
@@ -248,7 +248,7 @@ class CItemSuit : public CItem
 		else
 			EMIT_SOUND_SUIT(pPlayer->edict(), "!HEV_AAx"); // long version of suit logon
 
-		pPlayer->pev->weapons |= (1 << WEAPON_SUIT);
+		pPlayer->SetWeaponOwn( WEAPON_SUIT, true );
 
 		// item_suit gets removed, we don't want to keep it for round restarts
 		SUB_Remove();
@@ -282,7 +282,7 @@ class CItemBattery : public CItem
 		if ( pPlayer->pev->team == ZP::TEAM_ZOMBIE )
 			return false;
 
-		if ((pPlayer->pev->armorvalue < MAX_NORMAL_BATTERY) && (pPlayer->pev->weapons & (1 << WEAPON_SUIT)))
+		if ((pPlayer->pev->armorvalue < MAX_NORMAL_BATTERY) && pPlayer->GetWeaponOwn( WEAPON_SUIT ))
 		{
 			int pct;
 			char szcharge[64];

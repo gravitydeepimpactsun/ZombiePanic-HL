@@ -559,7 +559,7 @@ void CZombiePanicGameRules::PlayerSpawn(CBasePlayer *pPlayer)
 	int aws = pPlayer->m_iAutoWepSwitch;
 	pPlayer->m_iAutoWepSwitch = 1;
 
-	pPlayer->pev->weapons |= (1 << WEAPON_SUIT);
+	pPlayer->SetWeaponOwn( WEAPON_SUIT, true );
 
 	// Zombies
 	if ( iTeamNumber == ZP::TEAM_ZOMBIE )

@@ -928,7 +928,7 @@ void CBasePlayer::PackDeadPlayerItems(void)
 	if ( bInPanic )
 	{
 		// Give back our "suit"
-		pev->weapons |= (1 << WEAPON_SUIT);
+		SetWeaponOwn( WEAPON_SUIT, true );
 		// Reset our HUD back to default
 		m_iHideHUD = 0;
 	}
@@ -964,10 +964,10 @@ void CBasePlayer::RemoveAllItems(BOOL removeSuit)
 	pev->viewmodel = 0;
 	pev->weaponmodel = 0;
 
-	if (removeSuit)
-		pev->weapons = 0;
+	if ( removeSuit )
+		ClearWeaponOwn( false );
 	else
-		pev->weapons &= ~WEAPON_ALLWEAPONS;
+		ClearWeaponOwn( true );
 
 	for (i = 0; i < ZPAmmoTypes::AMMO_MAX; i++)
 		m_rgAmmo[i] = 0;
@@ -2901,6 +2901,13 @@ void CBasePlayer::DropWeapon( CBasePlayerWeapon *pWeapon, bool bAutoSwitch, bool
 	if ( !pWeapon ) return;
 	m_flLastWeaponDrop = gpGlobals->time + 0.5f;
 
+	string_t weaponname = ALLOC_STRING( pWeapon->GetData().Classname ); // Make a copy of the classname;
+	if ( FStringNull( weaponname ) )
+	{
+		Msg( "Failed to drop a weapon with NULL classname!" );
+		return;
+	}
+
 	// You ain't allowed to drop shit.
 	if ( pWeapon->IsThrowable() && pWeapon->m_iClip == 0 ) return;
 
@@ -2918,7 +2925,6 @@ void CBasePlayer::DropWeapon( CBasePlayerWeapon *pWeapon, bool bAutoSwitch, bool
 	// If not, delete and explode.
 	ThrowableDropState throwablestate = IsThrowableAndActive( pWeapon, true );
 
-	string_t weaponname = pWeapon->pev->classname;
 	int nClipWeHad = pWeapon->m_iClip;
 	int nDefAmmo = pWeapon->m_iDefaultAmmo;
 
@@ -2935,7 +2941,11 @@ void CBasePlayer::DropWeapon( CBasePlayerWeapon *pWeapon, bool bAutoSwitch, bool
 	Vector vecDir = gpGlobals->v_forward;
 
 	CBasePlayerWeapon *pNewWeapon = (CBasePlayerWeapon *)CBaseEntity::Create((char *)STRING(weaponname), pev->origin + vecDir * 10, pev->angles, nullptr);
-	if ( !pNewWeapon ) return;
+	if ( !pNewWeapon )
+	{
+		Msg( "Failed to create weapon %s!", STRING(weaponname) );
+		return;
+	}
 
 	//pNewWeapon->DisallowPickupFor( 2.5f );
 	pNewWeapon->m_iDefaultAmmo = nDefAmmo;
@@ -2954,10 +2964,7 @@ void CBasePlayer::DropWeapon( CBasePlayerWeapon *pWeapon, bool bAutoSwitch, bool
 
 void CBasePlayer::SetBackpackState( bool bState )
 {
-	if ( bState )
-		pev->weapons |= (1 << WEAPON_BACKPACK);
-	else
-		pev->weapons &= ~(1 << WEAPON_BACKPACK);
+	SetWeaponOwn( WEAPON_BACKPACK, bState );
 }
 
 #define CLIMB_SHAKE_FREQUENCY 22 // how many frames in between screen shakes when climbing
@@ -3440,7 +3447,7 @@ void CBasePlayer::CheckSuitUpdate()
 	int isearch = m_iSuitPlayNext;
 
 	// Ignore suit updates if no suit
-	if (!(pev->weapons & (1 << WEAPON_SUIT)))
+	if (!GetWeaponOwn( WEAPON_SUIT ))
 		return;
 
 	// if in range of radiation source, ping geiger counter
@@ -3502,7 +3509,7 @@ void CBasePlayer::SetSuitUpdate(char *name, int fgroup, int iNoRepeatTime)
 	int iempty = -1;
 
 	// Ignore suit updates if no suit
-	if (!(pev->weapons & (1 << WEAPON_SUIT)))
+	if (!GetWeaponOwn( WEAPON_SUIT ))
 		return;
 
 	if (g_pGameRules->IsMultiplayer())
@@ -4964,7 +4971,7 @@ BOOL CBasePlayer ::FlashlightIsOn(void)
 
 void CBasePlayer ::FlashlightTurnOn(void)
 {
-	if ((pev->weapons & (1 << WEAPON_SUIT)))
+	if (GetWeaponOwn( WEAPON_SUIT ))
 	{
 		bool bIsZombie = (pev->team == ZP::TEAM_ZOMBIE) ? true : false;
 		if ( !bIsZombie )
@@ -5245,11 +5252,7 @@ void CBasePlayer::CheatImpulseCommands(int iImpulse)
 bool CBasePlayer::AlreadyOwnWeapon( CBasePlayerItem *pWeapon )
 {
 	if ( pWeapon->iFlags() & ITEM_FLAG_ALLOWDUPLICATE ) return false;
-	int iWepID = pWeapon->GetWeaponID();
-	int iFlag = (1 << iWepID);
-	if (pev->weapons & iFlag)
-		return true;
-	return false;
+	return m_bOwnWeaponID[ pWeapon->GetWeaponID() ];
 }
 
 //
@@ -5379,7 +5382,7 @@ int CBasePlayer::RemovePlayerItem(CBasePlayerItem *pItem)
 
 	if (pPrev == pItem)
 	{
-		pev->weapons &= ~(1 << pItem->GetWeaponID()); // take item off hud
+		SetWeaponOwn( pItem->GetWeaponID(), false );
 		m_rgpPlayerItems[slotId] = pItem->m_pNext;
 		return TRUE;
 	}
@@ -5391,7 +5394,7 @@ int CBasePlayer::RemovePlayerItem(CBasePlayerItem *pItem)
 		}
 		if (pPrev)
 		{
-			pev->weapons &= ~(1 << pItem->GetWeaponID()); // take item off hud
+			SetWeaponOwn( pItem->GetWeaponID(), false );
 			pPrev->m_pNext = pItem->m_pNext;
 			return TRUE;
 		}

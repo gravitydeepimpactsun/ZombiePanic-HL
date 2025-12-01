@@ -561,7 +561,7 @@ public:
 	void DropWeapon( CBasePlayerWeapon *pWeapon, bool bAutoSwitch, bool pukevel = false );
 
 	void SetBackpackState( bool bState );
-	inline bool HasBackpack() const { return (pev->weapons & (1 << WEAPON_BACKPACK)); }
+	inline bool HasBackpack() const { return GetWeaponOwn( ZPWeaponID::WEAPON_BACKPACK ); }
 
 	// Get an available weapon from our weapon ID
 	CBasePlayerWeapon *GetWeaponFromID( int iID );
@@ -572,6 +572,29 @@ public:
 
 	// When we can next switch weapon
 	float m_flNextWeaponSwitch;
+
+	// What weapons do we own?
+	bool m_bOwnWeaponID[ ZPWeaponID::LAST_WEAPON_ID ];
+	inline void ClearWeaponOwn( const bool &bKeepSuit )
+	{
+		pev->weapons = 0;
+		for ( int i = 0; i < ZPWeaponID::LAST_WEAPON_ID; i++ )
+			m_bOwnWeaponID[ i ] = false;
+		if ( bKeepSuit )
+		{
+			pev->weapons |= (1 << ZPWeaponID::WEAPON_SUIT);
+			m_bOwnWeaponID[ ZPWeaponID::WEAPON_SUIT ] = true;
+		}
+	}
+	inline void SetWeaponOwn( ZPWeaponID nID, const bool &state )
+	{
+		m_bOwnWeaponID[ nID ] = state;
+		if ( state )
+			pev->weapons |= (1 << nID);
+		else
+			pev->weapons &= ~(1 << nID);
+	}
+	inline bool GetWeaponOwn( ZPWeaponID nID ) const { return m_bOwnWeaponID[ nID ]; }
 
 #endif
 

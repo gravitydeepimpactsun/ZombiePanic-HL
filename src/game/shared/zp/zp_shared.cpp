@@ -234,6 +234,7 @@ WeaponData CreateWeaponSlotData( const char *szClassname )
 
 	WeaponData slot;
 	slot.WeaponID = GetWeaponInfo( szClassnameStr.c_str() ).WeaponID;
+	UTIL_strcpy( slot.Classname, szClassnameStr.c_str() );
 	slot.Ammo1[0] = 0;
 	slot.Ammo2[0] = 0;
 

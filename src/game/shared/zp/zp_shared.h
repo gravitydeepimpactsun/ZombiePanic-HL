@@ -151,6 +151,8 @@ enum WeaponDataIcons
 struct WeaponData
 {
 	ZPWeaponID WeaponID;
+	char Classname[16]; // weapon classname, used when dropping the weapon,
+						// because pev->classname wants to break at times.
 	int Slot;
 	int Position;
 	char Ammo1[16]; // ammo 1 type

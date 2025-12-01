@@ -740,9 +740,8 @@ int CBasePlayerWeapon::AddToPlayer(CBasePlayer *pPlayer)
 {
 	int bResult = CBasePlayerItem::AddToPlayer( pPlayer );
 	if ( bResult == FALSE ) return FALSE;
-	int iWepID = GetWeaponID();
 
-	pPlayer->pev->weapons |= (1 << iWepID);
+	pPlayer->SetWeaponOwn( GetWeaponID(), true );
 
 	if (!m_iPrimaryAmmoType)
 	{

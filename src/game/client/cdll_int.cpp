@@ -679,5 +679,7 @@ CON_COMMAND( cl_workshop_download, "Download a workshop mod in-game" )
 		if ( vgui2::FStrEq( pszHostAuth, "ISHOST" ) )
 			bReconnect = false;
 	}
+	else
+		bReconnect = false; // We have no 2nd value, then its prob invalid.
 	CGameUIViewport::Get()->DownloadWorkshopAddon( atoll( pszCommand ), bReconnect );
 }

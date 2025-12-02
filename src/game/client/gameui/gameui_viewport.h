@@ -103,7 +103,7 @@ public:
 
 	bool IsVACBanned() const;
 
-	void DownloadWorkshopAddon( PublishedFileId_t nWorkshopID );
+	void DownloadWorkshopAddon( PublishedFileId_t nWorkshopID, const bool &bReconnect );
 
 protected:
 	void UpdateAddonList();
@@ -126,10 +126,13 @@ protected:
 		PublishedFileId_t WorkshopID = 0;
 		char Title[k_cchPublishedDocumentTitleMax];
 		bool IsDownloading;
+		bool Reconnect;
 	};
 	std::vector<PrepareForDownload> m_QueryRequests;
 	PrepareForDownload m_CurrentQueryItem;
+	bool m_bNeedToReconnectAfterDownload;
 	float m_flQueryWait;
+	void SetQueryWait( const float &flTime );
 	bool m_bPrepareForQueryDownload;
 	bool PrepareForQueryDownload();
 

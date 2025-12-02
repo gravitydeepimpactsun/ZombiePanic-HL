@@ -936,8 +936,13 @@ extern void RemovePlayerLastSpawnPointData( CBasePlayer *pPlayer );
 bool CZombiePanicGameRules::DownloadMissingWorkshopItem( edict_t *pClient )
 {
 	if ( g_ulCurrentWorkshopID == 0 ) return false;
+	CBasePlayer *pHost = (CBasePlayer *)UTIL_PlayerByIndex( 1 );
+	const char *authId = authId = "ISHOST";
+	if ( pHost )
+		authId = GETPLAYERAUTHID( pHost->edict() );
+	if ( !authId ) authId = "INVALID_STEAMID";
 	// Download the required Workshop item automatically (if the client does not have said item)
-	CLIENT_COMMAND( pClient, "cl_workshop_download %llu\n", g_ulCurrentWorkshopID );
+	CLIENT_COMMAND( pClient, "cl_workshop_download %llu %s\n", g_ulCurrentWorkshopID, authId );
 	return true;
 }
 

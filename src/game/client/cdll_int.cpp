@@ -672,5 +672,12 @@ CON_COMMAND( cl_workshop_download, "Download a workshop mod in-game" )
 	const char *pszCommand = gEngfuncs.Cmd_Argv( 1 );
 	if ( !pszCommand ) return;
 	if ( !pszCommand[0] ) return;
-	CGameUIViewport::Get()->DownloadWorkshopAddon( atoll( pszCommand ) );
+	bool bReconnect = true;
+	const char *pszHostAuth = gEngfuncs.Cmd_Argv( 2 );
+	if ( pszHostAuth && pszHostAuth[0] )
+	{
+		if ( vgui2::FStrEq( pszHostAuth, "ISHOST" ) )
+			bReconnect = false;
+	}
+	CGameUIViewport::Get()->DownloadWorkshopAddon( atoll( pszCommand ), bReconnect );
 }

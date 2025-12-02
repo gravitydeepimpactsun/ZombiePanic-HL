@@ -49,6 +49,7 @@ CGameUIViewport::CGameUIViewport()
 
 	SetSize(0, 0);
 
+	m_bNeedToReconnectAfterDownload = false;
 	m_bPrepareForQueryDownload = false;
 	m_hWorkshopInfoBox = nullptr;
 	m_flQueryWait = 0.0f;
@@ -168,6 +169,11 @@ vgui2::Panel *CGameUIViewport::GetDialog( GameUIDialogs nDialog )
 	return nullptr;
 }
 
+void CGameUIViewport::SetQueryWait( const float &flTime )
+{
+	m_flQueryWait = flTime * 60;
+}
+
 void CGameUIViewport::OnThink()
 {
 	BaseClass::OnThink();
@@ -224,16 +230,19 @@ void CGameUIViewport::OnThink()
 			SetWorkshopInfoBoxProgress( flProgress );
 			if ( flProgress == 1.0f || bCompleted )
 			{
-				m_flQueryWait = 2.0f;
+				SetQueryWait( 5.0f );
+				ConPrintf( Color( 255, 22, 22, 255 ), "[Workshop] Successfully downloaded Workshop Item: %llu\n", m_CurrentQueryItem.WorkshopID );
 				ShowWorkshopInfoBox( m_CurrentQueryItem.Title, WorkshopInfoBoxState::State_Done );
 				m_CurrentQueryItem.WorkshopID = 0;
+				if ( m_CurrentQueryItem.Reconnect )
+					m_bNeedToReconnectAfterDownload = true;
 			}
 			return;
 		}
 
 		if ( m_flQueryWait > 0.0f )
 		{
-			m_flQueryWait -= 0.25f;
+			m_flQueryWait -= 1.0f;
 			return;
 		}
 
@@ -249,6 +258,12 @@ void CGameUIViewport::OnThink()
 
 		// Now check the client workshop content
 		LoadWorkshopItems( true );
+
+		if ( m_bNeedToReconnectAfterDownload )
+		{
+			m_bNeedToReconnectAfterDownload = false;
+			gEngfuncs.pfnClientCmd( "disconnect;wait 2;echo \"Reconnecting to server...\";wait 5;retry\n" );
+		}
 	}
 }
 
@@ -309,10 +324,29 @@ bool CGameUIViewport::HasLoadedItem( PublishedFileId_t nWorkshopID )
 
 void CGameUIViewport::LoadWorkshopItems( bool bWorkshopFolder )
 {
+#if defined( _DEBUG )
+	// Only show on Debug mode
+	ConPrintf(
+		Color( 255, 255, 0, 255 ),
+		"LoadWorkshopItems | IsWorkshopFolder: %s\n",
+	    bWorkshopFolder ? "TRUE" : "FALSE"
+	);
+#endif
 	// Load our data from zp_workshop
 	FileFindHandle_t fh;
 	char const *fn = g_pFullFileSystem->FindFirst( "*.*", &fh, bWorkshopFolder ? "WORKSHOPDL" : "WORKSHOP" );
-	if ( !fn ) return;
+	if ( !fn )
+	{
+#if defined( _DEBUG )
+		// Only show on Debug mode
+		ConPrintf(
+			Color( 255, 0, 0, 255 ),
+			"Failed to find any files within PathID %s.\n",
+		    bWorkshopFolder ? "WORKSHOPDL" : "WORKSHOP"
+		);
+#endif
+		return;
+	}
 	do
 	{
 		// Setup the path string, and lowercase it, so we don't need to search for both uppercase, and lowercase files.
@@ -336,6 +370,16 @@ void CGameUIViewport::LoadWorkshopItems( bool bWorkshopFolder )
 
 			// The Workshop file item.
 			unsigned long long nFileItem = std::strtoull( strFile, NULL, 0 );
+
+#if defined( _DEBUG )
+			// Only show on Debug mode
+			ConPrintf(
+				Color( 255, 255, 0, 255 ),
+				"Checking file [%s] | HasLoadedItem: %s\n",
+			    strAddonInfo.c_str(),
+				HasLoadedItem( nFileItem ) ? "TRUE": "FALSE"
+			);
+#endif
 
 			// Check if the file exist
 			if ( g_pFullFileSystem->FileExists( strAddonInfo.c_str() ) && !HasLoadedItem( nFileItem ) )
@@ -400,9 +444,11 @@ void CGameUIViewport::LoadWorkshopItems( bool bWorkshopFolder )
 						do
 						{
 							KeyValuesAD autoMapData( new KeyValues( "Workshop" ) );
-							autoMapData->LoadFromFile( g_pFullFileSystem, "workshop_maps.kv", "WORKSHOP" );
-							autoMapData->SetString( mapfn, vgui2::VarArgs( "id=%llu", MountAddon.uWorkshopID ) );
-							autoMapData->SaveToFile( g_pFullFileSystem, "workshop_maps.kv", "WORKSHOP" );
+							if ( autoMapData->LoadFromFile( g_pFullFileSystem, "workshop_maps.kv", "WORKSHOP" ) )
+							{
+								autoMapData->SetString( mapfn, vgui2::VarArgs( "id=%llu", MountAddon.uWorkshopID ) );
+								autoMapData->SaveToFile( g_pFullFileSystem, "workshop_maps.kv", "WORKSHOP" );
+							}
 						}
 						while ( ( mapfn = g_pFullFileSystem->FindNext( mapfh ) ) != NULL );
 						g_pFullFileSystem->FindClose( mapfh );
@@ -437,6 +483,14 @@ void CGameUIViewport::AutoMountWorkshopItem( vgui2::WorkshopItem &WorkshopFile )
 	{
 		CGameUIViewport::Get()->ShowWorkshopInfoBox( WorkshopFile.szName, WorkshopInfoBoxState::State_Mounting );
 		CGameUIViewport::Get()->MountWorkshopItem( WorkshopFile, nullptr, nullptr );
+#if defined( _DEBUG )
+		// Only show on Debug mode
+		ConPrintf(
+			Color( 0, 255, 255, 255 ),
+			"ShouldAutoMount [%llu] -- MOUNTED\n",
+			WorkshopFile.uWorkshopID
+		);
+#endif
 		return;
 	}
 	if ( !WorkshopIDIsMounted( WorkshopFile.uWorkshopID ) ) return;
@@ -565,6 +619,17 @@ void CGameUIViewport::MountWorkshopItem( vgui2::WorkshopItem WorkshopFile, const
 			vgui2::STDReplaceString( strNewPathDir, pathRoot, "" );
 			g_pFullFileSystem->CreateDirHierarchy( strNewPathDir.c_str(), "ADDON" );
 
+#if defined( _DEBUG )
+			// Only show on Debug mode
+			ConPrintf(
+				Color( 0, 255, 255, 255 ),
+				"MountWorkshopItem [%llu]( %s, %s )\n",
+				WorkshopFile.uWorkshopID,
+			    strNewPath,
+			    pathRoot
+			);
+#endif
+
 			MountWorkshopItem( WorkshopFile, strNewPath, pathRoot );
 		}
 		else if ( !g_pFullFileSystem->FindIsDirectory( fh ) && bIsValidFile )
@@ -579,6 +644,17 @@ void CGameUIViewport::MountWorkshopItem( vgui2::WorkshopItem WorkshopFile, const
 				data->from = "zp_workshop/" + strNewFilePath;
 			data->to = "zp_addon/" + strNewFilePathDest;
 			data->item = WorkshopFile.uWorkshopID;
+
+#if defined( _DEBUG )
+			// Only show on Debug mode
+			ConPrintf(
+				Color( 0, 255, 255, 255 ),
+				"CreateSimpleThread [%llu]( %s )\n",
+				WorkshopFile.uWorkshopID,
+			    !WorkshopFile.bMounted ? "MOUNTING ADDON" : "DELETING ADDON"
+			);
+#endif
+
 			if ( !WorkshopFile.bMounted )
 				CreateSimpleThread( CopyFilesToNewDestination, data );
 			else
@@ -675,8 +751,16 @@ bool CGameUIViewport::WorkshopIDIsMounted( PublishedFileId_t nWorkshopID )
 	return false;
 }
 
-bool CGameUIViewport::ShouldAutoMount(PublishedFileId_t nWorkshopID)
+bool CGameUIViewport::ShouldAutoMount( PublishedFileId_t nWorkshopID )
 {
+#if defined( _DEBUG )
+	// Only show on Debug mode
+	ConPrintf(
+		Color( 255, 255, 0, 255 ),
+		"ShouldAutoMount [%llu]\n",
+	    nWorkshopID
+	);
+#endif
 	//if ( FindKey( keyName ) )
 	KeyValues *pAddonList = new KeyValues( "AddonList" );
 	KeyValuesAD autodel( pAddonList );
@@ -684,8 +768,38 @@ bool CGameUIViewport::ShouldAutoMount(PublishedFileId_t nWorkshopID)
 	{
 		std::string strWorkshopID( std::to_string( nWorkshopID ) );
 		if ( !pAddonList->FindKey( strWorkshopID.c_str() ) )
+		{
+#if defined( _DEBUG )
+			// Only show on Debug mode
+			ConPrintf(
+				Color( 0, 255, 0, 255 ),
+				"ShouldAutoMount [%llu] -- MOUNT\n",
+				nWorkshopID
+			);
+#endif
 			return true;
+		}
 	}
+	else
+	{
+#if defined( _DEBUG )
+		// Only show on Debug mode
+		ConPrintf(
+			Color( 0, 255, 0, 255 ),
+			"ShouldAutoMount [%llu] -- AUTO MOUNT\n",
+			nWorkshopID
+		);
+#endif
+		return true;
+	}
+#if defined( _DEBUG )
+	// Only show on Debug mode
+	ConPrintf(
+		Color( 255, 0, 0, 255 ),
+		"ShouldAutoMount [%llu] -- NOT\n",
+	    nWorkshopID
+	);
+#endif
 	return false;
 }
 
@@ -713,11 +827,12 @@ bool CGameUIViewport::IsVACBanned() const
 	return GetSteamAPI()->SteamApps()->BIsVACBanned();
 }
 
-void CGameUIViewport::DownloadWorkshopAddon( PublishedFileId_t nWorkshopID )
+void CGameUIViewport::DownloadWorkshopAddon( PublishedFileId_t nWorkshopID, const bool &bReconnect )
 {
-	if ( !GetSteamAPI()->SteamUGC()->DownloadItem( nWorkshopID, true ) ) return;
+	ConPrintf( Color( 255, 22, 22, 255 ), "[Workshop] Trying to download Workshop Item: %llu\n", nWorkshopID );
 	PrepareForDownload data;
 	data.IsDownloading = false;
+	data.Reconnect = bReconnect;
 	data.WorkshopID = nWorkshopID;
 	Q_snprintf( data.Title, sizeof( data.Title ), "%llu", nWorkshopID );
 	m_QueryRequests.push_back( data );
@@ -725,7 +840,7 @@ void CGameUIViewport::DownloadWorkshopAddon( PublishedFileId_t nWorkshopID )
 	// Show the addon we want to mount
 	ShowWorkshopInfoBox( data.Title, WorkshopInfoBoxState::State_GatheringData );
 
-	m_flQueryWait = 1.15f;
+	SetQueryWait( 1.15 );
 	m_bPrepareForQueryDownload = true;
 }
 
@@ -762,6 +877,7 @@ void CGameUIViewport::OnSendQueryUGCRequest( SteamUGCQueryCompleted_t *pCallback
 		{
 			PrepareForDownload data;
 			data.IsDownloading = false;
+			data.Reconnect = false;
 			data.WorkshopID = pDetails->m_nPublishedFileId;
 			Q_snprintf( data.Title, sizeof( data.Title ), "%s", pDetails->m_rgchTitle );
 			m_QueryRequests.push_back( data );
@@ -777,7 +893,7 @@ void CGameUIViewport::OnSendQueryUGCRequest( SteamUGCQueryCompleted_t *pCallback
 
 	GetSteamAPI()->SteamUGC()->ReleaseQueryUGCRequest( handle );
 
-	m_flQueryWait = 1.15f;
+	SetQueryWait( 1.15 );
 	m_bPrepareForQueryDownload = true;
 }
 
@@ -852,6 +968,7 @@ bool CGameUIViewport::PrepareForQueryDownload()
 		bool bCanDownload = GetSteamAPI()->SteamUGC()->DownloadItem( m_QueryRequests[i].WorkshopID, true );
 		if ( bCanDownload )
 		{
+			ConPrintf( Color( 255, 22, 22, 255 ), "[Workshop] Downloading Workshop Item: %llu\n", data.WorkshopID );
 			ShowWorkshopInfoBox( data.Title, WorkshopInfoBoxState::State_Downloading );
 			m_CurrentQueryItem = data;
 			return true;

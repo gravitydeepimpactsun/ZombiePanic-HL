@@ -45,6 +45,7 @@
 #include "engfuncs.h"
 #include "engine_builds.h"
 #include "steam/steam_api.h"
+#include "gameui/gameui_viewport.h"
 
 // Music manager
 #include "zp/music/music_manager.h"
@@ -664,4 +665,12 @@ CON_COMMAND( set, "Set cheat commands" )
 	char szbuf[52];
 	Q_snprintf( szbuf, sizeof(szbuf), "_set %s", pSetCommand );
 	gEngfuncs.pfnClientCmd( szbuf );
+}
+
+CON_COMMAND( cl_workshop_download, "Download a workshop mod in-game" )
+{
+	const char *pszCommand = gEngfuncs.Cmd_Argv( 1 );
+	if ( !pszCommand ) return;
+	if ( !pszCommand[0] ) return;
+	CGameUIViewport::Get()->DownloadWorkshopAddon( atoll( pszCommand ) );
 }

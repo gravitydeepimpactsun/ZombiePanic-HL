@@ -103,6 +103,8 @@ public:
 
 	bool IsVACBanned() const;
 
+	void DownloadWorkshopAddon( PublishedFileId_t nWorkshopID );
+
 protected:
 	void UpdateAddonList();
 	void LoadWorkshop();

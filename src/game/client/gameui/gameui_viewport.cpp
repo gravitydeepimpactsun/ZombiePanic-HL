@@ -713,6 +713,22 @@ bool CGameUIViewport::IsVACBanned() const
 	return GetSteamAPI()->SteamApps()->BIsVACBanned();
 }
 
+void CGameUIViewport::DownloadWorkshopAddon( PublishedFileId_t nWorkshopID )
+{
+	if ( !GetSteamAPI()->SteamUGC()->DownloadItem( nWorkshopID, true ) ) return;
+	PrepareForDownload data;
+	data.IsDownloading = false;
+	data.WorkshopID = nWorkshopID;
+	Q_snprintf( data.Title, sizeof( data.Title ), "%llu", nWorkshopID );
+	m_QueryRequests.push_back( data );
+
+	// Show the addon we want to mount
+	ShowWorkshopInfoBox( data.Title, WorkshopInfoBoxState::State_GatheringData );
+
+	m_flQueryWait = 1.15f;
+	m_bPrepareForQueryDownload = true;
+}
+
 // ===================================
 // Purpose: Mount said content.
 // ===================================

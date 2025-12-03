@@ -131,6 +131,7 @@ protected:
 	std::vector<PrepareForDownload> m_QueryRequests;
 	PrepareForDownload m_CurrentQueryItem;
 	bool m_bNeedToReconnectAfterDownload;
+	bool m_bDownloadedItemsReady;			// Called by OnDownloadItemResult
 	float m_flQueryWait;
 	void SetQueryWait( const float &flTime );
 	bool m_bPrepareForQueryDownload;
@@ -162,6 +163,7 @@ private:
 
 	// Grab our stats on creation.
 	STEAM_CALLBACK( CGameUIViewport, OnUserStatsReceived, UserStatsReceived_t, m_CallbackUserStatsReceived );
+	STEAM_CALLBACK( CGameUIViewport, OnDownloadItemResult, DownloadItemResult_t, m_SteamCallbackResultOnDownloadItemResult );
 	bool RequestStats();
 
 	static inline CGameUIViewport *m_sInstance = nullptr;

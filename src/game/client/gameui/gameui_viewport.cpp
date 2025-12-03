@@ -49,7 +49,8 @@ enum HttpRequestTypes
 
 CGameUIViewport::CGameUIViewport()
     : BaseClass(nullptr, "ClientGameUIViewport"),
-	m_CallbackUserStatsReceived( this, &CGameUIViewport::OnUserStatsReceived )
+	m_CallbackUserStatsReceived( this, &CGameUIViewport::OnUserStatsReceived ),
+	m_SteamCallbackResultOnDownloadItemResult( this, &CGameUIViewport::OnDownloadItemResult )
 {
 	Assert(!m_sInstance);
 	m_sInstance = this;
@@ -59,6 +60,7 @@ CGameUIViewport::CGameUIViewport()
 
 	SetSize(0, 0);
 
+	m_bDownloadedItemsReady = false;
 	m_bNeedToReconnectAfterDownload = false;
 	m_bPrepareForQueryDownload = false;
 	m_hWorkshopInfoBox = nullptr;
@@ -240,15 +242,14 @@ void CGameUIViewport::OnThink()
 			SetWorkshopInfoBoxProgress( flProgress );
 			if ( flProgress == 1.0f || bCompleted )
 			{
-				SetQueryWait( 5.0f );
-				ConPrintf( Color( 255, 22, 22, 255 ), "[Workshop] Successfully downloaded Workshop Item: %llu\n", m_CurrentQueryItem.WorkshopID );
+				SetQueryWait( 0.35f );
 				ShowWorkshopInfoBox( m_CurrentQueryItem.Title, WorkshopInfoBoxState::State_Done );
 				bool bHasAddon = HasAlreadyDownloadedAddon( m_CurrentQueryItem.WorkshopID );
 				m_CurrentQueryItem.WorkshopID = 0;
 
 				// If already subscribed, ignore.
-				if ( ( eState & k_EItemStateSubscribed ) )
-					return;
+				//if ( ( eState & k_EItemStateSubscribed ) )
+				//	return;
 
 				// We were downloading before? If so, make sure we reconnect even if bHasAddon was true
 				if ( ( eState & k_EItemStateDownloading || eState & k_EItemStateNeedsUpdate ) )
@@ -273,6 +274,8 @@ void CGameUIViewport::OnThink()
 		// Clear it
 		m_QueryRequests.clear();
 
+		if ( !m_bDownloadedItemsReady ) return;
+
 		// Returned false? then stop the query download.
 		m_bPrepareForQueryDownload = false;
 
@@ -285,6 +288,39 @@ void CGameUIViewport::OnThink()
 			gEngfuncs.pfnClientCmd( "disconnect;wait 2;echo \"Reconnecting to server...\";wait 5;retry\n" );
 		}
 	}
+}
+
+void CGameUIViewport::OnDownloadItemResult( DownloadItemResult_t *pCallback )
+{
+	// Item either downloaded properly or not.
+	// Let's continue, and try reading the directory after 1 second delay.
+	SetQueryWait( 1.0f );
+	m_bDownloadedItemsReady = true;
+	m_bPrepareForQueryDownload = true;
+
+	Color clr = Color( 255, 22, 22, 255 );
+	const char *szMsg = nullptr;
+	switch ( pCallback->m_eResult )
+	{
+		case k_EResultOK: szMsg = "Successfully downloaded Workshop Item"; clr = Color( 0, 255, 255, 255 ); break;
+		case k_EResultFail: szMsg = "Failed to download Workshop Item"; break;
+		case k_EResultNoConnection: szMsg = "Failed to download: No Internet Connection"; break;
+		case k_EResultInvalidPassword: szMsg = "Failed to download: Invalid Password"; break;
+		case k_EResultLoggedInElsewhere: szMsg = "Failed to download: Already logged in elsewhere"; break;
+		case k_EResultInvalidProtocolVer: szMsg = "Failed to download: Invalid Protocol Version"; break;
+		case k_EResultInvalidParam: szMsg = "Failed to download: Invalid parameter"; break;
+		case k_EResultFileNotFound: szMsg = "Failed to download: File Not Found"; break;
+		case k_EResultAccessDenied: szMsg = "Failed to download: Access Denied"; break;
+		case k_EResultTimeout: szMsg = "Failed to download: Connection Timed Out"; break;
+		case k_EResultAccountNotFound: szMsg = "Failed to download: Account Not Found"; break;
+		case k_EResultBanned: szMsg = "Failed to download: VAC Banned"; break;
+		case k_EResultInvalidSteamID: szMsg = "Failed to download: Invalid SteamID"; break;
+		case k_EResultNotLoggedOn: szMsg = "Failed to download: Not Logged On"; break;
+		case k_EResultServiceUnavailable: szMsg = "Failed to download: Service Unavailable"; break;
+		default: szMsg = vgui2::VarArgs( "Returned result ID [%i]", pCallback->m_eResult ); break;
+	}
+
+	ConPrintf( clr, "[Workshop] %s [%llu]\n", szMsg, pCallback->m_nPublishedFileId );
 }
 
 void CGameUIViewport::GetCurrentItems( std::vector<vgui2::WorkshopItem> &items )
@@ -857,7 +893,7 @@ void CGameUIViewport::DownloadWorkshopAddon( PublishedFileId_t nWorkshopID, cons
 	    bReconnect ? "TRUE" : "FALSE"
 	);
 #endif
-	ConPrintf( Color( 255, 22, 22, 255 ), "[Workshop] Trying to download Workshop Item: %llu\n", nWorkshopID );
+	ConPrintf( Color( 255, 255, 0, 255 ), "[Workshop] Trying to download Workshop Item: %llu\n", nWorkshopID );
 	PrepareForDownload data;
 	data.IsDownloading = false;
 	data.Reconnect = bReconnect;
@@ -869,6 +905,7 @@ void CGameUIViewport::DownloadWorkshopAddon( PublishedFileId_t nWorkshopID, cons
 	ShowWorkshopInfoBox( data.Title, WorkshopInfoBoxState::State_GatheringData );
 
 	SetQueryWait( 1.15 );
+	m_bDownloadedItemsReady = false;
 	m_bPrepareForQueryDownload = true;
 }
 
@@ -922,6 +959,7 @@ void CGameUIViewport::OnSendQueryUGCRequest( SteamUGCQueryCompleted_t *pCallback
 	GetSteamAPI()->SteamUGC()->ReleaseQueryUGCRequest( handle );
 
 	SetQueryWait( 1.15 );
+	m_bDownloadedItemsReady = false;
 	m_bPrepareForQueryDownload = true;
 }
 
@@ -996,9 +1034,10 @@ bool CGameUIViewport::PrepareForQueryDownload()
 		bool bCanDownload = GetSteamAPI()->SteamUGC()->DownloadItem( m_QueryRequests[i].WorkshopID, true );
 		if ( bCanDownload )
 		{
-			ConPrintf( Color( 255, 22, 22, 255 ), "[Workshop] Downloading Workshop Item: %llu\n", data.WorkshopID );
+			ConPrintf( Color( 0, 255, 255, 255 ), "[Workshop] Downloading Workshop Item: %llu\n", data.WorkshopID );
 			ShowWorkshopInfoBox( data.Title, WorkshopInfoBoxState::State_Downloading );
 			m_CurrentQueryItem = data;
+			m_SteamCallbackResultOnDownloadItemResult.Register( this, &CGameUIViewport::OnDownloadItemResult );
 			return true;
 		}
 	}

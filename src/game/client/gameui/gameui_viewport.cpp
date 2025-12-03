@@ -23,6 +23,16 @@
 #include "nlohmann/json.hpp"
 
 bool g_bIsConnected = false;
+std::vector<PublishedFileId_t> m_InstalledAddons;
+bool HasAlreadyDownloadedAddon( const PublishedFileId_t &nAddon )
+{
+	for ( size_t i = 0; i < m_InstalledAddons.size(); i++ )
+	{
+		PublishedFileId_t nFind = m_InstalledAddons[i];
+		if ( nFind == nAddon ) return true;
+	}
+	return false;
+}
 
 #if defined(_DEBUG)
 CON_COMMAND(gameui_cl_open_test_panel, "Opens a test panel for client GameUI")
@@ -221,6 +231,12 @@ void CGameUIViewport::OnThink()
 		{
 			uint32 eState = GetSteamAPI()->SteamUGC()->GetItemState( m_CurrentQueryItem.WorkshopID );
 			bool bCompleted = (( eState & k_EItemStateInstalled ) != 0);
+			if ( !bCompleted )
+			{
+				// Do we have the flag?
+				if ( !(m_nPreviousDownloadState & eState) )
+					m_nPreviousDownloadState |= eState;
+			}
 
 			uint64 progress[2];
 			GetSteamAPI()->SteamUGC()->GetItemDownloadInfo( m_CurrentQueryItem.WorkshopID, &progress[0], &progress[1] );
@@ -233,8 +249,18 @@ void CGameUIViewport::OnThink()
 				SetQueryWait( 5.0f );
 				ConPrintf( Color( 255, 22, 22, 255 ), "[Workshop] Successfully downloaded Workshop Item: %llu\n", m_CurrentQueryItem.WorkshopID );
 				ShowWorkshopInfoBox( m_CurrentQueryItem.Title, WorkshopInfoBoxState::State_Done );
+				bool bHasAddon = HasAlreadyDownloadedAddon( m_CurrentQueryItem.WorkshopID );
 				m_CurrentQueryItem.WorkshopID = 0;
-				if ( m_CurrentQueryItem.Reconnect )
+
+				// If already subscribed, ignore.
+				if ( ( m_nPreviousDownloadState & k_EItemStateSubscribed ) )
+					return;
+
+				// We were downloading before? If so, make sure we reconnect even if bHasAddon was true
+				if ( ( m_nPreviousDownloadState & k_EItemStateDownloading || m_nPreviousDownloadState & k_EItemStateNeedsUpdate ) )
+					bHasAddon = false;
+
+				if ( m_CurrentQueryItem.Reconnect && !bHasAddon )
 					m_bNeedToReconnectAfterDownload = true;
 			}
 			return;
@@ -252,6 +278,7 @@ void CGameUIViewport::OnThink()
 
 		// Clear it
 		m_QueryRequests.clear();
+		m_nPreviousDownloadState = 0;
 
 		// Returned false? then stop the query download.
 		m_bPrepareForQueryDownload = false;
@@ -829,6 +856,14 @@ bool CGameUIViewport::IsVACBanned() const
 
 void CGameUIViewport::DownloadWorkshopAddon( PublishedFileId_t nWorkshopID, const bool &bReconnect )
 {
+#if defined( _DEBUG )
+	// Only show on Debug mode
+	ConPrintf(
+		Color( 255, 255, 0, 255 ),
+		"DownloadWorkshopAddon | bReconnect: %s\n",
+	    bReconnect ? "TRUE" : "FALSE"
+	);
+#endif
 	ConPrintf( Color( 255, 22, 22, 255 ), "[Workshop] Trying to download Workshop Item: %llu\n", nWorkshopID );
 	PrepareForDownload data;
 	data.IsDownloading = false;

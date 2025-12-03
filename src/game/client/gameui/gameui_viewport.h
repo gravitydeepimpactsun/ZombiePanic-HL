@@ -131,6 +131,7 @@ protected:
 	std::vector<PrepareForDownload> m_QueryRequests;
 	PrepareForDownload m_CurrentQueryItem;
 	bool m_bNeedToReconnectAfterDownload;
+	uint32 m_nPreviousDownloadState;		// Used by Reconnect, so we only reconnect if we actually required an update and/or downloaded anything.
 	float m_flQueryWait;
 	void SetQueryWait( const float &flTime );
 	bool m_bPrepareForQueryDownload;

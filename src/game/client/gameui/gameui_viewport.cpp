@@ -231,12 +231,6 @@ void CGameUIViewport::OnThink()
 		{
 			uint32 eState = GetSteamAPI()->SteamUGC()->GetItemState( m_CurrentQueryItem.WorkshopID );
 			bool bCompleted = (( eState & k_EItemStateInstalled ) != 0);
-			if ( !bCompleted )
-			{
-				// Do we have the flag?
-				if ( !(m_nPreviousDownloadState & eState) )
-					m_nPreviousDownloadState |= eState;
-			}
 
 			uint64 progress[2];
 			GetSteamAPI()->SteamUGC()->GetItemDownloadInfo( m_CurrentQueryItem.WorkshopID, &progress[0], &progress[1] );
@@ -253,11 +247,11 @@ void CGameUIViewport::OnThink()
 				m_CurrentQueryItem.WorkshopID = 0;
 
 				// If already subscribed, ignore.
-				if ( ( m_nPreviousDownloadState & k_EItemStateSubscribed ) )
+				if ( ( eState & k_EItemStateSubscribed ) )
 					return;
 
 				// We were downloading before? If so, make sure we reconnect even if bHasAddon was true
-				if ( ( m_nPreviousDownloadState & k_EItemStateDownloading || m_nPreviousDownloadState & k_EItemStateNeedsUpdate ) )
+				if ( ( eState & k_EItemStateDownloading || eState & k_EItemStateNeedsUpdate ) )
 					bHasAddon = false;
 
 				if ( m_CurrentQueryItem.Reconnect && !bHasAddon )

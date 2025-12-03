@@ -676,6 +676,14 @@ CON_COMMAND( cl_workshop_download, "Download a workshop mod in-game" )
 	const char *pszHostAuth = gEngfuncs.Cmd_Argv( 2 );
 	if ( pszHostAuth && pszHostAuth[0] )
 	{
+#if defined( _DEBUG )
+		// Only show on Debug mode
+		ConPrintf(
+			Color( 255, 255, 0, 255 ),
+			"HostAuth: %s\n",
+		    pszHostAuth
+		);
+#endif
 		if ( vgui2::FStrEq( pszHostAuth, "ISHOST" ) )
 			bReconnect = false;
 	}

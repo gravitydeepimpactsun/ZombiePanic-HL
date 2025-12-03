@@ -272,7 +272,6 @@ void CGameUIViewport::OnThink()
 
 		// Clear it
 		m_QueryRequests.clear();
-		m_nPreviousDownloadState = 0;
 
 		// Returned false? then stop the query download.
 		m_bPrepareForQueryDownload = false;

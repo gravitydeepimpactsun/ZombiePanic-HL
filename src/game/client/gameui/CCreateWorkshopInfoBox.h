@@ -13,7 +13,11 @@ enum WorkshopInfoBoxState
 	State_Updating,
 	State_Dismounting,
 	State_Mounting,
-	State_Done
+	State_Done,
+
+	// These states are special, it will auto connect the player to the server once the download is done.
+	State_DownloadingMapContent,
+	State_DownloadingMapContentComplete,
 };
 
 class CCreateWorkshopInfoBox : public vgui2::Frame
@@ -24,6 +28,8 @@ public:
 	CCreateWorkshopInfoBox(vgui2::Panel *pParent);
 	void SetData( const char *szString, WorkshopInfoBoxState nState );
 	void SetProgressState( float flProgress );
+
+	WorkshopInfoBoxState GetState() const { return m_state; }
 
 private:
 	virtual void OnTick();

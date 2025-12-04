@@ -256,7 +256,10 @@ void CGameUIViewport::OnThink()
 					bHasAddon = false;
 
 				if ( m_CurrentQueryItem.Reconnect && !bHasAddon )
+				{
+					SetWorkshopInfoBoxProgress( 1.0f );
 					m_bNeedToReconnectAfterDownload = true;
+				}
 			}
 			return;
 		}
@@ -285,7 +288,8 @@ void CGameUIViewport::OnThink()
 		if ( m_bNeedToReconnectAfterDownload )
 		{
 			m_bNeedToReconnectAfterDownload = false;
-			gEngfuncs.pfnClientCmd( "disconnect;wait 5;echo \"Reconnecting to server...\";wait 8;retry\n" );
+			if ( GetWorkshopInfoBoxState() == WorkshopInfoBoxState::State_DownloadingMapContent )
+				ShowWorkshopInfoBox( "", WorkshopInfoBoxState::State_DownloadingMapContentComplete );
 		}
 	}
 }
@@ -771,7 +775,14 @@ void CGameUIViewport::SetConflictingFiles( PublishedFileId_t nWorkshopID, bool s
 	}
 }
 
-void CGameUIViewport::ShowWorkshopInfoBox( const char *szText, WorkshopInfoBoxState nState )
+WorkshopInfoBoxState CGameUIViewport::GetWorkshopInfoBoxState()
+{
+	if ( !m_hWorkshopInfoBox )
+		return WorkshopInfoBoxState::State_GatheringData;
+	return m_hWorkshopInfoBox->GetState();
+}
+
+void CGameUIViewport::ShowWorkshopInfoBox(const char *szText, WorkshopInfoBoxState nState)
 {
 	if ( !szText ) return;
 
@@ -791,6 +802,10 @@ void CGameUIViewport::ShowWorkshopInfoBox( const char *szText, WorkshopInfoBoxSt
 	}
 
 	m_hWorkshopInfoBox->SetData( buffer, nState );
+
+	// if nState is State_DownloadingMapContent, move to center.
+	if ( nState == State_DownloadingMapContent )
+		m_hWorkshopInfoBox->MoveToCenterOfScreen();
 }
 
 void CGameUIViewport::SetWorkshopInfoBoxProgress( float flProgress )
@@ -913,6 +928,14 @@ void CGameUIViewport::DownloadWorkshopAddon( PublishedFileId_t nWorkshopID, cons
 	SetQueryWait( 1.15 );
 	m_bDownloadedItemsReady = false;
 	m_bPrepareForQueryDownload = true;
+
+	if ( !bReconnect ) return;
+	uint32 eState = GetSteamAPI()->SteamUGC()->GetItemState( nWorkshopID );
+	if ( eState & k_EItemStateNeedsUpdate )
+	{
+		gEngfuncs.pfnClientCmd( "disconnect\n" );
+		ShowWorkshopInfoBox( data.Title, WorkshopInfoBoxState::State_DownloadingMapContent );
+	}
 }
 
 // ===================================

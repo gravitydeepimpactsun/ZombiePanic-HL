@@ -14,6 +14,7 @@ CCreateWorkshopInfoBox::CCreateWorkshopInfoBox(vgui2::Panel *pParent)
 	SetPos( 0, 0 );
 	SetTitleBarVisible( false );
 	SetDeleteSelfOnClose( true );
+	SetProportional( true );
 
 	m_pText = new vgui2::Label( this, "Text", "My Example Addon" );
 	m_pState = new vgui2::Label( this, "State", "#ZP_Workshop_InfoBox_GatheringData" );
@@ -26,6 +27,7 @@ CCreateWorkshopInfoBox::CCreateWorkshopInfoBox(vgui2::Panel *pParent)
 	SetScheme( CGameUIViewport::Get()->GetScheme() );
 	InvalidateLayout();
 
+	m_state = State_GatheringData;
 	vgui2::ivgui()->AddTickSignal( GetVPanel(), 1000 );
 
 	MoveToFront();
@@ -35,18 +37,24 @@ CCreateWorkshopInfoBox::CCreateWorkshopInfoBox(vgui2::Panel *pParent)
 
 void CCreateWorkshopInfoBox::SetData( const char *szString, WorkshopInfoBoxState nState )
 {
+	if ( m_state >= State_DownloadingMapContent && nState < State_DownloadingMapContent ) return;
+	m_state = nState;
 	m_pText->SetColorCodedText( szString );
-	switch ( nState )
+	switch ( m_state )
 	{
 		case State_GatheringData: m_pState->SetText( "#ZP_Workshop_InfoBox_GatheringData" ); break;
 		case State_Downloading: m_pState->SetText( "#ZP_Workshop_InfoBox_Downloading" ); break;
 		case State_Updating: m_pState->SetText( "#ZP_Workshop_InfoBox_Updating" ); break;
 		case State_Dismounting: m_pState->SetText( "#ZP_Workshop_InfoBox_Dismounting" ); break;
 		case State_Mounting: m_pState->SetText( "#ZP_Workshop_InfoBox_Mounting" ); break;
-		case State_Done: m_pState->SetText( "" ); break;
+		case State_DownloadingMapContent: m_pState->SetText( "#ZP_Workshop_InfoBox_DownloadingWorkshopContent" ); break;
+		//default: m_pState->SetText( "Example Text." ); break;
 	}
-	if ( nState == WorkshopInfoBoxState::State_Done )
+	if ( m_state == WorkshopInfoBoxState::State_Done )
 		m_RemoveTime = 2.0f;
+	// Instant deletion
+	else if ( m_state == WorkshopInfoBoxState::State_DownloadingMapContentComplete )
+		m_RemoveTime = 0.0f;
 }
 
 void CCreateWorkshopInfoBox::SetProgressState( float flProgress )
@@ -59,6 +67,11 @@ void CCreateWorkshopInfoBox::OnTick()
 	BaseClass::OnTick();
 	if ( m_RemoveTime <= -1 ) return;
 	if ( m_RemoveTime <= 0 )
+	{
+		// Reconnect to the server
+		if ( m_state == State_DownloadingMapContentComplete )
+			gEngfuncs.pfnClientCmd( "retry\n" );
 		Close();
+	}
 	m_RemoveTime--;
 }

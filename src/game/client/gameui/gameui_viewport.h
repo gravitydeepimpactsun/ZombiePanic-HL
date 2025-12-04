@@ -90,6 +90,7 @@ public:
 	void SetConflictingFiles( PublishedFileId_t nWorkshopID, bool state );
 	void SetMountedState( PublishedFileId_t nWorkshopID, bool state );
 
+	WorkshopInfoBoxState GetWorkshopInfoBoxState();
 	void ShowWorkshopInfoBox( const char *szText, WorkshopInfoBoxState nState );
 	void SetWorkshopInfoBoxProgress( float flProgress );
 

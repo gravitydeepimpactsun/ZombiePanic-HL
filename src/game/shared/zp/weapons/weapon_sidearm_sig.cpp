@@ -10,15 +10,16 @@ PRECACHE_WEAPON_REGISTER( weapon_sig );
 float CWeaponSideArmSig::DoHolsterAnimation()
 {
 	SendWeaponAnim( IsEmpty() ? ANIM_PISTOL_HOLSTER_EMPTY : ANIM_PISTOL_HOLSTER );
-	return 0.33;
+	return GetAnimationTime( 24, 50 );
 }
 
 float CWeaponSideArmSig::DoWeaponUnload()
 {
 	SendWeaponAnim( ANIM_PISTOL_UNLOAD );
-	AddWeaponSound( "weapons/sig/clipout.wav", 1, ATTN_NORM, 0.28f );
-	AddWeaponSound( "weapons/sig/clipin.wav", 1, ATTN_NORM, 0.96f );
-	return 1.84f;
+	AddWeaponSound( "weapons/sig/clipout_unload.wav", 1, ATTN_NORM, GetAnimationTime( 8, 30 ) );
+	AddWeaponSound( "weapons/sig/clipin.wav", 1, ATTN_NORM, GetAnimationTime( 34, 30 ) );
+	AddWeaponSound( "weapons/sig/slideback.wav", 1, ATTN_NORM, GetAnimationTime( 53, 30 ) );
+	return GetAnimationTime( 87, 30 );
 }
 
 void CWeaponSideArmSig::Spawn()
@@ -43,7 +44,9 @@ void CWeaponSideArmSig::Precache(void)
 	PRECACHE_SOUND("weapons/sig/fire.wav"); //handgun
 	PRECACHE_SOUND("weapons/sig/clipin.wav"); //handgun
 	PRECACHE_SOUND("weapons/sig/clipout.wav"); //handgun
+	PRECACHE_SOUND("weapons/sig/clipout_unload.wav"); //handgun
 	PRECACHE_SOUND("weapons/sig/slideforward.wav"); //handgun
+	PRECACHE_SOUND("weapons/sig/slideback.wav"); //handgun
 
 	m_nEventPrimary = PRECACHE_EVENT(1, "events/sig.sc");
 }
@@ -128,13 +131,13 @@ void CWeaponSideArmSig::Reload(void)
 	if (m_pPlayer->ammo_9mm <= 0)
 		return;
 
-	int iResult = DefaultReload( IsEmpty() ? ANIM_PISTOL_RELOAD_EMPTY : ANIM_PISTOL_RELOAD, 1.84f );
+	int iResult = DefaultReload( IsEmpty() ? ANIM_PISTOL_RELOAD_EMPTY : ANIM_PISTOL_RELOAD, GetAnimationTime( 60, 30 ) );
 	if ( iResult )
 	{
-		AddWeaponSound( "weapons/sig/clipout.wav", 1, ATTN_NORM, 0.28f );
-		AddWeaponSound( "weapons/sig/clipin.wav", 1, ATTN_NORM, 0.96f );
+		AddWeaponSound( "weapons/sig/clipout.wav", 1, ATTN_NORM, GetAnimationTime( 8, 30 ) );
+		AddWeaponSound( "weapons/sig/clipin.wav", 1, ATTN_NORM, GetAnimationTime( 34, 30 ) );
 		if ( IsEmpty() )
-			AddWeaponSound( "weapons/sig/slideforward.wav", 1, ATTN_NORM, 1.28f );
+			AddWeaponSound( "weapons/sig/slideforward.wav", 1, ATTN_NORM, GetAnimationTime( 43, 30 ) );
 	}
 }
 
@@ -153,18 +156,18 @@ void CWeaponSideArmSig::WeaponIdle(void)
 	{
 	case 0:
 		iAnim = IsEmpty() ? ANIM_PISTOL_IDLE1_EMPTY : ANIM_PISTOL_IDLE1;
-		flTime = 3.8f;
+		flTime = GetAnimationTime( 41, 8 );
 		break;
 
 	default:
 	case 1:
 		iAnim = IsEmpty() ? ANIM_PISTOL_IDLE2_EMPTY : ANIM_PISTOL_IDLE2;
-		flTime = 3.8f;
+		flTime = GetAnimationTime( 41, 10 );
 		break;
 
 	case 2:
 		iAnim = IsEmpty() ? ANIM_PISTOL_IDLE3_EMPTY : ANIM_PISTOL_IDLE3;
-		flTime = 1.2f;
+		flTime = GetAnimationTime( 41, 20 );
 		break;
 	}
 

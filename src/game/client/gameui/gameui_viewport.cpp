@@ -285,7 +285,7 @@ void CGameUIViewport::OnThink()
 		if ( m_bNeedToReconnectAfterDownload )
 		{
 			m_bNeedToReconnectAfterDownload = false;
-			gEngfuncs.pfnClientCmd( "disconnect;wait 2;echo \"Reconnecting to server...\";wait 5;retry\n" );
+			gEngfuncs.pfnClientCmd( "disconnect;wait 5;echo \"Reconnecting to server...\";wait 8;retry\n" );
 		}
 	}
 }
@@ -537,6 +537,10 @@ void CGameUIViewport::AutoMountWorkshopItem( vgui2::WorkshopItem &WorkshopFile )
 {
 	if ( ShouldAutoMount( WorkshopFile.uWorkshopID ) )
 	{
+		// Mark it as not mounted, so we can copy the files again (if they already exist)
+		if ( m_bNeedToReconnectAfterDownload )
+			WorkshopFile.bMounted = false;
+
 		CGameUIViewport::Get()->ShowWorkshopInfoBox( WorkshopFile.szName, WorkshopInfoBoxState::State_Mounting );
 		CGameUIViewport::Get()->MountWorkshopItem( WorkshopFile, nullptr, nullptr );
 #if defined( _DEBUG )
@@ -817,6 +821,8 @@ bool CGameUIViewport::ShouldAutoMount( PublishedFileId_t nWorkshopID )
 	    nWorkshopID
 	);
 #endif
+	// We need to reconnect either way, make sure we copy the files over.
+	if ( m_bNeedToReconnectAfterDownload ) return true;
 	//if ( FindKey( keyName ) )
 	KeyValues *pAddonList = new KeyValues( "AddonList" );
 	KeyValuesAD autodel( pAddonList );

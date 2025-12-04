@@ -680,11 +680,12 @@ CON_COMMAND( cl_workshop_download, "Download a workshop mod in-game" )
 		// Only show on Debug mode
 		ConPrintf(
 			Color( 255, 255, 0, 255 ),
-			"HostAuth: %s\n",
-		    pszHostAuth
+			"IsHost: %s\n",
+		    vgui2::FStrEq( pszHostAuth, "0" ) ? "TRUE" : "FALSE"
 		);
 #endif
-		if ( vgui2::FStrEq( pszHostAuth, "ISHOST" ) )
+		// If 0, then we are the host
+		if ( vgui2::FStrEq( pszHostAuth, "0" ) )
 			bReconnect = false;
 	}
 	else

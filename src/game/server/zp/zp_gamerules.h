@@ -78,6 +78,7 @@ private:
 	float m_flRoundJustBegun;
 	int m_iRounds;
 	bool m_bCheatsOnThisSession;
+	bool m_bHostHasJoined; // Peer-2-Peer only
 };
 CZombiePanicGameRules *ZPGameRules();
 

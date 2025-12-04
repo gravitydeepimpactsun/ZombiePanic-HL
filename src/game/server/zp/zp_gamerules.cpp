@@ -79,6 +79,7 @@ CZombiePanicGameRules::CZombiePanicGameRules()
 	m_DisableDeathPenalty = FALSE;
 	m_bHasPickedVolunteer = false;
 	m_bCheatsOnThisSession = false;
+	m_bHostHasJoined = false;
 	m_flRoundRestartDelay = -1;
 	m_flRoundJustBegun = -1;
 	m_Volunteers.clear();
@@ -936,13 +937,10 @@ extern void RemovePlayerLastSpawnPointData( CBasePlayer *pPlayer );
 bool CZombiePanicGameRules::DownloadMissingWorkshopItem( edict_t *pClient )
 {
 	if ( g_ulCurrentWorkshopID == 0 ) return false;
-	CBasePlayer *pHost = (CBasePlayer *)UTIL_PlayerByIndex( 1 );
-	const char *authId = authId = "ISHOST";
-	if ( pHost )
-		authId = GETPLAYERAUTHID( pHost->edict() );
-	if ( !authId ) authId = "INVALID_STEAMID";
 	// Download the required Workshop item automatically (if the client does not have said item)
-	CLIENT_COMMAND( pClient, "cl_workshop_download %llu %s\n", g_ulCurrentWorkshopID, authId );
+	CLIENT_COMMAND( pClient, "cl_workshop_download %llu %i\n", g_ulCurrentWorkshopID, m_bHostHasJoined );
+	// Our first client that connects, is ALWAYS the host. So make sure we set this to true.
+	if ( !m_bHostHasJoined ) m_bHostHasJoined = true;
 	return true;
 }
 

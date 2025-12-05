@@ -52,9 +52,9 @@ void CCreateWorkshopInfoBox::SetData( const char *szString, WorkshopInfoBoxState
 	}
 	if ( m_state == WorkshopInfoBoxState::State_Done )
 		m_RemoveTime = 2.0f;
-	// Instant deletion
-	else if ( m_state == WorkshopInfoBoxState::State_DownloadingMapContentComplete )
-		m_RemoveTime = 0.0f;
+	// Delay the disconnect. Because we may be changing level
+	else if ( m_state == WorkshopInfoBoxState::State_DownloadingMapContentDisconnect )
+		m_RemoveTime = 1.0f;
 }
 
 void CCreateWorkshopInfoBox::SetProgressState( float flProgress )
@@ -68,8 +68,17 @@ void CCreateWorkshopInfoBox::OnTick()
 	if ( m_RemoveTime <= -1 ) return;
 	if ( m_RemoveTime <= 0 )
 	{
+		// Disconnect
+		if ( m_state == State_DownloadingMapContentDisconnect )
+		{
+			gEngfuncs.pfnClientCmd( "disconnect\n" );
+			m_state = State_DownloadingMapContentComplete;
+			// Wait 1 more second
+			m_RemoveTime = 1.0f;
+			return;
+		}
 		// Reconnect to the server
-		if ( m_state == State_DownloadingMapContentComplete )
+		else if ( m_state == State_DownloadingMapContentComplete )
 			gEngfuncs.pfnClientCmd( "retry\n" );
 		Close();
 	}

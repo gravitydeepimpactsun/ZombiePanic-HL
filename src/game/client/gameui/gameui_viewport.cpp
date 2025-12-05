@@ -289,7 +289,7 @@ void CGameUIViewport::OnThink()
 		{
 			m_bNeedToReconnectAfterDownload = false;
 			if ( GetWorkshopInfoBoxState() == WorkshopInfoBoxState::State_DownloadingMapContent )
-				ShowWorkshopInfoBox( "", WorkshopInfoBoxState::State_DownloadingMapContentComplete );
+				ShowWorkshopInfoBox( "", WorkshopInfoBoxState::State_DownloadingMapContentDisconnect );
 		}
 	}
 }
@@ -929,9 +929,22 @@ void CGameUIViewport::DownloadWorkshopAddon( PublishedFileId_t nWorkshopID, cons
 	m_bDownloadedItemsReady = false;
 	m_bPrepareForQueryDownload = true;
 
-	if ( !bReconnect ) return;
+#if defined( _DEBUG )
 	uint32 eState = GetSteamAPI()->SteamUGC()->GetItemState( nWorkshopID );
-	if ( eState & k_EItemStateNeedsUpdate )
+	Msg( "SteamUGC()->GetItemState( %llu ) Flags:\n", nWorkshopID );
+	if ( eState & k_EItemStateSubscribed ) Msg( "\t - k_EItemStateSubscribed\n" );
+	if ( eState & k_EItemStateLegacyItem ) Msg( "\t - k_EItemStateLegacyItem\n" );
+	if ( eState & k_EItemStateInstalled ) Msg( "\t - k_EItemStateInstalled\n" );
+	if ( eState & k_EItemStateNeedsUpdate ) Msg( "\t - k_EItemStateNeedsUpdate\n" );
+	if ( eState & k_EItemStateDownloading ) Msg( "\t - k_EItemStateDownloading\n" );
+	if ( eState & k_EItemStateDownloadPending ) Msg( "\t - k_EItemStateDownloadPending\n" );
+#endif
+
+	if ( !bReconnect ) return;
+#if !defined( _DEBUG )
+	uint32 eState = GetSteamAPI()->SteamUGC()->GetItemState( nWorkshopID );
+#endif
+	if ( (eState & k_EItemStateNeedsUpdate) || eState == k_EItemStateNone )
 	{
 		gEngfuncs.pfnClientCmd( "disconnect\n" );
 		ShowWorkshopInfoBox( data.Title, WorkshopInfoBoxState::State_DownloadingMapContent );

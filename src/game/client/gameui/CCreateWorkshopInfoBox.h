@@ -17,6 +17,7 @@ enum WorkshopInfoBoxState
 
 	// These states are special, it will auto connect the player to the server once the download is done.
 	State_DownloadingMapContent,
+	State_DownloadingMapContentDisconnect,
 	State_DownloadingMapContentComplete,
 };
 

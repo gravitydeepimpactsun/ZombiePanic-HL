@@ -110,7 +110,7 @@ void CWorkshopSubUploaded::OnWorkshopEdit( uint64 workshopID )
 	pUploadPage->SetUploadData( item.Title, item.Desc, item.Tags, item.Visibility );
 }
 
-void CWorkshopSubUploaded::AddItem( vgui2::WorkshopItem item )
+void CWorkshopSubUploaded::AddItem( WorkshopItem item )
 {
 	// Fonts
 	vgui2::HFont hTextFont;
@@ -135,7 +135,7 @@ void CWorkshopSubUploaded::AddItem( vgui2::WorkshopItem item )
 	hTextFont = pScheme->GetFont( "AchievementItemTitle" );
 	if ( hTextFont != vgui2::INVALID_FONT )
 		pTitle->SetFont( hTextFont );
-	pTitle->SetColorCodedText( item.szName );
+	pTitle->SetColorCodedText( item.Title );
 
 	vgui2::Label *pAuthor = new vgui2::Label( this, "Author", "" );
 	pAuthor->SetSize( 400, 20 );
@@ -144,7 +144,7 @@ void CWorkshopSubUploaded::AddItem( vgui2::WorkshopItem item )
 	hTextFont = pScheme->GetFont( "AchievementItemDescription" );
 	if ( hTextFont != vgui2::INVALID_FONT )
 		pAuthor->SetFont( hTextFont );
-	pAuthor->SetColorCodedText( item.szAuthor );
+	pAuthor->SetColorCodedText( item.Author );
 
 	vgui2::Label *pDesc = new vgui2::Label( this, "Description", "" );
 	pDesc->SetSize( 400, 20 );
@@ -153,18 +153,14 @@ void CWorkshopSubUploaded::AddItem( vgui2::WorkshopItem item )
 	hTextFont = pScheme->GetFont( "AchievementItemDescription" );
 	if ( hTextFont != vgui2::INVALID_FONT )
 		pDesc->SetFont( hTextFont );
-	pDesc->SetColorCodedText( item.szDesc );
+	pDesc->SetColorCodedText( item.Desc );
 
 	pList->AddItem(
 	    pIcon, pAuthor,
 		pTitle, pDesc,
 	    nullptr, nullptr,
-	    item.uWorkshopID, true
+	    item.PublishedFileID, true
 	);
-
-	// Same fix from CWorkshopSubList, this got the same problem.
-	pList->InvalidateLayout(true);
-	pList->Repaint();
 }
 
 void CWorkshopSubUploaded::OnSendQueryUGCRequest( SteamUGCQueryCompleted_t *pCallback, bool bIOFailure )
@@ -203,26 +199,15 @@ void CWorkshopSubUploaded::OnSendQueryUGCRequest( SteamUGCQueryCompleted_t *pCal
 		// Get our info
 		if ( GetSteamAPI()->SteamUGC()->GetQueryUGCResult( pCallback->m_handle, i, pDetails ) )
 		{
-			vgui2::WorkshopItem WorkshopAddon;
-			Q_snprintf( WorkshopAddon.szName, sizeof( WorkshopAddon.szName ), "%s", pDetails->m_rgchTitle );
-			Q_snprintf( WorkshopAddon.szDesc, sizeof( WorkshopAddon.szDesc ), "%s", pDetails->m_rgchDescription );
-			Q_snprintf( WorkshopAddon.szAuthor, sizeof( WorkshopAddon.szAuthor ), "%s", GetSteamAPI()->SteamFriends()->GetPersonaName() );
-			WorkshopAddon.iFilterFlag = 0;
-			WorkshopAddon.bMounted = false;
-			WorkshopAddon.bIsWorkshopDownload = false;
-			WorkshopAddon.bFoundConflictingFiles = false;
-			WorkshopAddon.uWorkshopID = pDetails->m_nPublishedFileId;
-
 			// Save our data, which we will use strictly for pUploadPage
 			WorkshopItem data;
 			Q_snprintf( data.Title, sizeof( data.Title ), "%s", pDetails->m_rgchTitle );
 			Q_snprintf( data.Desc, sizeof( data.Desc ), "%s", pDetails->m_rgchDescription );
 			Q_snprintf( data.Tags, sizeof( data.Tags ), "%s", pDetails->m_rgchTags );
+			Q_snprintf( data.Author, sizeof( data.Author ), "%s", GetSteamAPI()->SteamFriends()->GetPersonaName() );
 			data.Visibility = pDetails->m_eVisibility;
 			data.PublishedFileID = pDetails->m_nPublishedFileId;
 			m_Items.push_back( data );
-
-			AddItem( WorkshopAddon );
 
 			// Grab the preview image, and download it.
 			char szURL[1024];
@@ -240,11 +225,6 @@ void CWorkshopSubUploaded::OnSendQueryUGCRequest( SteamUGCQueryCompleted_t *pCal
 		if ( pDetails )
 			delete pDetails;
 	}
-
-	Panel *pPanel = FindChildByName( "Refresh" );
-	vgui2::Button *pInfo = (vgui2::Button *)pPanel;
-	if ( pInfo )
-		pInfo->SetEnabled( true );
 
 	GetSteamAPI()->SteamUGC()->ReleaseQueryUGCRequest( handle );
 }
@@ -363,10 +343,29 @@ void CWorkshopSubUploaded::CheckForPreviewDownload()
 	m_DownloadPreviewImages.erase( m_DownloadPreviewImages.begin() );
 }
 
+void CWorkshopSubUploaded::LoadWorkshopItems()
+{
+	bool bLastItem;
+	int index = GetNotLoadedWorkshopItem( bLastItem );
+	if ( index == -1 ) return;
+
+	WorkshopItem &item = m_Items[ index ];
+	item.Added = true;
+	AddItem( item );
+
+	if ( !bLastItem ) return;
+
+	Panel *pPanel = FindChildByName( "Refresh" );
+	vgui2::Button *pInfo = (vgui2::Button *)pPanel;
+	if ( pInfo )
+		pInfo->SetEnabled( true );
+}
+
 void CWorkshopSubUploaded::OnTick()
 {
 	BaseClass::OnTick();
 	CheckForPreviewDownload();
+	LoadWorkshopItems();
 }
 
 CWorkshopSubUploaded::WorkshopItem CWorkshopSubUploaded::GetWorkshopItem(PublishedFileId_t nWorkshopID)
@@ -378,4 +377,20 @@ CWorkshopSubUploaded::WorkshopItem CWorkshopSubUploaded::GetWorkshopItem(Publish
 			return item;
 	}
 	return WorkshopItem();
+}
+
+int CWorkshopSubUploaded::GetNotLoadedWorkshopItem( bool &bIsLastItem )
+{
+	bIsLastItem = false;
+	for ( size_t i = 0; i < m_Items.size(); i++ )
+	{
+		WorkshopItem item = m_Items[i];
+		if ( !item.Added )
+		{
+			if ( i == m_Items.size() -1 )
+				bIsLastItem = true;
+			return i;
+		}
+	}
+	return -1;
 }

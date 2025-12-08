@@ -19,8 +19,6 @@ public:
 	void SetPropertyDialog( vgui2::PropertyDialog *pDialog ) { pProperty = pDialog; }
 	void SetUploadPage( CWorkshopSubUpload *pDialog ) { pUploadPage = pDialog; }
 
-	virtual void AddItem( vgui2::WorkshopItem item );
-
 	virtual void ApplySchemeSettings(vgui2::IScheme *pScheme);
 	virtual void PerformLayout();
 
@@ -44,6 +42,7 @@ protected:
 	std::vector<DownloadPreviewImage> m_DownloadPreviewImages;
 	bool m_bCanDownloadPreview = false;
 	void CheckForPreviewDownload();
+	void LoadWorkshopItems();
 
 	virtual void OnTick();
 
@@ -52,11 +51,15 @@ protected:
 		char Title[k_cchPublishedDocumentTitleMax];
 		char Desc[k_cchPublishedDocumentDescriptionMax];
 		char Tags[k_cchTagListMax];
+		char Author[52];
 		ERemoteStoragePublishedFileVisibility Visibility;
 		PublishedFileId_t PublishedFileID;
+		bool Added = false;
 	};
 	std::vector<WorkshopItem> m_Items;
 	WorkshopItem GetWorkshopItem( PublishedFileId_t nWorkshopID );
+	int GetNotLoadedWorkshopItem( bool &bIsLastItem );
+	void AddItem( WorkshopItem item );
 
 	MESSAGE_FUNC_UINT64( OnWorkshopEdit, "WorkshopEdit", workshopID );
 

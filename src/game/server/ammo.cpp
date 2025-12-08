@@ -19,7 +19,7 @@ public:
 		AmmoData data = GetAmmoByAmmoID( GetAmmoType() );
 		m_iAmountLeft = m_iAmmoToGive = data.AmmoBoxGive;
 		m_AmmoType = GetAmmoType();
-		strncpy( m_szSound, "items/ammo_pickup.wav", 32 );
+		strncpy( m_szSound, GetPickupSound(), 32 );
 	}
 	void Precache( void )
 	{

@@ -686,7 +686,7 @@ CON_COMMAND( cl_workshop_download, "Download a workshop mod in-game" )
 #endif
 		// If 0, then we are the host
 		if ( vgui2::FStrEq( pszHostAuth, "0" ) )
-			bReconnect = false;
+			return;
 	}
 	else
 		bReconnect = false; // We have no 2nd value, then its prob invalid.

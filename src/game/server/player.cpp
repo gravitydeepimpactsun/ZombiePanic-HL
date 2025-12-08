@@ -5969,18 +5969,19 @@ void CBasePlayer::IncreaseBleed(int iIndex)
 
 void CBasePlayer::DoVocalize( PlayerVocalizeType nType, bool bForced )
 {
+	if ( nType == VOCALIZE_NONE ) return;
 	if ( pev->team != ZP::TEAM_SURVIVIOR ) return;
 	bool bCanSpeak = ( m_flLastVocalize - gpGlobals->time <= 0 ) ? true : false;
 	if ( bForced ) bCanSpeak = true;
 	if ( !bCanSpeak ) return;
 	const float flDelay = bForced ? 1.0f : 5.0f;
 	m_flLastVocalize = gpGlobals->time + flDelay;
-	VocalizeData data = GetVocalizeData( m_iCharacter, nType );
-	if ( data.Type == VOCALIZE_NONE ) return;
 	MESSAGE_BEGIN( MSG_ALL, gmsgVocalize );
 	WRITE_SHORT( entindex() );
 	WRITE_SHORT( nType );
 	MESSAGE_END();
+	VocalizeData data = GetVocalizeData( m_iCharacter, nType );
+	if ( data.Type == VOCALIZE_NONE ) return;
 	EMIT_SOUND_DYN( ENT(pev), CHAN_VOICE, data.VoiceLine.c_str(), 1, ATTN_NORM, 0, 100 );
 }
 

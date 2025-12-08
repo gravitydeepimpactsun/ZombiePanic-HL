@@ -1129,7 +1129,7 @@ bool CBasePlayerAmmo::GiveAmmoToPlayer( CBaseEntity *pOther )
 	// If we can't give ammo, ignore.
 	if ( iGiveAmmo <= 0 ) return false;
 	m_iAmountLeft -= iGiveAmmo;
-	EMIT_SOUND( ENT(pev), CHAN_ITEM, m_szSound, 1, ATTN_NORM );
+	EMIT_SOUND( ENT(pOther->pev), CHAN_ITEM, m_szSound, 1, ATTN_NORM );
 	// If we have no ammo left, we remove this entity
 #endif
 	return m_iAmountLeft <= 0 ? true : false;

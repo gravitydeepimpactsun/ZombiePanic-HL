@@ -180,7 +180,7 @@ void CStudioModelRenderer::Init(void)
 }
 
 // The default amount
-static ConVar weapon_chrome_amount( "weapon_chrome_amount", "3" );
+static ConVar weapon_chrome_amount( "weapon_chrome_amount", "0" );
 
 void CStudioModelRenderer::LateChromeLoad()
 {

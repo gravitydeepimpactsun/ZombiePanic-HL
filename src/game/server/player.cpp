@@ -2904,7 +2904,7 @@ void CBasePlayer::DropWeapon( CBasePlayerWeapon *pWeapon, bool bAutoSwitch, bool
 	string_t weaponname = ALLOC_STRING( pWeapon->GetData().Classname ); // Make a copy of the classname;
 	if ( FStringNull( weaponname ) )
 	{
-		Msg( "Failed to drop a weapon with NULL classname!" );
+		Msg( "Failed to drop a weapon with NULL classname!\n" );
 		return;
 	}
 
@@ -2943,7 +2943,7 @@ void CBasePlayer::DropWeapon( CBasePlayerWeapon *pWeapon, bool bAutoSwitch, bool
 	CBasePlayerWeapon *pNewWeapon = (CBasePlayerWeapon *)CBaseEntity::Create((char *)STRING(weaponname), pev->origin + vecDir * 10, pev->angles, nullptr);
 	if ( !pNewWeapon )
 	{
-		Msg( "Failed to create weapon %s!", STRING(weaponname) );
+		Msg( "Failed to create weapon %s!\n", STRING(weaponname) );
 		return;
 	}
 

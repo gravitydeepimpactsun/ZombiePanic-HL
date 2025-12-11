@@ -1,3 +1,6 @@
+# Bot Support - WIP
+#add_subdirectory( bot )
+
 add_sources(
 	CMakeLists.txt
 	info_objective.h

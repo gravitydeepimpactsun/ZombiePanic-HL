@@ -1,0 +1,13 @@
+add_sources(
+	CMakeLists.txt
+	bot_manager.cpp
+	bot_manager.h
+	bot.cpp
+	bot.h
+	bot_combat.cpp
+	bot_func.h
+	bot_navigate.cpp
+	bot_navmesh.cpp
+	bot_navmesh.h
+	bot_start.cpp
+)

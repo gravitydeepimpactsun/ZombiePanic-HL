@@ -81,6 +81,7 @@
 
 #include "sphl/weather.h"
 #include "steam_achievements.h"
+#include "rp_manager.h"
 
 #if USE_PARANOIA_RENDER
 	#include "paranoia/glmanager.h"
@@ -318,6 +319,9 @@ void CHud::Init(void)
 	gl.Init();
 	RendererInit();
 #endif
+
+	if ( CRichPresenceManager::GetInstance() )
+		CRichPresenceManager::GetInstance()->Reset();
 
 	// Fill color code colors with default ones
 	memcpy(m_ColorCodeColors, s_DefaultColorCodeColors, sizeof(s_DefaultColorCodeColors));

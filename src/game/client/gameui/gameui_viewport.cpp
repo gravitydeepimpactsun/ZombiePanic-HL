@@ -21,6 +21,7 @@
 #include <fstream>
 #include "zp/music/music_manager.h"
 #include "nlohmann/json.hpp"
+#include "rp_manager.h"
 
 bool g_bIsConnected = false;
 std::vector<PublishedFileId_t> m_InstalledAddons;
@@ -98,6 +99,8 @@ CGameUIViewport::CGameUIViewport()
 
 	// Let's create our music manager after our GameUI is created.
 	new CMusicManager();
+
+	new CRichPresenceManager();
 }
 
 CGameUIViewport::~CGameUIViewport()

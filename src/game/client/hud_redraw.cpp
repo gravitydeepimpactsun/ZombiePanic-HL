@@ -24,6 +24,7 @@
 #include "vgui/client_viewport.h"
 #include "results.h"
 #include "svc_messages.h"
+#include "rp_manager.h"
 
 #define MAX_LOGO_FRAMES 56
 
@@ -60,6 +61,9 @@ void CHud::Think(void)
 	CTeamInfo::UpdateAllTeams();
 	m_Rainbow.Think();
 	CResults::Get().Think();
+
+	if ( CRichPresenceManager::GetInstance() )
+		CRichPresenceManager::GetInstance()->UpdatePresence();
 
 	int newfov;
 

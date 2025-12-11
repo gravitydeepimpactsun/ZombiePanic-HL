@@ -7,6 +7,8 @@ add_sources(
 # so we don't bloat the chat.cpp file
 	steam_achievements.cpp
 	steam_achievements.h
+	rp_manager.cpp
+	rp_manager.h
 	bhlcfg.cpp
 	bhlcfg.h
 	camera.h

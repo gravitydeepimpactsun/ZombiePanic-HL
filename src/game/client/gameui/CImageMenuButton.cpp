@@ -12,17 +12,42 @@ CImageMenuButton::CImageMenuButton( vgui2::Panel *pParent, const char *szImage, 
 	SetMouseInputEnabled( true );
 
 	m_szURL[0] = 0;
+	m_szImage[0] = 0;
+	m_szImageHover[0] = 0;
+
 	if ( szURL )
 		Q_strcpy( m_szURL, szURL );
+
+	if ( szImage )
+	{
+		Q_strcpy( m_szImage, szImage );
+		Q_strcpy( m_szImageHover, szImage );
+	}
 
 	m_pPanel = new vgui2::ImagePanel( this, "Image" );
 	m_pPanel->SetFillColor( Color( 0, 0, 0, 100 ) );
 	m_pPanel->SetSize( GetWide(), GetTall() );
 	m_pPanel->SetPos( 0, 0 );
 	m_pPanel->SetShouldScaleImage( true );
-	m_pPanel->SetImage( szImage );
+	m_pPanel->SetImage( m_szImage );
 	m_pPanel->SetMouseInputEnabled( false );
 	m_pPanel->SetKeyBoardInputEnabled( false );
+}
+
+void CImageMenuButton::SetImageHover( const char *szImage )
+{
+	if ( szImage )
+		Q_strcpy( m_szImageHover, szImage );
+}
+
+void CImageMenuButton::OnCursorEntered()
+{
+	m_pPanel->SetImage( m_szImageHover );
+}
+
+void CImageMenuButton::OnCursorExited()
+{
+	m_pPanel->SetImage( m_szImage );
 }
 
 void CImageMenuButton::SetContent( const int &x, const int &y, const int &w, const int &h )

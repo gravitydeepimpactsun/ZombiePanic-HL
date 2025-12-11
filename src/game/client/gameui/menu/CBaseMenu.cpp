@@ -95,6 +95,7 @@ CBaseMenu::CBaseMenu( vgui2::Panel *pParent )
 		pPage[i] = nullptr;
 	m_Page = MenuPagesTable_t::PAGE_MAIN;
 	m_hPatreonButton = nullptr;
+	m_hDiscordButton = nullptr;
 	m_hMessageBox = nullptr;
 }
 
@@ -267,6 +268,18 @@ void CBaseMenu::SetMenuBounds( const int &x, const int &y, const int &w, const i
 		m_hPatreonButton->MoveToFront();
 	}
 #endif
+	// Create our dialog right away!
+	if ( !m_hDiscordButton )
+	{
+		int wide = GetScaledValue( 25 );
+		int tall = GetScaledValue( 25 );
+		int nudge = GetScaledValue( 50 );
+		m_hDiscordButton = new CImageMenuButton( this, "ui/discord_button", "https://discord.gg/zps" );
+		m_hDiscordButton->SetImageHover( "ui/discord_button_hover" );
+		m_hDiscordButton->MakePopup( false, false );
+		m_hDiscordButton->SetContent( (w - wide) - nudge, (t - tall) - nudge, wide, tall );
+		m_hDiscordButton->MoveToFront();
+	}
 }
 
 void CBaseMenu::Repopulate()
@@ -288,6 +301,8 @@ void CBaseMenu::DoDialogHackFix()
 	// Make sure we move this to the front!
 	if ( m_hPatreonButton && HasFocus() )
 		m_hPatreonButton->MoveToFront();
+	if ( m_hDiscordButton && HasFocus() )
+		m_hDiscordButton->MoveToFront();
 
 	// If any of these are valid, and visible, move them to front.
 	for ( int i = 0; i < GameUIDialogs::UIDialog_MAX; i++ )

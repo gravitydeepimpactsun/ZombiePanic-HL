@@ -27,6 +27,7 @@ protected:
 
 private:
 	vgui2::DHANDLE<CImageMenuButton> m_hPatreonButton;
+	vgui2::DHANDLE<CImageMenuButton> m_hDiscordButton;
 	vgui2::DHANDLE<vgui2::MessageBox> m_hMessageBox;
 	MenuPagesTable_t m_Page;
 	CMenuPage *pPage[PAGE_MAX];

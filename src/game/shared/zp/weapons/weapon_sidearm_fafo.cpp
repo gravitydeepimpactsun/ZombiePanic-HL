@@ -86,13 +86,24 @@ void CWeaponSideArmFafo::PrimaryAttack(void)
 	m_pPlayer->m_iWeaponVolume = NORMAL_GUN_VOLUME;
 	m_pPlayer->m_iWeaponFlash = NORMAL_GUN_FLASH;
 
-	// Hurt the player
-	// TODO: Explode in front of the player.
-	// But we don't kill the owner, only if someone else is nearby.
-	// If they somehow die from it... Because the damage will be 5.
-
 	Vector vecSrc = m_pPlayer->GetGunPosition();
 	Vector vecAiming;
+
+	// Hurt the player
+#ifndef CLIENT_DLL
+	Vector vecSpot = vecSrc + Vector( 0, 0, -6 );
+	MESSAGE_BEGIN( MSG_PAS, SVC_TEMPENTITY, vecSpot );
+	WRITE_BYTE(TE_EXPLOSION); // This makes a dynamic light and the explosion sprites/sound
+	WRITE_COORD( vecSpot.x ); // Send to PAS because of the sound
+	WRITE_COORD( vecSpot.y );
+	WRITE_COORD( vecSpot.z );
+	WRITE_SHORT( g_sModelIndexFireball );
+	WRITE_BYTE( 2 ); // scale * 10
+	WRITE_BYTE( 15 ); // framerate
+	WRITE_BYTE( TE_EXPLFLAG_NONE );
+	MESSAGE_END();
+	RadiusDamage( vecSpot, pev, m_pPlayer->pev, 5, CLASS_NONE, DMG_BLAST, 50 );
+#endif
 
 	vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);
 

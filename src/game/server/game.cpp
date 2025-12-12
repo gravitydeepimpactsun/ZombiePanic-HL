@@ -85,6 +85,7 @@ cvar_t mp_dmg_crowbar = { "mp_dmg_crowbar", "25", FCVAR_SERVER };
 cvar_t mp_dmg_leadpipe = { "mp_dmg_leadpipe", "32", FCVAR_SERVER };
 cvar_t mp_dmg_leadpipe_heavy = { "mp_dmg_leadpipe_heavy", "45", FCVAR_SERVER };
 cvar_t mp_dmg_swipe = { "mp_dmg_swipe", "30", FCVAR_SERVER };
+cvar_t mp_dmg_fafo = { "mp_dmg_fafo", "350", FCVAR_SERVER };
 cvar_t mp_dmg_sig = { "mp_dmg_sig", "12", FCVAR_SERVER };
 cvar_t mp_dmg_ppk = { "mp_dmg_ppk", "8", FCVAR_SERVER };
 cvar_t mp_dmg_glock = { "mp_dmg_glock", "18", FCVAR_SERVER };
@@ -590,6 +591,7 @@ void GameDLLInit(void)
 	CVAR_REGISTER(&mp_dmg_leadpipe);
 	CVAR_REGISTER(&mp_dmg_leadpipe_heavy);
 	CVAR_REGISTER(&mp_dmg_swipe);
+	CVAR_REGISTER(&mp_dmg_fafo);
 	CVAR_REGISTER(&mp_dmg_sig);
 	CVAR_REGISTER(&mp_dmg_ppk);
 	CVAR_REGISTER(&mp_dmg_glock);

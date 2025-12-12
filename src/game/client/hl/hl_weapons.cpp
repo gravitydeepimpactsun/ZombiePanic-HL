@@ -32,6 +32,7 @@
 #include "../demo.h"
 
 #include "zp/weapons/weapon_sidearm_sig.h"
+#include "zp/weapons/weapon_sidearm_fafo.h"
 #include "zp/weapons/weapon_sidearm_ppk.h"
 #include "zp/weapons/weapon_sidearm_revolver.h"
 #include "zp/weapons/weapon_smg_mp5.h"
@@ -67,6 +68,7 @@ Vector previousorigin;
 // Weapon entities.
 CWeaponSideArmSig g_Sig;
 CWeaponSideArmPPK g_PPK;
+CWeaponSideArmFafo g_Fafo;
 CWeaponMeleeCrowbar g_Crowbar;
 CWeaponMeleeLeadPipe g_LeadPipe;
 CWeaponMeleeSwipe g_Swipe;
@@ -634,6 +636,7 @@ void HUD_InitClientWeapons(void)
 	// Allocate slot(s) for each weapon that we are going to be predicting
 	HUD_PrepEntity(&g_Sig, &player);
 	HUD_PrepEntity(&g_PPK, &player);
+	HUD_PrepEntity(&g_Fafo, &player);
 	HUD_PrepEntity(&g_Crowbar, &player);
 	HUD_PrepEntity(&g_LeadPipe, &player);
 	HUD_PrepEntity(&g_Swipe, &player);
@@ -727,6 +730,10 @@ void HUD_WeaponsPostThink(local_state_s *from, local_state_s *to, usercmd_t *cmd
 
 	case WEAPON_PPK:
 		pWeapon = &g_PPK;
+		break;
+
+	case WEAPON_FAFO_ERW:
+		pWeapon = &g_Fafo;
 		break;
 
 	case WEAPON_PYTHON:

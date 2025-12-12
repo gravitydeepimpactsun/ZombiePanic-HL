@@ -78,6 +78,7 @@ enum ZPWeaponID
 	WEAPON_DOUBLEBARREL,
 	WEAPON_PPK,
 	WEAPON_GLOCK17,
+	WEAPON_FAFO_ERW,
 
 	// Misc stuff, should be last
 	WEAPON_BACKPACK,	// Not really a weapon, but used to give extra slots in Hardcore mode,
@@ -223,6 +224,7 @@ namespace ZP
 	void SpawnStaticSpawns();
     int GrabCorrectDecal( int iDamageFlag );
     void CheckIfBreakableGlass( TraceResult *pTrace, CBaseEntity *pEnt, const Vector &vDir, int iDamageFlag );
+    void DoBulletPenetration( entvars_t *pevAttacker, float flDamage, TraceResult *pTrace, CBaseEntity *pEnt, const Vector &vSrc, const Vector &vDir, int iPenetration, int iBulletType );
 #endif
 
 	// Normalize our vector output

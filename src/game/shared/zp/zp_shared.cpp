@@ -20,6 +20,7 @@
 #include "weapons.h"
 #include "player.h"
 
+#include "zp_shared_weapons.h"
 #include "zp_shared.h"
 
 // =========================================================
@@ -540,6 +541,221 @@ void ZP::CheckIfBreakableGlass( TraceResult *pTrace, CBaseEntity *pEnt, const Ve
 				UTIL_DecalTrace( &tr, iDamageFlag );
 		}
 	}
+}
+
+struct BulletPenetrationMaterial
+{
+	Materials Material;
+	float Reduction;
+};
+
+struct BulletPenetration
+{
+	Bullet Type = Bullet::BULLET_NONE;
+	float Reduction = 0.0f;
+	int Amount = 0;
+	float Distance = 10;
+	std::vector<BulletPenetrationMaterial> MaterialList = {};
+
+	// Get our damage reduction if we hit a specific material
+	float GetMaterialPenetration( Materials nMat )
+	{
+		for ( size_t i = 0; i < MaterialList.size(); i++ )
+		{
+			BulletPenetrationMaterial MaterialPenetrationInfo = MaterialList[ i ];
+			if ( MaterialPenetrationInfo.Material == nMat )
+				return MaterialPenetrationInfo.Reduction;
+		}
+		return 1.0f;
+	}
+};
+
+std::vector<BulletPenetrationMaterial> m_BulletPenetrationMat_WeakPistols = {
+	{ matUnbreakableGlass, 0.0 },
+	{ matGlass, 0.9 },
+	{ matCeilingTile, 0.9 },
+	{ matCinderBlock, 0.7 },
+	{ matComputer, 0.6 },
+	{ matFlesh, 0.8 },
+	{ matMetal, 0.45 },
+	{ matWood, 0.85 },
+	{ matRocks, 0.5 }
+};
+
+std::vector<BulletPenetrationMaterial> m_BulletPenetrationMat_Revolver = {
+	{ matUnbreakableGlass, 0.0 },
+	{ matGlass, 0.95 },
+	{ matCeilingTile, 0.95 },
+	{ matCinderBlock, 0.8 },
+	{ matComputer, 0.7 },
+	{ matFlesh, 1.0 },
+	{ matMetal, 0.55 },
+	{ matWood, 0.95 },
+	{ matRocks, 0.6 }
+};
+
+std::vector<BulletPenetrationMaterial> m_BulletPenetrationMat_SMG = {
+	{ matUnbreakableGlass, 0.0 },
+	{ matGlass, 0.8 },
+	{ matCeilingTile, 0.7 },
+	{ matCinderBlock, 0.6 },
+	{ matComputer, 0.55 },
+	{ matFlesh, 0.78 },
+	{ matMetal, 0.38 },
+	{ matWood, 0.65 },
+	{ matRocks, 0.4 }
+
+};
+
+std::vector<BulletPenetrationMaterial> m_BulletPenetrationMat_Rifles = {
+	{ matUnbreakableGlass, 0.0 },
+	{ matGlass, 0.9 },
+	{ matCeilingTile, 0.9 },
+	{ matCinderBlock, 0.7 },
+	{ matComputer, 0.6 },
+	{ matFlesh, 1.0 },
+	{ matMetal, 0.6 },
+	{ matWood, 0.98 },
+	{ matRocks, 0.6 }
+
+};
+
+std::vector<BulletPenetrationMaterial> m_BulletPenetrationMat_FAFO = {
+	{ matUnbreakableGlass, 0.0 }
+};
+
+std::vector<BulletPenetrationMaterial> m_BulletPenetrationMat_Buckshot = {
+	{ matUnbreakableGlass, 0.0 },
+	{ matGlass, 0.98 },
+	{ matCeilingTile, 0.6 },
+	{ matCinderBlock, 0.5 },
+	{ matComputer, 0.5 },
+	{ matFlesh, 0.98 },
+	{ matMetal, 0.45 },
+	{ matWood, 0.85 },
+	{ matRocks, 0.4 }
+};
+
+BulletPenetration m_BulletPenetrationList[] = {
+	{ BULLET_PLAYER_SIG, 0.5, 1, 300, m_BulletPenetrationMat_WeakPistols },
+	{ BULLET_PLAYER_PPK, 0.4, 1, 300, m_BulletPenetrationMat_WeakPistols },
+	{ BULLET_PLAYER_GLOCK, 0.8, 1, 300, m_BulletPenetrationMat_WeakPistols },
+	{ BULLET_PLAYER_MP5, 0.65, 1, 700, m_BulletPenetrationMat_SMG },
+	{ BULLET_PLAYER_357, 0.8, 2, 500, m_BulletPenetrationMat_Revolver },
+	{ BULLET_PLAYER_M16, 0.8, 3, 800, m_BulletPenetrationMat_Rifles },
+	{ BULLET_PLAYER_BUCKSHOT, 0.7, 4, 200, m_BulletPenetrationMat_Buckshot },
+	{ BULLET_PLAYER_DBARREL, 0.7, 4, 120, m_BulletPenetrationMat_Buckshot },
+	{ BULLET_PLAYER_FAFO, 0.65, 10, 800, m_BulletPenetrationMat_FAFO }
+};
+
+BulletPenetration GetBulletPenetrationData( Bullet iBulletType )
+{
+	for ( int i = 0; i < ARRAYSIZE( m_BulletPenetrationList ); i++ )
+	{
+		BulletPenetration Bullet = m_BulletPenetrationList[ i ];
+		if ( iBulletType == Bullet.Type )
+			return Bullet;
+	}
+	return BulletPenetration();
+}
+
+void ZP::DoBulletPenetration( entvars_t *pevAttacker, float flDamage, TraceResult *pTrace, CBaseEntity *pEnt, const Vector &vSrc, const Vector &vDir, int iPenetration, int iBulletType )
+{
+	// Entity was null somehow? Ignore.
+	if ( !pEnt ) return;
+
+	// What material did we hit?
+	Materials matHit = matNone;
+
+	// If breakable, grab it's break material
+	CBreakable *pBreakable = dynamic_cast<CBreakable*>( pEnt );
+	if ( pBreakable )
+		matHit = pBreakable->m_Material;
+
+	// If player, always return flesh
+	if ( pEnt->IsPlayer() )
+		matHit = matFlesh;
+
+	// Grab our bullet penetration information
+	BulletPenetration nBullet = GetBulletPenetrationData( (Bullet)iBulletType );
+
+	// Not a valid bullet type.
+	if ( nBullet.Type == BULLET_NONE ) return;
+
+	// Did we hit the max value? if so, stop.
+	if ( iPenetration >= nBullet.Amount ) return;
+
+	// If we are material none, then we manually check the texture.
+	if ( matHit == matNone )
+	{
+		char szbuffer[64];
+		Vector vMatEnd = pTrace->vecEndPos + vDir * 10;
+
+		// Find the texture, if we hit the world.
+		const char *pTextureName = TRACE_TEXTURE( ENT( pEnt->pev ), vSrc, vMatEnd );
+		if ( pTextureName )
+		{
+			// strip leading '-0' or '+0~' or '{' or '!'
+			if (*pTextureName == '-' || *pTextureName == '+')
+				pTextureName += 2;
+
+			if (*pTextureName == '{' || *pTextureName == '!' || *pTextureName == '~' || *pTextureName == ' ')
+				pTextureName++;
+			// '}}'
+			strcpy(szbuffer, pTextureName);
+			szbuffer[CBTEXTURENAMEMAX - 1] = 0;
+
+			// get texture type
+			switch ( TEXTURETYPE_Find( szbuffer ) )
+			{
+				default:
+				case CHAR_TEX_CONCRETE: matHit = matNone; break;
+				case CHAR_TEX_GRATE:
+			    case CHAR_TEX_VENT:
+			    case CHAR_TEX_COMPUTER:
+				case CHAR_TEX_METAL: matHit = matMetal; break;
+				case CHAR_TEX_GLASS: matHit = matGlass; break;
+				case CHAR_TEX_GLASS_UNBREAK: matHit = matUnbreakableGlass; break;
+				case CHAR_TEX_FLESH: matHit = matFlesh; break;
+				case CHAR_TEX_TILE: matHit = matCeilingTile; break;
+				case CHAR_TEX_CARDBOARD:
+				case CHAR_TEX_WOOD: matHit = matWood; break;
+			}
+		}
+	}
+
+	// Reduce the amount from the material we hit.
+	flDamage *= nBullet.GetMaterialPenetration( matHit );
+
+	// If 0 or less, ignore.
+	if ( flDamage <= 0 ) return;
+
+	TraceResult tr;
+	Vector vecSrc = pTrace->vecEndPos + vDir * 2;
+	Vector vecEnd = pTrace->vecEndPos + vDir * nBullet.Distance;
+	UTIL_TraceLine( vecSrc, vecEnd, ignore_monsters, pEnt->edict(), &tr );
+	if ( tr.flFraction <= 1.0 )
+	{
+		// Our entity we found
+		CBaseEntity *pHit = CBaseEntity::Instance( tr.pHit );
+
+		// Make sure we set the correct damage type
+		int iDmgType = DMG_BULLET;
+		if ( iBulletType == BULLET_PLAYER_FAFO )
+			iDmgType |= DMG_ALWAYSGIB;
+
+		// We penetrated, reduce it some more.
+		flDamage *= nBullet.Reduction;
+
+		// Hurt this entity.
+		pHit->TraceAttack( pevAttacker, flDamage, vDir, &tr, iDmgType );
+
+		iPenetration++;
+		ZP::DoBulletPenetration( pevAttacker, flDamage, &tr, pHit, vecSrc, vDir, iPenetration, iBulletType );
+		DecalGunshot( &tr, vDir, iBulletType );
+	}
+
+	UTIL_BubbleTrail( vecSrc, tr.vecEndPos, (nBullet.Distance * tr.flFraction) / 64.0 );
 }
 #endif
 

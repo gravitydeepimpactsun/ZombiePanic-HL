@@ -1935,6 +1935,7 @@ float TEXTURETYPE_PlaySound(TraceResult *ptr, Vector vecSrc, Vector vecEnd, int 
 		cnt = 3;
 		break;
 	case CHAR_TEX_GLASS:
+	case CHAR_TEX_GLASS_UNBREAK:
 	case CHAR_TEX_COMPUTER:
 		fvol = 0.8;
 		fvolbar = 0.2;

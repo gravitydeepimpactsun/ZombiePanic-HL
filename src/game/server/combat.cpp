@@ -1509,22 +1509,25 @@ Vector CBaseEntity::FireBulletsPlayer(ULONG cShots, Vector vecSrc, Vector vecDir
 		if (tr.flFraction != 1.0)
 		{
 			CBaseEntity *pEntity = CBaseEntity::Instance(tr.pHit);
-
-			if (iDamage)
+			float flDamage;
+			if ( iDamage )
 			{
-				pEntity->TraceAttack(pevAttacker, iDamage, vecDir, &tr, DMG_BULLET | DMG_NEVERGIB);
+				flDamage = iDamage;
+				pEntity->TraceAttack( pevAttacker, flDamage, vecDir, &tr, DMG_BULLET | DMG_NEVERGIB );
 
 				TEXTURETYPE_PlaySound(&tr, vecSrc, vecEnd, iBulletType);
 				DecalGunshot(&tr, vecDir, iBulletType);
 			}
 			else
 			{
-				float flDamage, flBulletDistance;
+				float flBulletDistance;
 				flDamage = flBulletDistance = 0.0;
+				int iDmgType = DMG_BULLET;
 
 				switch (iBulletType)
 				{
 					default:
+					case BULLET_PLAYER_FAFO: flDamage = mp_dmg_fafo.value; iDmgType |= DMG_ALWAYSGIB; break;
 					case BULLET_PLAYER_SIG: flDamage = mp_dmg_sig.value; break;
 					case BULLET_PLAYER_PPK: flDamage = mp_dmg_ppk.value; break;
 					case BULLET_PLAYER_GLOCK: flDamage = mp_dmg_glock.value; break;
@@ -1548,9 +1551,10 @@ Vector CBaseEntity::FireBulletsPlayer(ULONG cShots, Vector vecSrc, Vector vecDir
 					break;
 				}
 
-				pEntity->TraceAttack( pevAttacker, flDamage, vecDir, &tr, DMG_BULLET );
+				pEntity->TraceAttack( pevAttacker, flDamage, vecDir, &tr, iDmgType );
 			}
 			ZP::CheckIfBreakableGlass( &tr, pEntity, vecDir, DECAL_GLASSBREAK1 + RANDOM_LONG(0, 2) );
+			ZP::DoBulletPenetration( pevAttacker, flDamage, &tr, pEntity, vecSrc, vecDir, 0, iBulletType );
 		}
 		// make bullet trails
 		UTIL_BubbleTrail(vecSrc, tr.vecEndPos, (flDistance * tr.flFraction) / 64.0);

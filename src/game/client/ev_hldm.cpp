@@ -71,6 +71,7 @@ extern "C"
 {
 
 	// HLDM
+	void EV_FireFAFO(struct event_args_s *args);
 	void EV_FireSig(struct event_args_s *args);
 	void EV_FirePPK(struct event_args_s *args);
 //	void EV_FireGlock(struct event_args_s *args);
@@ -251,6 +252,7 @@ float EV_HLDM_PlayTextureSound(int idx, pmtrace_t *ptr, float *vecSrc, float *ve
 		cnt = 3;
 		break;
 	case CHAR_TEX_GLASS:
+	case CHAR_TEX_GLASS_UNBREAK:
 	case CHAR_TEX_COMPUTER:
 		fvol = 0.8;
 		fvolbar = 0.2;
@@ -535,6 +537,50 @@ void EV_FireSig(event_args_t *args)
 	VectorCopy(forward, vecAiming);
 
 	EV_HLDM_FireBullets(idx, forward, right, up, 1, vecSrc, vecAiming, 8192, BULLET_PLAYER_SIG, 0, NULL, args->fparam1, args->fparam2);
+}
+
+void EV_FireFAFO(event_args_t *args)
+{
+	int idx;
+	Vector origin;
+	Vector angles;
+	Vector velocity;
+
+	Vector ShellVelocity;
+	Vector ShellOrigin;
+	int shell;
+	Vector vecSrc, vecAiming;
+	Vector up, right, forward;
+
+	idx = args->entindex;
+	VectorCopy(args->origin, origin);
+	VectorCopy(args->angles, angles);
+	VectorCopy(args->velocity, velocity);
+
+	AngleVectors(angles, forward, right, up);
+
+	shell = gEngfuncs.pEventAPI->EV_FindModelIndex("models/shell.mdl"); // brass shell
+
+	if (EV_IsLocal(idx))
+	{
+		EV_MuzzleFlash();
+		gEngfuncs.pEventAPI->EV_WeaponAnimation(ANIM_PISTOL_SHOOT, 2);
+
+		V_PunchAxis(0, -2.0);
+	}
+
+	Vector shellOffset;
+	ParseVector( cl_shellejects_sig.GetString(), shellOffset );
+	EV_GetDefaultShellInfo(args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, shellOffset.x, shellOffset.y, shellOffset.z);
+	EV_EjectBrass(ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHELL);
+
+	gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, "weapons/sig/fire.wav", gEngfuncs.pfnRandomFloat(0.92, 1.0), ATTN_NORM, 0, 98 + gEngfuncs.pfnRandomLong(0, 3));
+
+	EV_GetGunPosition(args, vecSrc, origin);
+
+	VectorCopy(forward, vecAiming);
+
+	EV_HLDM_FireBullets(idx, forward, right, up, 1, vecSrc, vecAiming, 8192, BULLET_PLAYER_FAFO, 0, NULL, args->fparam1, args->fparam2);
 }
 
 void EV_FirePPK(event_args_t *args)

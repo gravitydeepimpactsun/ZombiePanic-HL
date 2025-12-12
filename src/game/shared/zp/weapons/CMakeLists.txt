@@ -20,6 +20,8 @@ add_sources(
 	weapon_sidearm_glock17.h
 	weapon_sidearm_sig.cpp
 	weapon_sidearm_sig.h
+	weapon_sidearm_fafo.cpp
+	weapon_sidearm_fafo.h
 	weapon_sidearm_revolver.cpp
 	weapon_sidearm_revolver.h
 	weapon_melee_crowbar.cpp

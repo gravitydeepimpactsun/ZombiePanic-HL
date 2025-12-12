@@ -211,6 +211,7 @@ static WeaponInfo sWeaponInfoList[] = {
 	{ "doublebarrel", WEAPON_DOUBLEBARREL, false },
 	{ "tnt", WEAPON_TNT, false },
 	{ "ied", WEAPON_SATCHEL, false },
+	{ "fafo", WEAPON_FAFO_ERW, false },
 };
 
 
@@ -366,6 +367,7 @@ WeaponData CreateWeaponSlotData( ZPWeaponID WeaponID )
 		case WEAPON_DOUBLEBARREL: szWeaponScriptFile = "weapon_doublebarrel"; break;
 		case WEAPON_PPK: szWeaponScriptFile = "weapon_ppk"; break;
 		case WEAPON_GLOCK17: szWeaponScriptFile = "weapon_glock17"; break;
+		case WEAPON_FAFO_ERW: szWeaponScriptFile = "weapon_fafo"; break;
 		default: szWeaponScriptFile = "weapon_example"; break;
 	}
 #if defined( CLIENT_DLL )

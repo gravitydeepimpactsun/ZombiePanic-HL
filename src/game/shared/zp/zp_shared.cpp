@@ -733,7 +733,7 @@ void ZP::DoBulletPenetration( entvars_t *pevAttacker, float flDamage, TraceResul
 	TraceResult tr;
 	Vector vecSrc = pTrace->vecEndPos + vDir * 2;
 	Vector vecEnd = pTrace->vecEndPos + vDir * nBullet.Distance;
-	UTIL_TraceLine( vecSrc, vecEnd, ignore_monsters, pEnt->edict(), &tr );
+	UTIL_TraceLine( vecSrc, vecEnd, dont_ignore_monsters, pEnt->edict(), &tr );
 	if ( tr.flFraction <= 1.0 )
 	{
 		// Our entity we found
@@ -742,7 +742,7 @@ void ZP::DoBulletPenetration( entvars_t *pevAttacker, float flDamage, TraceResul
 		// Make sure we set the correct damage type
 		int iDmgType = DMG_BULLET;
 		if ( iBulletType == BULLET_PLAYER_FAFO )
-			iDmgType |= DMG_ALWAYSGIB;
+			iDmgType = DMG_BULLET | DMG_ALWAYSGIB;
 
 		// We penetrated, reduce it some more.
 		flDamage *= nBullet.Reduction;

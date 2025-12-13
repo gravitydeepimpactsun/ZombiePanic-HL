@@ -91,9 +91,9 @@ void CWeaponSideArmFafo::PrimaryAttack(void)
 
 	// Hurt the player
 #ifndef CLIENT_DLL
-	Vector vecSpot = vecSrc + Vector( 0, 0, -6 );
+	Vector vecSpot = vecSrc + Vector( 0, 0, -8 );
 	MESSAGE_BEGIN( MSG_PAS, SVC_TEMPENTITY, vecSpot );
-	WRITE_BYTE(TE_EXPLOSION); // This makes a dynamic light and the explosion sprites/sound
+	WRITE_BYTE( TE_EXPLOSION ); // This makes a dynamic light and the explosion sprites/sound
 	WRITE_COORD( vecSpot.x ); // Send to PAS because of the sound
 	WRITE_COORD( vecSpot.y );
 	WRITE_COORD( vecSpot.z );
@@ -102,7 +102,7 @@ void CWeaponSideArmFafo::PrimaryAttack(void)
 	WRITE_BYTE( 15 ); // framerate
 	WRITE_BYTE( TE_EXPLFLAG_NONE );
 	MESSAGE_END();
-	RadiusDamage( vecSpot, pev, m_pPlayer->pev, 5, CLASS_NONE, DMG_BLAST, 50 );
+	m_pPlayer->TakeDamage( m_pPlayer->pev, m_pPlayer->pev, 5, DMG_BLAST );
 #endif
 
 	vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);

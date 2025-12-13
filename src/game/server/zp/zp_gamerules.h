@@ -62,6 +62,7 @@ public:
 
 	bool WasCheatsOnThisSession() const;
 	inline void SetCheatsOnThisSession( bool bCheats ) { m_bCheatsOnThisSession = bCheats; }
+	void EndMultiplayerGame( void ) override;
 
 private:
 	void CheckCheats();

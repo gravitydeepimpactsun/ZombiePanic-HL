@@ -967,6 +967,25 @@ bool CZombiePanicGameRules::WasCheatsOnThisSession() const
 	return m_bCheatsOnThisSession;
 }
 
+void CZombiePanicGameRules::EndMultiplayerGame( void )
+{
+	// No gamemode? Stop.
+	if ( !m_pGameMode ) return;
+	// Already won/lost? Stop.
+	if ( m_pGameMode->GetWinState() > IGameModeBase::WinState_e::State_None ) return;
+	IGameModeBase::WinState_e nState = IGameModeBase::WinState_e::State_Draw;
+	// Grab the new win state from our current gamemode type.
+	ZP::GameModeType_e nGameMode = m_pGameMode->GetGameModeType();
+	switch ( nGameMode )
+	{
+		case ZP::GameModeType_e::GAMEMODE_SURVIVAL:
+		case ZP::GameModeType_e::GAMEMODE_HARDCORE: nState = IGameModeBase::WinState_e::State_SurvivorWin; break;
+		case ZP::GameModeType_e::GAMEMODE_OBJECTIVE: nState = IGameModeBase::WinState_e::State_ZombieWin; break;
+	}
+	// Set our win state.
+	m_pGameMode->SetWinState( nState );
+}
+
 void CZombiePanicGameRules::CheckCheats()
 {
 	if ( CVAR_GET_FLOAT("sv_cheats") >= 1 )

@@ -513,7 +513,7 @@ int CBasePlayer ::TakeHealth(float flHealth, int bitsDamageType)
 		return 0;
 	// Only screen fade if we actually healed some health
 	if ( flHealth > 0 )
-		UTIL_ScreenFade( this, Vector(0, 255, 255), 2, 0.1, 10, FFADE_IN );
+		DoScreenTint( false );
 	return CBaseMonster ::TakeHealth(flHealth, bitsDamageType);
 }
 
@@ -799,10 +799,10 @@ int CBasePlayer ::TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, fl
 				m_bIsBleeding = true;
 				m_bGotBandage = false;
 			}
-			UTIL_ScreenFade( this, Vector(128, 0, 0), 2, 0.1, 80, FFADE_IN );
+			DoScreenTint( true );
 		}
 		else
-			UTIL_ScreenFade( this, Vector(128, 0, 0), 2, 0.1, 10, FFADE_IN );
+			DoScreenTint( true );
 		Pain( (bitsDamage & DMG_DROWN) );
 	}
 
@@ -2456,9 +2456,19 @@ void CBasePlayer::DoBloodLossDecal( float flDelay )
 		iHealth -= 1;
 		if ( iHealth < 1 ) iHealth = 1;
 		pev->health = iHealth;
-		UTIL_ScreenFade( this, Vector(128, 0, 0), 2, 0.1, 10, FFADE_IN );
+		DoScreenTint( true );
 		pev->punchangle.x = -2;
 	}
+}
+
+void CBasePlayer::DoScreenTint( bool bDamage )
+{
+	bool bDoTint = true;
+	char *szDoScreenTint = g_engfuncs.pfnInfoKeyValue( g_engfuncs.pfnGetInfoKeyBuffer( edict() ), "do_screen_tint" );
+	if ( szDoScreenTint && szDoScreenTint[0] )
+		bDoTint = FStrEq( szDoScreenTint, "1" ) ? true : false;
+	if ( !bDoTint ) return;
+	UTIL_ScreenFade( this, bDamage ? Vector(128, 0, 0) : Vector(0, 255, 255), 2, 0.1, 10, FFADE_IN );
 }
 
 bool CBasePlayer::GotBandage( bool bGiveHealth )
@@ -6754,7 +6764,7 @@ void CBasePlayer::DoPanic()
 
 	// If "Switch to melee on panic" is enabled, then we quickly switch weapons. We skip the holstering and all that.
 	char *szSwitchToMelee = g_engfuncs.pfnInfoKeyValue( g_engfuncs.pfnGetInfoKeyBuffer( edict() ), "panic_to_melee" );
-	if ( szSwitchToMelee && szSwitchToMelee[0] )
+	if ( szSwitchToMelee && szSwitchToMelee[0] && FStrEq( szSwitchToMelee, "1" ) )
 		SwitchToMelee();
 
 	m_flLastPanic = gpGlobals->time + 30;

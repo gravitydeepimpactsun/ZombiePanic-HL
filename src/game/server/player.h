@@ -502,6 +502,8 @@ public:
 	void DoBloodLoss();
 	void DoBloodLossDecal( float flDelay );
 
+	void DoScreenTint( bool bDamage );
+
 	bool GotBandage( bool bGiveHealth );
 	bool GotPainKiller();
 

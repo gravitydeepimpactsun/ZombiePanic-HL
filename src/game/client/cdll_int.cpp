@@ -88,6 +88,7 @@ static void ServerClientVar_Update##_VAR()												\
 SET_CLIENT_SERVER_CVAR( auto_switch, cl_autopickup, 1 );
 SET_CLIENT_SERVER_CVAR( keep_zvision, cl_keepzombovision, 1 );
 SET_CLIENT_SERVER_CVAR( panic_to_melee, cl_panictomelee, 1 );
+SET_CLIENT_SERVER_CVAR( do_screen_tint, cl_screentint, 1 );
 SET_CLIENT_SERVER_CVAR_STRING( character, cl_character, "random" );
 
 /**
@@ -325,6 +326,7 @@ int CL_DLLEXPORT HUD_VidInit(void)
 	ServerClientVar_Resetcl_autopickup();
 	ServerClientVar_Resetcl_keepzombovision();
 	ServerClientVar_Resetcl_panictomelee();
+	ServerClientVar_Resetcl_screentint();
 	ServerClientVar_Resetcl_character();
 
 	// TODO: Do we have time to check the workshop stuff here?
@@ -359,6 +361,7 @@ void CL_DLLEXPORT HUD_Init(void)
 	ServerClientVar_Resetcl_autopickup();
 	ServerClientVar_Resetcl_keepzombovision();
 	ServerClientVar_Resetcl_panictomelee();
+	ServerClientVar_Resetcl_screentint();
 	ServerClientVar_Resetcl_character();
 }
 
@@ -418,6 +421,7 @@ void CL_DLLEXPORT HUD_Reset(void)
 	ServerClientVar_Resetcl_autopickup();
 	ServerClientVar_Resetcl_keepzombovision();
 	ServerClientVar_Resetcl_panictomelee();
+	ServerClientVar_Resetcl_screentint();
 	ServerClientVar_Resetcl_character();
 }
 
@@ -462,6 +466,7 @@ void CL_DLLEXPORT HUD_Frame(double time)
 	ServerClientVar_Updatecl_autopickup();
 	ServerClientVar_Updatecl_keepzombovision();
 	ServerClientVar_Updatecl_panictomelee();
+	ServerClientVar_Updatecl_screentint();
 	ServerClientVar_Updatecl_character();
 
 	// Make sure our music manager is thinking

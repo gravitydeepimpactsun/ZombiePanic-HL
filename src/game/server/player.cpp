@@ -999,7 +999,9 @@ void CBasePlayer::Killed(entvars_t *pevAttacker, int iGib)
 	{
 		// If the damage that killed us was blast or crush damage, we should gib
 		// We don't want to give from bullets or being smacked by melee weapons...
-		if ( ( m_bitsDamageType & DMG_BLAST ) || ( m_bitsDamageType & DMG_CRUSH ) )
+		if ( ( m_bitsDamageType & DMG_BLAST )
+			|| ( m_bitsDamageType & DMG_CRUSH )
+			|| ( m_bitsDamageType & DMG_ALWAYSGIB ) )
 			bShouldGib = true;
 	}
 
@@ -4398,7 +4400,7 @@ void CBasePlayer::Spawn(void)
 	m_iDeathFlags = 0;
 	char *szKeepZVision = g_engfuncs.pfnInfoKeyValue( g_engfuncs.pfnGetInfoKeyBuffer( edict()), "keep_zvision" );
 	if ( szKeepZVision && szKeepZVision[0] )
-		m_bInZombieVision = true;
+		m_bInZombieVision = FStrEq( szKeepZVision, "1" ) ? true : false;
 	else
 		m_bInZombieVision = false;
 	m_bBuddhaMode = false;

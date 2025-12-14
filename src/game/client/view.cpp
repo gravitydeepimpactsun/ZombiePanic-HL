@@ -126,6 +126,9 @@ void SetupFlashlight( Vector origin, Vector angles, float time, float frametime 
 
 #endif
 
+dlight_t *g_ZomboVision = nullptr;
+void ResetZomboVision() { g_ZomboVision = nullptr; }
+
 //=============================================================================
 /*
 void V_NormalizeAngles( float *angles )
@@ -1780,9 +1783,10 @@ void CL_DLLEXPORT V_CalcRefdef(struct ref_params_s *pparams)
 
 	gFog.DrawFog( FogDrawType::FOG_DRAW_VIEW );
 
-	dlight_t *pZomboVision = gEngfuncs.pEfxAPI->CL_AllocDlight( 2 );
-	if ( pZomboVision )
-		V_ZombieVision( pZomboVision, pparams );
+	if ( g_ZomboVision )
+		V_ZombieVision( g_ZomboVision, pparams );
+	else
+		g_ZomboVision = gEngfuncs.pEfxAPI->CL_AllocDlight( 2 );	// Only create the light once.
 
 #if USE_PARANOIA_RENDER
 	// Paranoia Render is enabled,

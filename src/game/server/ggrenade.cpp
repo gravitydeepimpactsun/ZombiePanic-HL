@@ -90,7 +90,6 @@ void CGrenade::Explode(TraceResult *pTrace, int bitsDamageType)
 		pevOwner = NULL;
 
 	pev->owner = NULL; // can't traceline attack owner if this is set
-	pev->team = pevOwner ? pevOwner->team : ZP::TEAM_SURVIVIOR;
 
 	RadiusDamage(pev, pevOwner, pev->dmg, CLASS_NONE, bitsDamageType, m_flExplodeRange);
 
@@ -404,6 +403,7 @@ CGrenade *CGrenade::ShootTimed(entvars_t *pevOwner, Vector vecStart, Vector vecV
 	pGrenade->pev->velocity = vecVelocity;
 	pGrenade->pev->angles = UTIL_VecToAngles(pGrenade->pev->velocity);
 	pGrenade->pev->owner = ENT(pevOwner);
+	pGrenade->pev->team = ZP::TEAM_SURVIVIOR;
 
 	pGrenade->SetTouch(&CGrenade::BounceTouch); // Bounce if touched
 

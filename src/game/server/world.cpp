@@ -746,19 +746,29 @@ void CWorld::OnWorldCreated()
 		"weapon_mp5",
 		"weapon_556ar",
 		"weapon_shotgun",
+		"weapon_doublebarrel",
 		"weapon_satchel",
 		"weapon_handgrenade",
+		"weapon_tnt",
+		"weapon_ied",
+		"weapon_fafo",
 		"item_battery",
 		"item_armor",
 		"item_healthkit",
 		"item_security",
+		// Old Ammo names for compatibility
 		"ammo_9mmclip",
 		"ammo_9mmar",
 		"ammo_9mmbox",
 		"ammo_556ar",
 		"ammo_556box",
-		"ammo_buckshot",
 		"ammo_357",
+		// New Ammo names
+		"ammo_9mmbox",
+		"ammo_riflebox",
+		"ammo_22lrbox",
+		"ammo_357box",
+		"ammo_buckshot",
 		"", // END Marker
 	};
 

@@ -4150,8 +4150,11 @@ static bool IsSpawnPointTraceValid( CBaseEntity *pSpot, CBaseEntity *pEnt )
 }
 
 // checks if the spot is clear of players
-static SpawnPointValidity CheckSpawnPointValidity(CBaseEntity *pPlayer, CBaseEntity *pSpot)
+static SpawnPointValidity CheckSpawnPointValidity( CBaseEntity *pPlayer, CBaseEntity *pSpot )
 {
+	// The entity is invalid, that's not good.
+	if ( !pSpot ) return SpawnPointValidity::NonValid;
+
 	CBaseEntity *ent = NULL;
 
 	if (pSpot->pev->origin == Vector(0, 0, 0))
@@ -4180,7 +4183,24 @@ static SpawnPointValidity CheckSpawnPointValidity(CBaseEntity *pPlayer, CBaseEnt
 	if ( FoundSpawnPoint( item, pSpot ) )
 		return SpawnPointValidity::NonValid;
 
-	while ((ent = UTIL_FindEntityInSphere(ent, pSpot->pev->origin, 800)) != NULL)
+	// Let's do a trace hull, so we aren't spawning inside another player.
+	// Because that would be bad...
+	TraceResult tr;
+	Vector vecSrc = pSpot->Center() + Vector( 0, 0, 16 );
+	Vector VecEnd = vecSrc - Vector( 0, 0, 64 ); // Make it look down only
+	UTIL_TraceHull( vecSrc, VecEnd, dont_ignore_monsters, human_hull, pSpot->edict(), &tr );
+	if ( tr.flFraction != 1.0 )
+	{
+		// We hit something, is it a player?
+		CBaseEntity *pHitEnt = CBaseEntity::Instance( tr.pHit );
+		if ( pHitEnt && pHitEnt->IsPlayer() )
+		{
+			// Yup, can't spawn here.
+			return SpawnPointValidity::NonValid;
+		}
+	}
+
+	while ((ent = UTIL_FindEntityInSphere(ent, pSpot->pev->origin, 2500)) != NULL)
 	{
 		// if ent is a client, don't spawn on 'em (if not on the same team)
 		if (ent->IsPlayer() && ent != pPlayer && ent->pev->team != pPlayer->pev->team)

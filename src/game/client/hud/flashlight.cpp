@@ -26,6 +26,7 @@
 #include "parsemsg.h"
 #include "flashlight.h"
 #include "event_api.h"
+#include "pm_shared.h"
 
 #define BAT_NAME "sprites/%d_Flashlight.spr"
 
@@ -102,6 +103,9 @@ void CHudFlashlight::Draw(float flTime)
 {
 	if (gHUD.m_iHideHUDDisplay & HIDEHUD_HEALTH)
 		return;
+
+	// If the user is observing in free roam mode, don't draw.
+	if ( g_iUser1 && g_iUser1 == OBS_MAP_FREE ) return;
 
 	int r, g, b, x, y;
 	float a;

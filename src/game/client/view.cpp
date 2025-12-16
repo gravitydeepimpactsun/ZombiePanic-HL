@@ -438,6 +438,15 @@ Roll is induced by movement and damage
 */
 void V_CalcViewRoll(struct ref_params_s *pparams)
 {
+	// If the user is observing, don't roll the view.
+	// This fixes a bug where the camera would break when
+	// switching to another mode and/or target.
+	if ( g_iUser1 )
+	{
+		pparams->viewangles[ROLL] = 0;
+		return;
+	}
+
 	float side;
 	cl_entity_t *viewentity;
 

@@ -2046,6 +2046,9 @@ void CStudioModelRenderer::StudioRenderFinal_Hardware(void)
 
 bool CStudioModelRenderer::IsLookingAtWeapon(void)
 {
+	// Are we a spectator? If so, don't do anything.
+	if ( g_iUser1 ) return false;
+
 	// Check if the model is starting with "w_"
 	if ( m_pCurrentEntity && m_pCurrentEntity->model && m_pCurrentEntity->model->name )
 	{

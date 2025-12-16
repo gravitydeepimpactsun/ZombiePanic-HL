@@ -24,6 +24,7 @@
 #include "cl_util.h"
 #include "parsemsg.h"
 #include "battery.h"
+#include "pm_shared.h"
 
 extern int giHealthXPos;
 
@@ -71,6 +72,9 @@ void CHudBattery::Draw(float flTime)
 {
 	if (gHUD.m_iHideHUDDisplay & HIDEHUD_HEALTH)
 		return;
+
+	// If the user is observing in free roam mode, don't draw.
+	if ( g_iUser1 && g_iUser1 == OBS_MAP_FREE ) return;
 
 	// Zombies have no armor, don't draw it.
 	if ( gEngfuncs.GetLocalPlayer()->curstate.team == ZP::TEAM_ZOMBIE )

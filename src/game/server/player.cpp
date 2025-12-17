@@ -3946,6 +3946,24 @@ void CBasePlayer::PostThink()
 	UpdatePlayerSound();
 
 	// ZOMBIE PANIC -- START (Player Weight, become fat)
+	if ( pev->team == ZP::TEAM_ZOMBIE && m_bInZombieVision )
+	{
+		UTIL_MakeVectors( pev->angles );
+		Vector vecPos = EyePosition() + gpGlobals->v_forward * 10 + Vector( 0, 0, 16 );
+		MESSAGE_BEGIN( MSG_PVS, SVC_TEMPENTITY, vecPos );
+		WRITE_BYTE( TE_ELIGHT );
+		WRITE_SHORT( entindex() ); // entity
+		WRITE_COORD( vecPos.x ); // pos
+		WRITE_COORD( vecPos.y );
+		WRITE_COORD( vecPos.z );
+		WRITE_COORD( 100 );
+		WRITE_BYTE( 255 ); // color
+		WRITE_BYTE( 0 );
+		WRITE_BYTE( 0 );
+		WRITE_BYTE( 3 ); // life
+		WRITE_COORD( 2000.0f ); // decay rate
+		MESSAGE_END();
+	}
 	UpdatePlayerMaxSpeed();
 	// ZOMBIE PANIC -- END
 
@@ -4123,30 +4141,21 @@ void ShouldClearSpawnChecks(CBaseEntity* pPlayer, CBaseEntity *pSpot)
 		item->Spawns.clear();
 }
 
-static bool HasSpawnPointTraceFound( CBaseEntity *pSpot, CBaseEntity *pEnt, const Vector &vStart )
+bool UTIL_FInViewCone( CBaseEntity *pEnt, CBaseEntity *pEntSee, const float &flFOV )
 {
-	// Do a simple line tracer, just to make sure we don't find someone looking at us or w/e.
-	TraceResult tr;
-	UTIL_TraceLine( pSpot->Center() + vStart, pEnt->Center(), dont_ignore_monsters, pSpot->edict(), &tr );
-	if ( tr.flFraction != 1.0 && tr.pHit == pEnt->edict() ) return true;
-	return false;
-}
+	Vector2D vec2LOS;
+	float flDot;
 
-static bool IsSpawnPointTraceValid( CBaseEntity *pSpot, CBaseEntity *pEnt )
-{
-	// Top Left
-	if ( HasSpawnPointTraceFound( pSpot, pEnt, Vector( 16, 0, 16 ) ) ) return false;
-	// Top
-	if ( HasSpawnPointTraceFound( pSpot, pEnt, Vector( 0, 0, 16 ) ) ) return false;
-	// Top Right
-	if ( HasSpawnPointTraceFound( pSpot, pEnt, Vector( -16, 0, 16 ) ) ) return false;
-	// Top Left
-	if ( HasSpawnPointTraceFound( pSpot, pEnt, Vector( 16, 0, 0 ) ) ) return false;
-	// Center
-	if ( HasSpawnPointTraceFound( pSpot, pEnt, Vector( 0, 0, 0 ) ) ) return false;
-	// Top Right
-	if ( HasSpawnPointTraceFound( pSpot, pEnt, Vector( -16, 0, 0 ) ) ) return false;
-	return true;
+	UTIL_MakeVectors( pEnt->pev->angles );
+
+	vec2LOS = (pEntSee->pev->origin - pEnt->pev->origin).AsVector2D();
+	vec2LOS.NormalizeInPlace();
+
+	flDot = DotProduct2D( vec2LOS, gpGlobals->v_forward.AsVector2D() );
+
+	if ( flDot > flFOV )
+		return true;
+	return false;
 }
 
 // checks if the spot is clear of players
@@ -4166,6 +4175,10 @@ static SpawnPointValidity CheckSpawnPointValidity( CBaseEntity *pPlayer, CBaseEn
 	{
 		return SpawnPointValidity::NonValid;
 	}
+
+	// Have we already spawned here before?
+	if ( !IsSpawnPointValid( pPlayer, pSpot ) )
+		return SpawnPointValidity::NonValid;
 
 	// Make sure this is a proper spawn point entity
 	CBasePlayerSpawnPoint *spawnPoint = dynamic_cast<CBasePlayerSpawnPoint *>(pSpot);
@@ -4200,14 +4213,29 @@ static SpawnPointValidity CheckSpawnPointValidity( CBaseEntity *pPlayer, CBaseEn
 		}
 	}
 
-	while ((ent = UTIL_FindEntityInSphere(ent, pSpot->pev->origin, 2500)) != NULL)
+	// This is a copy of the monster.cpp CBaseMonster::Look function.
+	// We are simply checking if there are any players in the area,
+	// and of course, we also check if the player within this can actually see us.
+	// If they can see us, then we can't spawn here.
+	// Because that would be bad...
 	{
-		// if ent is a client, don't spawn on 'em (if not on the same team)
-		if (ent->IsPlayer() && ent != pPlayer && ent->pev->team != pPlayer->pev->team)
+		const int iDistance = 2500;
+		Vector delta = Vector( iDistance, iDistance, iDistance );
+		CBaseEntity *pList[100];
+		CBaseEntity *pSightEnt = NULL; // the current visible entity that we're dealing with
+		int count = UTIL_EntitiesInBox( pList, 100, pSpot->pev->origin - delta, pSpot->pev->origin + delta, FL_CLIENT );
+		for ( int i = 0; i < count; i++ )
 		{
-			if ( IsSpawnPointTraceValid( pSpot, ent ) )
-				return SpawnPointValidity::Valid;
-			return SpawnPointValidity::NonValid;
+			pSightEnt = pList[i];
+			// if this is not the spot entity, and the entity can see me.
+			// We don't care about dead players
+			if ( pSightEnt != pSpot
+			    && UTIL_FInViewCone( pSightEnt, pSpot, 0.5 )
+			    && pSightEnt->FVisible( pSpot )
+				&& pSightEnt->pev->health > 0 )
+			{
+				return SpawnPointValidity::NonValid;
+			}
 		}
 	}
 

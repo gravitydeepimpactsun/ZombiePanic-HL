@@ -59,7 +59,6 @@
 #include "hud/crosshair.h"
 #include "hud/health.h"
 #include "hud/spectator.h"
-#include "hud/geiger.h"
 #include "hud/train.h"
 #include "hud/battery.h"
 #include "hud/flashlight.h"
@@ -77,7 +76,6 @@
 #include "hud/speedometer.h"
 #include "hud/jumpspeed.h"
 #include "hud/timer.h"
-#include "hud/strafeguide.h"
 
 #include "sphl/weather.h"
 #include "steam_achievements.h"
@@ -423,7 +421,6 @@ void CHud::Init(void)
 	RegisterHudElem<CHudChat>();
 	RegisterHudElem<CHudCrosshair>();
 	RegisterHudElem<CHudSpectator>();
-	RegisterHudElem<CHudGeiger>();
 	RegisterHudElem<CHudTrain>();
 	RegisterHudElem<CHudBattery>();
 	RegisterHudElem<CHudFlashlight>();
@@ -445,7 +442,6 @@ void CHud::Init(void)
 	RegisterHudElem<CHudSpeedometer>();
 	RegisterHudElem<CHudJumpspeed>();
 	RegisterHudElem<CHudTimer>();
-	RegisterHudElem<CHudStrafeGuide>();
 
 	if (CHudRenderer::Get().IsAvailable())
 	{

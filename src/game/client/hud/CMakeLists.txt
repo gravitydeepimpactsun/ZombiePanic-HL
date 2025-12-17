@@ -20,8 +20,6 @@ add_sources(
 	death_notice_panel.h
 	flashlight.cpp
 	flashlight.h
-	geiger.cpp
-	geiger.h
 	health.cpp
 	health.h
 	jumpspeed.cpp
@@ -40,8 +38,6 @@ add_sources(
 	status_icons.h
 	statusbar.cpp
 	statusbar.h
-	strafeguide.cpp
-	strafeguide.h
 	text_message.cpp
 	text_message.h
 	timer.cpp

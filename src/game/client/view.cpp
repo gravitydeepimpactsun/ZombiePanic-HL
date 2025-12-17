@@ -22,7 +22,6 @@
 #include "hud/spectator.h"
 #include "hud/speedometer.h"
 #include "hud/jumpspeed.h"
-#include "hud/strafeguide.h"
 #include "fog.h"
 
 #ifndef M_PI
@@ -1752,7 +1751,6 @@ void CL_DLLEXPORT V_CalcRefdef(struct ref_params_s *pparams)
 {
 	CHudSpeedometer::Get()->UpdateSpeed(pparams->simvel);
 	CHudJumpspeed::Get()->UpdateSpeed(pparams->simvel);
-	CHudStrafeGuide::Get()->Update(pparams);
 	
 	gFog.SetWaterLevel(pparams->waterlevel);
 

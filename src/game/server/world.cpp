@@ -755,6 +755,8 @@ void CWorld::OnWorldCreated()
 		"item_battery",
 		"item_armor",
 		"item_healthkit",
+		"item_bandage",
+		"item_painkiller",
 		"item_security",
 		// Old Ammo names for compatibility
 		"ammo_9mmclip",
@@ -788,7 +790,8 @@ void CWorld::OnWorldCreated()
 			flAngles[0] = pFind->pev->angles.x;
 			flAngles[1] = pFind->pev->angles.y;
 			flAngles[2] = pFind->pev->angles.z;
-			ZP::AddToStaticSpawnList( pFind->pev->classname, pFind->pev->spawnflags, flOrigin, flAngles );
+			int iszItem = ALLOC_STRING( s_StaticSpawns[i] );
+			ZP::AddToStaticSpawnList( iszItem, pFind->pev->spawnflags, flOrigin, flAngles );
 			pFind = UTIL_FindEntityByClassname( pFind, s_StaticSpawns[i] );
 		}
 	}

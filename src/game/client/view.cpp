@@ -438,15 +438,6 @@ Roll is induced by movement and damage
 */
 void V_CalcViewRoll(struct ref_params_s *pparams)
 {
-	// If the user is observing, don't roll the view.
-	// This fixes a bug where the camera would break when
-	// switching to another mode and/or target.
-	if ( g_iUser1 )
-	{
-		pparams->viewangles[ROLL] = 0;
-		return;
-	}
-
 	float side;
 	cl_entity_t *viewentity;
 
@@ -651,6 +642,15 @@ void V_CalcNormalRefdef(struct ref_params_s *pparams)
 	V_CalcViewRoll(pparams);
 
 	V_AddIdle(pparams);
+
+	// If the user is observing, don't roll the view.
+	// This fixes a bug where the camera would break when
+	// switching to another mode and/or target.
+	if ( g_iUser1 )
+	{
+		pparams->viewangles[ROLL] = 0;
+		pparams->cl_viewangles[ROLL] = 0;
+	}
 
 	// offsets
 	VectorCopy(pparams->cl_viewangles, angles);
@@ -1624,6 +1624,11 @@ void V_CalcSpectatorRefdef(struct ref_params_s *pparams)
 	if (pparams->nextView == 0)
 	{
 		// first renderer cycle, full screen
+
+		// This fixes a bug where the camera would break when
+		// switching to another mode and/or target.
+		pparams->viewangles[ROLL] = 0;
+		pparams->cl_viewangles[ROLL] = 0;
 
 		switch (g_iUser1)
 		{

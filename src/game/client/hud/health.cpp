@@ -167,7 +167,7 @@ void CHudHealth::GetPainColor(int &r, int &g, int &b)
 void CHudHealth::Draw(float flTime)
 {
 	// If the user is observing in free roam mode, don't draw.
-	if ( g_iUser1 && g_iUser1 == OBS_MAP_FREE ) return;
+	if ( g_iUser1 && g_iUser1 != OBS_IN_EYE ) return;
 
 	int r, g, b;
 	int x, y;

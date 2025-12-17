@@ -650,7 +650,7 @@ void CHudAmmo::Draw(float flTime)
 	int AmmoWidth;
 
 	// If the user is observing in free roam mode, don't draw.
-	if ( g_iUser1 && g_iUser1 == OBS_MAP_FREE ) return;
+	if ( g_iUser1 && g_iUser1 != OBS_IN_EYE ) return;
 
 	if (!(gHUD.m_iWeaponBits & (1 << (WEAPON_SUIT))))
 		return;

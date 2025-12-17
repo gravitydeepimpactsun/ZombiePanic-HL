@@ -677,20 +677,31 @@ void IN_MLookUp(void)
 	}
 }
 
+// Make sure we clear all input states
+// We don't want the player to keep moving if we force thenm to stop!
+void Input_ClearInputState( kbutton_t *button )
+{
+	button->down[0] = 0;
+	button->down[1] = 0;
+	button->state = 0;
+}
+
 void Input_StopAllMovements( bool bForce )
 {
 	// If we are an observer, allow free movement
 	// But if we force it, we stop everything
 	if ( g_iUser1 && !bForce ) return;
-	KeyUp(&in_back);
-	KeyUp(&in_forward);
-	KeyUp(&in_left);
-	KeyUp(&in_right);
-	KeyUp(&in_strafe);
-	KeyUp(&in_moveleft);
-	KeyUp(&in_moveright);
-	KeyUp(&in_down);
-	KeyUp(&in_up);
+	Input_ClearInputState(&in_back);
+	Input_ClearInputState(&in_forward);
+	Input_ClearInputState(&in_left);
+	Input_ClearInputState(&in_right);
+	Input_ClearInputState(&in_strafe);
+	Input_ClearInputState(&in_moveleft);
+	Input_ClearInputState(&in_moveright);
+	Input_ClearInputState(&in_down);
+	Input_ClearInputState(&in_up);
+	Input_ClearInputState(&in_duck);
+	Input_ClearInputState(&in_jump);
 }
 
 /*

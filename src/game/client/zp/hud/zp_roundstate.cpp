@@ -84,10 +84,10 @@ void CHudRoundState::Paint()
 			m_pText->SetBounds( 0, m_iRoundIsOverYPos, w, m_iRoundIsOverTall );
 			if ( !m_pText->IsVisible() )
 				m_pText->SetVisible( true );
-		    // Make sure every movement input is stopped
+			// Make sure every movement input is stopped
 			// when the round is over every frame to prevent
 			// the player from moving around.
-		    Input_StopAllMovements( true );
+			Input_StopAllMovements( true );
 		}
 		break;
 	}
@@ -114,6 +114,7 @@ int CHudRoundState::MsgFunc_RoundState(const char *pszName, int iSize, void *pbu
 			m_pText->SetFgColor( Color( 255, 255, 255, 255 ) );
 			m_pText->SetText( "#ZP_WaitingForPlayers" );
 			m_pText->SetVisible( true );
+			Input_StopAllMovements( true );
 		}
 		break;
 		// Use these or???
@@ -121,6 +122,7 @@ int CHudRoundState::MsgFunc_RoundState(const char *pszName, int iSize, void *pbu
 		{
 			m_pText->SetVisible( false );
 			PlayAudio( "modes/round_ready.wav" );
+			Input_StopAllMovements( true );
 		}
 	    break;
 		//case ZP::RoundState_PickVolunteers: break;
@@ -165,6 +167,7 @@ int CHudRoundState::MsgFunc_RoundState(const char *pszName, int iSize, void *pbu
 			PlayAudio( szSoundToPlay );
 			m_pText->SetFgColor( Color( 255, 255, 255, 0 ) );
 			m_pText->SetVisible( true );
+			Input_StopAllMovements( true );
 		}
 	    break;
 	    default: m_pText->SetVisible( false ); break;

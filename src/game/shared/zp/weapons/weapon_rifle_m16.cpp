@@ -3,6 +3,7 @@
 #include "weapon_rifle_m16.h"
 
 LINK_ENTITY_TO_CLASS( weapon_556ar, CWeaponRifleM16 );
+LINK_ENTITY_TO_CLASS( weapon_556AR, CWeaponRifleM16 );
 LINK_ENTITY_TO_CLASS( weapon_9mmar, CWeaponRifleM16 ); // Only for old maps, DO NOT USE THIS.
 PRECACHE_WEAPON_REGISTER( weapon_556ar );
 

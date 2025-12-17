@@ -55,6 +55,7 @@ REGISTER_AMMO_BOX( ammo_9mmbox, "models/w_9mmbox.mdl", ZPAmmoTypes::AMMO_PISTOL 
 REGISTER_BACKWARD_COMPATIBLE_AMMO_BOX( ammo_9mmclip, ammo_9mmbox );
 REGISTER_BACKWARD_COMPATIBLE_AMMO_BOX( ammo_mp5clip, ammo_9mmbox );
 REGISTER_BACKWARD_COMPATIBLE_AMMO_BOX( ammo_9mmAR, ammo_9mmbox );
+REGISTER_BACKWARD_COMPATIBLE_AMMO_BOX( ammo_9mmar, ammo_9mmbox );
 
 // Magnum ammo box
 REGISTER_AMMO_BOX( ammo_357box, "models/w_357box.mdl", ZPAmmoTypes::AMMO_MAGNUM );
@@ -65,6 +66,7 @@ REGISTER_AMMO_BOX( ammo_buckshot, "models/w_shotbox.mdl", ZPAmmoTypes::AMMO_SHOT
 
 // Rifle ammo box
 REGISTER_AMMO_BOX( ammo_riflebox, "models/w_riflebbox.mdl", ZPAmmoTypes::AMMO_RIFLE );
+REGISTER_BACKWARD_COMPATIBLE_AMMO_BOX( ammo_556ar, ammo_riflebox );
 REGISTER_BACKWARD_COMPATIBLE_AMMO_BOX( ammo_556AR, ammo_riflebox );
 
 // Long rifle ammo box

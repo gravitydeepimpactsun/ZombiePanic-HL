@@ -6735,17 +6735,22 @@ void CBasePlayer::DropUnuseableAmmo()
 	for ( int i = 0; i < ZPAmmoTypes::AMMO_MAX; i++ )
 		bAmmoThatShouldBeDropped[i] = true;
 
-	bool bIsInHardcore = ( ZP::GetCurrentGameMode()->GetGameModeType() == ZP::GameModeType_e::GAMEMODE_HARDCORE );
-	int iMaxSlots = bIsInHardcore ? MAX_WEAPON_SLOTS_HARDCORE : MAX_WEAPON_SLOTS;
-	if ( bIsInHardcore && HasBackpack() )
-		iMaxSlots += BACKPACK_EXTRA_SLOTS;
-	for ( int i = 0; i < iMaxSlots; i++ )
+	// If not in panic, we check our weapons and see what ammo types we have.
+	// But if we are in panic, we drop everything. We don't care.
+	if ( !IsInPanic() )
 	{
-		CBasePlayerItem *pWeapon = GetWeaponFromSlot( i );
-		if ( !pWeapon ) continue;
-		ZPAmmoTypes iAmmoIndex = GetAmmoByName( pWeapon->GetData().Ammo1 ).AmmoType;
-		if ( iAmmoIndex > ZPAmmoTypes::AMMO_NONE )
-			bAmmoThatShouldBeDropped[ iAmmoIndex ] = false;
+		bool bIsInHardcore = ( ZP::GetCurrentGameMode()->GetGameModeType() == ZP::GameModeType_e::GAMEMODE_HARDCORE );
+		int iMaxSlots = bIsInHardcore ? MAX_WEAPON_SLOTS_HARDCORE : MAX_WEAPON_SLOTS;
+		if ( bIsInHardcore && HasBackpack() )
+			iMaxSlots += BACKPACK_EXTRA_SLOTS;
+		for ( int i = 0; i < iMaxSlots; i++ )
+		{
+			CBasePlayerItem *pWeapon = GetWeaponFromSlot( i );
+			if ( !pWeapon ) continue;
+			ZPAmmoTypes iAmmoIndex = GetAmmoByName( pWeapon->GetData().Ammo1 ).AmmoType;
+			if ( iAmmoIndex > ZPAmmoTypes::AMMO_NONE )
+				bAmmoThatShouldBeDropped[ iAmmoIndex ] = false;
+		}
 	}
 
 	for ( int i = 0; i < ZPAmmoTypes::AMMO_MAX; i++ )

@@ -371,11 +371,13 @@ void CLIENT_UTIL_GiveAchievement( int iAchievement )
 				// Check each of these, and make sure we got them all first!
 			    if ( !CLIENT_UTIL_GetStatAchievement( EAchievements::KILLS_CROWBAR ) ) return;
 			    if ( !CLIENT_UTIL_GetStatAchievement( EAchievements::KILLS_MP5 ) ) return;
+			    if ( !CLIENT_UTIL_GetStatAchievement( EAchievements::KILLS_PPK ) ) return;
 			    if ( !CLIENT_UTIL_GetStatAchievement( EAchievements::KILLS_PISTOL ) ) return;
 			    if ( !CLIENT_UTIL_GetStatAchievement( EAchievements::KILLS_REVOLVER ) ) return;
 			    if ( !CLIENT_UTIL_GetStatAchievement( EAchievements::KILLS_RIFLE ) ) return;
 			    if ( !CLIENT_UTIL_GetStatAchievement( EAchievements::KILLS_SATCHEL ) ) return;
 			    if ( !CLIENT_UTIL_GetStatAchievement( EAchievements::KILLS_SHOTGUN ) ) return;
+			    if ( !CLIENT_UTIL_GetStatAchievement( EAchievements::KILLS_DBARREL ) ) return;
 			    if ( !CLIENT_UTIL_GetStatAchievement( EAchievements::KILLS_TNT ) ) return;
 			}
 			break;

@@ -1027,6 +1027,7 @@ void CBasePlayer::Killed(entvars_t *pevAttacker, int iGib)
 			break;
 		}
 		SetBodygroup( BGROUP_HEAD, BGROUP_SUB_VALUE1 );
+		SetBodygroup( BGROUP_EYEGLOW, BGROUP_SUB_DEFAULT );
 		// Now create some blood n' shit!
 		Vector headpos = pev->origin + Vector( 0, 0, 13 );
 		if ( !bShouldGib )

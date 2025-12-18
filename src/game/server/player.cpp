@@ -118,7 +118,8 @@ static ConVar sv_player_runspeed_gait_speed( "sv_player_runspeed_gait_speed", "1
 
 #define BGROUP_BODY 0
 #define BGROUP_HEAD 1
-#define BGROUP_BACKPACK 2
+#define BGROUP_EYEGLOW 2
+#define BGROUP_BACKPACK 3
 
 #define BGROUP_SUB_DEFAULT 0
 #define BGROUP_SUB_VALUE1 1
@@ -2586,6 +2587,7 @@ void CBasePlayer::SetTheCorrectPlayerModel()
 	pev->model = MODEL_INDEX( szModel );
 
 	SetBodygroup( BGROUP_HEAD, BGROUP_SUB_DEFAULT );
+	SetBodygroup( BGROUP_EYEGLOW, BGROUP_SUB_DEFAULT );
 
 	if ( iTeam == ZP::TEAM_SURVIVIOR )
 		pev->maxspeed = ZP::MaxSpeeds[0];
@@ -3945,25 +3947,9 @@ void CBasePlayer::PostThink()
 
 	UpdatePlayerSound();
 
-	// ZOMBIE PANIC -- START (Player Weight, become fat)
-	if ( pev->team == ZP::TEAM_ZOMBIE && m_bInZombieVision )
-	{
-		UTIL_MakeVectors( pev->angles );
-		Vector vecPos = EyePosition() + gpGlobals->v_forward * 10 + Vector( 0, 0, 16 );
-		MESSAGE_BEGIN( MSG_PVS, SVC_TEMPENTITY, vecPos );
-		WRITE_BYTE( TE_ELIGHT );
-		WRITE_SHORT( entindex() ); // entity
-		WRITE_COORD( vecPos.x ); // pos
-		WRITE_COORD( vecPos.y );
-		WRITE_COORD( vecPos.z );
-		WRITE_COORD( 100 );
-		WRITE_BYTE( 255 ); // color
-		WRITE_BYTE( 0 );
-		WRITE_BYTE( 0 );
-		WRITE_BYTE( 3 ); // life
-		WRITE_COORD( 2000.0f ); // decay rate
-		MESSAGE_END();
-	}
+	// ZOMBIE PANIC -- START
+	if ( pev->team == ZP::TEAM_ZOMBIE )
+		SetBodygroup( BGROUP_EYEGLOW, m_bInZombieVision ? BGROUP_SUB_VALUE1 : BGROUP_SUB_DEFAULT );
 	UpdatePlayerMaxSpeed();
 	// ZOMBIE PANIC -- END
 
@@ -4131,6 +4117,12 @@ void ShouldClearSpawnChecks(CBaseEntity* pPlayer, CBaseEntity *pSpot)
 		if (item->Spawns.size() >= iSpawnPoints)
 			bShouldClearSpawns = true;
 	}
+	else
+	{
+		// No spawn point given, so this is a fallback spawn.
+		// Clear our spawns!
+		bShouldClearSpawns = true;
+	}
 
 	// Not on the same team anymore? Clear it!
 	if ( item->TeamID != pPlayer->pev->team )
@@ -4141,20 +4133,75 @@ void ShouldClearSpawnChecks(CBaseEntity* pPlayer, CBaseEntity *pSpot)
 		item->Spawns.clear();
 }
 
-bool UTIL_FInViewCone( CBaseEntity *pEnt, CBaseEntity *pEntSee, const float &flFOV )
+bool UTIL_CanPlayerSeeThisSpawn( CBaseEntity* pEnt, CBaseEntity* pEntSee )
 {
-	Vector2D vec2LOS;
-	float flDot;
+	// Player is dead, ignore.
+	if ( pEnt->pev->health == 0 ) return false;
 
-	UTIL_MakeVectors( pEnt->pev->angles );
+	// Let's do a normal trace with FVisible.
+	if ( pEnt->FVisible( pEntSee ) ) return true;
 
-	vec2LOS = (pEntSee->pev->origin - pEnt->pev->origin).AsVector2D();
-	vec2LOS.NormalizeInPlace();
+	// Nope, can't see it normally, so let's try specific points.
 
-	flDot = DotProduct2D( vec2LOS, gpGlobals->v_forward.AsVector2D() );
+	Vector vecOrigin = pEntSee->pev->origin;
+	Vector vecMins = VEC_HULL_MIN;
+	Vector vecMaxs = VEC_HULL_MAX;
 
-	if ( flDot > flFOV )
-		return true;
+	// Check all 9 points of the hull.
+	// Example:
+	// top left, top middle, top right
+	// middle left, middle middle, middle right
+	// bottom left, bottom middle, bottom right
+
+	const Vector vecPoints[9] =
+	{
+		Vector( vecMins.x, vecMins.y, 0 ),
+		Vector( 0, vecMins.y, 0 ),
+		Vector( vecMaxs.x, vecMins.y, 0 ),
+		Vector( vecMins.x, 0, 0 ),
+		Vector( 0, 0, 0 ),
+		Vector( vecMaxs.x, 0, 0 ),
+		Vector( vecMins.x, vecMaxs.y, 0 ),
+		Vector( 0, vecMaxs.y, 0 ),
+		Vector( vecMaxs.x, vecMaxs.y, 0 ),
+	};
+
+	for ( int x = 0; x <= 8; x++ )
+	{
+		Vector checkPoint = vecOrigin + vecPoints[x];
+		if ( pEnt->FVisible( checkPoint ) ) return true;
+		// Try slightly above ground
+		checkPoint.z += 16;
+		if ( pEnt->FVisible( checkPoint ) ) return true;
+	}
+
+	// Let's increase the hull size by 32 units in each direction and try again.
+	vecMins = vecMins - Vector( 32, 32, 0 );
+	vecMaxs = vecMaxs + Vector( 32, 32, 0 );
+	
+	// Same as above, but bigger hull.
+	const Vector vecPointsBigger[9] = {
+		Vector( vecMins.x, vecMins.y, 0 ),
+		Vector( 0, vecMins.y, 0 ),
+		Vector( vecMaxs.x, vecMins.y, 0 ),
+		Vector( vecMins.x, 0, 0 ),
+		Vector( 0, 0, 0 ),
+		Vector( vecMaxs.x, 0, 0 ),
+		Vector( vecMins.x, vecMaxs.y, 0 ),
+		Vector( 0, vecMaxs.y, 0 ),
+		Vector( vecMaxs.x, vecMaxs.y, 0 ),
+	};
+
+	for ( int x = 0; x <= 8; x++ )
+	{
+		Vector checkPoint = vecOrigin + vecPointsBigger[x];
+		if ( pEnt->FVisible( checkPoint ) ) return true;
+		// Try slightly above ground
+		checkPoint.z += 16;
+		if ( pEnt->FVisible( checkPoint ) ) return true;
+	}
+
+	// Nope, can't see it at all.
 	return false;
 }
 
@@ -4228,14 +4275,8 @@ static SpawnPointValidity CheckSpawnPointValidity( CBaseEntity *pPlayer, CBaseEn
 		{
 			pSightEnt = pList[i];
 			// if this is not the spot entity, and the entity can see me.
-			// We don't care about dead players
-			if ( pSightEnt != pSpot
-			    && UTIL_FInViewCone( pSightEnt, pSpot, 0.5 )
-			    && pSightEnt->FVisible( pSpot )
-				&& pSightEnt->pev->health > 0 )
-			{
+			if ( UTIL_CanPlayerSeeThisSpawn( pSightEnt, pSpot ) )
 				return SpawnPointValidity::NonValid;
-			}
 		}
 	}
 
@@ -4245,8 +4286,10 @@ static SpawnPointValidity CheckSpawnPointValidity( CBaseEntity *pPlayer, CBaseEn
 DLL_GLOBAL CBaseEntity *g_pLastSpawn;
 inline int FNullEnt(CBaseEntity *ent) { return (ent == NULL) || FNullEnt(ent->edict()); }
 
+static bool m_bTriedFallback = false;
 static CBaseEntity *EntSelectSpawnPointZPFallback(CBaseEntity *pPlayer, const char *szSpawnLocation)
 {
+	m_bTriedFallback = false;
 	CBaseEntity *pSpot;
 
 	int nNumRandomSpawnsToTry = 10;
@@ -4343,6 +4386,8 @@ static CBaseEntity *EntSelectSpawnPointZP(CBaseEntity *pPlayer)
 	};
 	const char *szSpawnLocation = TeamSpawnLocations[iTeamNum];
 
+retry_spawns:
+
 	// try to find team spawn
 	while ((pSpot = UTIL_FindEntityByClassname(pSpot, szSpawnLocation)))
 	{
@@ -4358,7 +4403,19 @@ static CBaseEntity *EntSelectSpawnPointZP(CBaseEntity *pPlayer)
 	// Still zero? Something must be wrong with the map,
 	// or we are missing spawn locations.
 	if ( limit == 0 )
-		return EntSelectSpawnPointZPFallback( pPlayer, szSpawnLocation );
+	{
+		// We hit the limit, clear olur spawn checks!
+		ShouldClearSpawnChecks( pPlayer, nullptr );
+
+		// If true, we have no spawns at all, so just fallback to normal spawn selection.
+		// This will cause the player to spawn in front of others, but at least they will spawn.
+		if ( m_bTriedFallback )
+			return EntSelectSpawnPointZPFallback( pPlayer, szSpawnLocation );
+
+		// Avoid looping
+		m_bTriedFallback = true;
+		goto retry_spawns;
+	}
 
 	int take = rand() % limit;
 

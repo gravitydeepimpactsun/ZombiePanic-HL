@@ -1831,10 +1831,33 @@ StudioRenderModel
 
 ====================
 */
+
+static const char *s_ForceGlowTextures[] = {
+	"eye.bmp",
+	"eye_glow.bmp",
+	"glow.bmp"
+};
+
 void CStudioModelRenderer::StudioRenderModel(void)
 {
 	IEngineStudio.SetChromeOrigin();
 	IEngineStudio.SetForceFaceFlags(0);
+
+	// Check for a special texture to make fullbright
+	int nTextures = m_pStudioHeader->numtextures;
+	for ( int i = 0; i < nTextures; i++ )
+	{
+		mstudiotexture_t *ptexture = (mstudiotexture_t *)((byte *)m_pStudioHeader + m_pStudioHeader->textureindex) + i;
+		for ( size_t j = 0; j < ARRAYSIZE( s_ForceGlowTextures ); j++ )
+		{
+			if ( _stricmp( ptexture->name, s_ForceGlowTextures[j] ) == 0 )
+			{
+				// Force fullbright on this texture
+				ptexture->flags = STUDIO_NF_FULLBRIGHT; // NOTE: This does not work until valve actually fixes this flag from the engine side...
+				break;
+			}
+		}
+	}
 
 	cl_entity_t *pLocalPlayer = gEngfuncs.GetLocalPlayer();
 	int iIsZombie = 0;
@@ -1906,9 +1929,7 @@ void CStudioModelRenderer::StudioRenderModel(void)
 		}
 	}
 	else
-	{
 		StudioRenderFinal();
-	}
 }
 
 /*
@@ -2011,6 +2032,47 @@ void CStudioModelRenderer::StudioRenderFinal_Hardware(void)
 		for (i = 0; i < m_pStudioHeader->numbodyparts; i++)
 		{
 			IEngineStudio.StudioSetupModel(i, (void **)&m_pBodyPart, (void **)&m_pSubModel);
+
+			bool bFullbright = false;
+
+			// NOTE: DO NOT USE IEngineStudio.StudioSetupModel's pBodyPart and pSubModel,
+			// because they only spew out garbage information. We have to get them ourselves.
+			//
+			// These functions below are similar to StudioSetupModel, but we actually get valid information and not some fucking garbage.
+			// This was a pain in the ass to figure out...
+			mstudiobodyparts_t *pBodyPart = (mstudiobodyparts_t *)((byte *)m_pStudioHeader + m_pStudioHeader->bodypartindex) + i; // Grab our bodypart
+			mstudiomodel_t *pSubModel = (mstudiomodel_t *)((byte *)m_pStudioHeader + pBodyPart->modelindex) + m_pCurrentEntity->curstate.body; // Grab our submodel
+
+			// If body part has the name of glow, and our submodel has index 1 (or higher),
+			// then we make it fullbright.
+			if ( stricmp( pBodyPart->name, "glow" ) == 0 )
+			{
+				// Debug
+				//gEngfuncs.Con_NPrintf( 12, "name: %s\n", pSubModel->name );
+
+				// Now, let's make it fullbright, just make sure we return false,
+				// if pSubModel->name is "Blank", "blank" or just empty.
+				bFullbright = ( stricmp( pSubModel->name, "blank" ) != 0 && stricmp( pSubModel->name, "empty" ) != 0 && stricmp( pSubModel->name, "" ) != 0 ) ? true : false;
+
+				// Zombie eye glow
+				if ( m_pCurrentEntity->player )
+					bFullbright = true;
+			}
+
+			if ( bFullbright )
+			{
+				alight_t lighting;
+				lighting.plightvec = Vector( 0, 0, 0 );
+				IEngineStudio.StudioDynamicLight( m_pCurrentEntity, &lighting );
+
+				// Fullbright
+				lighting.color = Vector( 1.0f, 1.0f, 1.0f );
+				lighting.ambientlight = 255;
+				lighting.shadelight = 0;
+
+				IEngineStudio.StudioEntityLight( &lighting );
+				IEngineStudio.StudioSetupLighting( &lighting );
+			}
 
 			if (m_fDoInterp)
 			{

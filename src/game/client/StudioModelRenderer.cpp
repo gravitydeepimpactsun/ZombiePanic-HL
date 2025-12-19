@@ -2051,8 +2051,8 @@ void CStudioModelRenderer::StudioRenderFinal_Hardware(void)
 				//gEngfuncs.Con_NPrintf( 12, "name: %s\n", pSubModel->name );
 
 				// Now, let's make it fullbright, just make sure we return false,
-				// if pSubModel->name is "Blank", "blank" or just empty.
-				bFullbright = ( stricmp( pSubModel->name, "blank" ) != 0 && stricmp( pSubModel->name, "empty" ) != 0 && stricmp( pSubModel->name, "" ) != 0 ) ? true : false;
+				// if pSubModel->name is "Blank" or just empty.
+				bFullbright = ( stricmp( pSubModel->name, "blank" ) != 0 && stricmp( pSubModel->name, "" ) != 0 ) ? true : false;
 
 				// Zombie eye glow
 				if ( m_pCurrentEntity->player )

@@ -309,6 +309,13 @@ void CWorkshopSubUpload::UpdateContentPath( DialogData *pData )
 		return;
 	}
 
+	// Check for illegal files, because we dont want those on the workshop
+	if ( HasIllegalFiles( pData ) )
+	{
+		ThrowError( "#ZP_Workshop_IllegalFiles" );
+		return;
+	}
+
 	pContentText->SetText( pData->FullPath.c_str() );
 }
 
@@ -415,7 +422,7 @@ static bool DoWeHaveTheTag( const std::vector<std::string> &seglist, const std::
 void CWorkshopSubUpload::SetUploadData( const char *Title, const char *Desc, const char *Tags, ERemoteStoragePublishedFileVisibility Visibility )
 {
 	pTitleBox->SetText( Title );
-	pDescBox->SetText( Desc );
+	//pDescBox->SetText( Desc );
 	pVisibilty->ActivateItem( Visibility );
 	//Split the Tags with ,
 	std::stringstream tagstream( Tags );
@@ -510,7 +517,8 @@ void CWorkshopSubUpload::PrepareUGCHandle( )
 
 	// Description
 	pDescBox->GetText( buffer, sizeof( buffer ) );
-	GetSteamAPI()->SteamUGC()->SetItemDescription( handle, buffer );
+	if ( Q_stricmp( buffer, "" ) )
+		GetSteamAPI()->SteamUGC()->SetItemDescription( handle, buffer );
 
 	// The content
 	pContentText->GetText( buffer, sizeof( buffer ) );
@@ -550,6 +558,44 @@ bool CWorkshopSubUpload::HasAddonInfo( DialogData *pData )
 	return bAddonInfoExist;
 }
 
+bool CWorkshopSubUpload::HasIllegalFiles( DialogData *pData )
+{
+	// Check for illegal files
+	const char *illegal_files[] = {
+		".exe",
+		".dll",
+		".bat",
+		".cmd",
+		".scr",
+		".com",
+		".msi",
+		".sys",
+		".drv",
+		".ini",
+		".lnk",
+		".url",
+	};
+
+	// Now check the folder we want to use for illegal files,
+	// If we find any, quickly return true.
+	for ( int i = 0; i < ARRAYSIZE( illegal_files ); i++ )
+	{
+		std::string checkfile = pData->LocalPath + "*" + illegal_files[i];
+		FileFindHandle_t findHandle;
+		const char *pFileName = g_pFullFileSystem->FindFirst( checkfile.c_str(), &findHandle, pData->PathID.c_str() );
+		if ( pFileName )
+		{
+			g_pFullFileSystem->FindClose( findHandle );
+			return true;
+		}
+		// Always close the handle
+		g_pFullFileSystem->FindClose( findHandle );
+	}
+
+	// We have no illegal files!
+	return false;
+}
+
 void CWorkshopSubUpload::ThrowError(const char *szMsg)
 {
 	CGameUIViewport::Get()->ShowMessageDialog(
@@ -560,6 +606,9 @@ void CWorkshopSubUpload::ThrowError(const char *szMsg)
 
 bool CWorkshopSubUpload::ValidateTheEntries()
 {
+	// Our main text buffer
+	char buffer[4028];
+
 	if ( nWorkshopID == 0 )
 	{
 		if ( preview_image.empty() )
@@ -567,20 +616,18 @@ bool CWorkshopSubUpload::ValidateTheEntries()
 			ThrowError( "#ZP_Workshop_ErrorMsg_AssignImage" );
 			return false;
 		}
+		pDescBox->GetText( buffer, sizeof( buffer ) );
+		if ( !Q_stricmp( buffer, "" ) )
+		{
+			ThrowError( "#ZP_Workshop_ErrorMsg_AssignEmptyDesc" );
+			return false;
+		}
 	}
 
-	// Our main text buffer
-	char buffer[4028];
 	pTitleBox->GetText( buffer, sizeof( buffer ) );
 	if ( !Q_stricmp( buffer, "" ) )
 	{
 		ThrowError( "#ZP_Workshop_ErrorMsg_AssignEmptyTitle" );
-		return false;
-	}
-	pDescBox->GetText( buffer, sizeof( buffer ) );
-	if ( !Q_stricmp( buffer, "" ) )
-	{
-		ThrowError( "#ZP_Workshop_ErrorMsg_AssignEmptyDesc" );
 		return false;
 	}
 	pContentText->GetText( buffer, sizeof( buffer ) );

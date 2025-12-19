@@ -39,6 +39,7 @@ protected:
 	void OnItemsUpdated();
 
 	bool HasAddonInfo( DialogData *pData );
+	bool HasIllegalFiles( DialogData *pData );
 	void ThrowError( const char *szMsg );
 	bool ValidateTheEntries();
 

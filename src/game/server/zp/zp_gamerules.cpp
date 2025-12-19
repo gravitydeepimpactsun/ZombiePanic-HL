@@ -571,7 +571,7 @@ void CZombiePanicGameRules::PlayerSpawn(CBasePlayer *pPlayer)
 		if ( sv_fafo_only.GetBool() )
 			pPlayer->GiveNamedItem( "weapon_fafo" );
 		else
-		pPlayer->GiveNamedItem( "weapon_swipe" );
+			pPlayer->GiveNamedItem( "weapon_swipe" );
 
 		// Zombies can't choose weapons, they only got their arms.
 		pPlayer->m_iHideHUD |= HIDEHUD_WEAPONS;
@@ -638,6 +638,48 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 			if ( m_pGameMode->GetRoundState() < ZP::RoundState::RoundState_RoundHasBegun )
 				pPlayer->m_iHideHUD = HIDEHUD_WEAPONS | HIDEHUD_HEALTH | HIDEHUD_FLASHLIGHT;
 		}
+		return TRUE;
+	}
+	// Grab the player position. Similar to Source Engine's "getpos" command.
+	else if (FStrEq(pcmd, "getpos"))
+	{
+		// Get player position
+		const Vector vOrigin = pPlayer->pev->origin;
+		// Get player angles
+		const Vector vAngles = pPlayer->pev->angles;
+		// Print it to the console
+		UTIL_PrintConsole(
+			UTIL_VarArgs(
+				"setpos \"%f %f %f %f %f %f\"\n",
+				vOrigin.x, vOrigin.y, vOrigin.z,
+				vAngles.x, vAngles.y, vAngles.z
+			),
+			pPlayer
+		);
+		return TRUE;
+	}
+	// Ditto, but for setting position. Similar to Source Engine's "setpos" command.
+	else if (FStrEq(pcmd, "setpos"))
+	{
+		const char *pszCommand = CMD_ARGV(1);
+		bool bIsCheatsEnabled = CVAR_GET_FLOAT("sv_cheats") >= 1 ? true : false;
+		if ( bIsCheatsEnabled && pszCommand && pszCommand[0] )
+		{
+			// Set our position and angles
+			float x, y, z, pitch, yaw, roll;
+			int args = sscanf( pszCommand, "%f %f %f %f %f %f", &x, &y, &z, &pitch, &yaw, &roll );
+			if ( args >= 3 )
+			{
+				pPlayer->SetOrigin( Vector( x, y, z ) );
+				// If we got all 6 args, set angles too
+				if ( args == 6 )
+					pPlayer->SetAngles( Vector( pitch, yaw, roll ) );
+			}
+			else
+				UTIL_PrintConsole( "Usage: setpos \"x y z pitch yaw roll\"\n", pPlayer );
+		}
+		else
+			UTIL_PrintConsole( "Cheats are not enabled on this server.\n", pPlayer );
 		return TRUE;
 	}
 	else if (FStrEq(pcmd, "dropcurrentweapon"))
@@ -827,7 +869,7 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 			if ( sv_fafo_only.GetBool() )
 				OnWeaponGive( pPlayer, "weapon_fafo" );
 			else
-			OnWeaponGive( pPlayer, "weapon_swipe" );
+				OnWeaponGive( pPlayer, "weapon_swipe" );
 			return TRUE;
 		}
 		else if (FStrEq(pcmd, "dev_human"))

@@ -5,6 +5,7 @@
 #include "cbase.h"
 #include "player.h"
 #include "weapons.h"
+#include "convar.h"
 
 #ifdef SCRIPT_SYSTEM
 #include "core.h"
@@ -20,6 +21,7 @@
 #include <algorithm>
 
 static IGameModeBase *s_GameModeBase = nullptr;
+extern ConVar sv_fafo_only;
 
 IGameModeBase *ZP::GetCurrentGameMode()
 {
@@ -292,8 +294,13 @@ void CBaseGameMode::GiveWeapons( CBasePlayer *pPlayer )
 				case 0: pPlayer->GiveNamedItem( "weapon_crowbar" ); break;
 				case 1: pPlayer->GiveNamedItem( "weapon_leadpipe" ); break;
 			}
-			pPlayer->GiveNamedItem( "weapon_sig" );
-			pPlayer->GiveAmmo( 14, ZPAmmoTypes::AMMO_PISTOL );
+			if ( sv_fafo_only.GetBool() )
+				pPlayer->GiveNamedItem( "weapon_fafo" );
+			else
+			{
+				pPlayer->GiveNamedItem( "weapon_sig" );
+				pPlayer->GiveAmmo( 14, ZPAmmoTypes::AMMO_PISTOL );
+			}
 		}
 		else
 			pPlayer->GiveNamedItem( "weapon_crowbar" );

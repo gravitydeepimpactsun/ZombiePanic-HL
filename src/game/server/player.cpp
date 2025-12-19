@@ -5051,6 +5051,8 @@ void CBasePlayer::GiveNamedItem(const char *pszName)
 	}
 	VARS(pent)->origin = pev->origin;
 	pent->v.spawnflags |= SF_NORESPAWN;
+	if ( FStrEq( pszName, "weapon_fafo" ) && pev->team == ZP::TEAM_ZOMBIE )
+		pent->v.team = ZP::TEAM_ZOMBIE; // Set team for FAFO if zombie
 
 	DispatchSpawn(pent);
 

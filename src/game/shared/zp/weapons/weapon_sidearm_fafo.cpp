@@ -102,7 +102,10 @@ void CWeaponSideArmFafo::PrimaryAttack(void)
 	WRITE_BYTE( 15 ); // framerate
 	WRITE_BYTE( TE_EXPLFLAG_NONE );
 	MESSAGE_END();
-	m_pPlayer->TakeDamage( m_pPlayer->pev, m_pPlayer->pev, 5, DMG_BLAST );
+	if ( m_pPlayer->pev->team == ZP::TEAM_ZOMBIE )
+		m_pPlayer->TakeDamage( m_pPlayer->pev, m_pPlayer->pev, m_pPlayer->GetMaxHealth(), DMG_BLAST | DMG_ALWAYSGIB );
+	else
+		m_pPlayer->TakeDamage( m_pPlayer->pev, m_pPlayer->pev, 5, DMG_BLAST );
 #endif
 
 	vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_10DEGREES);

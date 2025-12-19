@@ -7,6 +7,7 @@
 #include "zp/info_random_base.h"
 #include "zp/info_beacon.h"
 #include "zp/gamemodes/zp_gamemodebase.h"
+#include "convar.h"
 #ifdef SCRIPT_SYSTEM
 #include "core.h"
 #endif
@@ -15,6 +16,8 @@
 #include <iterator>
 #include <random>
 #include <algorithm>
+
+ConVar sv_fafo_only( "sv_fafo_only", "0", FCVAR_CHEATS, "Only spawns FAFO-FW from random spawns." );
 
 struct PossibleRandomSpawnLocation
 {
@@ -180,6 +183,8 @@ void ZP::SpawnItems()
 
 void AddDefaultAmmoSpawn( const char *szClassname, int iLimit, ItemType nType )
 {
+	if ( sv_fafo_only.GetBool() )
+		szClassname = "weapon_fafo";
 	s_SpawnList.push_back( new SpawnList( szClassname, iLimit, nType ) );
 }
 

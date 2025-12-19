@@ -20,6 +20,7 @@ extern uint64 g_ulCurrentWorkshopID;
 
 // Our max rounds! (before we change to another level)
 extern cvar_t roundlimit;
+extern ConVar sv_fafo_only;
 
 extern unsigned short m_usResetDecals;
 
@@ -567,6 +568,9 @@ void CZombiePanicGameRules::PlayerSpawn(CBasePlayer *pPlayer)
 	{
 		// Zombie arms!
 		// That's all that the zombies get!
+		if ( sv_fafo_only.GetBool() )
+			pPlayer->GiveNamedItem( "weapon_fafo" );
+		else
 		pPlayer->GiveNamedItem( "weapon_swipe" );
 
 		// Zombies can't choose weapons, they only got their arms.
@@ -669,7 +673,7 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 	else if (FStrEq(pcmd, "achearn"))
 	{
 		const char *pAchivement = CMD_ARGV(1);
-		if (pAchivement && pAchivement[0])
+		if ( pAchivement && pAchivement[0] )
 			pPlayer->NotifyOfEarnedAchivement( atoi( pAchivement ) );
 		return TRUE;
 	}
@@ -820,6 +824,9 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 			else
 				pPlayer->StopWelcomeCam();
 			// Give the player their arms.
+			if ( sv_fafo_only.GetBool() )
+				OnWeaponGive( pPlayer, "weapon_fafo" );
+			else
 			OnWeaponGive( pPlayer, "weapon_swipe" );
 			return TRUE;
 		}

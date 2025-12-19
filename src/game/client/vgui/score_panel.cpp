@@ -131,6 +131,33 @@ private:
 
 }
 
+struct specialIcons
+{
+	int nTextureID;
+	const char *szTextureName;
+};
+static specialIcons g_SpecialIcons[] =
+{
+	{ -1, "icon_pt" },
+	{ -1, "icon_lead" },
+	{ -1, "icon_contrib" },
+	// The last index
+	{ -2, nullptr }
+};
+
+specialIcons GetSpecialIcon( const char *szName )
+{
+	char szBuffer[32];
+	Q_snprintf( szBuffer, sizeof( szBuffer ), "icon_%s", szName );
+	for ( size_t i = 0; i < ARRAYSIZE(g_SpecialIcons); i++ )
+	{
+		if ( !g_SpecialIcons[i].szTextureName ) continue;
+		if ( !Q_stricmp( g_SpecialIcons[i].szTextureName, szBuffer ) )
+			return g_SpecialIcons[i];
+	}
+	return g_SpecialIcons[ ARRAYSIZE(g_SpecialIcons) - 1 ];
+}
+
 CScorePanel::CScorePanel()
     : BaseClass(nullptr, VIEWPORT_PANEL_SCORE)
 {
@@ -180,6 +207,21 @@ CScorePanel::CScorePanel()
 		pImg->SetSize( 32, 32 );
 		m_pImageList->SetImageAtIndex( i, pImg );
 		nTier++;
+	}
+
+	// Set the special icons for the image list
+	for ( size_t i = 0; i < ARRAYSIZE(g_SpecialIcons); i++ )
+	{
+		if ( !g_SpecialIcons[i].szTextureName ) continue;
+		if ( g_SpecialIcons[i].nTextureID == -1 )
+		{
+			vgui2::IImage *pImg = vgui2::scheme()->GetImage( vgui2::VarArgs( "ui/icons/scoreboard/%s", g_SpecialIcons[i].szTextureName ), false );
+			if ( pImg )
+			{
+				pImg->SetSize( 32, 32 );
+				g_SpecialIcons[i].nTextureID = m_pImageList->AddImage( pImg );
+			}
+		}
 	}
 
 	m_iMutedIconTexture = -1;
@@ -584,15 +626,22 @@ void CScorePanel::UpdateClientInfo(int client)
 		UpdateClientIcon(pi);
 		playerKv->SetInt("avatar", client); // Client index == index into m_pImageList
 
-		//gEngfuncs.PlayerInfo_ValueForKey( client, "donor_type" );
-		//gEngfuncs.PlayerInfo_ValueForKey( client, "donor_tier" );
 		const char *donorTier = gEngfuncs.PlayerInfo_ValueForKey( client, "donor_tier" );
 		// Make sure donorTier is a valid number between 0 and k_eSupporterTier_100
 		if ( !donorTier || !*donorTier || atoi(donorTier) < 0 || atoi(donorTier) > eSupporterTierExport::k_eSupporterTier_100 )
 			donorTier = "0";
 
 		int iDonorIcon = MAX_PLAYERS + 1 + atoi( donorTier );
-		playerKv->SetInt("donator", iDonorIcon );
+		playerKv->SetInt( "donator", iDonorIcon );
+
+		// Set the special one (overrides donator value)
+		const char *specialValue = gEngfuncs.PlayerInfo_ValueForKey( client, "sicon" );
+		if ( specialValue && specialValue[0] )
+		{
+			specialIcons spIcon = GetSpecialIcon( specialValue );
+			if ( spIcon.szTextureName )
+				playerKv->SetInt( "donator", spIcon.nTextureID );
+		}
 
 		// Name
 		if (pi->IsSpectator())

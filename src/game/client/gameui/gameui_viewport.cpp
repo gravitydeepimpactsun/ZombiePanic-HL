@@ -78,7 +78,7 @@ CGameUIViewport::CGameUIViewport()
 		SteamAPICall_t pCall = k_uAPICallInvalid;
 		HTTPRequestHandle request = GetSteamAPI()->SteamHTTP()->CreateHTTPRequest(
 			k_EHTTPMethodGET,
-			vgui2::VarArgs( "https://api.wuffesan.com/donators/check/?steamid=%llu&v=2", GetSteamAPI()->SteamUser()->GetSteamID().ConvertToUint64() )
+			vgui2::VarArgs( "https://api.wuffesan.com/donators/check/?steamid=%llu&v=3", GetSteamAPI()->SteamUser()->GetSteamID().ConvertToUint64() )
 		);
 		GetSteamAPI()->SteamHTTP()->SetHTTPRequestHeaderValue( request, "Cache-Control", "no-cache");
 		GetSteamAPI()->SteamHTTP()->SetHTTPRequestContextValue( request, READ_DONATOR_STATUS );
@@ -1053,8 +1053,14 @@ void CGameUIViewport::UpdateHTTPCallback( HTTPRequestCompleted_t *arg, bool bFai
 					try
 					{
 						root = nlohmann::json::parse(strResponse.data());
-						gEngfuncs.PlayerInfo_SetValueForKey( "donor_type", vgui2::VarArgs( "%i", root.at("type").get<int>() ) );
-						gEngfuncs.PlayerInfo_SetValueForKey( "donor_tier", vgui2::VarArgs( "%i", root.at("tier").get<int>() ) );
+						// Version 3 of the API uses nested objects for type and tier
+						int type = root.at("type").at("id").get<int>();
+						int tier = root.at("tier").at("id").get<int>();
+						// Let's also grab the new special value for game specific data.
+						std::string special_value = root.at("special").at("value").get<std::string>();
+						gEngfuncs.PlayerInfo_SetValueForKey( "sicon", special_value.c_str() );
+						gEngfuncs.PlayerInfo_SetValueForKey( "donor_type", vgui2::VarArgs( "%i", type ) );
+						gEngfuncs.PlayerInfo_SetValueForKey( "donor_tier", vgui2::VarArgs( "%i", tier ) );
 					}
 					catch (const std::exception &e)
 					{

@@ -219,6 +219,20 @@ void CWorkshopSubUploaded::OnSendQueryUGCRequest( SteamUGCQueryCompleted_t *pCal
 				dlImage.WorkshopID = pDetails->m_nPublishedFileId;
 				m_DownloadPreviewImages.push_back( dlImage );
 			}
+
+			// Get the keyvalues
+			uint32 nTags = GetSteamAPI()->SteamUGC()->GetQueryUGCNumKeyValueTags( pCallback->m_handle, i );
+			for ( uint32 nTagIndex = 0; nTagIndex < nTags; nTagIndex++ )
+			{
+				char szKey[256];
+				char szValue[256];
+				if ( GetSteamAPI()->SteamUGC()->GetQueryUGCKeyValueTag( pCallback->m_handle, i, nTagIndex, szKey, sizeof( szKey ), szValue, sizeof( szValue ) ) )
+				{
+					// Process keyvalues here if needed
+					if ( vgui2::FStrEq( szKey, "desc" ) )
+						Q_snprintf( data.Desc, sizeof( data.Desc ), "%s", szValue );
+				}
+			}
 		}
 
 		// Delete it

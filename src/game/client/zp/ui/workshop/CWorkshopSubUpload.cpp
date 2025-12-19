@@ -518,7 +518,10 @@ void CWorkshopSubUpload::PrepareUGCHandle( )
 	// Description
 	pDescBox->GetText( buffer, sizeof( buffer ) );
 	if ( Q_stricmp( buffer, "" ) )
+	{
 		GetSteamAPI()->SteamUGC()->SetItemDescription( handle, buffer );
+		GetSteamAPI()->SteamUGC()->AddItemKeyValueTag( handle, "desc", buffer );
+	}
 
 	// The content
 	pContentText->GetText( buffer, sizeof( buffer ) );

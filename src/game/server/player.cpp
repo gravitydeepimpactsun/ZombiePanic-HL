@@ -131,6 +131,11 @@ constexpr float ItemSearchRadius = 512;
 enum class SpawnPointValidity
 {
 	NonValid,
+	NonValidDisabled,
+	NonValidWasRecentlyUsed,
+	NonValidAlreadyUsed,
+	NonValidOccupied,
+	NonValidInPVS,
 	Valid
 };
 
@@ -4094,35 +4099,29 @@ bool IsSpawnPointValid(CBaseEntity *pPlayer, CBaseEntity *pSpot)
 	return !FoundSpawnPoint(item, pSpot);
 }
 
-void ShouldClearSpawnChecks(CBaseEntity* pPlayer, CBaseEntity *pSpot)
+void ShouldClearSpawnChecks( CBaseEntity* pPlayer, const char *szSpawnLocation )
 {
 	PlayerLastSpawnPoint *item = GrabLastSpawn(pPlayer);
 	bool bShouldClearSpawns = false;
 
 	// Only used after we found a valid spawn.
 	// Fallback spawns are ignored.
-	if ( pSpot )
+	if ( szSpawnLocation )
 	{
 		int iSpawnPoints = 0;
-		string_t strCheck = pSpot->pev->classname;
-		CBaseEntity *pEnt = UTIL_FindEntityByClassname(NULL, STRING(strCheck));
+		CBaseEntity *pEnt = UTIL_FindEntityByClassname( NULL, szSpawnLocation );
 
 		// Check if we have this spawn in our list!
-		while (NULL != pEnt)
+		while ( pEnt )
 		{
 			iSpawnPoints++;
-			pEnt = UTIL_FindEntityByClassname(pEnt, STRING(strCheck));
+			pEnt = UTIL_FindEntityByClassname( pEnt, szSpawnLocation );
 		}
+		//Msg( "Spawn: %s - %i/%i\n", szSpawnLocation, item->Spawns.size(), iSpawnPoints );
 
 		// We found way more or equal to our size value, clear our spawns!
-		if (item->Spawns.size() >= iSpawnPoints)
+		if ( item->Spawns.size() >= iSpawnPoints )
 			bShouldClearSpawns = true;
-	}
-	else
-	{
-		// No spawn point given, so this is a fallback spawn.
-		// Clear our spawns!
-		bShouldClearSpawns = true;
 	}
 
 	// Not on the same team anymore? Clear it!
@@ -4134,13 +4133,13 @@ void ShouldClearSpawnChecks(CBaseEntity* pPlayer, CBaseEntity *pSpot)
 		item->Spawns.clear();
 }
 
-bool UTIL_CanPlayerSeeThisSpawn( CBaseEntity* pEnt, CBaseEntity* pEntSee )
+bool UTIL_CanPlayerSeeThisSpawn( CBasePlayer* pPlayer, CBaseEntity* pEntSee )
 {
 	// Player is dead, ignore.
-	if ( pEnt->pev->health == 0 ) return false;
+	if ( !pPlayer->IsAlive() ) return false;
 
 	// Let's do a normal trace with FVisible.
-	if ( pEnt->FVisible( pEntSee ) ) return true;
+	if ( pPlayer->FVisible( pEntSee ) ) return true;
 
 	// Nope, can't see it normally, so let's try specific points.
 
@@ -4170,10 +4169,10 @@ bool UTIL_CanPlayerSeeThisSpawn( CBaseEntity* pEnt, CBaseEntity* pEntSee )
 	for ( int x = 0; x <= 8; x++ )
 	{
 		Vector checkPoint = vecOrigin + vecPoints[x];
-		if ( pEnt->FVisible( checkPoint ) ) return true;
+		if ( pPlayer->FVisible( checkPoint ) ) return true;
 		// Try slightly above ground
 		checkPoint.z += 16;
-		if ( pEnt->FVisible( checkPoint ) ) return true;
+		if ( pPlayer->FVisible( checkPoint ) ) return true;
 	}
 
 	// Let's increase the hull size by 32 units in each direction and try again.
@@ -4196,10 +4195,10 @@ bool UTIL_CanPlayerSeeThisSpawn( CBaseEntity* pEnt, CBaseEntity* pEntSee )
 	for ( int x = 0; x <= 8; x++ )
 	{
 		Vector checkPoint = vecOrigin + vecPointsBigger[x];
-		if ( pEnt->FVisible( checkPoint ) ) return true;
+		if ( pPlayer->FVisible( checkPoint ) ) return true;
 		// Try slightly above ground
 		checkPoint.z += 16;
-		if ( pEnt->FVisible( checkPoint ) ) return true;
+		if ( pPlayer->FVisible( checkPoint ) ) return true;
 	}
 
 	// Nope, can't see it at all.
@@ -4212,44 +4211,23 @@ static SpawnPointValidity CheckSpawnPointValidity( CBaseEntity *pPlayer, CBaseEn
 	// The entity is invalid, that's not good.
 	if ( !pSpot ) return SpawnPointValidity::NonValid;
 
-	CBaseEntity *ent = NULL;
-
-	if (pSpot->pev->origin == Vector(0, 0, 0))
-	{
-		return SpawnPointValidity::NonValid;
-	}
-
-	if (!pSpot->IsTriggered(pPlayer))
-	{
-		return SpawnPointValidity::NonValid;
-	}
-
-	// Have we already spawned here before?
-	if ( !IsSpawnPointValid( pPlayer, pSpot ) )
-		return SpawnPointValidity::NonValid;
-
 	// Make sure this is a proper spawn point entity
 	CBasePlayerSpawnPoint *spawnPoint = dynamic_cast<CBasePlayerSpawnPoint *>(pSpot);
-	if ( spawnPoint )
-	{
-		// Disabled spawn point?
-		if ( !spawnPoint->IsEnabled() )
-			return SpawnPointValidity::NonValid;
-		// Has someone already spawned here?
-		if ( spawnPoint->HasSpawned() )
-			return SpawnPointValidity::NonValid;
-	}
+	if ( !spawnPoint ) return SpawnPointValidity::NonValid;
 
-	PlayerLastSpawnPoint *item = GrabLastSpawn(pPlayer);
-	if ( FoundSpawnPoint( item, pSpot ) )
+	if ( spawnPoint->pev->origin == Vector(0, 0, 0) )
 		return SpawnPointValidity::NonValid;
+
+	// Have we already spawned here before?
+	if ( !IsSpawnPointValid( pPlayer, spawnPoint ) )
+		return SpawnPointValidity::NonValidAlreadyUsed;
 
 	// Let's do a trace hull, so we aren't spawning inside another player.
 	// Because that would be bad...
 	TraceResult tr;
-	Vector vecSrc = pSpot->Center() + Vector( 0, 0, 16 );
+	Vector vecSrc = spawnPoint->Center() + Vector( 0, 0, 16 );
 	Vector VecEnd = vecSrc - Vector( 0, 0, 64 ); // Make it look down only
-	UTIL_TraceHull( vecSrc, VecEnd, dont_ignore_monsters, human_hull, pSpot->edict(), &tr );
+	UTIL_TraceHull( vecSrc, VecEnd, dont_ignore_monsters, human_hull, spawnPoint->edict(), &tr );
 	if ( tr.flFraction != 1.0 )
 	{
 		// We hit something, is it a player?
@@ -4257,9 +4235,21 @@ static SpawnPointValidity CheckSpawnPointValidity( CBaseEntity *pPlayer, CBaseEn
 		if ( pHitEnt && pHitEnt->IsPlayer() )
 		{
 			// Yup, can't spawn here.
-			return SpawnPointValidity::NonValid;
+			return SpawnPointValidity::NonValidOccupied;
 		}
 	}
+
+	// Disabled spawn point?
+	if ( !spawnPoint->IsEnabled() )
+		return SpawnPointValidity::NonValidDisabled;
+
+	// Has someone already spawned here?
+	if ( spawnPoint->HasSpawned() )
+		return SpawnPointValidity::NonValidWasRecentlyUsed;
+
+	// Human spawn point? Return valid.
+	if ( spawnPoint->IsHumanSpawnPoint() )
+		return SpawnPointValidity::Valid;
 
 	// This is a copy of the monster.cpp CBaseMonster::Look function.
 	// We are simply checking if there are any players in the area,
@@ -4270,14 +4260,18 @@ static SpawnPointValidity CheckSpawnPointValidity( CBaseEntity *pPlayer, CBaseEn
 		const int iDistance = 2500;
 		Vector delta = Vector( iDistance, iDistance, iDistance );
 		CBaseEntity *pList[100];
-		CBaseEntity *pSightEnt = NULL; // the current visible entity that we're dealing with
-		int count = UTIL_EntitiesInBox( pList, 100, pSpot->pev->origin - delta, pSpot->pev->origin + delta, FL_CLIENT );
+		CBasePlayer *pSightEnt = NULL; // the current visible entity that we're dealing with
+		int count = UTIL_EntitiesInBox( pList, 100, spawnPoint->pev->origin - delta, spawnPoint->pev->origin + delta, FL_CLIENT );
 		for ( int i = 0; i < count; i++ )
 		{
-			pSightEnt = pList[i];
+			pSightEnt = dynamic_cast<CBasePlayer *>( pList[i] );
+			// Zombie spawn, and we aren't a human? Allow spawn.
+			// This means zombies can spawn anywhere if a zombie or spectators can see this spawn entity.
+			if ( !spawnPoint->IsHumanSpawnPoint() && pSightEnt->pev->team != ZP::TEAM_SURVIVIOR )
+				continue;
 			// if this is not the spot entity, and the entity can see me.
-			if ( UTIL_CanPlayerSeeThisSpawn( pSightEnt, pSpot ) )
-				return SpawnPointValidity::NonValid;
+			if ( UTIL_CanPlayerSeeThisSpawn( pSightEnt, spawnPoint ) )
+				return SpawnPointValidity::NonValidInPVS;
 		}
 	}
 
@@ -4392,7 +4386,7 @@ retry_spawns:
 	// try to find team spawn
 	while ((pSpot = UTIL_FindEntityByClassname(pSpot, szSpawnLocation)))
 	{
-		if ( CheckSpawnPointValidity(pPlayer, pSpot) == SpawnPointValidity::NonValid )
+		if ( CheckSpawnPointValidity(pPlayer, pSpot) != SpawnPointValidity::Valid )
 			continue;
 		spotInfos.push_back( pSpot );
 	}
@@ -4417,6 +4411,7 @@ retry_spawns:
 		m_bTriedFallback = true;
 		goto retry_spawns;
 	}
+	//Msg( "FindSpawn: %s - Limit: %i\n", szSpawnLocation, limit );
 
 	int take = rand() % limit;
 
@@ -4452,7 +4447,7 @@ retry_spawns:
 	item->Spawns.push_back( spotInfos[take]->entindex() );
 
 	// We hit the limit? Clear it!
-	ShouldClearSpawnChecks(pPlayer, spotInfos[take]);
+	ShouldClearSpawnChecks( pPlayer, szSpawnLocation );
 
 	return spotInfos[take];
 }
@@ -4682,7 +4677,7 @@ void CBasePlayer::Spawn(void)
 	item->TeamID = pev->team;
 
 	// Clear it
-	ShouldClearSpawnChecks(this, nullptr);
+	ShouldClearSpawnChecks( this, nullptr );
 
 	// Fix the mouse bugging out
 	// Probably from the chat and/or the scoreboard?

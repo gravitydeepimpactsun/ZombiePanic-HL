@@ -15,6 +15,7 @@ public:
 
 	bool IsEnabled() { return m_bEnabled; }
 	bool HasSpawned();
+	bool IsHumanSpawnPoint() const { return m_bHumanSpawn; }
 
 	void DisableSpawn();
 	void SetOccupied(bool bOccupied);

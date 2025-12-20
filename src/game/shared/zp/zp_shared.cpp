@@ -731,7 +731,7 @@ void ZP::DoBulletPenetration( entvars_t *pevAttacker, float flDamage, TraceResul
 	if ( flDamage <= 0 ) return;
 
 	TraceResult tr;
-	Vector vecSrc = pTrace->vecEndPos + vDir * 2;
+	Vector vecSrc = pTrace->vecEndPos + vDir * 5;
 	Vector vecEnd = pTrace->vecEndPos + vDir * nBullet.Distance;
 	UTIL_TraceLine( vecSrc, vecEnd, dont_ignore_monsters, pEnt->edict(), &tr );
 	if ( tr.flFraction <= 1.0 )

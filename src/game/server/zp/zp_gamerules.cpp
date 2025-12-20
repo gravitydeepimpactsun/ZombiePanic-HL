@@ -753,7 +753,7 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 		pPlayer->SelectPreviousSlot();
 		return TRUE;
 	}
-	else if (FStrEq(pcmd, "_retrive"))
+	else if (FStrEq(pcmd, "_retrieve"))
 	{
 		const char *arg1 = CMD_ARGV(1);
 		const char *arg2 = CMD_ARGV(2);
@@ -1034,7 +1034,15 @@ void CZombiePanicGameRules::ClientDisconnected(edict_t *pClient)
 	{
 		RemovePlayerLastSpawnPointData( pPlayer );
 		m_pGameMode->OnPlayerDisconnected( pPlayer );
-		m_ClientsData[ pPlayer->entindex() ] = {};
+
+		// Reset on disconnect
+		ClientAPIData_t data = m_ClientsData[ pPlayer->entindex() ] = {};
+		MESSAGE_BEGIN( MSG_ALL, gmsgZPAPICall );
+		WRITE_SHORT( pPlayer->entindex() );
+		WRITE_SHORT( data.Game );
+		WRITE_SHORT( data.Tier );
+		WRITE_STRING( data.Key.c_str() );
+		MESSAGE_END();
 	}
 
 	BaseClass::ClientDisconnected( pClient );

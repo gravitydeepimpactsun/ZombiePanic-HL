@@ -56,11 +56,11 @@ extern float g_lastFOV;
 
 cvar_t *cl_lw = nullptr;
 
-ClientAPIData_t g_ClientAPIData[ MAX_PLAYERS ] = {};
+ClientAPIData_t g_ClientAPIDataArray[ MAX_PLAYERS ] = {};
 ClientAPIData_t GetClientAPIData( int iClient )
 {
 	if ( iClient >= 0 && iClient < MAX_PLAYERS )
-		return g_ClientAPIData[ iClient ];
+		return g_ClientAPIDataArray[iClient];
 	return {};
 }
 
@@ -398,8 +398,8 @@ int CHud::MsgFunc_APICheck(const char *pszName, int iSize, void *pbuf)
 	strncpy( szKey, READ_STRING(), sizeof( szKey ) );
 
 	if ( iPlayer < 0 || iPlayer >= MAX_PLAYERS ) return 1;
-	g_ClientAPIData[ iPlayer ].Game = (eGameAPIVersion)iGame;
-	g_ClientAPIData[ iPlayer ].Tier = (eSupporterTier)iTier;
-	g_ClientAPIData[ iPlayer ].Key = szKey;
+	g_ClientAPIDataArray[ iPlayer ].Game = (eGameAPIVersion)iGame;
+	g_ClientAPIDataArray[ iPlayer ].Tier = (eSupporterTier)iTier;
+	g_ClientAPIDataArray[ iPlayer ].Key = szKey;
 	return 1;
 }

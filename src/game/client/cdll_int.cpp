@@ -704,6 +704,6 @@ CON_COMMAND( api_retrieve, "" )
 	if ( !pszKey ) return;
 	if ( !pszKey[0] ) return;
 	char szbuf[128];
-	Q_snprintf( szbuf, sizeof(szbuf), "_retrive %i %i \"%s\" \"%s\"", g_ClientAPIData.Game, g_ClientAPIData.Tier, g_ClientAPIData.Key.c_str(), pszKey );
+	Q_snprintf( szbuf, sizeof(szbuf), "_retrieve %i %i \"%s\" \"%s\"", g_ClientAPIData.Game, g_ClientAPIData.Tier, g_ClientAPIData.Key.c_str(), pszKey );
 	gEngfuncs.pfnClientCmd( szbuf );
 }

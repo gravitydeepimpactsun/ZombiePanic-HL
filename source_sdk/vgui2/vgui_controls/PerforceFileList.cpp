@@ -482,7 +482,7 @@ void PerforceFileList::Refresh()
 		const char *pDirectory = m_Directories.String(i);
 		DirectoryInfo_t *pInfo = &m_Directories[i];
 
-		// Retrives files, uses faster method to avoid finding clientspec
+		// Retrieves files, uses faster method to avoid finding clientspec
 		CUtlVector<P4File_t> &fileList = p4->GetFileListUsingClientSpec( pDirectory, pInfo->m_ClientSpec );
 		int nFileCount = fileList.Count();
 		bool *pFound = (bool*)_alloca( nFileCount * sizeof(bool) );

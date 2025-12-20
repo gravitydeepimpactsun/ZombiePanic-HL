@@ -213,7 +213,7 @@ void Dragger::SetMovable(bool state)
 		if (state)
 		{
 			// if its not movable we stick with the default arrow
-			// if parent windows Start getting fancy cursors we should probably retrive a parent
+			// if parent windows Start getting fancy cursors we should probably retrieve a parent
 			// cursor and set it to that
 			SetCursor(dc_sizewe); 
 		}

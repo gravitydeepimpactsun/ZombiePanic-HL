@@ -387,7 +387,7 @@ model_t *CGameStudioModelRenderer::GetPlayerModel(int playerIndex)
 				V_strcpy_safe(m_szPlayerRemapModel[playerIndex], GetNextEnemyModel());
 		}
 
-		// Retrive replacement model
+		// Retrieve replacement model
 		model_t *model = NULL;
 		if (m_szPlayerRemapModel[playerIndex][0])
 		{

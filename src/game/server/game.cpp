@@ -24,6 +24,7 @@
 #include <tier2/tier2.h>
 #include "FileSystem.h"
 #include "zp/zp_shared.h"
+#include "steam/steam_api.h"
 
 #include "appversion.h"
 #include "CBugfixedServer.h"
@@ -524,6 +525,10 @@ public:
 static IGameDLLInit g_gamedll;
 EXPOSE_SINGLE_INTERFACE_GLOBALVAR(IGameDLLInit, IBaseInterface, "IGameDLLInit_001", g_gamedll);
 
+CSteamAPIContext s_ApiContext;
+CSteamAPIContext *s_APIContext = &s_ApiContext;
+CSteamAPIContext *GetSteamAPI() { return s_APIContext; }
+
 bool IGameDLLInit::InitTier2Lib()
 {
 	CSysModule *pModule = nullptr;
@@ -541,6 +546,10 @@ bool IGameDLLInit::InitTier2Lib()
 // This gets called one time when the game is initialied
 void GameDLLInit(void)
 {
+	// Load SteamAPI
+	SteamAPI_InitSafe();
+	GetSteamAPI()->Init();
+
 	// Get cvars here:
 
 	g_psv_gravity = CVAR_GET_POINTER("sv_gravity");

@@ -352,6 +352,7 @@ void CHud::Init(void)
 	HookHudMessage<&CHud::MsgFunc_BeaconReset>("BcnR");
 	HookHudMessage<&CHud::MsgFunc_Panic>("Panic");
 	HookHudMessage<&CHud::MsgFunc_Voice>("Voice");
+	HookHudMessage<&CHud::MsgFunc_APICheck>("APICheck");
 
 	// TFFree CommandMenu
 	HookCommand("+commandmenu", [] {

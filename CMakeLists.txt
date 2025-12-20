@@ -641,6 +641,7 @@ target_compile_definitions( hl PRIVATE
 	SCRIPT_SYSTEM
 	MATHLIB_USE_C_ASSERT
 	MATHLIB_VECTOR_NONTRIVIAL
+	VERSION_SAFE_STEAM_API_INTERFACES
 )
 
 target_precompile_headers( hl PRIVATE src/game/server/pch.h )

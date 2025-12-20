@@ -466,9 +466,13 @@ private:
 	int m_iPillAmount;
 	int m_iPillsTaken;
 	int m_iBleedHit[4]; // Track who we hit.
+	char m_szAPIRetrieveKey[64]; // Key to retrieve API data.
 
 	void DoHeadshotChunk( const Vector &vecPos, short modelIndex, int iAmount, int iScale );
 public:
+	const char *GetAPIRetrieveKey() const { return m_szAPIRetrieveKey; }
+	void ClearAPIRetrieveKey() { m_szAPIRetrieveKey[0] = '\0'; }
+
 	void IncreaseBleed( int iIndex );
 	void DoHeadshotBlood( const Vector &vecPos, int iAmount );
 	void DoHeadshotExploded( const Vector &vecPos );

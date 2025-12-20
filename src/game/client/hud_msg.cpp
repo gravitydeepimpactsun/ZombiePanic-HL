@@ -36,6 +36,7 @@ extern IParticleMan *g_pParticleMan;
 
 #include "fog.h"
 #include "sphl/weather.h"
+#include "zp/zp_apicallback.h"
 
 extern weather_properties WeatherData;
 
@@ -54,6 +55,14 @@ extern ConVar zoom_sensitivity_ratio;
 extern float g_lastFOV;
 
 cvar_t *cl_lw = nullptr;
+
+ClientAPIData_t g_ClientAPIData[ MAX_PLAYERS ] = {};
+ClientAPIData_t GetClientAPIData( int iClient )
+{
+	if ( iClient >= 0 && iClient < MAX_PLAYERS )
+		return g_ClientAPIData[ iClient ];
+	return {};
+}
 
 void CAM_ToFirstPerson(void);
 float IN_GetMouseSensitivity();
@@ -374,5 +383,23 @@ int CHud::MsgFunc_Voice(const char *pszName, int iSize, void *pbuf)
 	g_pVGuiLocalize->ConvertUnicodeToANSI( wcOutput, szOut, sizeof(szOut) );
 
 	CHudChat::Get()->ChatPrintf( -1, "%s", szOut );
+	return 1;
+}
+
+
+int CHud::MsgFunc_APICheck(const char *pszName, int iSize, void *pbuf)
+{
+	BEGIN_READ( pbuf, iSize );
+	int iPlayer = READ_SHORT();
+	int iGame = READ_SHORT();
+	int iTier = READ_SHORT();
+	static char szKey[512];
+	szKey[0] = 0;
+	strncpy( szKey, READ_STRING(), sizeof( szKey ) );
+
+	if ( iPlayer < 0 || iPlayer >= MAX_PLAYERS ) return 1;
+	g_ClientAPIData[ iPlayer ].Game = (eGameAPIVersion)iGame;
+	g_ClientAPIData[ iPlayer ].Tier = (eSupporterTier)iTier;
+	g_ClientAPIData[ iPlayer ].Key = szKey;
 	return 1;
 }

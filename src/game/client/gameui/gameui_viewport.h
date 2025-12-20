@@ -29,28 +29,6 @@ enum GameUIDialogs
 	UIDialog_MAX
 };
 
-// Ported from Contagion
-enum eSupporterExports
-{
-	k_eSupporterNone = 0,
-	k_eSupporterKofi,
-	k_eSupporterPatreon,
-	k_eSupporterDirect,
-};
-
-enum eSupporterTierExport
-{
-	k_eSupporterTier_NONE = 0,
-	k_eSupporterTier_5,
-	k_eSupporterTier_10,
-	k_eSupporterTier_15,
-	k_eSupporterTier_20,
-	k_eSupporterTier_25,
-	k_eSupporterTier_50,
-	k_eSupporterTier_100,
-};
-// End Port
-
 class CGameUIViewport : public vgui2::EditablePanel
 {
 	DECLARE_CLASS_SIMPLE(CGameUIViewport, vgui2::EditablePanel);

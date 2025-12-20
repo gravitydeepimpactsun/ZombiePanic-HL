@@ -22,6 +22,9 @@
 #include "zp/music/music_manager.h"
 #include "nlohmann/json.hpp"
 #include "rp_manager.h"
+#include "zp/zp_apicallback.h"
+
+ClientAPIData_t g_ClientAPIData = {};
 
 bool g_bIsConnected = false;
 std::vector<PublishedFileId_t> m_InstalledAddons;
@@ -41,12 +44,6 @@ CON_COMMAND(gameui_cl_open_test_panel, "Opens a test panel for client GameUI")
 	CGameUIViewport::Get()->OpenTestPanel();
 }
 #endif
-
-enum HttpRequestTypes
-{
-	// Read our donator status from the API.
-	READ_DONATOR_STATUS = 0,
-};
 
 CGameUIViewport::CGameUIViewport()
     : BaseClass(nullptr, "ClientGameUIViewport"),
@@ -1022,17 +1019,17 @@ void CGameUIViewport::UpdateHTTPCallback( HTTPRequestCompleted_t *arg, bool bFai
 			GetSteamAPI()->SteamHTTP()->GetHTTPResponseBodyData( arg->m_hRequest, pResponse, size );
 			pResponse[size] = '\0';
 
-			ConPrintf( "UpdateHTTPCallback: The data hasn't been received. HTTP error %d. Response: %s\n", arg->m_eStatusCode, pResponse );
+			Msg( "UpdateHTTPCallback: The data hasn't been received. HTTP error %d. Response: %s\n", arg->m_eStatusCode, pResponse );
 
 			delete[] pResponse;
 		}
 		else if ( !arg->m_bRequestSuccessful )
 		{
 			// Internet is either not working, or the site is down.
-			ConPrintf( "UpdateHTTPCallback: The data hasn't been received. No response from the server.\n");
+			Msg( "UpdateHTTPCallback: The data hasn't been received. No response from the server.\n");
 		}
 		else
-			ConPrintf( "UpdateHTTPCallback: The data hasn't been received. HTTP error %d\n", arg->m_eStatusCode );
+			Msg( "UpdateHTTPCallback: The data hasn't been received. HTTP error %d\n", arg->m_eStatusCode );
 	}
 	else
 	{
@@ -1053,18 +1050,57 @@ void CGameUIViewport::UpdateHTTPCallback( HTTPRequestCompleted_t *arg, bool bFai
 					try
 					{
 						root = nlohmann::json::parse(strResponse.data());
+
+						// Validate the data
+					    bool bValid = true;
+
+						// Basic validation of the JSON data, so we don't crash trying to read invalid data.
+					    if ( root.at("tier").is_null() )
+						    bValid = false;
+						else
+						{
+						    if ( root.at("tier").at("id").is_null() )
+							    bValid = false;
+						}
+
+						if ( root.at("special").is_null() )
+							bValid = false;
+						else
+						{
+							if ( root.at("special").at("key").is_null() )
+								bValid = false;
+							if ( root.at("special").at("value").is_null() )
+								bValid = false;
+					    }
+
+						if ( !bValid )
+						{
+							Msg( "API Callback: Failed to parse JSON data.\n" );
+							Msg( "%s\n\n", strResponse.c_str() );
+							break;
+						}
+
 						// Version 3 of the API uses nested objects for type and tier
-						int type = root.at("type").at("id").get<int>();
 						int tier = root.at("tier").at("id").get<int>();
 						// Let's also grab the new special value for game specific data.
+						int special_key = root.at("special").at("key").get<int>();
 						std::string special_value = root.at("special").at("value").get<std::string>();
-						gEngfuncs.PlayerInfo_SetValueForKey( "sicon", special_value.c_str() );
-						gEngfuncs.PlayerInfo_SetValueForKey( "donor_type", vgui2::VarArgs( "%i", type ) );
-						gEngfuncs.PlayerInfo_SetValueForKey( "donor_tier", vgui2::VarArgs( "%i", tier ) );
+
+						// Store the data, which we will send to the server when connecting.
+					    g_ClientAPIData.Tier = (eSupporterTier)tier;
+						g_ClientAPIData.Game = (eGameAPIVersion)special_key;
+					    g_ClientAPIData.Key = special_value;
+#if defined( _DEBUG )
+					    Msg( "API Callback:\n" );
+					    Msg( "\tSteamID: %llu\n", GetSteamAPI()->SteamUser()->GetSteamID().ConvertToUint64() );
+					    Msg( "\tGame: %i\n", g_ClientAPIData.Game );
+					    Msg( "\tKey: %s\n", g_ClientAPIData.Key.c_str() );
+					    Msg( "\tTier: %i\n", g_ClientAPIData.Tier );
+#endif
 					}
 					catch (const std::exception &e)
 					{
-						ConPrintf( "UpdateHTTPCallback: Failed to parse json: %s\n", e.what() );
+						Msg( "UpdateHTTPCallback: Failed to parse json: %s\n", e.what() );
 					}
 				}
 				break;

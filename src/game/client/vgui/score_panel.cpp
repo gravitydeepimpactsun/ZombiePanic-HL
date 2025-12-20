@@ -21,6 +21,7 @@
 #include "vgui/avatar_image.h"
 #include "gameui/gameui_viewport.h"
 #include "zp/zp_shared.h"
+#include "zp/zp_apicallback.h"
 
 #define STEAM_PROFILE_URL "http://steamcommunity.com/profiles/"
 
@@ -34,6 +35,7 @@ ConVar hud_scoreboard_spacing_normal("hud_scoreboard_spacing_normal", "0", FCVAR
 ConVar hud_scoreboard_spacing_compact("hud_scoreboard_spacing_compact", "0", FCVAR_ARCHIVE);
 
 extern bool g_bLocalPlayerIsValid;
+extern ClientAPIData_t GetClientAPIData( int iClient );
 
 namespace
 {
@@ -139,20 +141,20 @@ struct specialIcons
 static specialIcons g_SpecialIcons[] =
 {
 	{ -1, "icon_pt" },
-	{ -1, "icon_lead" },
 	{ -1, "icon_contrib" },
+	{ -1, "icon_lead" },
 	// The last index
 	{ -2, nullptr }
 };
 
-specialIcons GetSpecialIcon( const char *szName )
+specialIcons GetSpecialIcon( const char *szID )
 {
-	char szBuffer[32];
-	Q_snprintf( szBuffer, sizeof( szBuffer ), "icon_%s", szName );
+	char szBuffer[64];
+	Q_snprintf( szBuffer, sizeof( szBuffer ), "icon_%s", szID );
 	for ( size_t i = 0; i < ARRAYSIZE(g_SpecialIcons); i++ )
 	{
 		if ( !g_SpecialIcons[i].szTextureName ) continue;
-		if ( !Q_stricmp( g_SpecialIcons[i].szTextureName, szBuffer ) )
+		if ( Q_stricmp( g_SpecialIcons[i].szTextureName, szBuffer ) == 0 )
 			return g_SpecialIcons[i];
 	}
 	return g_SpecialIcons[ ARRAYSIZE(g_SpecialIcons) - 1 ];
@@ -201,7 +203,7 @@ CScorePanel::CScorePanel()
 
 	int iTierIcons = MAX_PLAYERS + 1;
 	int nTier = 0;
-	for (int i = iTierIcons; i <= iTierIcons + eSupporterTierExport::k_eSupporterTier_100; i++)
+	for (int i = iTierIcons; i <= iTierIcons + eSupporterTier::k_eSupporterTier_100; i++)
 	{
 		vgui2::IImage *pImg = vgui2::scheme()->GetImage( vgui2::VarArgs( "ui/icons/scoreboard/icon_dono%i", nTier ), false );
 		pImg->SetSize( 32, 32 );
@@ -626,21 +628,20 @@ void CScorePanel::UpdateClientInfo(int client)
 		UpdateClientIcon(pi);
 		playerKv->SetInt("avatar", client); // Client index == index into m_pImageList
 
-		const char *donorTier = gEngfuncs.PlayerInfo_ValueForKey( client, "donor_tier" );
-		// Make sure donorTier is a valid number between 0 and k_eSupporterTier_100
-		if ( !donorTier || !*donorTier || atoi(donorTier) < 0 || atoi(donorTier) > eSupporterTierExport::k_eSupporterTier_100 )
-			donorTier = "0";
-
-		int iDonorIcon = MAX_PLAYERS + 1 + atoi( donorTier );
+		ClientAPIData_t nAPIData = GetClientAPIData( client );
+		int iDonorIcon = MAX_PLAYERS + 1 + nAPIData.Tier;
 		playerKv->SetInt( "donator", iDonorIcon );
 
 		// Set the special one (overrides donator value)
-		const char *specialValue = gEngfuncs.PlayerInfo_ValueForKey( client, "sicon" );
-		if ( specialValue && specialValue[0] )
+		if ( nAPIData.Game == eGameAPIVersion::k_eGameZombiePanic )
 		{
-			specialIcons spIcon = GetSpecialIcon( specialValue );
-			if ( spIcon.szTextureName )
-				playerKv->SetInt( "donator", spIcon.nTextureID );
+			const char *specialValue = nAPIData.Key.c_str();
+			if ( specialValue && specialValue[0] )
+			{
+				specialIcons spIcon = GetSpecialIcon( specialValue );
+				if ( spIcon.szTextureName )
+					playerKv->SetInt( "donator", spIcon.nTextureID );
+			}
 		}
 
 		// Name

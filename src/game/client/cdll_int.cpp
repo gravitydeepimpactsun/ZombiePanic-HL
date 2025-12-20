@@ -46,11 +46,13 @@
 #include "engine_builds.h"
 #include "steam/steam_api.h"
 #include "gameui/gameui_viewport.h"
+#include "zp/zp_apicallback.h"
 
 // Music manager
 #include "zp/music/music_manager.h"
 
 CHud gHUD;
+extern ClientAPIData_t g_ClientAPIData;
 
 void InitInput(void);
 void ShutdownInput();
@@ -328,9 +330,6 @@ int CL_DLLEXPORT HUD_VidInit(void)
 	ServerClientVar_Resetcl_panictomelee();
 	ServerClientVar_Resetcl_screentint();
 	ServerClientVar_Resetcl_character();
-
-	// TODO: Do we have time to check the workshop stuff here?
-	// If so, check if we need to download the current map's workshop addon.
 
 	return 1;
 }
@@ -696,4 +695,15 @@ CON_COMMAND( cl_workshop_download, "Download a workshop mod in-game" )
 	else
 		bReconnect = false; // We have no 2nd value, then its prob invalid.
 	CGameUIViewport::Get()->DownloadWorkshopAddon( atoll( pszCommand ), bReconnect );
+}
+
+extern ClientAPIData_t g_ClientAPIData;
+CON_COMMAND( api_retrieve, "" )
+{
+	const char *pszKey = gEngfuncs.Cmd_Argv( 1 );
+	if ( !pszKey ) return;
+	if ( !pszKey[0] ) return;
+	char szbuf[128];
+	Q_snprintf( szbuf, sizeof(szbuf), "_retrive %i %i \"%s\" \"%s\"", g_ClientAPIData.Game, g_ClientAPIData.Tier, g_ClientAPIData.Key.c_str(), pszKey );
+	gEngfuncs.pfnClientCmd( szbuf );
 }

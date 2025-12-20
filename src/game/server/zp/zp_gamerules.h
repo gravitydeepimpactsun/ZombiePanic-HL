@@ -6,11 +6,13 @@
 
 #include "cdll_dll.h"
 #include "zp/zp_shared.h"
+#include "zp/zp_apicallback.h"
 #include "zp/gamemodes/zp_gamemodebase.h"
 #include "zp/gamemodes/zp_dev.h"
 #include "zp/gamemodes/zp_survival.h"
 #include "zp/gamemodes/zp_objective.h"
 #include "zp/gamemodes/zp_hardcore.h"
+#include "steam/steam_api.h"
 
 class CZombiePanicGameRules : public CHalfLifeMultiplay
 {
@@ -64,6 +66,13 @@ public:
 	inline void SetCheatsOnThisSession( bool bCheats ) { m_bCheatsOnThisSession = bCheats; }
 	void EndMultiplayerGame( void ) override;
 
+	void DoAPICallBack( CBasePlayer *pPlayer );
+
+protected:
+	void ProcessAPICalls();
+	std::vector<int> m_vecPendingAPICalls;
+	float m_flNextAPICallTime;
+
 private:
 	void CheckCheats();
 	void SetPlayerModel(CBasePlayer *pPlayer);
@@ -80,6 +89,8 @@ private:
 	int m_iRounds;
 	bool m_bCheatsOnThisSession;
 	bool m_bHostHasJoined; // Peer-2-Peer only
+
+	ClientAPIData_t m_ClientsData[ MAX_PLAYERS ] = {};
 };
 CZombiePanicGameRules *ZPGameRules();
 

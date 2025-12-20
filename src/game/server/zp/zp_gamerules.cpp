@@ -23,6 +23,7 @@ extern cvar_t roundlimit;
 extern ConVar sv_fafo_only;
 
 extern unsigned short m_usResetDecals;
+extern int gmsgZPAPICall;
 
 extern void CleanupBodyQue();
 
@@ -84,6 +85,8 @@ CZombiePanicGameRules::CZombiePanicGameRules()
 	m_flRoundRestartDelay = -1;
 	m_flRoundJustBegun = -1;
 	m_Volunteers.clear();
+
+	m_flNextAPICallTime = gpGlobals->time + 5.0f;
 
 	m_iRounds = 1;
 
@@ -165,6 +168,9 @@ void CZombiePanicGameRules ::Think(void)
 	{
 		case ZP::RoundState::RoundState_PickVolunteers: PickRandomVolunteer(); break;
 	}
+
+	// We do API calls processing here at the very end.
+	ProcessAPICalls();
 }
 
 extern int gmsgGameMode;
@@ -747,6 +753,28 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 		pPlayer->SelectPreviousSlot();
 		return TRUE;
 	}
+	else if (FStrEq(pcmd, "_retrive"))
+	{
+		const char *arg1 = CMD_ARGV(1);
+		const char *arg2 = CMD_ARGV(2);
+		const char *arg3 = CMD_ARGV(3);
+		const char *arg4 = CMD_ARGV(4);
+
+		// Let's compare the player private key with what we received
+		if ( !FStrEq( arg4, pPlayer->GetAPIRetrieveKey() ) || FStrEq( arg4, "" ) )
+		{
+			UTIL_PrintConsole( "Error: Invalid private key argument.\n", pPlayer );
+			return TRUE;
+		}
+		pPlayer->ClearAPIRetrieveKey();
+
+		int client = pPlayer->entindex();
+		m_ClientsData[ client ].Game = arg1 ? (eGameAPIVersion)atoi( arg1 ) : eGameAPIVersion::k_eGameUnknown;
+		m_ClientsData[ client ].Tier = arg2 ? (eSupporterTier)atoi( arg2 ) : eSupporterTier::k_eSupporterTier_NONE;
+		m_ClientsData[ client ].Key = arg3 ? arg3 : "";
+		DoAPICallBack( pPlayer );
+		return TRUE;
+	}
 	else if (FStrEq(pcmd, "ent_fire"))
 	{
 		const char *pSetCommand = CMD_ARGV(1);
@@ -1006,6 +1034,7 @@ void CZombiePanicGameRules::ClientDisconnected(edict_t *pClient)
 	{
 		RemovePlayerLastSpawnPointData( pPlayer );
 		m_pGameMode->OnPlayerDisconnected( pPlayer );
+		m_ClientsData[ pPlayer->entindex() ] = {};
 	}
 
 	BaseClass::ClientDisconnected( pClient );
@@ -1033,6 +1062,85 @@ void CZombiePanicGameRules::EndMultiplayerGame( void )
 	}
 	// Set our win state.
 	m_pGameMode->SetWinState( nState );
+}
+
+/**
+ * Parses string into a SteamID64. Returns 0 if failed.
+ * Credits to voogru
+ * https://forums.alliedmods.net/showthread.php?t=60899?t=60899
+ * --------------------------------
+ * Copied from the client side.
+ */
+uint64 UTIL_ParseSteamID( const char *pszAuthID )
+{
+	if ( !pszAuthID ) return 0;
+
+	char steamid[ MAX_STEAMID + 1 ];
+	if ( !strncmp( pszAuthID, "STEAM_", 6 ) || !strncmp( pszAuthID, "VALVE_", 6 ) )
+		strncpy( steamid, pszAuthID + 6, MAX_STEAMID); // cutout "STEAM_" or "VALVE_" start of the string
+	else
+		strncpy( steamid, pszAuthID, MAX_STEAMID );
+
+	// Valid SteamID must begin with 0:Y:ZZZZZZZ
+	// "The value of X (Universe) is 0 in VALVe's GoldSrc and Source Orange Box Engine games"
+	// https://developer.valvesoftware.com/wiki/SteamID
+	if ( strncmp( steamid, "0:", 2 ) )
+		return 0;
+
+	int iServer = 0;
+	int iAuthID = 0;
+
+	char szAuthID[64];
+	strncpy( szAuthID, steamid, sizeof(szAuthID) - 1 );
+	szAuthID[sizeof(szAuthID) - 1] = '\0';
+
+	char *szTmp = strtok(szAuthID, ":");
+	while (szTmp = strtok(NULL, ":"))
+	{
+		char *szTmp2 = strtok(NULL, ":");
+		if (szTmp2)
+		{
+			iServer = atoi(szTmp);
+			iAuthID = atoi(szTmp2);
+		}
+	}
+
+	if ( iAuthID == 0 )
+		return 0;
+
+	uint64 i64friendID = (long long)iAuthID * 2;
+
+	//Friend ID's with even numbers are the 0 auth server.
+	//Friend ID's with odd numbers are the 1 auth server.
+	i64friendID += 76561197960265728 + iServer;
+
+	return i64friendID;
+}
+
+void CZombiePanicGameRules::DoAPICallBack( CBasePlayer *pPlayer )
+{
+	m_vecPendingAPICalls.push_back( pPlayer->entindex() );
+}
+
+void CZombiePanicGameRules::ProcessAPICalls()
+{
+	if ( m_vecPendingAPICalls.size() == 0 ) return;
+	int index = m_vecPendingAPICalls[0];
+	ClientAPIData_t data = m_ClientsData[ index ];
+
+	// Erase after use.
+	m_vecPendingAPICalls.erase( m_vecPendingAPICalls.begin() );
+
+	// Send the info to the clients.
+	MESSAGE_BEGIN( MSG_ALL, gmsgZPAPICall );
+	WRITE_SHORT( index );
+	WRITE_SHORT( data.Game );
+	WRITE_SHORT( data.Tier );
+	WRITE_STRING( data.Key.c_str() );
+	MESSAGE_END();
+
+	// Wait until we can process the next one. Only useful if we just changed level.
+	m_flNextAPICallTime = gpGlobals->time + 0.8f; // Process every 0.2 seconds
 }
 
 void CZombiePanicGameRules::CheckCheats()

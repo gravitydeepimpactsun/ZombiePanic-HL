@@ -63,8 +63,6 @@ extern void CopyToBodyQue(entvars_t *pev);
 extern Vector VecBModelOrigin(entvars_t *pevBModel);
 extern edict_t *EntSelectSpawnPoint(CBasePlayer *pPlayer);
 
-extern bool IsBustingGame();
-
 // the world node graph
 extern CGraph WorldGraph;
 
@@ -287,6 +285,8 @@ int gmsgAchEarned = 0;
 int gmsgRoundTime = 0;
 int gmsgMouseFix = 0;
 
+int gmsgZPAPICall = 0;
+
 const char *const gCustomMessages[] = {
 	"IconInfo",
 	"CheatCheck",
@@ -374,6 +374,8 @@ void LinkUserMessages(void)
 	gmsgAchEarned = REG_USER_MSG("AchEarn", -1);
 	gmsgRoundTime = REG_USER_MSG("RndTime", -1);
 	gmsgMouseFix = REG_USER_MSG("MouseFix", -1);
+
+	gmsgZPAPICall = REG_USER_MSG("APICheck", -1);
 }
 
 LINK_ENTITY_TO_CLASS(player, CBasePlayer);
@@ -1934,6 +1936,25 @@ void CBasePlayer::StopWelcomeCam(void)
 
 	Spawn();
 	pev->nextthink = -1;
+
+	// Let's tell our gamerules that we want to do an API call.
+	// We only do ths once, since we want to make sure all initializations are done.
+	char szPrivateKey[64];
+	szPrivateKey[0] = 0;
+
+	// Characters we can use in the private key.
+	const char *szRandomChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#";
+
+	// Generate a private key for this player.
+	// We save this until we recieve it back from the client.
+	int nAmount = RandomInt( 24, 60 );
+	for ( int i = 0; i < nAmount; i++ )
+		szPrivateKey[i] = szRandomChars[ RandomInt( 0, strlen( szRandomChars ) - 1 ) ];
+	szPrivateKey[nAmount] = 0;
+
+	// Save the private key.
+	UTIL_strcpy( m_szAPIRetrieveKey, szPrivateKey );
+	CLIENT_COMMAND( ENT(pev), "api_retrieve %s\n", szPrivateKey );
 }
 
 void CBasePlayer::SendScoreInfo()

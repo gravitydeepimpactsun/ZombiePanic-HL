@@ -2052,11 +2052,11 @@ void CStudioModelRenderer::StudioRenderFinal_Hardware(void)
 
 				// Now, let's make it fullbright, just make sure we return false,
 				// if pSubModel->name is "Blank" or just empty.
-				bFullbright = ( stricmp( pSubModel->name, "blank" ) != 0 && stricmp( pSubModel->name, "" ) != 0 ) ? true : false;
-
-				// Zombie eye glow
+				// But if it's a player, return true (if zombie)
 				if ( m_pCurrentEntity->player )
-					bFullbright = true;
+					bFullbright = ( m_pCurrentEntity->curstate.team == ZP::TEAM_ZOMBIE ) ? true : false;
+				else
+					bFullbright = ( stricmp( pSubModel->name, "blank" ) != 0 && stricmp( pSubModel->name, "" ) != 0 ) ? true : false;
 			}
 
 			if ( bFullbright )

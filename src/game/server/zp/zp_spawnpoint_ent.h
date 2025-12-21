@@ -18,12 +18,10 @@ public:
 	bool IsHumanSpawnPoint() const { return m_bHumanSpawn; }
 
 	void DisableSpawn();
-	void SetOccupied(bool bOccupied);
 
 private:
 	bool m_bEnabled = true;
 	bool m_bEnabledRem = true;
-	bool m_bOccupied = false;
 	bool m_bHumanSpawn = false;
 	float m_flDisableTime = -1;
 };

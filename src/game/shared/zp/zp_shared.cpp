@@ -574,36 +574,36 @@ std::vector<BulletPenetrationMaterial> m_BulletPenetrationMat_WeakPistols = {
 	{ matUnbreakableGlass, 0.0 },
 	{ matGlass, 0.9 },
 	{ matCeilingTile, 0.9 },
-	{ matCinderBlock, 0.7 },
-	{ matComputer, 0.6 },
+	{ matCinderBlock, 0.1 },
+	{ matComputer, 0.3 },
 	{ matFlesh, 0.8 },
-	{ matMetal, 0.45 },
+	{ matMetal, 0.0 },
 	{ matWood, 0.85 },
-	{ matRocks, 0.5 }
+	{ matRocks, 0.0 }
 };
 
 std::vector<BulletPenetrationMaterial> m_BulletPenetrationMat_Revolver = {
 	{ matUnbreakableGlass, 0.0 },
 	{ matGlass, 0.95 },
 	{ matCeilingTile, 0.95 },
-	{ matCinderBlock, 0.8 },
+	{ matCinderBlock, 0.2 },
 	{ matComputer, 0.7 },
 	{ matFlesh, 1.0 },
-	{ matMetal, 0.55 },
+	{ matMetal, 0.25 },
 	{ matWood, 0.95 },
-	{ matRocks, 0.6 }
+	{ matRocks, 0.1 }
 };
 
 std::vector<BulletPenetrationMaterial> m_BulletPenetrationMat_SMG = {
 	{ matUnbreakableGlass, 0.0 },
 	{ matGlass, 0.8 },
 	{ matCeilingTile, 0.7 },
-	{ matCinderBlock, 0.6 },
+	{ matCinderBlock, 0.1 },
 	{ matComputer, 0.55 },
 	{ matFlesh, 0.78 },
-	{ matMetal, 0.38 },
+	{ matMetal, 0.0 },
 	{ matWood, 0.65 },
-	{ matRocks, 0.4 }
+	{ matRocks, 0.0 }
 
 };
 
@@ -611,12 +611,12 @@ std::vector<BulletPenetrationMaterial> m_BulletPenetrationMat_Rifles = {
 	{ matUnbreakableGlass, 0.0 },
 	{ matGlass, 0.9 },
 	{ matCeilingTile, 0.9 },
-	{ matCinderBlock, 0.7 },
+	{ matCinderBlock, 0.4 },
 	{ matComputer, 0.6 },
 	{ matFlesh, 1.0 },
-	{ matMetal, 0.6 },
+	{ matMetal, 0.3 },
 	{ matWood, 0.98 },
-	{ matRocks, 0.6 }
+	{ matRocks, 0.2 }
 
 };
 
@@ -628,12 +628,12 @@ std::vector<BulletPenetrationMaterial> m_BulletPenetrationMat_Buckshot = {
 	{ matUnbreakableGlass, 0.0 },
 	{ matGlass, 0.98 },
 	{ matCeilingTile, 0.6 },
-	{ matCinderBlock, 0.5 },
+	{ matCinderBlock, 0.18 },
 	{ matComputer, 0.5 },
 	{ matFlesh, 0.98 },
-	{ matMetal, 0.45 },
+	{ matMetal, 0.15 },
 	{ matWood, 0.85 },
-	{ matRocks, 0.4 }
+	{ matRocks, 0.12 }
 };
 
 BulletPenetration m_BulletPenetrationList[] = {

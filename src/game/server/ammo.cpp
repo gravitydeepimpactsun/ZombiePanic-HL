@@ -16,6 +16,7 @@ public:
 		Precache();
 		SET_MODEL( ENT(pev), GetModel() );
 		BaseClass::Spawn();
+		pev->friction = 0.9;
 		AmmoData data = GetAmmoByAmmoID( GetAmmoType() );
 		m_iAmountLeft = m_iAmmoToGive = data.AmmoBoxGive;
 		m_AmmoType = GetAmmoType();
@@ -25,6 +26,7 @@ public:
 	{
 		PRECACHE_MODEL( GetModel() );
 		PRECACHE_SOUND( "items/ammo_pickup.wav" );
+		PRECACHE_SOUND( "items/ammo_drop.wav" );
 	}
 };
 

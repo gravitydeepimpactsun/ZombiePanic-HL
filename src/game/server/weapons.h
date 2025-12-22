@@ -346,6 +346,8 @@ public:
 	}
 	bool IsUseableItem() const override { return true; }
 
+	void BounceSound();
+
 	CBaseEntity *Respawn(void);
 	void EXPORT Materialize(void);
 

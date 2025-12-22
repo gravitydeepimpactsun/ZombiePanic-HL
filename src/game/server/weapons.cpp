@@ -1024,7 +1024,7 @@ void CBasePlayerWeapon::SendWeaponPickup(CBasePlayer *pPlayer)
 
 void CBasePlayerAmmo::Spawn(void)
 {
-	pev->movetype = MOVETYPE_TOSS;
+	pev->movetype = MOVETYPE_BOUNCE;
 	pev->solid = SOLID_BBOX;
 	UTIL_SetSize(pev, Vector(0, 0, 0), Vector(0, 0, 0));
 	UTIL_SetOrigin(pev, pev->origin);
@@ -1118,6 +1118,30 @@ void CBasePlayerAmmo ::DefaultTouch(CBaseEntity *pOther)
 		pev->nextthink = gpGlobals->time + .1;
 	}
 #endif
+
+	// Ignore players
+	if ( pOther->IsPlayer() ) return;
+
+	// If we hit another ammo, ignore it.
+	CBasePlayerAmmo *pItem = dynamic_cast<CBasePlayerAmmo *>( pOther );
+	if ( pItem ) return;
+
+	if ( pev->flags & FL_ONGROUND )
+	{
+		// add a bit of static friction
+		pev->velocity = pev->velocity * 0.8;
+	}
+	else
+	{
+		// play bounce sound
+		BounceSound();
+	}
+}
+
+void CBasePlayerAmmo::BounceSound( void )
+{
+	int pitch = 95 + RANDOM_LONG( 0, 29 );
+	EMIT_SOUND_DYN( ENT(pev), CHAN_VOICE, "items/ammo_drop.wav", 1, ATTN_NORM, 0, pitch );
 }
 
 bool CBasePlayerAmmo::GiveAmmoToPlayer( CBaseEntity *pOther )

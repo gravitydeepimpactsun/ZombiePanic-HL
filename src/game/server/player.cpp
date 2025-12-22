@@ -2995,7 +2995,7 @@ void CBasePlayer::DropWeapon( CBasePlayerWeapon *pWeapon, bool bAutoSwitch, bool
 	pNewWeapon->pev->angles.x = 0;
 	pNewWeapon->pev->angles.z = 0;
 	if ( pukevel )
-		pNewWeapon->pev->velocity = vecDir * 10 + RandomVector( -200, 200 );
+		pNewWeapon->pev->velocity = vecDir * 300 + RandomVector( -200, 200 );
 	else
 		pNewWeapon->pev->velocity = vecDir * 300 + vecDir * 100;
 
@@ -6762,9 +6762,9 @@ bool CBasePlayer::DropAmmo( int ammoindex, int amount, Vector Dir, bool pukevel 
 	pAmmoItem->SetSpawnedTroughRandomEntity( true );
 
 	// for gpGlobals->v_forward
-	UTIL_MakeVectors(pev->v_angle);
+	UTIL_MakeVectors( pev->v_angle );
 	if ( pukevel )
-		pAmmoItem->pev->velocity = gpGlobals->v_forward * 10 + RandomVector(-200, 200);
+		pAmmoItem->pev->velocity = gpGlobals->v_forward * 325;
 	else
 		pAmmoItem->pev->velocity = gpGlobals->v_forward * 300;
 
@@ -6848,12 +6848,14 @@ void CBasePlayer::DropUnuseableAmmo()
 		}
 	}
 
+	Vector vUp( 0, 0, -5 );
 	for ( int i = 0; i < ZPAmmoTypes::AMMO_MAX; i++ )
 	{
 		if ( !bAmmoThatShouldBeDropped[i] ) continue;
 		if ( m_rgAmmo[ i ] == 0 ) continue;
-		UTIL_MakeVectors(pev->angles);
-		DropAmmo( i, m_rgAmmo[ i ], pev->origin + gpGlobals->v_forward, true );
+		UTIL_MakeVectors( pev->angles );
+		DropAmmo( i, m_rgAmmo[ i ], pev->origin + gpGlobals->v_forward * 10 + vUp, true );
+		vUp.z += 5;
 		m_rgAmmo[ i ] = 0;
 	}
 }

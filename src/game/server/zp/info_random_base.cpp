@@ -183,8 +183,6 @@ void ZP::SpawnItems()
 
 void AddDefaultAmmoSpawn( const char *szClassname, int iLimit, ItemType nType )
 {
-	if ( sv_fafo_only.GetBool() )
-		szClassname = "weapon_fafo";
 	s_SpawnList.push_back( new SpawnList( szClassname, iLimit, nType ) );
 }
 

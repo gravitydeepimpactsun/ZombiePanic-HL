@@ -173,6 +173,7 @@ void CBreakable::Spawn(void)
 	// Inputs
 	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "Break" );
 	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "SetHealth" );
+	ScriptSystem::RegisterScriptCallback( AvailableScripts_t::InputOutput, this, "SetBreakable" );
 
 	SetEntityScriptCallback( &CBreakable::OnScriptCallBack );
 #endif
@@ -187,6 +188,9 @@ void CBreakable::OnScriptCallBack( KeyValues *pData )
 	{
 		// Do nothing for now, but it's here if we want the output to do something.
 	}
+	// Can we break this?
+	else if ( FStrEq( szAction, "SetBreakable" ) )
+		pev->takedamage = FStrEq( szValue, "1" ) ? DAMAGE_YES : DAMAGE_NO;
 	else if ( FStrEq( szAction, "Break" ) )
 	{
 		if ( pev->takedamage != DAMAGE_NO )
@@ -545,6 +549,7 @@ void CBreakable::TraceAttack(entvars_t *pevAttacker, float flDamage, Vector vecD
 //=========================================================
 int CBreakable ::TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int bitsDamageType)
 {
+	if (pev->takedamage == DAMAGE_NO) return 0;
 	if (m_bIsDestroyed) return 0;
 
 	Vector vecTemp;

@@ -8,6 +8,8 @@ add_sources(
 	multi_relay.cpp
 	info_beacon.cpp
 	info_beacon.h
+	prop_pushable.cpp
+	prop_barricade.cpp
 	trigger_spawnblocker.cpp
 	trigger_endround.cpp
 	info_random_base.cpp

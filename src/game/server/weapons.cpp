@@ -1149,7 +1149,10 @@ bool CBasePlayerAmmo::GiveAmmoToPlayer( CBaseEntity *pOther )
 	if ( m_iAmountLeft <= 0 ) return false;
 #if !defined( CLIENT_DLL )
 	CBasePlayer *pPlayer = (CBasePlayer *)pOther;
-	int iGiveAmmo = pPlayer->PickupAmmo( AmmoToGive(), GetAmmoByAmmoID( m_AmmoType ) );
+	int iAmmoToGive = AmmoToGive();
+	if ( m_iAmountLeft < iAmmoToGive )
+		iAmmoToGive = m_iAmountLeft;
+	int iGiveAmmo = pPlayer->PickupAmmo( iAmmoToGive, GetAmmoByAmmoID( m_AmmoType ) );
 	// If we can't give ammo, ignore.
 	if ( iGiveAmmo <= 0 ) return false;
 	m_iAmountLeft -= iGiveAmmo;

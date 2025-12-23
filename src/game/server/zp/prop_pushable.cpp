@@ -33,8 +33,6 @@ private:
 	float m_maxSpeed;
 	float m_soundTime;
 
-	bool m_bIsDestroyed;
-
 	int m_lastSound;
 
 	Vector oldPos;
@@ -131,6 +129,7 @@ void CPropPushable::OnPlayerTouch( CBaseEntity *pOther )
 
 void CPropPushable::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
+	if ( m_bIsDestroyed ) return;
 	if (!pActivator || !pActivator->IsPlayer())
 	{
 		this->BaseClass::Use( pActivator, pCaller, useType, value );

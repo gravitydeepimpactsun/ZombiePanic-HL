@@ -5284,12 +5284,6 @@ void CBasePlayer::CheatImpulseCommands(int iImpulse)
 		CGib::SpawnRandomGibs(pev, 1, 1);
 		break;
 
-	// lmao, I doubt people will find this.
-	// Well, unless you are reading this code, so hello!
-	case 103:
-		ClientPrint(pev, HUD_PRINTCONSOLE, UTIL_VarArgs("You can support me on patreon: https://patreon.com/wuffesan\n"));
-		break;
-
 	case 104:
 		// Dump all of the global state varaibles (and global entity names)
 		gGlobalState.DumpGlobals();

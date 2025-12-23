@@ -17,8 +17,7 @@ void CWeaponMeleeLeadPipe::Spawn()
 	Precache();
 	SET_MODEL(ENT(pev), "models/w_leadpipe.mdl");
 	m_iClip = -1;
-
-	FallInit(); // get ready to fall down.
+	DefaultSpawn();
 }
 
 void CWeaponMeleeLeadPipe::Precache(void)

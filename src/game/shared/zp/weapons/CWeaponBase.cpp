@@ -61,6 +61,45 @@ int CWeaponBase::DefaultReload(int iAnim, float fDelay, int body)
 	return TRUE;
 }
 
+void CWeaponBase::FallInit()
+{
+	UTIL_SetOrigin(pev, pev->origin);
+	UTIL_SetSize(pev, Vector(0, 0, 0), Vector(0, 0, 0)); //pointsize until it lands on the ground.
+
+	SetTouch( &CWeaponBase::OnWeaponTouch );
+	SetThink( &CWeaponBase::OnWeaponThink );
+
+	pev->nextthink = gpGlobals->time + 0.1f;
+}
+
+void CWeaponBase::OnWeaponTouch( CBaseEntity *pOther )
+{
+	// Ignore players
+	if ( pOther->IsPlayer() ) return;
+
+	// If we hit ammo, ignore it.
+	CBasePlayerAmmo *pItem = dynamic_cast<CBasePlayerAmmo *>( pOther );
+	if ( pItem ) return;
+
+	// If we hit weapon, ignore it.
+	CWeaponBase *pWeapon = dynamic_cast<CWeaponBase *>( pOther );
+	if ( pWeapon ) return;
+
+	ZP::Physics::OnHit( this, pOther );
+}
+
+void CWeaponBase::OnWeaponThink()
+{
+	if ( ZP::Physics::Simulate( this ) )
+		pev->nextthink = gpGlobals->time + 0.1f;
+}
+
+void CWeaponBase::BounceSound()
+{
+	int pitch = 95 + RANDOM_LONG( 0, 29 );
+	EMIT_SOUND_DYN( ENT(pev), CHAN_VOICE, "items/weapon_drop.wav", 1, ATTN_NORM, 0, pitch );
+}
+
 void CWeaponBase::DoDeployAnimation()
 {
 	float flDeploy = Deploy();
@@ -325,6 +364,12 @@ void CWeaponBase::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE u
 
 void CWeaponBase::DefaultSpawn()
 {
+	BaseClass::Spawn();
+
+	pev->solid = SOLID_TRIGGER;
+	pev->movetype = MOVETYPE_BOUNCE;
+	pev->friction = 0.9;
+
 	FallInit(); // get ready to fall down.
 
 	WeaponData slot = GetWeaponSlotInfo( GetWeaponID() );

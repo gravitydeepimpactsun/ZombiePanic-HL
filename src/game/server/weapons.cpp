@@ -35,6 +35,7 @@
 #include "zp/gamemodes/zp_gamemodebase.h"
 #endif
 #include "zp/zp_shared_weapons.h"
+#include "zp/weapons/CWeaponBase.h"
 
 extern CGraph WorldGraph;
 extern int gEvilImpulse101;
@@ -383,14 +384,14 @@ void CBasePlayerItem ::SetObjectCollisionBox(void)
 //=========================================================
 void CBasePlayerItem ::FallInit(void)
 {
-	pev->movetype = MOVETYPE_TOSS;
+	//pev->movetype = MOVETYPE_TOSS;
 	pev->solid = SOLID_BBOX;
 
 	UTIL_SetOrigin(pev, pev->origin);
 	UTIL_SetSize(pev, Vector(0, 0, 0), Vector(0, 0, 0)); //pointsize until it lands on the ground.
 
 	SetTouch(&CBasePlayerItem::DefaultTouch);
-	SetThink(&CBasePlayerItem::FallThink);
+	//SetThink(&CBasePlayerItem::FallThink);
 
 	pev->nextthink = gpGlobals->time + 0.1;
 }
@@ -1025,11 +1026,14 @@ void CBasePlayerWeapon::SendWeaponPickup(CBasePlayer *pPlayer)
 void CBasePlayerAmmo::Spawn(void)
 {
 	pev->movetype = MOVETYPE_BOUNCE;
-	pev->solid = SOLID_BBOX;
+	pev->solid = SOLID_TRIGGER;
 	UTIL_SetSize(pev, Vector(0, 0, 0), Vector(0, 0, 0));
 	UTIL_SetOrigin(pev, pev->origin);
 
-	SetTouch(&CBasePlayerAmmo::DefaultTouch);
+	SetTouch( &CBasePlayerAmmo::DefaultTouch );
+	SetThink( &CBasePlayerAmmo::DoAmmoThink );
+
+	pev->nextthink = gpGlobals->time + 0.1f;
 }
 
 CBaseEntity *CBasePlayerAmmo::Respawn(void)
@@ -1056,7 +1060,7 @@ void CBasePlayerAmmo::Materialize(void)
 	}
 
 	SetTouch(&CBasePlayerAmmo::DefaultTouch);
-	SetThink(NULL);
+	//SetThink(NULL);
 }
 
 #if !defined(CLIENT_DLL)
@@ -1118,24 +1122,24 @@ void CBasePlayerAmmo ::DefaultTouch(CBaseEntity *pOther)
 		pev->nextthink = gpGlobals->time + .1;
 	}
 #endif
-
 	// Ignore players
 	if ( pOther->IsPlayer() ) return;
 
-	// If we hit another ammo, ignore it.
+	// If we hit ammo, ignore it.
 	CBasePlayerAmmo *pItem = dynamic_cast<CBasePlayerAmmo *>( pOther );
 	if ( pItem ) return;
 
-	if ( pev->flags & FL_ONGROUND )
-	{
-		// add a bit of static friction
-		pev->velocity = pev->velocity * 0.8;
-	}
-	else
-	{
-		// play bounce sound
-		BounceSound();
-	}
+	// If we hit weapon, ignore it.
+	CWeaponBase *pWeapon = dynamic_cast<CWeaponBase *>( pOther );
+	if ( pWeapon ) return;
+
+	ZP::Physics::OnHit( this, pOther );
+}
+
+void CBasePlayerAmmo::DoAmmoThink()
+{
+	if ( ZP::Physics::Simulate( this ) )
+		pev->nextthink = gpGlobals->time + 0.1f;
 }
 
 void CBasePlayerAmmo::BounceSound( void )

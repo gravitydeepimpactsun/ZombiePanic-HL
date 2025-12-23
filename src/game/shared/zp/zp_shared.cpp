@@ -909,3 +909,74 @@ StatData_t DialogAchievementData::GetData()
 	return StatData_t();
 #endif
 }
+
+// ==========================================================================
+// Entity Physics
+// ==========================================================================
+
+bool ZP::Physics::Simulate( CBaseEntity *pEnt )
+{
+	if ( !pEnt ) return false;
+	if ( pEnt->pev->flags & FL_ONGROUND )
+	{
+		// We are on the ground, fire a trace to set our new angles.
+		ZP::Physics::ResetAngles( pEnt );
+		return false;
+	}
+	pEnt->pev->avelocity = pEnt->pev->avelocity + RandomVector( -200, 200 );
+	return true;
+}
+
+void ZP::Physics::OnHit( CBaseEntity *pEnt, CBaseEntity *pHit )
+{
+	if ( !pEnt ) return;
+	if ( pEnt->pev->flags & FL_ONGROUND )
+	{
+		// add a bit of static friction
+		pEnt->pev->velocity = pEnt->pev->velocity * 0.8;
+		Vector vAng = pEnt->pev->avelocity * 0.9;
+		vAng.x = vAng.z = 0;
+		pEnt->pev->avelocity = vAng;
+	}
+	else
+	{
+		// play bounce sound
+		pEnt->BounceSound();
+		ZP::Physics::ResetAngles( pEnt );
+	}
+}
+
+void ZP::Physics::ResetAngles( CBaseEntity *pEnt )
+{
+	if ( !pEnt ) return;
+	UTIL_MakeVectors( pEnt->pev->angles );
+	Vector vecSrc = pEnt->Center();
+	Vector vecAiming = gpGlobals->v_forward; //vecSrc + Vector( 0, 0, -32 );
+	TraceResult tr;
+	UTIL_TraceLine( vecSrc, vecSrc + vecAiming * 32, ignore_monsters, ENT(pEnt->pev), &tr );
+	if ( tr.flFraction < 1.0f )
+	{
+		CBaseEntity *pEntity = CBaseEntity::Instance( tr.pHit );
+		if ( pEntity && !(pEntity->pev->flags & FL_CONVEYOR) )
+		{
+			Vector angles = UTIL_VecToAngles( tr.vecPlaneNormal );
+			angles.x = angles.z = 0;
+			pEnt->pev->avelocity.x = pEnt->pev->avelocity.z = 0;
+#if defined( CLIENT_DLL )
+			pEnt->pev->angles = angles;
+#else
+			pEnt->SetAngles( angles );
+#endif
+		}
+	}
+	else
+	{
+		Vector vAng = pEnt->pev->angles;
+		vAng.x = vAng.z = 0;
+#if defined( CLIENT_DLL )
+		pEnt->pev->angles = vAng;
+#else
+		pEnt->SetAngles( vAng );
+#endif
+	}
+}

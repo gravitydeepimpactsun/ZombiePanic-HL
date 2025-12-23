@@ -175,6 +175,8 @@ public:
 	virtual void SetParentPositions(void);
 #endif
 
+	virtual void BounceSound() { }
+
 	virtual bool IsUseableItem() const { return false; }
 
 	// Setup the object->object collision box (pev->mins / pev->maxs is the object->world collision box)

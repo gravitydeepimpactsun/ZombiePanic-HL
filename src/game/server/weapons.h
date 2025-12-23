@@ -140,7 +140,7 @@ public:
 	void EXPORT Materialize(void); // make a weapon visible and tangible
 	void EXPORT AttemptToMaterialize(void); // the weapon desires to become visible and tangible, if the game rules allow for it
 	CBaseEntity *Respawn(void); // copy a weapon
-	void FallInit(void);
+	virtual void FallInit(void);
 	void CheckRespawn(void);
 	virtual int GetItemInfo(ItemInfo *p) { return 0; }; // returns 0 if struct not filled out
 	virtual BOOL CanDeploy(void) { return TRUE; };
@@ -332,6 +332,7 @@ class CBasePlayerAmmo : public CBaseEntity
 public:
 	virtual void EXPORT Spawn(void);
 	void EXPORT DefaultTouch(CBaseEntity *pOther); // default weapon touch
+	void EXPORT DoAmmoThink();
 #if !defined( CLIENT_DLL )
 	virtual void Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
 #endif

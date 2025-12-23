@@ -10,6 +10,8 @@
 // Auto include em.
 #include "zp_achievements.h"
 
+class CBaseEntity;
+
 /// <summary>
 /// Objective states, used by info_objective.cpp & zp_objective.cpp
 /// </summary>
@@ -226,6 +228,17 @@ namespace ZP
     void CheckIfBreakableGlass( TraceResult *pTrace, CBaseEntity *pEnt, const Vector &vDir, int iDamageFlag );
     void DoBulletPenetration( entvars_t *pevAttacker, float flDamage, TraceResult *pTrace, CBaseEntity *pEnt, const Vector &vSrc, const Vector &vDir, int iPenetration, int iBulletType );
 #endif
+
+	// Fake physics "engine". Wow... So amazing... I guess???
+    namespace Physics
+    {
+		// Simulate the "physics" when in the air etc.
+	    bool Simulate( CBaseEntity *pEnt );
+		// We hit something, change our angles to the new hit position
+	    void OnHit( CBaseEntity *pEnt, CBaseEntity *pHit );
+		// If we hit something, reset the angles towards it
+	    void ResetAngles( CBaseEntity *pEnt );
+    }
 
 	// Normalize our vector output
 	inline Vector2D Normalize( const Vector2D &input )

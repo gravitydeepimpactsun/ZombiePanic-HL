@@ -17,8 +17,7 @@ void CWeaponMeleeCrowbar::Spawn()
 	Precache();
 	SET_MODEL(ENT(pev), "models/w_crowbar.mdl");
 	m_iClip = -1;
-
-	FallInit(); // get ready to fall down.
+	DefaultSpawn();
 }
 
 void CWeaponMeleeCrowbar::Precache(void)

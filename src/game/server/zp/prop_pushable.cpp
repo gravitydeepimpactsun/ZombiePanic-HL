@@ -45,6 +45,7 @@ void CPropPushable::Precache()
 	PRECACHE_MODEL( (char *)STRING(pev->model) );
 	for (int i = 0; i < 3; i++)
 		PRECACHE_SOUND( CPushable::m_soundNames[i] );
+	BaseClass::Precache();
 }
 
 

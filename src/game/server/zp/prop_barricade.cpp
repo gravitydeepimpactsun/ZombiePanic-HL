@@ -7,6 +7,13 @@
 #include "player.h"
 #include "func_break.h"
 
+extern void SetBodygroup( void *pmodel, entvars_t *pev, int iGroup, int iValue );
+
+#define BGROUP_BODY 0
+#define BGROUP_SUB_HEALTHY 0
+#define BGROUP_SUB_DAMAGED 1
+#define BGROUP_SUB_DESTROYED 2
+
 class CPropBarricade : public CBreakable
 {
 	SET_BASECLASS( CBreakable );
@@ -14,6 +21,7 @@ class CPropBarricade : public CBreakable
 public:
 	void Spawn() override;
 	void Precache() override;
+	void SoftRemove() override;
 	void Restart();
 	void KeyValue( KeyValueData *pkvd ) override;
 	void Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
@@ -25,15 +33,9 @@ protected:
 	int ExtractBbox(int sequence, float *mins, float *maxs);
 
 private:
-	float m_maxSpeed;
-	float m_soundTime;
-
 	bool m_bIsBuilt;
-
-	Vector oldPos;
 };
 LINK_ENTITY_TO_CLASS( prop_barricade, CPropBarricade );
-
 
 void CPropBarricade::Precache()
 {
@@ -43,6 +45,13 @@ void CPropBarricade::Precache()
 	BaseClass::Precache();
 }
 
+void CPropBarricade::SoftRemove()
+{
+	BaseClass::SoftRemove();
+	pev->effects = 0;
+	SetBodygroup( GET_MODEL_PTR(ENT(pev)), pev, BGROUP_BODY, BGROUP_SUB_DESTROYED );
+}
+
 
 void CPropBarricade::Spawn()
 {
@@ -50,6 +59,7 @@ void CPropBarricade::Spawn()
 
 	SET_MODEL( ENT(pev), STRING(pev->model) );
 
+	SetBodygroup( GET_MODEL_PTR(ENT(pev)), pev, BGROUP_BODY, BGROUP_SUB_HEALTHY );
 	pev->sequence = 0;
 	SetSequenceBox(); // Copied from CBaseAnimating
 
@@ -64,15 +74,7 @@ void CPropBarricade::Spawn()
 	if (pev->friction > 399)
 		pev->friction = 399;
 
-	m_maxSpeed = 400 - pev->friction;
-	SetBits(pev->flags, FL_FLOAT);
-	pev->friction = 0;
-
-	pev->origin.z += 1; // Pick up off of the floor
 	UTIL_SetOrigin(pev, pev->origin);
-
-	oldPos = pev->origin;
-	m_soundTime = 0;
 
 	m_bIsDestroyed = false;
 	m_bIsBuilt = false;
@@ -83,6 +85,7 @@ void CPropBarricade::Restart()
 {
 	SET_MODEL(ENT(pev), STRING(pev->model));
 
+	SetBodygroup( GET_MODEL_PTR(ENT(pev)), pev, BGROUP_BODY, BGROUP_SUB_HEALTHY );
 	pev->sequence = 0;
 	SetSequenceBox(); // Copied from CBaseAnimating
 
@@ -90,16 +93,6 @@ void CPropBarricade::Restart()
 	pev->solid = SOLID_TRIGGER;
 	pev->takedamage = DAMAGE_YES;
 
-	if (pev->friction > 399)
-		pev->friction = 399;
-
-	m_maxSpeed = 400 - pev->friction;
-	SetBits(pev->flags, FL_FLOAT);
-	pev->friction = 0;
-
-	UTIL_SetOrigin(pev, oldPos);
-
-	m_soundTime = 0;
 	m_bIsDestroyed = false;
 	m_bIsBuilt = false;
 }
@@ -126,7 +119,11 @@ void CPropBarricade::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYP
 int CPropBarricade::TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int bitsDamageType )
 {
 	if ( m_bIsDestroyed ) return 0;
-	return BaseClass::TakeDamage( pevInflictor, pevAttacker, flDamage, bitsDamageType );
+	int nPrevHealth = pev->health;
+	int nRet = BaseClass::TakeDamage( pevInflictor, pevAttacker, flDamage, bitsDamageType );
+	if ( pev->health > 0 && nPrevHealth < pev->health )
+		SetBodygroup( GET_MODEL_PTR(ENT(pev)), pev, BGROUP_BODY, BGROUP_SUB_DAMAGED );
+	return nRet;
 }
 
 

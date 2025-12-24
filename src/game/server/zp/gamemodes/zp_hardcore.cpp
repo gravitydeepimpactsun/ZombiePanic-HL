@@ -30,7 +30,7 @@ private:
 public:
 	FairBalance_s( const char *szWeapon, int iAmount, float flChance, ZPAmmoTypes nAmmo, int iAmmoGive )
 	{
-		strcpy_s( Weapon, szWeapon );
+		Q_strcpy( Weapon, szWeapon );
 		AmountRem = Amount = iAmount;
 		PercentageRem = Percentage = flChance;
 		AmmoType = nAmmo;

@@ -167,6 +167,11 @@ CServerBrowser *CGameUIViewport::GetServerBrowser()
 	return GetDialog(m_hServerBrowser);
 }
 
+CBaseMenu *CGameUIViewport::GetMenu()
+{
+	return GetDialog(m_hMenu);
+}
+
 vgui2::Panel *CGameUIViewport::GetDialog( GameUIDialogs nDialog )
 {
 	switch ( nDialog )

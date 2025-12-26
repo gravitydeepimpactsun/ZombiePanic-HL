@@ -16,7 +16,13 @@
 #include "zp/ui/credits/C_ZPCredits.h"
 #include "zp/ui/workshop/CWorkshopDialog.h"
 
-// TODO: Add support to change the background via command, or maybe randomise it?
+// TODO: Maybe randomise it on start?
+CON_COMMAND( gameui_background, "Change the background" )
+{
+	const char *pSetCommand = gEngfuncs.Cmd_Argv( 1 );
+	if ( pSetCommand && pSetCommand[0] )
+		CGameUIViewport::Get()->GetMenu()->SetNewBackgroundImage( pSetCommand );
+}
 
 // Background bounds
 struct BackgroundBounds_s
@@ -33,7 +39,6 @@ public:
 	}
 };
 
-// The last index should have width of 32, but it doesn't fill the piece of gap correctly, so let's just stretch it out.
 static BackgroundBounds_s BackgroundImageBounds[3][4] = {
 	// Top
 	{ BackgroundBounds_s( 0, 0, 256, 256 ), BackgroundBounds_s( 256, 0, 256, 256 ), BackgroundBounds_s( 512, 0, 256, 256 ), BackgroundBounds_s( 768, 0, 256, 256 ) },
@@ -341,6 +346,8 @@ void CBaseMenu::Repopulate()
 
 void CBaseMenu::SetNewBackgroundImage( const char *szImage )
 {
+	if ( !szImage ) return;
+	if ( vgui2::FStrEq( szImage, "" ) ) return;
 	for ( int i = 0; i < 4; i++ )
 	{
 		// Top

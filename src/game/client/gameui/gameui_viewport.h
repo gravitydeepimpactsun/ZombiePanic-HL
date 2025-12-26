@@ -55,6 +55,7 @@ public:
 	C_ZPCredits *GetCredits();
 	CWorkshopDialog *GetWorkshopDialog();
 	CServerBrowser *GetServerBrowser();
+	CBaseMenu *GetMenu();
 
 	vgui2::Panel *GetDialog( GameUIDialogs nDialog );
 

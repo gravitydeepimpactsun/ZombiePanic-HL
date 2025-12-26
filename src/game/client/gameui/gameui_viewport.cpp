@@ -203,6 +203,7 @@ void CGameUIViewport::OnThink()
 			g_bIsConnected = bConnected;
 			CMusicManager::GetInstance()->OnMapShutdown();
 			m_hMenu->Repopulate();
+			m_hMenu->ToggleBackground( !g_bIsConnected );
 		}
 	}
 

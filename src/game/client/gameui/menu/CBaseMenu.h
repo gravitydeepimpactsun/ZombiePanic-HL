@@ -20,9 +20,14 @@ public:
 	CMenuPage *TryCreatePage( MenuPagesTable_t nPage );
 	void SetMenuBounds( const int &x, const int &y, const int &w, const int &t );
 	void Repopulate();
+	void SetNewBackgroundImage( const char *szImage );
+	void ToggleBackground( bool bVisible );
 
 protected:
+	void CreateBackgroundBase( int iTopIndex, int iImages );
+	void SetupBackgroundBaseBounds( int iTopIndex, int iImages );
 	void InternalMousePressed( int code ) override;
+	inline void InternalMouseDoublePressed( int code ) override { InternalMousePressed( code ); }
 	void DoDialogHackFix();
 
 private:
@@ -31,6 +36,7 @@ private:
 	vgui2::DHANDLE<vgui2::MessageBox> m_hMessageBox;
 	MenuPagesTable_t m_Page;
 	CMenuPage *pPage[PAGE_MAX];
+	vgui2::ImagePanel *m_pBackgroundImage[3][4];
 };
 
 #endif

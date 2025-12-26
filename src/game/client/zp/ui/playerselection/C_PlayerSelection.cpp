@@ -150,7 +150,7 @@ C_PlayerSelection::C_PlayerSelection(vgui2::Panel *pParent)
 	iMaxPages = 0;
 
 	bReadPages = false;
-	
+
 	vgui2::IScheme *pScheme = vgui2::scheme()->GetIScheme( hScheme );
 	vgui2::HFont hFont = pScheme->GetFont( "Bio" );
 

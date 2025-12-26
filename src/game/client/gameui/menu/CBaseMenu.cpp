@@ -16,6 +16,33 @@
 #include "zp/ui/credits/C_ZPCredits.h"
 #include "zp/ui/workshop/CWorkshopDialog.h"
 
+// TODO: Add support to change the background via command, or maybe randomise it?
+
+// Background bounds
+struct BackgroundBounds_s
+{
+public:
+	int Size[2];
+	int Pos[2];
+	BackgroundBounds_s( const int &x, const int &y, const int &w, const int &t )
+	{
+		Pos[0] = x;
+		Pos[1] = y;
+		Size[0] = w;
+		Size[1] = t;
+	}
+};
+
+// The last index should have width of 32, but it doesn't fill the piece of gap correctly, so let's just stretch it out.
+static BackgroundBounds_s BackgroundImageBounds[3][4] = {
+	// Top
+	{ BackgroundBounds_s( 0, 0, 256, 256 ), BackgroundBounds_s( 256, 0, 256, 256 ), BackgroundBounds_s( 512, 0, 256, 256 ), BackgroundBounds_s( 768, 0, 256, 256 ) },
+	// Middle
+	{ BackgroundBounds_s( 0, 256, 256, 256 ), BackgroundBounds_s( 256, 256, 256, 256 ), BackgroundBounds_s( 512, 256, 256, 256 ), BackgroundBounds_s( 768, 256, 256, 256 ) },
+	// Bottom
+	{ BackgroundBounds_s( 0, 512, 256, 88 ), BackgroundBounds_s( 256, 512, 256, 88 ), BackgroundBounds_s( 512, 512, 256, 88 ), BackgroundBounds_s( 768, 512, 256, 88 ) }
+};
+
 /// <summary>
 /// This is the most hacky shit ever in this piece of code.
 /// We have no access to the GameUI, so we gotta do this fucked up shit.
@@ -91,6 +118,17 @@ CBaseMenu::CBaseMenu( vgui2::Panel *pParent )
 	SetPos( 0, 0 );
 	SetPaintBackgroundEnabled( false );
 	SetProportional( true );
+
+	for ( int i = 0; i < 4; i++ )
+	{
+		// Create Top
+		CreateBackgroundBase( 0, i );
+		// Create Middle
+		CreateBackgroundBase( 1, i );
+		// Create Bottom
+		CreateBackgroundBase( 2, i );
+	}
+
 	for ( int i = 0; i < MenuPagesTable_t::PAGE_MAX; i++ )
 		pPage[i] = nullptr;
 	m_Page = MenuPagesTable_t::PAGE_MAIN;
@@ -254,6 +292,15 @@ CMenuPage *CBaseMenu::TryCreatePage( MenuPagesTable_t nPage )
 void CBaseMenu::SetMenuBounds( const int &x, const int &y, const int &w, const int &t )
 {
 	SetBounds( x, y, w, t );
+
+	// Setup the size and pos for the background images
+	for ( int i = 0; i < 4; i++ )
+	{
+		SetupBackgroundBaseBounds( 0, i );
+		SetupBackgroundBaseBounds( 1, i );
+		SetupBackgroundBaseBounds( 2, i );
+	}
+
 	// Because Steam doesn't want people to support outside of their ecosystem? wow.
 #if 0
 	// Create our dialog right away!
@@ -277,6 +324,7 @@ void CBaseMenu::SetMenuBounds( const int &x, const int &y, const int &w, const i
 		m_hDiscordButton = new CImageMenuButton( this, "ui/discord_button", "https://discord.gg/zps" );
 		m_hDiscordButton->SetImageHover( "ui/discord_button_hover" );
 		m_hDiscordButton->MakePopup( false, false );
+		m_hDiscordButton->SetText( "#ZP_Discord", "#ZP_Discord_Tip" );
 		m_hDiscordButton->SetContent( (w - wide) - nudge, (t - tall) - nudge, wide, tall );
 		m_hDiscordButton->MoveToFront();
 	}
@@ -291,7 +339,49 @@ void CBaseMenu::Repopulate()
 	}
 }
 
-void CBaseMenu::InternalMousePressed( int code )
+void CBaseMenu::SetNewBackgroundImage( const char *szImage )
+{
+	for ( int i = 0; i < 4; i++ )
+	{
+		// Top
+		m_pBackgroundImage[0][i]->SetImage( vgui2::VarArgs( "ui/backgrounds/%s/%i_%i", szImage, 0, i ) );
+		// Middle
+		m_pBackgroundImage[1][i]->SetImage( vgui2::VarArgs( "ui/backgrounds/%s/%i_%i", szImage, 1, i ) );
+		// Bottom
+		m_pBackgroundImage[2][i]->SetImage( vgui2::VarArgs( "ui/backgrounds/%s/%i_%i", szImage, 2, i ) );
+	}
+}
+
+void CBaseMenu::ToggleBackground( bool bVisible )
+{
+	for ( int i = 0; i < 4; i++ )
+	{
+		m_pBackgroundImage[0][i]->SetVisible( bVisible );
+		m_pBackgroundImage[1][i]->SetVisible( bVisible );
+		m_pBackgroundImage[2][i]->SetVisible( bVisible );
+	}
+}
+
+void CBaseMenu::CreateBackgroundBase( int iTopIndex, int iImages )
+{
+	m_pBackgroundImage[iTopIndex][iImages] = new vgui2::ImagePanel( this, vgui2::VarArgs( "bg%i_%i", iTopIndex, iImages ) );
+	m_pBackgroundImage[iTopIndex][iImages]->SetFillColor( Color( 0, 0, 0, 255 ) );
+	m_pBackgroundImage[iTopIndex][iImages]->SetSize( GetWide(), GetTall() );
+	m_pBackgroundImage[iTopIndex][iImages]->SetPos( 0, 0 );
+	m_pBackgroundImage[iTopIndex][iImages]->SetShouldScaleImage( true );
+	m_pBackgroundImage[iTopIndex][iImages]->SetImage( vgui2::VarArgs( "ui/backgrounds/background01/%i_%i", iTopIndex, iImages ) );
+	m_pBackgroundImage[iTopIndex][iImages]->SetMouseInputEnabled( false );
+	m_pBackgroundImage[iTopIndex][iImages]->SetKeyBoardInputEnabled( false );
+}
+
+void CBaseMenu::SetupBackgroundBaseBounds( int iTopIndex, int iImages )
+{
+	BackgroundBounds_s background = BackgroundImageBounds[iTopIndex][iImages];
+	m_pBackgroundImage[iTopIndex][iImages]->SetSize( GetScaledValue( background.Size[0] ), GetScaledValue( background.Size[1] ) );
+	m_pBackgroundImage[iTopIndex][iImages]->SetPos( GetScaledValue( background.Pos[0] ), GetScaledValue( background.Pos[1] ) );
+}
+
+void CBaseMenu::InternalMousePressed(int code)
 {
 	DoDialogHackFix();
 }

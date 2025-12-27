@@ -34,13 +34,23 @@ public:
 		SATCHEL_RELEASE
 	} SATCHELCODE;
 
+	typedef enum
+	{
+		TYPE_EXPLODE = 0,
+		TYPE_MOLOTOV
+	} CONTACT_TYPE;
+
 	static CGrenade *ShootTimed(entvars_t *pevOwner, Vector vecStart, Vector vecVelocity, float time, const char *szModel);
-	static CGrenade *ShootContact(entvars_t *pevOwner, Vector vecStart, Vector vecVelocity);
+	static CGrenade *ShootContact(entvars_t *pevOwner, Vector vecStart, Vector vecVelocity, const char *szModel, CONTACT_TYPE nType );
 	static CGrenade *ShootSatchelCharge(entvars_t *pevOwner, Vector vecStart, Vector vecVelocity);
 	static void UseSatchelCharges(entvars_t *pevOwner, SATCHELCODE code);
 
 	void Explode(Vector vecSrc, Vector vecAim);
 	virtual void Explode(TraceResult *pTrace, int bitsDamageType);
+	void TryCreateFlameAtPoint();
+	bool TryCreateFlameAtPoint( int nSubID );
+	void KillFlames();
+	void EXPORT DoMolotovBurn();
 	void EXPORT Smoke(void);
 
 	void EXPORT BounceTouch(CBaseEntity *pOther);
@@ -59,6 +69,21 @@ public:
 	BOOL m_fRegisteredSound; // whether or not this grenade has issued its DANGER sound to the world sound list yet.
 	float m_flExplodeRange = 320.0f;
 	int m_iRequireSequence = -1;
+	CONTACT_TYPE m_Type = CONTACT_TYPE::TYPE_EXPLODE;
+	entvars_t *m_MolotovOwner = nullptr;
+
+	typedef enum
+	{
+		TOP = 0,
+		LEFT,
+		RIGHT,
+		DOWN,
+
+		MAXPOS
+	} FIREPOS;
+	Vector m_vFirePos[FIREPOS::MAXPOS] = {};
+	bool m_bHitLimit[FIREPOS::MAXPOS] = {};
+	std::vector<CBaseEntity *> m_FlameEnts = {};
 };
 
 // constant items

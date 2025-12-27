@@ -26,6 +26,7 @@
 #include "nodes.h"
 #include "soundent.h"
 #include "decals.h"
+#include "pm_materials.h"
 
 //===================grenade
 
@@ -79,10 +80,14 @@ void CGrenade::Explode(TraceResult *pTrace, int bitsDamageType)
 	}
 	WRITE_BYTE((100 - 50) * .60); // scale * 10
 	WRITE_BYTE(15); // framerate
-	WRITE_BYTE(TE_EXPLFLAG_NONE);
+	if ( m_Type == CONTACT_TYPE::TYPE_MOLOTOV )
+		WRITE_BYTE(TE_EXPLFLAG_NOSOUND);
+	else
+		WRITE_BYTE(TE_EXPLFLAG_NONE);
 	MESSAGE_END();
 
 	CSoundEnt::InsertSound(bits_SOUND_COMBAT, pev->origin, NORMAL_EXPLOSION_VOLUME, 3.0);
+
 	entvars_t *pevOwner;
 	if (pev->owner)
 		pevOwner = VARS(pev->owner);
@@ -90,6 +95,31 @@ void CGrenade::Explode(TraceResult *pTrace, int bitsDamageType)
 		pevOwner = NULL;
 
 	pev->owner = NULL; // can't traceline attack owner if this is set
+
+	if ( m_Type == CONTACT_TYPE::TYPE_MOLOTOV )
+	{
+		if ( RANDOM_FLOAT(0, 1) < 0.5 )
+			UTIL_DecalTrace( pTrace, DECAL_SCORCH1 );
+		else
+			UTIL_DecalTrace( pTrace, DECAL_SCORCH2 );
+		pev->effects = EF_NODRAW;
+		pev->movetype = MOVETYPE_NONE;
+		pev->friction = 1.0;
+		pev->velocity = Vector( 0, 0, 0 );
+		pev->dmgtime = gpGlobals->time + 10.0f;
+		for ( int i = 0; i < FIREPOS::MAXPOS; i++ )
+		{
+			m_vFirePos[i] = pev->origin;
+			m_bHitLimit[i] = false;
+		}
+		m_iRequireSequence = 10;
+		m_MolotovOwner = pevOwner;
+		TryCreateFlameAtPoint();
+		EMIT_SOUND_DYN( ENT(pev), CHAN_BODY, "ambience/flameburst1.wav", 1.0, ATTN_NORM, 0, PITCH_NORM );
+		SetThink( &CGrenade::DoMolotovBurn );
+		pev->nextthink = gpGlobals->time;
+		return;
+	}
 
 	RadiusDamage(pev, pevOwner, pev->dmg, CLASS_NONE, bitsDamageType, m_flExplodeRange);
 
@@ -128,6 +158,128 @@ void CGrenade::Explode(TraceResult *pTrace, int bitsDamageType)
 		for (int i = 0; i < sparkCount; i++)
 			Create("spark_shower", pev->origin, pTrace->vecPlaneNormal, NULL);
 	}
+}
+
+// Only create flames if we hit the ground, not on walls or ceilings!
+bool UTIL_IS_VALID_FLAME_HIT( CBaseEntity *pEnt, TraceResult *pTrace )
+{
+	char szbuffer[64];
+	Vector vSrc = pTrace->vecEndPos;
+	Vector vMatEnd = pTrace->vecEndPos + Vector( 0, 0, -35 );
+
+	// Find the texture, if we hit the world.
+	const char *pTextureName = TRACE_TEXTURE( ENT( pEnt->pev ), vSrc, vMatEnd );
+	if ( pTextureName )
+		return true;
+	return false;
+}
+
+void UTIL_CreateFlameDecal( edict_t *pEdict, const Vector &vPos )
+{
+	TraceResult trace;
+	Vector vNewPos = vPos + Vector( 0, 0, 5 );
+
+	// Move up if we can't create a decal.
+	for ( int i = 0; i < 20; i++ )
+	{
+		UTIL_TraceHull( vNewPos, vPos, ignore_monsters, head_hull, NULL, &trace );
+		if ( trace.fStartSolid || trace.flFraction == 1.0 )
+			vNewPos.z += 5;
+		else
+			break;
+	}
+
+	if ( RANDOM_FLOAT(0, 1) < 0.5 )
+		UTIL_DecalTrace( &trace, DECAL_SCORCH1 );
+	else
+		UTIL_DecalTrace( &trace, DECAL_SCORCH2 );
+}
+
+void CGrenade::TryCreateFlameAtPoint()
+{
+	TraceResult tr;
+	UTIL_TraceLine( pev->origin, pev->origin + Vector( 0, 0, -32 ), ignore_monsters, ENT(pev), &tr );
+	if ( tr.flFraction <= 1.0 )
+	{
+		if ( tr.fAllSolid || tr.fStartSolid ) return;
+		CBaseEntity *pHit = CBaseEntity::Instance( tr.pHit );
+		if ( !pHit ) return;
+		if ( !UTIL_IS_VALID_FLAME_HIT( pHit, &tr ) ) return;
+
+		// Create the main flame
+		CBaseEntity *pEnt = Create( "flame_large", tr.vecEndPos + Vector( 0, 0, 64 ), Vector( 0, 0, 0 ) );
+		if ( !pEnt ) return;
+		m_FlameEnts.push_back( pEnt );
+
+		UTIL_CreateFlameDecal( pHit->edict(), tr.vecEndPos + Vector( 0, 0, 64 ) );
+	}
+}
+
+bool CGrenade::TryCreateFlameAtPoint( int nSubID )
+{
+	const Vector vPos = m_vFirePos[ nSubID ];
+	TraceResult tr;
+	UTIL_TraceLine( vPos, vPos + Vector( 0, 0, -32 ), ignore_monsters, ENT(pev), &tr );
+	if ( tr.flFraction <= 1.0 )
+	{
+		if ( tr.fAllSolid || tr.fStartSolid ) return false;
+		CBaseEntity *pHit = CBaseEntity::Instance( tr.pHit );
+		if ( !pHit ) return false;
+		if ( !UTIL_IS_VALID_FLAME_HIT( pHit, &tr ) ) return false;
+
+		// Create the main flame
+		CBaseEntity *pEnt = Create( "flame_medium", tr.vecEndPos + Vector( 0, 0, 1 ), Vector( 0, 0, 0 ) );
+		if ( !pEnt ) return false;
+		m_FlameEnts.push_back( pEnt );
+
+		UTIL_CreateFlameDecal( pHit->edict(), tr.vecEndPos + Vector( 0, 0, 64 ) );
+		return true;
+	}
+	return false;
+}
+
+void CGrenade::KillFlames()
+{
+	// Turn off the flames.
+	for ( size_t i = 0; i < m_FlameEnts.size(); i++ )
+	{
+		CBaseEntity *pEnt = m_FlameEnts[ i ];
+		if ( pEnt )
+			pEnt->Use( NULL, NULL, USE_TYPE::USE_OFF, 0 );
+	}
+	m_FlameEnts.clear();
+}
+
+void CGrenade::DoMolotovBurn()
+{
+	// Stop burning!
+	if ( pev->dmgtime <= gpGlobals->time )
+	{
+		KillFlames();
+		SetThink( NULL );
+		UTIL_Remove( this );
+		return;
+	}
+
+	// Move the fire points in different directions.
+	if ( m_iRequireSequence > 0 )
+	{
+		m_vFirePos[FIREPOS::TOP] += Vector( RandomFloat( 5, 10 ), RandomFloat( -50, 50 ), 0 );
+		m_vFirePos[FIREPOS::LEFT] += Vector( RandomFloat( -50, 50 ), RandomFloat( -5, -10 ), 0 );
+		m_vFirePos[FIREPOS::RIGHT] += Vector( RandomFloat( -50, 50 ), RandomFloat( 5, 10 ), 0 );
+		m_vFirePos[FIREPOS::DOWN] += Vector( RandomFloat( -5, -10 ), RandomFloat( -50, 50 ), 0 );
+
+		for ( int i = 0; i < FIREPOS::MAXPOS; i++ )
+		{
+			if ( m_bHitLimit[i] ) continue;
+			if ( !TryCreateFlameAtPoint( i ) )
+				m_bHitLimit[i] = true;
+		}
+
+		m_iRequireSequence--;
+	}
+
+	pev->nextthink = gpGlobals->time;
 }
 
 void CGrenade::Smoke(void)
@@ -195,7 +347,13 @@ void CGrenade::ExplodeTouch(CBaseEntity *pOther)
 	vecSpot = pev->origin - pev->velocity.Normalized() * 32;
 	UTIL_TraceLine(vecSpot, vecSpot + pev->velocity.Normalized() * 64, ignore_monsters, ENT(pev), &tr);
 
-	Explode(&tr, DMG_BLAST);
+	int nBits = DMG_BLAST;
+	switch ( m_Type )
+	{
+		case CONTACT_TYPE::TYPE_MOLOTOV: nBits = DMG_BURN; break;
+	}
+
+	Explode(&tr, nBits);
 }
 
 void CGrenade::DangerSoundThink(void)
@@ -206,8 +364,18 @@ void CGrenade::DangerSoundThink(void)
 		return;
 	}
 
-	CSoundEnt::InsertSound(bits_SOUND_DANGER, pev->origin + pev->velocity * 0.5, pev->velocity.Length(), 0.2);
-	pev->nextthink = gpGlobals->time + 0.2;
+	if ( m_iRequireSequence != -1 )
+	{
+		// If it's -2, then we require the "toss" sequence,
+		// because we recently threw it.
+		if ( m_iRequireSequence == -2 )
+			m_iRequireSequence = LookupSequence( "toss" );
+		pev->sequence = m_iRequireSequence;
+		m_iRequireSequence = -1;
+	}
+
+	StudioFrameAdvance();
+	pev->nextthink = gpGlobals->time + 0.1;
 
 	if (pev->waterlevel != 0)
 	{
@@ -369,7 +537,7 @@ void CGrenade::Spawn(void)
 	m_fRegisteredSound = FALSE;
 }
 
-CGrenade *CGrenade::ShootContact(entvars_t *pevOwner, Vector vecStart, Vector vecVelocity)
+CGrenade *CGrenade::ShootContact(entvars_t *pevOwner, Vector vecStart, Vector vecVelocity, const char *szModel, CONTACT_TYPE nType)
 {
 	CGrenade *pGrenade = GetClassPtr((CGrenade *)NULL);
 	pGrenade->Spawn();
@@ -379,6 +547,7 @@ CGrenade *CGrenade::ShootContact(entvars_t *pevOwner, Vector vecStart, Vector ve
 	pGrenade->pev->velocity = vecVelocity;
 	pGrenade->pev->angles = UTIL_VecToAngles(pGrenade->pev->velocity);
 	pGrenade->pev->owner = ENT(pevOwner);
+	pGrenade->m_Type = nType;
 
 	// make monsters afaid of it while in the air
 	pGrenade->SetThink(&CGrenade::DangerSoundThink);
@@ -390,6 +559,7 @@ CGrenade *CGrenade::ShootContact(entvars_t *pevOwner, Vector vecStart, Vector ve
 	// Explode on contact
 	pGrenade->SetTouch(&CGrenade::ExplodeTouch);
 
+	SET_MODEL(ENT(pGrenade->pev), szModel);
 	pGrenade->pev->dmg = gSkillData.plrDmgM203Grenade;
 
 	return pGrenade;

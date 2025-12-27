@@ -44,6 +44,7 @@
 #include "zp/weapons/weapon_melee_leadpipe.h"
 #include "zp/weapons/weapon_explosive_tnt.h"
 #include "zp/weapons/weapon_explosive_ied.h"
+#include "zp/weapons/weapon_explosive_molotov.h"
 
 extern globalvars_t *gpGlobals;
 extern int g_iUser1;
@@ -79,6 +80,7 @@ CWeaponShotgunRemington g_Shotgun;
 CWeaponShotgunDoubleBarrel g_Dbarrel;
 CWeaponExplosiveTNT g_TNT;
 CWeaponExplosiveIED g_IED;
+CWeaponExplosiveMolotov g_Molotov;
 
 /*
 ======================
@@ -647,6 +649,7 @@ void HUD_InitClientWeapons(void)
 	HUD_PrepEntity(&g_Dbarrel, &player);
 	HUD_PrepEntity(&g_TNT, &player);
 	HUD_PrepEntity(&g_IED, &player);
+	HUD_PrepEntity(&g_Molotov, &player);
 }
 
 /*
@@ -762,6 +765,10 @@ void HUD_WeaponsPostThink(local_state_s *from, local_state_s *to, usercmd_t *cmd
 
 	case WEAPON_SATCHEL:
 		pWeapon = &g_IED;
+		break;
+
+	case WEAPON_MOLOTOV:
+		pWeapon = &g_Molotov;
 		break;
 	}
 

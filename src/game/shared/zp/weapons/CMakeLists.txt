@@ -30,6 +30,8 @@ add_sources(
 	weapon_melee_leadpipe.h
 	weapon_melee_swipe.cpp
 	weapon_melee_swipe.h
+	weapon_explosive_molotov.cpp
+	weapon_explosive_molotov.h
 	weapon_explosive_tnt.cpp
 	weapon_explosive_tnt.h
 	weapon_explosive_ied.cpp

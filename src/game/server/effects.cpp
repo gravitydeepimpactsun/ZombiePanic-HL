@@ -1372,6 +1372,127 @@ void CSprite::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useTyp
 	}
 }
 
+// =====================================================
+// Flame entities, based on CSprite, but uses a predefined sprite texture etc.
+// These enttiies are created by the molotov entity.
+// =====================================================
+
+class CFlameBaseEnt : public CSprite
+{
+	SET_BASECLASS( CSprite );
+
+public:
+	virtual bool IsLargeFire() const { return true; }
+	void Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
+	void Spawn() override;
+	void EXPORT OnTouched( CBaseEntity *pOther );
+	void EXPORT OnThink();
+
+private:
+	struct entity_flamed_t
+	{
+		int Entity;
+		float Time;
+	};
+	std::vector<entity_flamed_t> m_List = {};
+};
+
+
+void CFlameBaseEnt::Spawn()
+{
+	pev->spawnflags = SF_SPRITE_STARTON;
+	if ( IsLargeFire() )
+		pev->model = ALLOC_STRING( "sprites/flame2.spr" );
+	else
+		pev->model = ALLOC_STRING( "sprites/flame1.spr" );
+	pev->modelindex = PRECACHE_MODEL( (char *)STRING(pev->model) );
+	BaseClass::Spawn();
+	pev->renderfx = kRenderFxNone;
+	pev->rendermode = kRenderTransAdd;
+	pev->renderamt = 255;
+	pev->rendercolor = Vector( 255, 255, 255 );
+
+	pev->solid = SOLID_TRIGGER;
+	pev->movetype = MOVETYPE_FLY;
+
+	Vector vMinMax[2];
+	if ( IsLargeFire() )
+	{
+		vMinMax[0] = Vector( -64, -64, 0 );
+		vMinMax[1] = Vector( 64, 64, 96 );
+	}
+	else
+	{
+		vMinMax[0] = Vector( -32, -32, 0 );
+		vMinMax[1] = Vector( 32, 32, 96 );
+	}
+	UTIL_SetSize( pev, vMinMax[0], vMinMax[1] );
+
+	SetTouch( &CFlameBaseEnt::OnTouched );
+	if ( IsLargeFire() )
+		EMIT_SOUND_DYN( ENT(pev), CHAN_BODY, "ambience/burning3.wav", 1.0, ATTN_NORM, 0, PITCH_NORM );
+
+	SetThink( &CFlameBaseEnt::OnThink );
+	pev->nextthink = gpGlobals->time;
+	pev->frame = 0;
+	pev->framerate = IsLargeFire() ? 60 : 8;
+}
+
+
+void CFlameBaseEnt::OnTouched( CBaseEntity* pOther )
+{
+	if ( !pOther ) return;
+	if ( FClassnameIs( ENT(pOther->pev), "worldspawn" ) ) return;
+	for ( size_t i = 0; i < m_List.size(); i++ )
+	{
+		entity_flamed_t client = m_List[i];
+		if ( client.Entity == pOther->entindex() ) return;
+	}
+	pOther->TakeDamage( pev, pev, 1.0f, DMG_BURN );
+	entity_flamed_t ent;
+	ent.Entity = pOther->entindex();
+	ent.Time = gpGlobals->time + 1.0f;
+	m_List.push_back( ent );
+}
+
+
+void CFlameBaseEnt::OnThink()
+{
+	BaseClass::AnimateThink();
+	for ( size_t i = 0; i < m_List.size(); i++ )
+	{
+		entity_flamed_t client = m_List[i];
+		if ( gpGlobals->time > client.Time )
+			m_List.erase( m_List.begin() + i );
+	}
+}
+
+
+void CFlameBaseEnt::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
+{
+	if ( useType == USE_TYPE::USE_OFF )
+	{
+		EMIT_SOUND_DYN( ENT(pev), CHAN_BODY, "common/null.wav", 0, ATTN_NORM, 0, PITCH_NORM );
+		UTIL_Remove( this );
+	}
+}
+
+// =====================================================
+
+class CFlameLarge : public CFlameBaseEnt
+{
+};
+LINK_ENTITY_TO_CLASS( flame_large, CFlameLarge );
+
+class CFlameMedium : public CFlameBaseEnt
+{
+	virtual bool IsLargeFire() const { return false; }
+};
+LINK_ENTITY_TO_CLASS( flame_medium, CFlameMedium );
+
+// =====================================================
+// =====================================================
+
 class CGibShooter : public CBaseDelay
 {
 public:

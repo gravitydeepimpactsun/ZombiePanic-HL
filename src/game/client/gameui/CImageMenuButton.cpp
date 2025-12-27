@@ -155,7 +155,7 @@ void CImageMenuButton::SetContent( const int &x, const int &y, const int &w, con
 	{
 		// We have text, so let's add some extra space.
 		// We also need to nudge the X pos a little too.
-		SetSize( w + m_TextSize[0] + 5, h + 5 );
+		SetSize( w + m_TextSize[0] + 5, h + GetScaledValue( 5 ) );
 		SetPos( x - m_TextSize[0] + 5, y );
 		m_pPanel->SetSize( w, h );
 		m_pPanel->SetPos( m_TextSize[0], 0 );

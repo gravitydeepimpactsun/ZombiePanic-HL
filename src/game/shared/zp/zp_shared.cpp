@@ -689,7 +689,7 @@ void ZP::DoBulletPenetration( entvars_t *pevAttacker, float flDamage, TraceResul
 	if ( matHit == matNone )
 	{
 		char szbuffer[64];
-		Vector vMatEnd = pTrace->vecEndPos + vDir * 10;
+		Vector vMatEnd = pTrace->vecEndPos + vDir * 3;
 
 		// Find the texture, if we hit the world.
 		const char *pTextureName = TRACE_TEXTURE( ENT( pEnt->pev ), vSrc, vMatEnd );
@@ -738,6 +738,13 @@ void ZP::DoBulletPenetration( entvars_t *pevAttacker, float flDamage, TraceResul
 	{
 		// Our entity we found
 		CBaseEntity *pHit = CBaseEntity::Instance( tr.pHit );
+
+		// Did we hit ourselves? Skip.
+		if ( pHit->pev == pevAttacker )
+		{
+			ZP::DoBulletPenetration( pevAttacker, flDamage, &tr, pHit, vecSrc, vDir, iPenetration, iBulletType );
+			return;
+		}
 
 		// Make sure we set the correct damage type
 		int iDmgType = DMG_BULLET;

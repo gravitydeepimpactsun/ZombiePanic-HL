@@ -16,7 +16,6 @@
 #include "zp/ui/credits/C_ZPCredits.h"
 #include "zp/ui/workshop/CWorkshopDialog.h"
 
-// TODO: Maybe randomise it on start?
 CON_COMMAND( gameui_background, "Change the background" )
 {
 	const char *pSetCommand = gEngfuncs.Cmd_Argv( 1 );
@@ -140,6 +139,9 @@ CBaseMenu::CBaseMenu( vgui2::Panel *pParent )
 	m_hPatreonButton = nullptr;
 	m_hDiscordButton = nullptr;
 	m_hMessageBox = nullptr;
+
+	// TODO: Go check the folders, and randomise it.
+	SetNewBackgroundImage( "background01" );
 }
 
 void CBaseMenu::OnCommand( const char *pcCommand )
@@ -376,7 +378,6 @@ void CBaseMenu::CreateBackgroundBase( int iTopIndex, int iImages )
 	m_pBackgroundImage[iTopIndex][iImages]->SetSize( GetWide(), GetTall() );
 	m_pBackgroundImage[iTopIndex][iImages]->SetPos( 0, 0 );
 	m_pBackgroundImage[iTopIndex][iImages]->SetShouldScaleImage( true );
-	m_pBackgroundImage[iTopIndex][iImages]->SetImage( vgui2::VarArgs( "ui/backgrounds/background01/%i_%i", iTopIndex, iImages ) );
 	m_pBackgroundImage[iTopIndex][iImages]->SetMouseInputEnabled( false );
 	m_pBackgroundImage[iTopIndex][iImages]->SetKeyBoardInputEnabled( false );
 }

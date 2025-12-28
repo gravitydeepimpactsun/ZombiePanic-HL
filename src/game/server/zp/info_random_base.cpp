@@ -211,7 +211,8 @@ void ZP::SetupDefaultSpawnList()
 		ITEM_BANDAGE,
 		ITEM_BATTERY,
 		ITEM_SATCHEL,
-		ITEM_HANDGRENADE,
+		ITEM_TNT,
+		ITEM_MOLOTOV,
 
 		MAX_DEFAULT_SPAWNS_COUNT
 	};
@@ -245,6 +246,7 @@ void ZP::SetupDefaultSpawnList()
 		{ "item_battery", 0, ItemType::TypeItem },
 		{ "weapon_ied", 0, ItemType::TypeItem },
 		{ "weapon_tnt", 0, ItemType::TypeItem },
+		{ "weapon_molotov", 0, ItemType::TypeItem },
 	};
 
 	if ( nPlayers >= 18 )
@@ -268,7 +270,8 @@ void ZP::SetupDefaultSpawnList()
 		defaultSpawns[ITEM_BANDAGE].iLimit = 6;
 		defaultSpawns[ITEM_BATTERY].iLimit = 3;
 		defaultSpawns[ITEM_SATCHEL].iLimit = 4;
-		defaultSpawns[ITEM_HANDGRENADE].iLimit = 4;
+		defaultSpawns[ITEM_TNT].iLimit = 4;
+		defaultSpawns[ITEM_MOLOTOV].iLimit = 4;
 	}
 	else if ( nPlayers >= 15 )
 	{
@@ -291,7 +294,8 @@ void ZP::SetupDefaultSpawnList()
 		defaultSpawns[ITEM_BANDAGE].iLimit = 5;
 		defaultSpawns[ITEM_BATTERY].iLimit = 3;
 		defaultSpawns[ITEM_SATCHEL].iLimit = 2;
-		defaultSpawns[ITEM_HANDGRENADE].iLimit = 3;
+		defaultSpawns[ITEM_TNT].iLimit = 3;
+		defaultSpawns[ITEM_MOLOTOV].iLimit = 3;
 	}
 	else if ( nPlayers >= 12 )
 	{
@@ -313,7 +317,8 @@ void ZP::SetupDefaultSpawnList()
 		defaultSpawns[ITEM_PAINKILLER].iLimit = 5;
 		defaultSpawns[ITEM_BATTERY].iLimit = 2;
 		defaultSpawns[ITEM_SATCHEL].iLimit = 1;
-		defaultSpawns[ITEM_HANDGRENADE].iLimit = 3;
+		defaultSpawns[ITEM_TNT].iLimit = 3;
+		defaultSpawns[ITEM_MOLOTOV].iLimit = 3;
 	}
 	else if ( nPlayers >= 8 )
 	{
@@ -334,7 +339,8 @@ void ZP::SetupDefaultSpawnList()
 		defaultSpawns[ITEM_HEALTHKIT].iLimit = 2;
 		defaultSpawns[ITEM_BATTERY].iLimit = 2;
 		defaultSpawns[ITEM_SATCHEL].iLimit = 1;
-		defaultSpawns[ITEM_HANDGRENADE].iLimit = 2;
+		defaultSpawns[ITEM_TNT].iLimit = 2;
+		defaultSpawns[ITEM_MOLOTOV].iLimit = 2;
 	}
 	else if ( nPlayers >= 5 )
 	{
@@ -355,7 +361,8 @@ void ZP::SetupDefaultSpawnList()
 		defaultSpawns[ITEM_HEALTHKIT].iLimit = 2;
 		defaultSpawns[ITEM_BATTERY].iLimit = 1;
 		defaultSpawns[ITEM_SATCHEL].iLimit = 1;
-		defaultSpawns[ITEM_HANDGRENADE].iLimit = 2;
+		defaultSpawns[ITEM_TNT].iLimit = 2;
+		defaultSpawns[ITEM_MOLOTOV].iLimit = 2;
 	}
 	else if ( nPlayers >= 3 )
 	{
@@ -376,7 +383,8 @@ void ZP::SetupDefaultSpawnList()
 		defaultSpawns[ITEM_HEALTHKIT].iLimit = 1;
 		defaultSpawns[ITEM_BATTERY].iLimit = 1;
 		defaultSpawns[ITEM_SATCHEL].iLimit = 1;
-		defaultSpawns[ITEM_HANDGRENADE].iLimit = 1;
+		defaultSpawns[ITEM_TNT].iLimit = 1;
+		defaultSpawns[ITEM_MOLOTOV].iLimit = 1;
 	}
 	else
 	{
@@ -397,7 +405,8 @@ void ZP::SetupDefaultSpawnList()
 		defaultSpawns[ITEM_HEALTHKIT].iLimit = 1;
 		defaultSpawns[ITEM_BATTERY].iLimit = 1;
 		defaultSpawns[ITEM_SATCHEL].iLimit = 1;
-		defaultSpawns[ITEM_HANDGRENADE].iLimit = 1;
+		defaultSpawns[ITEM_TNT].iLimit = 1;
+		defaultSpawns[ITEM_MOLOTOV].iLimit = 1;
 	}
 
 	for ( size_t i = 0; i < MAX_DEFAULT_SPAWNS_COUNT; i++ )

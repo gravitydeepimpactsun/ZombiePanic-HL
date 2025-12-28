@@ -2491,10 +2491,8 @@ void CBasePlayer::DoBloodLossDecal( float flDelay )
 
 void CBasePlayer::DoScreenTint( bool bDamage )
 {
-	bool bDoTint = true;
-	char *szDoScreenTint = g_engfuncs.pfnInfoKeyValue( g_engfuncs.pfnGetInfoKeyBuffer( edict() ), "do_screen_tint" );
-	if ( szDoScreenTint && szDoScreenTint[0] )
-		bDoTint = FStrEq( szDoScreenTint, "1" ) ? true : false;
+	ClientAPIData_t apiData = ZPGameRules()->GetClientAPI( this );
+	bool bDoTint = apiData.DoScreenTint;
 	if ( !bDoTint ) return;
 	UTIL_ScreenFade( this, bDamage ? Vector(128, 0, 0) : Vector(0, 255, 255), 2, 0.1, 10, FFADE_IN );
 }
@@ -2594,9 +2592,8 @@ void CBasePlayer::SetTheCorrectPlayerModel()
 	bool bIsZombie = (iTeam == ZP::TEAM_ZOMBIE) ? true : false;
 
 	PlayerCharacter iPrefferedChar = PlayerCharacter::ANY;
-	char *szPlayerCharacter = g_engfuncs.pfnInfoKeyValue( g_engfuncs.pfnGetInfoKeyBuffer( edict() ), "character" );
-	if ( szPlayerCharacter && szPlayerCharacter[0] )
-		iPrefferedChar = GetCharacter( szPlayerCharacter );
+	ClientAPIData_t apiData = ZPGameRules()->GetClientAPI( this );
+	iPrefferedChar = GetCharacter( apiData.Character.c_str() );
 
 	if ( iPrefferedChar == -1 )
 		m_iCharacter = (PlayerCharacter)RANDOM_LONG( PlayerCharacter::SURVIVOR1, PlayerCharacter::MAX_SURVIVORS );
@@ -4521,11 +4518,8 @@ void CBasePlayer::Spawn(void)
 	m_bConnected = TRUE;
 
 	m_iDeathFlags = 0;
-	char *szKeepZVision = g_engfuncs.pfnInfoKeyValue( g_engfuncs.pfnGetInfoKeyBuffer( edict()), "keep_zvision" );
-	if ( szKeepZVision && szKeepZVision[0] )
-		m_bInZombieVision = FStrEq( szKeepZVision, "1" ) ? true : false;
-	else
-		m_bInZombieVision = false;
+	ClientAPIData_t apiData = ZPGameRules()->GetClientAPI( this );
+	m_bInZombieVision = apiData.KeepZVision;
 	m_bBuddhaMode = false;
 
 	if ( pev->team == ZP::TEAM_SURVIVIOR )
@@ -5455,13 +5449,12 @@ int CBasePlayer::AddPlayerItem(CBasePlayerItem *pItem)
 		// should we switch to this item?
 		if (g_pGameRules->FShouldSwitchWeapon(this, pItem))
 		{
-			//auto_switch check, set by cl_autopickup
-			char *szAutoPickup = g_engfuncs.pfnInfoKeyValue( g_engfuncs.pfnGetInfoKeyBuffer( edict()), "auto_switch" );
-			if ( szAutoPickup && szAutoPickup[0] && !m_bJustSpawned )
+			if ( !m_bJustSpawned )
 			{
 				bool bRet = m_pActiveItem ? true : false;
-				// If 0, then do not auto switch to the weapon
-				if ( FStrEq( szAutoPickup, "0" ) && bRet ) return TRUE;
+				ClientAPIData_t apiData = ZPGameRules()->GetClientAPI( this );
+				// If false, then do not auto switch to the weapon
+				if ( !apiData.AutoSwitchOnPickup && bRet ) return TRUE;
 			}
 			SelectWeapon( pWeapon );
 			m_bJustSpawned = false;
@@ -6881,9 +6874,10 @@ void CBasePlayer::DoPanic()
 	}
 	*/
 
+	ClientAPIData_t apiData = ZPGameRules()->GetClientAPI( this );
+
 	// If "Switch to melee on panic" is enabled, then we quickly switch weapons. We skip the holstering and all that.
-	char *szSwitchToMelee = g_engfuncs.pfnInfoKeyValue( g_engfuncs.pfnGetInfoKeyBuffer( edict() ), "panic_to_melee" );
-	if ( szSwitchToMelee && szSwitchToMelee[0] && FStrEq( szSwitchToMelee, "1" ) )
+	if ( apiData.PanicToMelee )
 		SwitchToMelee();
 
 	m_flLastPanic = gpGlobals->time + 30;

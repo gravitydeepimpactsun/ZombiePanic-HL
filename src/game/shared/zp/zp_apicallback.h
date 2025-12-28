@@ -29,11 +29,22 @@ enum eGameAPIVersion
 	k_eGameZombiePanic = 0,
 };
 
+// Client API Data Network struct
 struct ClientAPIData_t
 {
 	eSupporterTier Tier = k_eSupporterTier_NONE;
 	eGameAPIVersion Game = k_eGameUnknown;
 	std::string Key = "";
+
+	// These items below were set via PlayerInfo_SetValueForKey.
+	// However, they were moved here as the values will shit themselves if the player
+	// have a very long name, or simply have colored names.
+
+	std::string Character = "";
+	bool PanicToMelee = false;
+	bool KeepZVision = false;
+	bool AutoSwitchOnPickup = false;
+	bool DoScreenTint = false;
 };
 
 #endif

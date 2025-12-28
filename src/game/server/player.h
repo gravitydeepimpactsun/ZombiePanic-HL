@@ -467,11 +467,14 @@ private:
 	int m_iPillsTaken;
 	int m_iBleedHit[4]; // Track who we hit.
 	char m_szAPIRetrieveKey[64]; // Key to retrieve API data.
+	bool m_bAPIOK = false; // Was the retrieved API data OK?
 
 	void DoHeadshotChunk( const Vector &vecPos, short modelIndex, int iAmount, int iScale );
 public:
 	const char *GetAPIRetrieveKey() const { return m_szAPIRetrieveKey; }
-	void ClearAPIRetrieveKey() { m_szAPIRetrieveKey[0] = '\0'; }
+	void ClearAPIRetrieveKey() { m_szAPIRetrieveKey[0] = '\0'; SetAPIPassed( false ); }
+	void SetAPIPassed( const bool &bState ) { m_bAPIOK = bState; }
+	bool GetAPIPassed() const { return m_bAPIOK; }
 
 	void IncreaseBleed( int iIndex );
 	void DoHeadshotBlood( const Vector &vecPos, int iAmount );

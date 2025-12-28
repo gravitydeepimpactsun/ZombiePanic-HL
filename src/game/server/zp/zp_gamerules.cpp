@@ -756,24 +756,51 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 	}
 	else if (FStrEq(pcmd, "_retrieve"))
 	{
-		const char *arg1 = CMD_ARGV(1);
-		const char *arg2 = CMD_ARGV(2);
-		const char *arg3 = CMD_ARGV(3);
-		const char *arg4 = CMD_ARGV(4);
-
-		// Let's compare the player private key with what we received
-		if ( !FStrEq( arg4, pPlayer->GetAPIRetrieveKey() ) || FStrEq( arg4, "" ) )
+		const char *pSetCommand = CMD_ARGV(1);
+		if ( pSetCommand && pSetCommand[0] )
 		{
-			UTIL_PrintConsole( "Error: Invalid private key argument.\n", pPlayer );
-			return TRUE;
+			const char *arg1 = CMD_ARGV(2);
+			const char *arg2 = CMD_ARGV(3);
+			const char *arg3 = CMD_ARGV(4);
+			const char *arg4 = CMD_ARGV(5);
+			const char *arg5 = CMD_ARGV(6);
+			if ( FStrEq( pSetCommand, "start" ) )
+			{
+				// Let's compare the player private key with what we received
+				if ( !FStrEq( arg1, pPlayer->GetAPIRetrieveKey() ) || FStrEq( arg1, "" ) )
+				{
+					pPlayer->ClearAPIRetrieveKey();
+					return TRUE;
+				}
+				pPlayer->SetAPIPassed( true );
+			}
+			else if ( FStrEq( pSetCommand, "1" ) )
+			{
+				if ( !pPlayer->GetAPIPassed() ) return TRUE;
+				int client = pPlayer->entindex();
+				m_ClientsData[ client ].Game = arg1 ? (eGameAPIVersion)atoi( arg1 ) : eGameAPIVersion::k_eGameUnknown;
+				m_ClientsData[ client ].Tier = arg2 ? (eSupporterTier)atoi( arg2 ) : eSupporterTier::k_eSupporterTier_NONE;
+				m_ClientsData[ client ].Key = arg3 ? arg3 : "";
+			}
+			else if ( FStrEq( pSetCommand, "2" ) )
+			{
+				if ( !pPlayer->GetAPIPassed() ) return TRUE;
+				int client = pPlayer->entindex();
+				m_ClientsData[ client ].PanicToMelee = arg1 ? atoi( arg1 ) : false;
+				m_ClientsData[ client ].KeepZVision = arg2 ? atoi( arg2 ) : false;
+				m_ClientsData[ client ].AutoSwitchOnPickup = arg3 ? atoi( arg3 ) : false;
+				m_ClientsData[ client ].DoScreenTint = arg4 ? atoi( arg4 ) : false;
+				m_ClientsData[ client ].Character = arg5 ? arg5 : "";
+			}
+			else if ( FStrEq( pSetCommand, "end" ) )
+			{
+				if ( !pPlayer->GetAPIPassed() ) return TRUE;
+				DoAPICallBack( pPlayer );
+				pPlayer->ClearAPIRetrieveKey();
+				// Set the model again after we get this. We may have changed "Character" value.
+				pPlayer->SetTheCorrectPlayerModel();
+			}
 		}
-		pPlayer->ClearAPIRetrieveKey();
-
-		int client = pPlayer->entindex();
-		m_ClientsData[ client ].Game = arg1 ? (eGameAPIVersion)atoi( arg1 ) : eGameAPIVersion::k_eGameUnknown;
-		m_ClientsData[ client ].Tier = arg2 ? (eSupporterTier)atoi( arg2 ) : eSupporterTier::k_eSupporterTier_NONE;
-		m_ClientsData[ client ].Key = arg3 ? arg3 : "";
-		DoAPICallBack( pPlayer );
 		return TRUE;
 	}
 	else if (FStrEq(pcmd, "ent_fire"))
@@ -1129,6 +1156,13 @@ uint64 UTIL_ParseSteamID( const char *pszAuthID )
 void CZombiePanicGameRules::DoAPICallBack( CBasePlayer *pPlayer )
 {
 	m_vecPendingAPICalls.push_back( pPlayer->entindex() );
+}
+
+ClientAPIData_t CZombiePanicGameRules::GetClientAPI( CBasePlayer *pPlayer )
+{
+	if ( !pPlayer )
+		return ClientAPIData_t();
+	return m_ClientsData[ pPlayer->entindex() ];
 }
 
 void CZombiePanicGameRules::ProcessAPICalls()

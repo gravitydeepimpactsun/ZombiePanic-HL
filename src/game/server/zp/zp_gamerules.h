@@ -67,6 +67,7 @@ public:
 	void EndMultiplayerGame( void ) override;
 
 	void DoAPICallBack( CBasePlayer *pPlayer );
+	ClientAPIData_t GetClientAPI( CBasePlayer *pPlayer );
 
 protected:
 	void ProcessAPICalls();

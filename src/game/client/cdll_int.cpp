@@ -65,33 +65,42 @@ CSteamAPIContext s_ApiContext;
 CSteamAPIContext *s_APIContext = &s_ApiContext;
 CSteamAPIContext *GetSteamAPI() { return s_APIContext; }
 
-#define SET_CLIENT_SERVER_CVAR( _KEY, _VAR, _DEF )										\
+
+#define SET_CLIENT_SERVER_CVAR_INT( _KEY, _VAR, _DEF )									\
 static int s_##_VAR = -99;																\
 ConVar _VAR( #_VAR, #_DEF, FCVAR_BHL_ARCHIVE );											\
-static void ServerClientVar_Reset##_VAR() { s_##_VAR = -99; }							\
 static void ServerClientVar_Update##_VAR()												\
 {																						\
 	if ( s_##_VAR == _VAR.GetInt() ) return;											\
 	s_##_VAR = _VAR.GetInt();															\
-	gEngfuncs.PlayerInfo_SetValueForKey( #_KEY, _VAR.GetString() );						\
+	g_ClientAPIData._KEY = _VAR.GetInt();												\
+}
+
+#define SET_CLIENT_SERVER_CVAR_BOOL( _KEY, _VAR, _DEF )									\
+static bool s_##_VAR = false;															\
+ConVar _VAR( #_VAR, #_DEF, FCVAR_BHL_ARCHIVE );											\
+static void ServerClientVar_Update##_VAR()												\
+{																						\
+	if ( s_##_VAR == _VAR.GetInt() ) return;											\
+	s_##_VAR = _VAR.GetBool();															\
+	g_ClientAPIData._KEY = _VAR.GetBool();												\
 }
 
 #define SET_CLIENT_SERVER_CVAR_STRING( _KEY, _VAR, _DEF )								\
 static std::string s_##_VAR( #_DEF );													\
 ConVar _VAR( #_VAR, #_DEF, FCVAR_BHL_ARCHIVE );											\
-static void ServerClientVar_Reset##_VAR() { s_##_VAR = -99; }							\
 static void ServerClientVar_Update##_VAR()												\
 {																						\
 	if ( s_##_VAR == _VAR.GetString() ) return;											\
 	s_##_VAR = _VAR.GetString();														\
-	gEngfuncs.PlayerInfo_SetValueForKey( #_KEY, _VAR.GetString() );						\
+	g_ClientAPIData._KEY = _VAR.GetString();											\
 }
 
-SET_CLIENT_SERVER_CVAR( auto_switch, cl_autopickup, 1 );
-SET_CLIENT_SERVER_CVAR( keep_zvision, cl_keepzombovision, 1 );
-SET_CLIENT_SERVER_CVAR( panic_to_melee, cl_panictomelee, 1 );
-SET_CLIENT_SERVER_CVAR( do_screen_tint, cl_screentint, 1 );
-SET_CLIENT_SERVER_CVAR_STRING( character, cl_character, "random" );
+SET_CLIENT_SERVER_CVAR_BOOL( AutoSwitchOnPickup, cl_autopickup, true );
+SET_CLIENT_SERVER_CVAR_BOOL( KeepZVision, cl_keepzombovision, true );
+SET_CLIENT_SERVER_CVAR_BOOL( PanicToMelee, cl_panictomelee, true );
+SET_CLIENT_SERVER_CVAR_BOOL( DoScreenTint, cl_screentint, true );
+SET_CLIENT_SERVER_CVAR_STRING( Character, cl_character, "random" );
 
 /**
  * Checks that game is launched with working directory set to engine path.
@@ -325,11 +334,6 @@ int CL_DLLEXPORT HUD_VidInit(void)
 	PM_ResetUseSlowDownDetection();
 	CResults::Get().Stop();
 	GetClientVoiceMgr()->VidInit();
-	ServerClientVar_Resetcl_autopickup();
-	ServerClientVar_Resetcl_keepzombovision();
-	ServerClientVar_Resetcl_panictomelee();
-	ServerClientVar_Resetcl_screentint();
-	ServerClientVar_Resetcl_character();
 
 	return 1;
 }
@@ -357,11 +361,6 @@ void CL_DLLEXPORT HUD_Init(void)
 	CSvcMessages::Get().Init();
 	EngFuncs_UpdateHooks();
 	console::HudPostInit();
-	ServerClientVar_Resetcl_autopickup();
-	ServerClientVar_Resetcl_keepzombovision();
-	ServerClientVar_Resetcl_panictomelee();
-	ServerClientVar_Resetcl_screentint();
-	ServerClientVar_Resetcl_character();
 }
 
 /*
@@ -417,11 +416,6 @@ void CL_DLLEXPORT HUD_Reset(void)
 	//	RecClHudReset();
 
 	gHUD.VidInit();
-	ServerClientVar_Resetcl_autopickup();
-	ServerClientVar_Resetcl_keepzombovision();
-	ServerClientVar_Resetcl_panictomelee();
-	ServerClientVar_Resetcl_screentint();
-	ServerClientVar_Resetcl_character();
 }
 
 /*
@@ -463,10 +457,10 @@ void CL_DLLEXPORT HUD_Frame(double time)
 	GetClientVoiceMgr()->Frame(time);
 
 	ServerClientVar_Updatecl_autopickup();
+	ServerClientVar_Updatecl_character();
 	ServerClientVar_Updatecl_keepzombovision();
 	ServerClientVar_Updatecl_panictomelee();
 	ServerClientVar_Updatecl_screentint();
-	ServerClientVar_Updatecl_character();
 
 	// Make sure our music manager is thinking
 	if ( CMusicManager::GetInstance() )
@@ -704,6 +698,22 @@ CON_COMMAND( api_retrieve, "" )
 	if ( !pszKey ) return;
 	if ( !pszKey[0] ) return;
 	char szbuf[128];
-	Q_snprintf( szbuf, sizeof(szbuf), "_retrieve %i %i \"%s\" \"%s\"", g_ClientAPIData.Game, g_ClientAPIData.Tier, g_ClientAPIData.Key.c_str(), pszKey );
+	Q_snprintf( szbuf, sizeof(szbuf), "_retrieve start \"%s\"", pszKey );
+	gEngfuncs.pfnClientCmd( szbuf );
+
+	// These are networked back to the player.
+	Q_snprintf( szbuf, sizeof(szbuf), "_retrieve 1 %i %i \"%s\"", g_ClientAPIData.Game, g_ClientAPIData.Tier, g_ClientAPIData.Key.c_str() );
+	gEngfuncs.pfnClientCmd( szbuf );
+
+	// These are just sent to the server.
+	Q_snprintf( szbuf, sizeof(szbuf),
+		"_retrieve 2 %i %i %i %i \"%s\"",
+		g_ClientAPIData.PanicToMelee, g_ClientAPIData.KeepZVision,
+	    g_ClientAPIData.AutoSwitchOnPickup, g_ClientAPIData.DoScreenTint,
+		g_ClientAPIData.Character.c_str()
+	);
+	gEngfuncs.pfnClientCmd( szbuf );
+
+	Q_snprintf( szbuf, sizeof(szbuf), "_retrieve end" );
 	gEngfuncs.pfnClientCmd( szbuf );
 }

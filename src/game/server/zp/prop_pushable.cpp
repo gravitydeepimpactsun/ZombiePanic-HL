@@ -51,6 +51,9 @@ void CPropPushable::Precache()
 
 void CPropPushable::Spawn()
 {
+	// Make sure we also read the baseclass spawn func
+	BaseClass::Spawn();
+
 	Precache();
 
 	SET_MODEL( ENT(pev), STRING(pev->model) );
@@ -62,6 +65,7 @@ void CPropPushable::Spawn()
 	if ( pev->maxs.z == 1 )
 		pev->maxs.z += 26;
 
+	m_flHealth = pev->health;
 	pev->movetype = MOVETYPE_PUSHSTEP;
 	pev->solid = SOLID_BBOX;
 	pev->takedamage = DAMAGE_YES;
@@ -87,11 +91,14 @@ void CPropPushable::Spawn()
 
 void CPropPushable::Restart()
 {
+	BaseClass::Restart();
+
 	SET_MODEL(ENT(pev), STRING(pev->model));
 
 	pev->sequence = 0;
 	SetSequenceBox(); // Copied from CBaseAnimating
 
+	pev->health = m_flHealth;
 	pev->movetype = MOVETYPE_PUSHSTEP;
 	pev->solid = SOLID_BBOX;
 	pev->takedamage = DAMAGE_YES;

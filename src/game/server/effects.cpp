@@ -1385,6 +1385,7 @@ public:
 	virtual bool IsLargeFire() const { return true; }
 	void Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
 	void Spawn() override;
+	int ObjectCaps() override { return FCAP_MUST_RELEASE; }
 	void EXPORT OnTouched( CBaseEntity *pOther );
 	void EXPORT OnThink();
 

@@ -9,7 +9,7 @@ PRECACHE_WEAPON_REGISTER( weapon_molotov );
 void CWeaponExplosiveMolotov::Spawn()
 {
 	Precache();
-	SET_MODEL(ENT(pev), "models/w_tnt.mdl");
+	SET_MODEL(ENT(pev), "models/w_molotov.mdl");
 	DefaultSpawn();
 }
 
@@ -45,23 +45,24 @@ void CWeaponExplosiveMolotov::Precache(void)
 {
 	PRECACHE_MODEL("sprites/flame1.spr");
 	PRECACHE_MODEL("sprites/flame2.spr");
-	PRECACHE_MODEL("models/w_tnt.mdl");
-	PRECACHE_MODEL("models/w_tnt_thrown.mdl");
-	PRECACHE_MODEL("models/v_tnt.mdl");
-	PRECACHE_MODEL("models/p_tnt.mdl");
-	PRECACHE_SOUND("weapons/tnt/fuse.wav");
-	PRECACHE_SOUND("weapons/tnt/lit_1.wav");
-	PRECACHE_SOUND("weapons/tnt/lit_2.wav");
-	PRECACHE_SOUND("weapons/tnt/spark.wav");
+	PRECACHE_MODEL("models/w_molotov.mdl");
+	PRECACHE_MODEL("models/w_molotov_thrown.mdl");
+	PRECACHE_MODEL("models/v_molotov.mdl");
+	PRECACHE_MODEL("models/p_molotov.mdl");
+	PRECACHE_SOUND("weapons/molotov/fuse.wav");
+	PRECACHE_SOUND("weapons/molotov/lit_1.wav");
+	PRECACHE_SOUND("weapons/molotov/lit_2.wav");
 	PRECACHE_SOUND("ambience/flameburst1.wav");
 	PRECACHE_SOUND("ambience/burning1.wav");
+	PRECACHE_SOUND("ambience/burning2.wav");
 	PRECACHE_SOUND("ambience/burning3.wav");
+	PRECACHE_SOUND("debris/bustglass3.wav");
 }
 
 float CWeaponExplosiveMolotov::Deploy()
 {
 	m_flReleaseThrow = -1;
-	DoDeploy( "models/v_tnt.mdl", "models/p_tnt.mdl", ANIM_THROW_EXPLOSIVES_DRAW, "crowbar" );
+	DoDeploy( "models/v_molotov.mdl", "models/p_molotov.mdl", ANIM_THROW_EXPLOSIVES_DRAW, "crowbar" );
 	return GetAnimationTime( 26, 30 );
 }
 
@@ -84,9 +85,9 @@ void CWeaponExplosiveMolotov::PrimaryAttack()
 		m_flStartThrow = gpGlobals->time;
 		m_flReleaseThrow = 0;
 
-		AddWeaponSound( "weapons/tnt/lit_1.wav", 1, ATTN_NORM, GetAnimationTime( 2, 25 ) );
-		AddWeaponSound( "weapons/tnt/fuse.wav", 1, ATTN_NORM, GetAnimationTime( 24, 25 ) );
-		AddWeaponSound( "weapons/tnt/lit_2.wav", 1, ATTN_NORM, GetAnimationTime( 25, 25 ) );
+		AddWeaponSound( "weapons/molotov/lit_1.wav", 1, ATTN_NORM, GetAnimationTime( 2, 25 ) );
+		AddWeaponSound( "weapons/molotov/fuse.wav", 1, ATTN_NORM, GetAnimationTime( 24, 25 ) );
+		AddWeaponSound( "weapons/molotov/lit_2.wav", 1, ATTN_NORM, GetAnimationTime( 25, 25 ) );
 		SendWeaponAnim( ANIM_THROW_EXPLOSIVES_PINPULL );
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime( 34, 25 );
 	}
@@ -99,9 +100,9 @@ void CWeaponExplosiveMolotov::SecondaryAttack()
 		m_flStartThrow = gpGlobals->time;
 		m_flReleaseThrow = 0;
 
-		AddWeaponSound( "weapons/tnt/lit_1.wav", 1, ATTN_NORM, GetAnimationTime( 4, 25 ) );
-		AddWeaponSound( "weapons/tnt/fuse.wav", 1, ATTN_NORM, GetAnimationTime( 24, 25 ) );
-		AddWeaponSound( "weapons/tnt/lit_2.wav", 1, ATTN_NORM, GetAnimationTime( 24, 25 ) );
+		AddWeaponSound( "weapons/molotov/lit_1.wav", 1, ATTN_NORM, GetAnimationTime( 4, 25 ) );
+		AddWeaponSound( "weapons/molotov/fuse.wav", 1, ATTN_NORM, GetAnimationTime( 24, 25 ) );
+		AddWeaponSound( "weapons/molotov/lit_2.wav", 1, ATTN_NORM, GetAnimationTime( 24, 25 ) );
 		SendWeaponAnim( ANIM_THROW_EXPLOSIVES_PINPULL2 );
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime( 35, 25 );
 		m_bDoSecondaryAttack = true;
@@ -132,7 +133,7 @@ void CWeaponExplosiveMolotov::WeaponIdle(void)
 		Vector vecSrc = m_pPlayer->pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_forward * 16;
 		Vector vecThrow = gpGlobals->v_forward * flVel + m_pPlayer->pev->velocity;
 
-		CGrenade::ShootContact( m_pPlayer->pev, vecSrc, vecThrow, "models/w_tnt_thrown.mdl", CGrenade::CONTACT_TYPE::TYPE_MOLOTOV );
+		CGrenade::ShootContact( m_pPlayer->pev, vecSrc, vecThrow, "models/w_molotov_thrown.mdl", CGrenade::CONTACT_TYPE::TYPE_MOLOTOV );
 
 		SendWeaponAnim( m_bDoSecondaryAttack ? ANIM_THROW_EXPLOSIVES_THROW2 : ANIM_THROW_EXPLOSIVES_THROW );
 

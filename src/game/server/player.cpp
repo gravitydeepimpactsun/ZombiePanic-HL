@@ -6690,7 +6690,7 @@ CBasePlayer::ThrowableDropState CBasePlayer::IsThrowableAndActive( CBasePlayerWe
 			if ( time < 0 ) time = 1.0;
 
 			if ( pWeapon->GetWeaponID() == WEAPON_MOLOTOV )
-				CGrenade::ShootContact( pev, vecSrc, vecThrow, "models/w_tnt_thrown.mdl", CGrenade::CONTACT_TYPE::TYPE_MOLOTOV );
+				CGrenade::ShootContact( pev, vecSrc, vecThrow, "models/w_molotov_thrown.mdl", CGrenade::CONTACT_TYPE::TYPE_MOLOTOV );
 			else
 				CGrenade::ShootTimed( pev, vecSrc, vecThrow, time, "models/w_tnt_thrown.mdl" );
 

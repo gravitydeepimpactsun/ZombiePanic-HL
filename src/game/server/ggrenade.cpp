@@ -116,6 +116,7 @@ void CGrenade::Explode(TraceResult *pTrace, int bitsDamageType)
 		m_MolotovOwner = pevOwner;
 		TryCreateFlameAtPoint();
 		EMIT_SOUND_DYN( ENT(pev), CHAN_BODY, "ambience/flameburst1.wav", 1.0, ATTN_NORM, 0, PITCH_NORM );
+		EMIT_SOUND_DYN( ENT(pev), CHAN_ITEM, "debris/bustglass3.wav", 1.0, ATTN_NORM, 0, PITCH_NORM );
 		SetThink( &CGrenade::DoMolotovBurn );
 		pev->nextthink = gpGlobals->time;
 		return;

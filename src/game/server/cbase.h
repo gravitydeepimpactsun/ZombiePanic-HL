@@ -279,6 +279,7 @@ public:
 #endif
 
 	void UpdateOnRemove(void);
+	virtual void OnRemove() {}
 
 	// common member functions
 	void EXPORT SUB_Remove(void);

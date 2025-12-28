@@ -90,6 +90,9 @@ BOOL CBaseDMStart::IsTriggered(CBaseEntity *pEntity)
 // This updates global tables that need to know about entities being removed
 void CBaseEntity::UpdateOnRemove(void)
 {
+	// Call this function, so we can utilize it by our child classes.
+	OnRemove();
+
 	int i;
 
 	if (FBitSet(pev->flags, FL_GRAPHED))

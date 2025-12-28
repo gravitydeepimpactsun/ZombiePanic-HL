@@ -1382,6 +1382,7 @@ class CFlameBaseEnt : public CSprite
 	SET_BASECLASS( CSprite );
 
 public:
+	void OnRemove() override { KillSound(); }
 	virtual bool IsLargeFire() const { return true; }
 	void Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
 	void Spawn() override;
@@ -1390,6 +1391,8 @@ public:
 	void EXPORT OnThink();
 
 private:
+	void KillSound() { EMIT_SOUND_DYN( ENT(pev), CHAN_BODY, "common/null.wav", 0, ATTN_NORM, 0, PITCH_NORM ); }
+
 	struct entity_flamed_t
 	{
 		int Entity;
@@ -1473,7 +1476,7 @@ void CFlameBaseEnt::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE
 {
 	if ( useType == USE_TYPE::USE_OFF )
 	{
-		EMIT_SOUND_DYN( ENT(pev), CHAN_BODY, "common/null.wav", 0, ATTN_NORM, 0, PITCH_NORM );
+		KillSound();
 		UTIL_Remove( this );
 	}
 }

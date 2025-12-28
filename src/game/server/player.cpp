@@ -6689,7 +6689,10 @@ CBasePlayer::ThrowableDropState CBasePlayer::IsThrowableAndActive( CBasePlayerWe
 			float time = pWeapon->m_flStartThrow - gpGlobals->time + 5.0;
 			if ( time < 0 ) time = 1.0;
 
-			CGrenade::ShootTimed( pev, vecSrc, vecThrow, time, "models/w_tnt_thrown.mdl" );
+			if ( pWeapon->GetWeaponID() == WEAPON_MOLOTOV )
+				CGrenade::ShootContact( pev, vecSrc, vecThrow, "models/w_tnt_thrown.mdl", CGrenade::CONTACT_TYPE::TYPE_MOLOTOV );
+			else
+				CGrenade::ShootTimed( pev, vecSrc, vecThrow, time, "models/w_tnt_thrown.mdl" );
 
 			// Decrement
 			pWeapon->m_iClip--;

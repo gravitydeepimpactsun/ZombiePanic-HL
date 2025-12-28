@@ -209,6 +209,7 @@ void CGrenade::TryCreateFlameAtPoint()
 		// Create the main flame
 		CBaseEntity *pEnt = Create( "flame_large", tr.vecEndPos + Vector( 0, 0, 64 ), Vector( 0, 0, 0 ) );
 		if ( !pEnt ) return;
+		pEnt->pev->enemy = ENT( m_MolotovOwner );
 		m_FlameEnts.push_back( pEnt );
 
 		UTIL_CreateFlameDecal( pHit->edict(), tr.vecEndPos + Vector( 0, 0, 64 ) );
@@ -228,8 +229,9 @@ bool CGrenade::TryCreateFlameAtPoint( int nSubID )
 		if ( !UTIL_IS_VALID_FLAME_HIT( pHit, &tr ) ) return false;
 
 		// Create the main flame
-		CBaseEntity *pEnt = Create( "flame_medium", tr.vecEndPos + Vector( 0, 0, 1 ), Vector( 0, 0, 0 ) );
+		CBaseEntity *pEnt = Create( "flame_medium", tr.vecEndPos + Vector( 0, 0, 10 ), Vector( 0, 0, 0 ) );
 		if ( !pEnt ) return false;
+		pEnt->pev->enemy = ENT( m_MolotovOwner );
 		m_FlameEnts.push_back( pEnt );
 
 		UTIL_CreateFlameDecal( pHit->edict(), tr.vecEndPos + Vector( 0, 0, 64 ) );
@@ -548,6 +550,7 @@ CGrenade *CGrenade::ShootContact(entvars_t *pevOwner, Vector vecStart, Vector ve
 	pGrenade->pev->angles = UTIL_VecToAngles(pGrenade->pev->velocity);
 	pGrenade->pev->owner = ENT(pevOwner);
 	pGrenade->m_Type = nType;
+	pGrenade->pev->team = ZP::TEAM_SURVIVIOR;
 
 	// make monsters afaid of it while in the air
 	pGrenade->SetThink(&CGrenade::DangerSoundThink);

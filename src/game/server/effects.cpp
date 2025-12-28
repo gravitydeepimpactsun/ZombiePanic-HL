@@ -1418,13 +1418,13 @@ void CFlameBaseEnt::Spawn()
 	Vector vMinMax[2];
 	if ( IsLargeFire() )
 	{
-		vMinMax[0] = Vector( -64, -64, 0 );
-		vMinMax[1] = Vector( 64, 64, 96 );
+		vMinMax[0] = Vector( -64, -64, -30 );
+		vMinMax[1] = Vector( 64, 64, 32 );
 	}
 	else
 	{
-		vMinMax[0] = Vector( -32, -32, 0 );
-		vMinMax[1] = Vector( 32, 32, 96 );
+		vMinMax[0] = Vector( -32, -32, -10 );
+		vMinMax[1] = Vector( 32, 32, 28 );
 	}
 	UTIL_SetSize( pev, vMinMax[0], vMinMax[1] );
 
@@ -1448,7 +1448,7 @@ void CFlameBaseEnt::OnTouched( CBaseEntity* pOther )
 		entity_flamed_t client = m_List[i];
 		if ( client.Entity == pOther->entindex() ) return;
 	}
-	pOther->TakeDamage( pev, pev, 1.0f, DMG_BURN );
+	pOther->TakeDamage( pev, &pev->enemy->v, 5.0f, DMG_BURN );
 	entity_flamed_t ent;
 	ent.Entity = pOther->entindex();
 	ent.Time = gpGlobals->time + 1.0f;

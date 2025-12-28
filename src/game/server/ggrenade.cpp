@@ -282,7 +282,7 @@ void CGrenade::DoMolotovBurn()
 		m_iRequireSequence--;
 	}
 
-	pev->nextthink = gpGlobals->time;
+	pev->nextthink = gpGlobals->time + 0.1f;
 }
 
 void CGrenade::Smoke(void)

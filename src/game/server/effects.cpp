@@ -1415,6 +1415,7 @@ void CFlameBaseEnt::Spawn()
 	pev->rendermode = kRenderTransAdd;
 	pev->renderamt = 255;
 	pev->rendercolor = Vector( 255, 255, 255 );
+	pev->team = ZP::TEAM_SURVIVIOR;
 
 	pev->solid = SOLID_TRIGGER;
 	pev->movetype = MOVETYPE_FLY;

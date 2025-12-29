@@ -4597,7 +4597,7 @@ void CBasePlayer::Spawn(void)
 		g_pGameRules->GetPlayerSpawnSpot(this);
 	m_bSpawnInPlace = false;
 
-	// Move all player spectators to new traget origin (bugfix for pmove/PAS issue)
+	// Move all player spectators to new target origin (bugfix for pmove/PAS issue)
 	CBasePlayer *plr;
 	for (int i = 1; i <= gpGlobals->maxClients; i++)
 	{
@@ -4609,6 +4609,8 @@ void CBasePlayer::Spawn(void)
 	}
 
 	SetTheCorrectPlayerModel();
+	SetBackpackState( false );
+	SetBodygroup( BGROUP_BACKPACK, BGROUP_SUB_DEFAULT );
 
 	g_ulModelIndexPlayer = pev->modelindex;
 	pev->sequence = LookupActivity(ACT_IDLE);

@@ -597,9 +597,12 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 	{
 		if ( pPlayer->pev->team == ZP::TEAM_OBSERVER || pPlayer->m_bInWelcomeCam )
 		{
+			int iCurrent, iMax;
+			m_pGameMode->GetZombieLifeData( iCurrent, iMax );
+
 			// Go no more lives? stop.
 			// This only applies if the player is on TEAM_OBSERVER
-			if ( pPlayer->m_bNoLives )
+			if ( pPlayer->m_bNoLives || iCurrent == 0 )
 			{
 				if ( !pPlayer->IsObserver() )
 					pPlayer->StartObserver();

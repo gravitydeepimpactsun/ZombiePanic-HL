@@ -25,7 +25,7 @@ public:
 	virtual ZP::GameModeType_e GetGameModeType() = 0;
 	virtual bool IsTestModeActive() const = 0;
 	virtual void OnHUDInit(CBasePlayer *pPlayer) = 0;
-	virtual void GetZombieLifeData( int &current, int &max ) { current = max = 0; };
+	virtual void GetZombieLifeData( int &current, int &max ) { current = max = -1; };
 	virtual void OnZombieLifeUpdated( bool bIncreased ) { };
 	virtual void OnGameModeThink() = 0;
 	virtual void RestartRound() = 0;

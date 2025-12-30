@@ -15,10 +15,11 @@ public:
 	void KeyValue( KeyValueData *pkvd ) override;
 	void Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value ) override;
 	int ObjectCaps() override;
+	bool IsUseableItem() const override { return true; }
 
 protected:
 	void SetSequenceBox();
-	int ExtractBbox(int sequence, float *mins, float *maxs);
+	int ExtractBbox( int sequence, float *mins, float *maxs );
 
 private:
 	string_t m_GiveItem;

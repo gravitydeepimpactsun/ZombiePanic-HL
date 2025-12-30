@@ -41,6 +41,7 @@ void CPropStaticSpawn::SpawnItem()
 	if ( flChance <= flPercentage || flPercentage == 1.0f )
 	{
 		pev->effects = 0;
+		pev->scale = m_flScale;
 		m_bCanUse = true;
 	}
 }
@@ -64,7 +65,7 @@ void CPropStaticSpawn::KeyValue( KeyValueData *pkvd )
 	if ( FStrEq( pkvd->szKeyName, "model" ) )
 		pev->model = ALLOC_STRING( pkvd->szValue );
 	else if ( FStrEq( pkvd->szKeyName, "scale" ) )
-		pev->scale = atof( pkvd->szValue );
+		m_flScale = atof( pkvd->szValue );
 	else if ( FStrEq( pkvd->szKeyName, "chance" ) )
 		m_percentage = clamp( atoi( pkvd->szValue ), 0, 100 );
 	else if ( FStrEq( pkvd->szKeyName, "give" ) )
@@ -78,8 +79,11 @@ void CPropStaticSpawn::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_T
 	if ( pev->effects == EF_NODRAW ) return;
 
 	// If a player uses this.
-	if ( pActivator->IsPlayer() && !m_bDisabled )
+	if ( pActivator->IsPlayer() && useType == USE_SET )
 	{
+		if ( !pActivator->IsAlive() ) return;
+		if ( pActivator->pev->team != ZP::TEAM_SURVIVIOR ) return;
+		if ( m_bDisabled ) return;
 		if ( !m_bCanUse ) return;
 		m_bCanUse = false;
 		CBasePlayer *pPlayer = dynamic_cast<CBasePlayer *>( pActivator );
@@ -94,7 +98,7 @@ void CPropStaticSpawn::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_T
 
 int CPropStaticSpawn::ObjectCaps()
 {
-	if ( !m_bCanUse ) return CBaseEntity::ObjectCaps() | FCAP_MUST_RESET;
+	if ( pev->effects == EF_NODRAW ) return CBaseEntity::ObjectCaps() | FCAP_MUST_RESET;
 	return CBaseEntity::ObjectCaps() | FCAP_MUST_RESET | FCAP_IMPULSE_USE;
 }
 

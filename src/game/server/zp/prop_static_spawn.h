@@ -23,6 +23,7 @@ protected:
 private:
 	string_t m_GiveItem;
 	int m_percentage;
+	float m_flScale;
 	bool m_bDisabled;
 	bool m_bCanUse;
 };

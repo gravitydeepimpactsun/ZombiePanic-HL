@@ -15,6 +15,8 @@
 
 extern ConVar cl_character;
 
+#define GetChildPanel( _Name, _Class ) dynamic_cast< _Class* >( FindChildByName( _Name ) )
+
 // was UTIL_STDReplaceString
 void CvarCommandFix( std::string &path, std::string search, std::string replace )
 {
@@ -38,12 +40,19 @@ C_PlayerSelection::C_PlayerSelection(vgui2::Panel *pParent)
 	SetSizeable(false);
 	SetMoveable(true);
 	SetVisible(true);
-	
+	SetProportional( true );
+	SetDeleteSelfOnClose( true );
+
+	vgui2::HScheme hScheme = vgui2::scheme()->LoadSchemeFromFile( VGUI2_ROOT_DIR "resource/ClientSourceScheme.res", "ClientSourceScheme" );
+	SetScheme( hScheme );
+
+	LoadControlSettings( VGUI2_ROOT_DIR "resource/zps/playerselection.res" );
+
 	// KeyValues
 	kvPlayerData = new KeyValues("PlayerModels");
-	
+
 	// Set Our model
-	ui_SelectPlayerModel = new vgui2::ComboBox(this, "player_select", 1, false);
+	ui_SelectPlayerModel = GetChildPanel( "player_select", vgui2::ComboBox );
 
 	// Add random model
 	AddPlayerOption( "random", "#ZP_UI_Char_Random", "random", "random" );
@@ -51,12 +60,6 @@ C_PlayerSelection::C_PlayerSelection(vgui2::Panel *pParent)
 	// Random [ID 0]
 	ui_SelectPlayerModel->ActivateItem( 0 );
 	iHasDescription = 0;
-
-	vgui2::HScheme hScheme = vgui2::scheme()->LoadSchemeFromFile( VGUI2_ROOT_DIR "resource/ClientSourceScheme.res", "ClientSourceScheme" );
-
-	SetScheme( hScheme );
-
-	LoadControlSettings( VGUI2_ROOT_DIR "resource/zps/playerselection.res");
 
 	// Get our current language
 	strLocalizationString = g_pVGuiLocalize->GetLocalizationFileName(0);
@@ -75,13 +78,11 @@ C_PlayerSelection::C_PlayerSelection(vgui2::Panel *pParent)
 
 	SetTitle( "#ZP_UI_PlayerSelection", true);
 
-	Panel *pPanel = FindChildByName( "Info" );
-	vgui2::Label *pInfo = (vgui2::Label *)pPanel;
+	vgui2::Label *pInfo = GetChildPanel( "Info", vgui2::Label );
 	if ( pInfo )
 		pInfo->SetText( "#ZP_UI_PlayerSelection_Info" );
 
-	pPanel = FindChildByName( "SurvivorBio" );
-	vgui2::Label *pSurvivorBio = (vgui2::Label *)pPanel;
+	vgui2::Label *pSurvivorBio = GetChildPanel( "SurvivorBio", vgui2::Label );
 	if ( pSurvivorBio )
 		pSurvivorBio->SetText( "#ZP_UI_PlayerSelection_Bio" );
 
@@ -96,14 +97,8 @@ C_PlayerSelection::C_PlayerSelection(vgui2::Panel *pParent)
 	// Set the new amount of selections
 	ui_SelectPlayerModel->SetNumberOfEditLines( m_playermodels.Count() >= 8 ? 8 : m_playermodels.Count() );
 
-	// Set the position
-	ui_SelectPlayerModel->SetPos(16, 264);
-	ui_SelectPlayerModel->SetSize(190, 24);
-
 	// Set our player model avatar
-	ui_SelectPlayerAvatar = new vgui2::ImagePanel(this, "player_avatar");
-	ui_SelectPlayerAvatar->SetPos(17, 66);
-	ui_SelectPlayerAvatar->SetSize(190, 192);
+	ui_SelectPlayerAvatar = GetChildPanel( "player_avatar", vgui2::ImagePanel );
 	ui_SelectPlayerAvatar->SetShouldScaleImage(true);
 
 	// Before we set the default image, lets check our current model
@@ -123,23 +118,17 @@ C_PlayerSelection::C_PlayerSelection(vgui2::Panel *pParent)
 	// Label
 	//======================================
 	//======================================
-	ui_Label_pagenum = new vgui2::Label(this, "Character_bio_page", "Page (X/Y)");
-	ui_Label_pagenum->SetPos( 730, 445 );
-	ui_Label_pagenum->SetSize( 90, 24 );
+	ui_Label_pagenum = GetChildPanel( "Character_bio_page", vgui2::Label );
 	ui_Label_pagenum->SetPaintBackgroundEnabled( false );
 
 	// Buttons
 	//======================================
 	//======================================
-	ui_Bttn_Back = new vgui2::Button(this, "page_back", "#ZP_UI_Back");
-	ui_Bttn_Back->SetPos( 715, 473 );
-	ui_Bttn_Back->SetSize( 50, 24 );
+	ui_Bttn_Back = GetChildPanel( "page_back", vgui2::Button );
 	ui_Bttn_Back->SetEnabled( false );
 	ui_Bttn_Back->SetCommand( "previous_page" );
 
-	ui_Bttn_Next = new vgui2::Button(this, "page_next", "#ZP_UI_Next");
-	ui_Bttn_Next->SetPos( 781, 473 );
-	ui_Bttn_Next->SetSize( 50, 24 );
+	ui_Bttn_Next = GetChildPanel( "page_next", vgui2::Button );
 	ui_Bttn_Next->SetEnabled( false );
 	ui_Bttn_Next->SetCommand( "next_page" );
 
@@ -155,35 +144,24 @@ C_PlayerSelection::C_PlayerSelection(vgui2::Panel *pParent)
 	vgui2::HFont hFont = pScheme->GetFont( "Bio" );
 
 	// Setup survivor BIO
-	ui_SelectPlayerBio = new vgui2::Label(this, "Character_bio", "If you read this, it failed to read the bio...");
-	ui_SelectPlayerBio->SetPos( 224, 90 );
-	ui_SelectPlayerBio->SetSize( 600, 400 );
+	ui_SelectPlayerBio = GetChildPanel( "Character_bio", vgui2::Label );
 	ui_SelectPlayerBio->SetFont( hFont );
 	ui_SelectPlayerBio->SetWrap( true );
 	ui_SelectPlayerBio->SetContentAlignment( vgui2::Label::Alignment::a_northwest );
 	ui_SelectPlayerBio->SetPaintBackgroundEnabled( false );
 
+	hFont = pScheme->GetFont( "BioProportional", true );
+	ui_SelectPlayerBio->SetFont( hFont );
+
+	hFont = pScheme->GetFont( "DefaultProportional", true );
+	ui_Bttn_Back->SetFont( hFont );
+	ui_Bttn_Next->SetFont( hFont );
+	ui_Label_pagenum->SetFont( hFont );
+	ui_SelectPlayerModel->SetFont( hFont );
+
 	V_strcpy_safe( strCurrentBio, "random" );
 	LoadPageInfo( "random", 0 );
 
-	SetProportional( true );
-
-	// We need to set the for proportional here.
-	{
-		hFont = pScheme->GetFont( "BioProportional", true );
-		ui_SelectPlayerBio->SetFont( hFont );
-
-		hFont = pScheme->GetFont( "DefaultProportional", true );
-		ui_Bttn_Back->SetFont( hFont );
-		ui_Bttn_Next->SetFont( hFont );
-		ui_Label_pagenum->SetFont( hFont );
-
-		pPanel = FindChildByName( "SetModel" );
-		vgui2::Button *pSetModel = (vgui2::Button *)pPanel;
-		if ( pSetModel )
-			pSetModel->SetFont( hFont );
-		ui_SelectPlayerModel->SetFont( hFont );
-	}
 	MoveToCenterOfScreen();
 }
 

@@ -1333,7 +1333,7 @@ int CStudioModelRenderer::StudioDrawModel(int flags)
 		IEngineStudio.StudioEntityLight(&lighting);
 
 		// Override lighting to be more visible if we are in complete darkness
-		if ( lighting.shadelight < 60 )
+		if ( lighting.shadelight < 60 && m_pCurrentEntity == gEngfuncs.GetViewModel() )
 			lighting.shadelight = 60;
 
 		// model and frame independant

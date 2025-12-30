@@ -6,6 +6,7 @@
 #include "maprules.h"
 #include "zp/info_random_base.h"
 #include "zp/info_beacon.h"
+#include "zp/prop_static_spawn.h"
 #include "zp/gamemodes/zp_gamemodebase.h"
 #include "convar.h"
 #ifdef SCRIPT_SYSTEM
@@ -619,5 +620,13 @@ void ZP::OnGameModeRoundStart()
 		if ( ( pTimer->pev->spawnflags & SF_GAMETIMER_START_ON_ROUND ) )
 			pTimer->Use( pTimer, pTimer, USE_SET, 0 );
 		pTimer = UTIL_FindEntityByClassname( pTimer, "game_timer" );
+	}
+
+	// prop_static_spawn are similar to info_random ents, but we spawn a specific item w/ a % chance added ontop.
+	CPropStaticSpawn *pStaticSpawn = (CPropStaticSpawn *)UTIL_FindEntityByClassname( nullptr, "prop_static_spawn" );
+	while ( pStaticSpawn )
+	{
+		pStaticSpawn->SpawnItem();
+		pStaticSpawn = (CPropStaticSpawn *)UTIL_FindEntityByClassname( pStaticSpawn, "prop_static_spawn" );
 	}
 }

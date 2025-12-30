@@ -10,6 +10,8 @@ add_sources(
 	info_beacon.h
 	prop_pushable.cpp
 	prop_barricade.cpp
+	prop_static_spawn.cpp
+	prop_static_spawn.h
 	trigger_spawnblocker.cpp
 	trigger_endround.cpp
 	info_random_base.cpp

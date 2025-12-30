@@ -51,6 +51,8 @@
 // Music manager
 #include "zp/music/music_manager.h"
 
+static ConVar cl_hidescoreboardicon( "cl_hidescoreboardicon", "0", FCVAR_BHL_ARCHIVE, "Hides your scoreboard icon (if you have any)" );
+
 CHud gHUD;
 extern ClientAPIData_t g_ClientAPIData;
 
@@ -81,7 +83,7 @@ static bool s_##_VAR = false;															\
 ConVar _VAR( #_VAR, #_DEF, FCVAR_BHL_ARCHIVE );											\
 static void ServerClientVar_Update##_VAR()												\
 {																						\
-	if ( s_##_VAR == _VAR.GetInt() ) return;											\
+	if ( s_##_VAR == _VAR.GetBool() ) return;											\
 	s_##_VAR = _VAR.GetBool();															\
 	g_ClientAPIData._KEY = _VAR.GetBool();												\
 }
@@ -701,9 +703,18 @@ CON_COMMAND( api_retrieve, "" )
 	Q_snprintf( szbuf, sizeof(szbuf), "_retrieve start \"%s\"", pszKey );
 	gEngfuncs.pfnClientCmd( szbuf );
 
-	// These are networked back to the player.
-	Q_snprintf( szbuf, sizeof(szbuf), "_retrieve 1 %i %i \"%s\"", g_ClientAPIData.Game, g_ClientAPIData.Tier, g_ClientAPIData.Key.c_str() );
-	gEngfuncs.pfnClientCmd( szbuf );
+	if ( cl_hidescoreboardicon.GetBool() )
+	{
+		// These are networked back to the player.
+		Q_snprintf( szbuf, sizeof(szbuf), "_retrieve 1 %i 0 \"\"", g_ClientAPIData.Game );
+		gEngfuncs.pfnClientCmd( szbuf );
+	}
+	else
+	{
+		// These are networked back to the player.
+		Q_snprintf( szbuf, sizeof(szbuf), "_retrieve 1 %i %i \"%s\"", g_ClientAPIData.Game, g_ClientAPIData.Tier, g_ClientAPIData.Key.c_str() );
+		gEngfuncs.pfnClientCmd( szbuf );
+	}
 
 	// These are just sent to the server.
 	Q_snprintf( szbuf, sizeof(szbuf),

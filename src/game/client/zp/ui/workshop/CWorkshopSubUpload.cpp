@@ -89,9 +89,12 @@ CWorkshopSubUpload::CWorkshopSubUpload(vgui2::Panel *parent)
 	pAddonReset = new vgui2::Button( this, "AddonReset", "#ZP_UI_Workshop_Upload_Reset", this, "Reset" );
 	pProgress = new vgui2::ProgressBar( this, "ProgressBar" );
 	pProgressLabel = new vgui2::Label( this, "ProgressBarText", "#ZP_UI_Workshop_UpdateStatus_PreparingConfig" );
-	
+
+	vgui2::HScheme hScheme = vgui2::scheme()->LoadSchemeFromFile( VGUI2_ROOT_DIR "resource/ClientSourceScheme.res", "ClientSourceScheme" );
+	SetScheme( hScheme );
+
 	// Load this after we created our objects
-	LoadControlSettings(VGUI2_ROOT_DIR "resource/workshop/upload.res");
+	LoadControlSettings( VGUI2_ROOT_DIR "resource/workshop/upload.res" );
 
 	// KeyValues
 	KeyValues *kv = new KeyValues( "Categories", "Key", "Value" );
@@ -125,6 +128,11 @@ CWorkshopSubUpload::CWorkshopSubUpload(vgui2::Panel *parent)
 	preview_image.clear();
 
 	int nItem = 0;
+
+	vgui2::IScheme *pScheme = vgui2::scheme()->GetIScheme( hScheme );
+	vgui2::HFont hFont = pScheme->GetFont( "DefaultProportional", true );
+
+	pTags->SetFontOverride( hFont );
 
 #define AddTagTitle( _TITLE ) \
 	nItem = pTags->AddItem( _TITLE, false, new KeyValues( "Title" ) ); \

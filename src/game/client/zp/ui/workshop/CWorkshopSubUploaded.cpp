@@ -31,8 +31,6 @@ CWorkshopSubUploaded::CWorkshopSubUploaded(vgui2::Panel *parent)
 
 	// Our Item List
 	pList = new vgui2::WorkshopItemList( this, "listpanel" );
-	pList->SetPos( 15, 100 );
-	pList->SetSize( 600, 302 );
 	pList->AddActionSignalTarget( this );
 
 	// Load this last, so we can move our items around.
@@ -122,35 +120,27 @@ void CWorkshopSubUploaded::AddItem( WorkshopItem item )
 	vgui2::ImagePanel *pIcon = new vgui2::ImagePanel( this, "Icon" );
 
 	pIcon->SetImage( vgui2::scheme()->GetImage( "thumb_unknown", false ) );
-	pIcon->SetSize( 56, 56 );
-	pIcon->SetPos( 4, 4 );
 	pIcon->SetFillColor( Color( 25, 25, 25, 150 ) );
 	pIcon->SetShouldScaleImage( true );
 
 	// Font Text
 	vgui2::Label *pTitle = new vgui2::Label( this, "Title", "" );
-	pTitle->SetSize( 400, 20 );
-	pTitle->SetPos( 70, 5 );
 	pTitle->SetPaintBackgroundEnabled( false );
-	hTextFont = pScheme->GetFont( "AchievementItemTitle" );
+	hTextFont = pScheme->GetFont( "AchievementItemTitle", true );
 	if ( hTextFont != vgui2::INVALID_FONT )
 		pTitle->SetFont( hTextFont );
 	pTitle->SetColorCodedText( item.Title );
 
 	vgui2::Label *pAuthor = new vgui2::Label( this, "Author", "" );
-	pAuthor->SetSize( 400, 20 );
-	pAuthor->SetPos( 70, 35 );
 	pAuthor->SetPaintBackgroundEnabled( false );
-	hTextFont = pScheme->GetFont( "AchievementItemDescription" );
+	hTextFont = pScheme->GetFont( "DefaultProportional", true );
 	if ( hTextFont != vgui2::INVALID_FONT )
 		pAuthor->SetFont( hTextFont );
 	pAuthor->SetColorCodedText( item.Author );
 
 	vgui2::Label *pDesc = new vgui2::Label( this, "Description", "" );
-	pDesc->SetSize( 400, 20 );
-	pDesc->SetPos( 70, 15 );
 	pDesc->SetPaintBackgroundEnabled( false );
-	hTextFont = pScheme->GetFont( "AchievementItemDescription" );
+	hTextFont = pScheme->GetFont( "DefaultProportional", true );
 	if ( hTextFont != vgui2::INVALID_FONT )
 		pDesc->SetFont( hTextFont );
 	pDesc->SetColorCodedText( item.Desc );

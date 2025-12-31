@@ -41,6 +41,8 @@ public:
 	int GetHighestItemID();
 	int GetItemCount();
 
+	void SetFontOverride( vgui2::HFont nFont );
+
 	// item info
 	KeyValues *GetItemData(int itemID);
 	bool IsItemChecked(int itemID);
@@ -74,6 +76,7 @@ private:
 	};
 	CUtlVector<CheckItem_t> m_CheckItems;
 	vgui2::ScrollBar *m_pScrollBar;
+	vgui2::HFont m_Font = vgui2::INVALID_FONT;
 };
 
 }

@@ -19,6 +19,7 @@ using namespace vgui2;
 //-----------------------------------------------------------------------------
 CheckButtonList::CheckButtonList(Panel *parent, const char *name) : BaseClass(parent, name)
 {
+	SetProportional( true );
 	m_pScrollBar = new ScrollBar(this, NULL, true);
 }
 
@@ -41,6 +42,8 @@ int CheckButtonList::AddItem(const char *itemText, bool startsSelected, KeyValue
 	newItem.checkButton->SetSelected(startsSelected);
 	newItem.checkButton->SetSilentMode( false );
 	newItem.checkButton->AddActionSignalTarget(this);
+	if ( m_Font != vgui2::INVALID_FONT )
+		newItem.checkButton->SetFont( m_Font );
 	newItem.userData = userData;
 	InvalidateLayout();
 	return m_CheckItems.AddToTail(newItem);
@@ -88,7 +91,7 @@ void CheckButtonList::PerformLayout()
 	BaseClass::PerformLayout();
 
 	// get sizes
-	int x = 4, y = 4, wide = GetWide() - ((x * 2) + m_pScrollBar->GetWide()), tall = 22;
+	int x = 4, y = 4, wide = GetWide() - ((x * 2) + m_pScrollBar->GetWide()), tall = GetScaledValue( 18 );
 
 	// set scrollbar
 	int totalHeight = y + (m_CheckItems.Count() * tall);
@@ -155,6 +158,11 @@ KeyValues *CheckButtonList::GetItemData(int itemID)
 int CheckButtonList::GetItemCount()
 {
 	return m_CheckItems.Count();
+}
+
+void vgui2::CheckButtonList::SetFontOverride( vgui2::HFont nFont )
+{
+	m_Font = nFont;
 }
 
 //-----------------------------------------------------------------------------

@@ -30,7 +30,6 @@ void CServerListPanel::OnKeyCodeTyped( vgui2::KeyCode code )
 	BaseClass::OnKeyCodeTyped( code );
 }
 
-
 #define FILTER_ALLSERVERS          0
 #define FILTER_SECURESERVERSONLY   1
 #define FILTER_INSECURESERVERSONLY 2
@@ -43,7 +42,7 @@ CBaseTab::CBaseTab( vgui2::Panel *parent, const char *name, EPageType eType, con
 	: PropertyPage(parent, name), m_pCustomResFilename( pCustomResFilename ),
 	m_hRequest( NULL )
 {
-	SetSize( 624, 278 );
+	SetSize( GetScaledValue( 624 ), GetScaledValue( 278 ) );
 	m_szMapFilter[0]  = 0;
 	m_iPingFilter = 0;
 	// Default to Zombie Panic! AppID if this just shits itself.
@@ -75,6 +74,7 @@ CBaseTab::CBaseTab( vgui2::Panel *parent, const char *name, EPageType eType, con
 	m_pAddCurrentServer = new vgui2::Button(this, "AddCurrentServerButton", "#ServerBrowser_AddCurrentServer");
 	m_pServerList = new CServerListPanel(this, "gamelist");
 	m_pServerList->SetAllowUserModificationOfColumns(true);
+	m_pServerList->SetColumnHeaderHeight( GetScaledValue(20) );
 
 	m_pAddToFavoritesButton = new vgui2::Button( this, "AddToFavoritesButton", "" );
 	m_pAddToFavoritesButton->SetEnabled( false );
@@ -567,7 +567,7 @@ void CBaseTab::OnButtonToggled(Panel *panel, int state)
 	{
 		int wide, tall;
 		GetSize( wide, tall );
-		SetSize( 624, 278 );
+		SetSize( GetScaledValue( 624 ), GetScaledValue( 278 ) );
 
 		if ( m_pCustomResFilename )
 		{

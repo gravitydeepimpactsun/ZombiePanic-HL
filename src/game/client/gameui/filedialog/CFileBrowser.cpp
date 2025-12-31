@@ -102,9 +102,11 @@ CFileBrowser::CFileBrowser(vgui2::Panel *pParent)
 	SetSizeable( false );
 	SetSize( 100, 80 );
 	SetPos( 0, 0 );
+	SetProportional( true );
 	SetDeleteSelfOnClose( true );
 
 	pList = new CFileListPanel( this, "ItemList" );
+	pList->SetColumnHeaderHeight( GetScaledValue(20) );
 	pFilePath = new vgui2::TextEntry( this, "CurrentLocation" );
 	pFile = new vgui2::TextEntry( this, "CurrentFile" );
 	pBackButton = new vgui2::ButtonImage( this, "BackOneFolder", "resource/icon_folderup", this, "BackOneFolder" );
@@ -137,6 +139,7 @@ CFileBrowser::CFileBrowser(vgui2::Panel *pParent)
 	InvalidateLayout();
 
 	MoveToFront();
+	MoveToCenterOfScreen();
 }
 
 void CFileBrowser::ApplySchemeSettings( vgui2::IScheme *pScheme )
@@ -147,11 +150,12 @@ void CFileBrowser::ApplySchemeSettings( vgui2::IScheme *pScheme )
 	vgui2::ImageList *imageList = new vgui2::ImageList( false );
 	imageList->AddImage( vgui2::scheme()->GetImage( "resource/icon_file", false ) );
 	imageList->AddImage( vgui2::scheme()->GetImage( "resource/icon_folder", false ) );
+	pList->SetImageList( imageList, true );
 
 	// Fonts
-	vgui2::HFont hTextFont = pScheme->GetFont( "ListSmall" );
+	vgui2::HFont hTextFont = pScheme->GetFont( "ListSmall", true );
 	if ( hTextFont == vgui2::INVALID_FONT )
-		hTextFont = pScheme->GetFont( "DefaultSmall" );
+		hTextFont = pScheme->GetFont( "DefaultSmall", true );
 
 	if ( hTextFont != vgui2::INVALID_FONT )
 	{
@@ -159,7 +163,7 @@ void CFileBrowser::ApplySchemeSettings( vgui2::IScheme *pScheme )
 		pFilePath->SetFont( hTextFont );
 	}
 
-	pList->SetImageList( imageList, true );
+	pList->InvalidateLayout( true, true );
 }
 
 void CFileBrowser::Open( int eFilter, const char *szFolder, const char *szPathID, DialogSelected_t pFunction )

@@ -17,6 +17,7 @@ ZP::ColorGradient::RedYellowGreen gColorGradientRedYellowGreen;
 
 extern int g_ActiveAmmoIndex;
 static ConVar cl_hideemptyammo( "cl_hideemptyammo", "0", FCVAR_BHL_ARCHIVE, "Hides empty ammo from the ammobank" );
+static ConVar cl_ammobank_usekilograms( "cl_ammobank_usekilograms", "0", FCVAR_BHL_ARCHIVE, "Uses kilograms instead of pounds." );
 
 /** Invisible color (black with no alpha). */
 #define COLOR_INVISIBLE			Color( 0, 0, 0, 0 )
@@ -230,7 +231,19 @@ void CHudAmmoBank::Paint()
 
 		// Set the buffer msg
 		char Buffer[128];
-		Q_snprintf( Buffer, sizeof( Buffer ), "%.0f Lb", flWeight );
+
+		// Do the user want to use KG instead of LB?
+		if ( cl_ammobank_usekilograms.GetBool() )
+		{
+			float pounds, grams, kilograms;
+			const float LB2GRM = 453.592f;
+			grams = flWeight * LB2GRM;
+			kilograms = floor( grams / 1000 );
+			grams = fmod( grams, 1000.0 );
+			Q_snprintf( Buffer, sizeof( Buffer ), "%.0f KG", kilograms );
+		}
+		else
+			Q_snprintf( Buffer, sizeof( Buffer ), "%.0f Lb", flWeight );
 
 		// Set our weight status
 		m_pWeightStatus->SetText( Buffer );

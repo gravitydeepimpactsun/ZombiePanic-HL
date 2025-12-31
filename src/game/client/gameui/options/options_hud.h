@@ -32,6 +32,8 @@ private:
 	CCvarCheckButton *m_pMenuFKeys = nullptr;
 	CCvarCheckButton *m_pCenterIdCvar = nullptr;
 	CCvarCheckButton *m_pRainbowCvar = nullptr;
+	CCvarCheckButton *m_pAmmoBankUseKGCvar = nullptr;
+	CCvarCheckButton *m_pHideEmptyAmmo = nullptr;
 
 	CCVarComboBox *m_pScaleBox = nullptr;
 

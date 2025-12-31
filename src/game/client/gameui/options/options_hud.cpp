@@ -28,6 +28,8 @@ CHudSubOptions::CHudSubOptions(vgui2::Panel *parent)
 	m_pMenuFKeys = new CCvarCheckButton(this, "MenuFKeys", "#ZP_AdvOptions_HUD_MenuFKeys", "hud_menu_fkeys");
 	m_pCenterIdCvar = new CCvarCheckButton(this, "CenterIdCvar", "#ZP_AdvOptions_HUD_CenterId", "hud_centerid");
 	m_pRainbowCvar = new CCvarCheckButton(this, "RainbowCvar", "#ZP_AdvOptions_HUD_Rainbow", "hud_rainbow");
+	m_pAmmoBankUseKGCvar = new CCvarCheckButton(this, "AmmoBankUseKGCvar", "#ZP_AdvOptions_HUD_AmmoBankUseKG", "cl_ammobank_usekilograms");
+	m_pHideEmptyAmmo = new CCvarCheckButton(this, "HideEmptyAmmoCvar", "#ZP_AdvOptions_HUD_HideEmptyAmmo", "cl_hideemptyammo");
 
 	m_pScaleBox = new CCVarComboBox(this, "ScaleBox", "hud_scale");
 	m_pScaleBox->AddItem("#ZP_AdvOptions_Hud_ScaleAuto", "0");
@@ -66,6 +68,8 @@ void CHudSubOptions::OnResetData()
 	m_pMenuFKeys->ResetData();
 	m_pCenterIdCvar->ResetData();
 	m_pRainbowCvar->ResetData();
+	m_pAmmoBankUseKGCvar->ResetData();
+	m_pHideEmptyAmmo->ResetData();
 	m_pScaleBox->ResetData();
 }
 
@@ -79,6 +83,8 @@ void CHudSubOptions::OnApplyChanges()
 	m_pMenuFKeys->ApplyChanges();
 	m_pCenterIdCvar->ApplyChanges();
 	m_pRainbowCvar->ApplyChanges();
+	m_pAmmoBankUseKGCvar->ApplyChanges();
+	m_pHideEmptyAmmo->ApplyChanges();
 	m_pScaleBox->ApplyChanges();
 }
 

@@ -30,6 +30,7 @@ ButtonImage::ButtonImage(Panel *parent, const char *panelName, const char *image
 	pImage->SetSize( 0, 0 );
 	pImage->SetPos( 0, 0 );
 	pImage->DisableMouseInputForThisPanel( true );
+	pImage->SetShouldScaleImage( true );
 }
 
 ButtonImage::~ButtonImage()

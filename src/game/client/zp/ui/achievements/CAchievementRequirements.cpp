@@ -97,7 +97,7 @@ void vgui2::CBasicItemCombo::UpdateLayout()
 	w = (w / 2);
 	int space = ( vgui2::scheme()->GetProportionalScaledValue( 5 ) / 2 );
 	int x = 0;
-	int img_size = 24;
+	int img_size = GetScaledValue( 24 );
 	if ( m_Image1 )
 	{
 		m_Image1->SetBounds( 0, 0, img_size, img_size );
@@ -130,10 +130,10 @@ CAchievementRequirementsHolder::CAchievementRequirementsHolder( vgui2::Panel *pa
 	SetPaintBackgroundEnabled( false );
 
 	m_pButton = new vgui2::ButtonImage(this, "ButtonImage", "resource/icon_plus", this, "ToggleOption");
-	m_pButton->SetBounds( 5, 5, 18, 18 );
+	m_pButton->SetBounds( GetScaledValue( 5 ), GetScaledValue( 5 ), GetScaledValue( 18 ), GetScaledValue( 18 ) );
 	m_pButton->SetImage( "resource/icon_plus" );
 	m_pLabel = new vgui2::Label(this, "Label", "#ZP_UI_Achievements_ShowDetails");
-	m_pLabel->SetBounds( 28, 0, 150, 30 );
+	m_pLabel->SetBounds( GetScaledValue( 28 ), GetScaledValue( 0 ), GetScaledValue( 150 ), GetScaledValue( 30 ) );
 	m_pLabel->SetPaintBackgroundEnabled( false );
 
 	m_pList.clear();
@@ -170,7 +170,7 @@ void CAchievementRequirementsHolder::AddItem( bool obtained, const char *text )
 	ypos += (32 * m_pList.size()) + 5;
 	int xpos = m_pLabel->GetXPos();
 	CBasicItemCombo *pComboItem = new CBasicItemCombo( this, "ComboItem", obtained, text );
-	pComboItem->SetBounds( xpos, ypos, 500, 32 );
+	pComboItem->SetBounds( xpos, ypos, GetScaledValue( 500 ), GetScaledValue( 32 ) );
 	pComboItem->UpdateLayout();
 	m_pList.push_back( pComboItem );
 }

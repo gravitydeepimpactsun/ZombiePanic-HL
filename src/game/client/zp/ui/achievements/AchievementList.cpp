@@ -398,11 +398,11 @@ void AchievementList::PerformLayout()
 
 	int top = m_vbar->GetValue();
 
-	if ( vpixels < 306 )
-		vpixels = 306;
+	if ( vpixels < GetScaledValue( 306 ) )
+		vpixels = GetScaledValue( 306 );
 
 	m_pPanelEmbedded->SetPos(0, -top);
-	m_pPanelEmbedded->SetSize(wide - m_vbar->GetWide(), vpixels);	// scrollbar will sit on top (zpos set explicitly)
+	m_pPanelEmbedded->SetSize( wide - m_vbar->GetWide(), vpixels );	// scrollbar will sit on top (zpos set explicitly)
 
 	bool bScrollbarVisible = true;
 	// If we're supposed to automatically hide the scrollbar when unnecessary, check it now
@@ -428,24 +428,26 @@ void AchievementList::PerformLayout()
 
 		DATAITEM &item = m_DataItems[m_SortedItems[i]];
 
+		int iScaledAchIcon = GetScaledValue( 50 );
+
 		// Override the texture height
-		item.texture->SetTall(70);
+		item.texture->SetTall( iScaledAchIcon );
 
 		if (h < item.texture->GetTall())
 			h = item.texture->GetTall();
 
-		item.texture->SetBounds(5, y, iColumnWidth, item.texture->GetTall());
+		item.texture->SetBounds( 5, y, item.texture->GetTall(), item.texture->GetTall() );
 
 		if (item.title)
-			item.title->SetBounds(xpos + iCurrentColumn - 25, y - 2, 400, 20);
+			item.title->SetBounds( iScaledAchIcon + GetScaledValue( 15 ), y - 2, GetScaledValue( 300 ), GetScaledValue( 20 ) );
 
 		if (item.desc)
-			item.desc->SetBounds(xpos + iCurrentColumn - 22, y + 5, 490, 35);
+			item.desc->SetBounds( iScaledAchIcon + GetScaledValue( 12 ), y + GetScaledValue( 5 ), GetScaledValue( 390 ), GetScaledValue( 35 ) );
 
-		if (item.progress_num)
-			item.progress_num->SetBounds(xpos + iCurrentColumn + 200, y + 30, 150, 12);
+		if ( item.progress_num )
+			item.progress_num->SetBounds( GetScaledValue( xpos + iCurrentColumn + 200 ), y + 30, GetScaledValue( 150 ), GetScaledValue( 12 ) );
 
-		item.texture_obtained->SetBounds(5, y - 2, iColumnWidth + 50, item.texture->GetTall() - 2);
+		item.texture_obtained->SetBounds( GetScaledValue( 5 ), y, iColumnWidth + 50, item.texture->GetTall() );
 
 		// Lets calculate the achievement bar
 		int barWidth_cur = item.achv_progress;
@@ -454,22 +456,22 @@ void AchievementList::PerformLayout()
 
 		// Get propper ratio of the bar
 		float ratio = barWidth_cur / (float)barWidth_max;
-		int   realpos = ratio * 475;
+		int realpos = ratio * 375;
 
 		// Make our position bigger!
 		for (int i_pos = 0; i_pos < realpos; i_pos++)
 			barWidth_pos = i_pos;
 
-		if (barWidth_pos < 475)
+		if (barWidth_pos < 375)
 			barWidth_pos = barWidth_pos;
 		else
-			barWidth_pos = 475;
+			barWidth_pos = 375;
 
 		if (item.progress)
-			item.progress->SetBounds(xpos + iCurrentColumn - 25, y + 30, barWidth_pos, 12);
+			item.progress->SetBounds( iScaledAchIcon + GetScaledValue( 10 ), y + GetScaledValue( 30 ), GetScaledValue( barWidth_pos ), GetScaledValue( 12 ) );
 
 		if (item.progress_bg)
-			item.progress_bg->SetBounds(xpos + iCurrentColumn - 25, y + 30, 475, 12);
+			item.progress_bg->SetBounds( iScaledAchIcon + GetScaledValue( 10 ), y + GetScaledValue( 30 ), GetScaledValue( 375 ), GetScaledValue( 12 ) );
 
 		if ( item.required_steps )
 		{
@@ -477,7 +479,7 @@ void AchievementList::PerformLayout()
 			CAchievementRequirementsHolder *pRequiredSteps = dynamic_cast<CAchievementRequirementsHolder *>( item.required_steps );
 			if ( pRequiredSteps )
 			{
-				pRequiredSteps->SetBounds(5, y + h + 2, 490, pRequiredSteps->GetCurrentHeight());
+				pRequiredSteps->SetBounds(5, y + h + 2, GetScaledValue( 490 ), pRequiredSteps->GetCurrentHeight());
 				y += pRequiredSteps->GetCurrentHeight() + m_iPanelBuffer;
 			}
 		}

@@ -15,8 +15,6 @@
 
 extern ConVar cl_character;
 
-#define GetChildPanel( _Name, _Class ) dynamic_cast< _Class* >( FindChildByName( _Name ) )
-
 // was UTIL_STDReplaceString
 void CvarCommandFix( std::string &path, std::string search, std::string replace )
 {

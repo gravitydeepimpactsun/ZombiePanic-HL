@@ -122,7 +122,7 @@ CFileBrowser::CFileBrowser(vgui2::Panel *pParent)
 
 	pList->SetAllowUserModificationOfColumns( true );
 
-	pList->AddColumnHeader( 0, "Icon", "", 24, vgui2::ListPanel::COLUMN_FIXEDSIZE | vgui2::ListPanel::COLUMN_IMAGE );
+	pList->AddColumnHeader( 0, "Icon", "", GetScaledValue( 18 ), vgui2::ListPanel::COLUMN_FIXEDSIZE | vgui2::ListPanel::COLUMN_IMAGE );
 	pList->AddColumnHeader( 1, "Name", "#ZP_UI_FileBrowser_Name", 100, vgui2::ListPanel::COLUMN_RESIZEWITHWINDOW | vgui2::ListPanel::COLUMN_UNHIDABLE );
 	pList->AddColumnHeader( 2, "Size", "#ZP_UI_FileBrowser_Size", 100, vgui2::ListPanel::COLUMN_RESIZEWITHWINDOW );
 	pList->AddColumnHeader( 3, "Type", "#ZP_UI_FileBrowser_Type", 100, vgui2::ListPanel::COLUMN_RESIZEWITHWINDOW );

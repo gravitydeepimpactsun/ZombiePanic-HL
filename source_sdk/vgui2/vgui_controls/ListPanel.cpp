@@ -466,6 +466,7 @@ ListPanel::ListPanel(Panel *parent, const char *panelName) : BaseClass(parent, p
 
 	m_pTextImage = new TextImage( "" );
 	m_pImagePanel = new ImagePanel(NULL, "ListImage");
+	m_pImagePanel->SetShouldScaleImage( true );
 	m_pImagePanel->SetAutoDelete(false);
 
 	m_iSortColumn = -1;
@@ -1508,7 +1509,7 @@ Panel *ListPanel::GetCellRenderer(int itemID, int col)
 
 		m_pLabel->SetTextImageIndex( 0 );
 		m_pLabel->SetImageAtIndex(0, m_pTextImage, 3);
-			
+
 		bool selected = false;
 		if ( m_SelectedItems.HasElement(itemID) && ( !m_bCanSelectIndividualCells || col == m_iSelectedColumn ) )
 		{

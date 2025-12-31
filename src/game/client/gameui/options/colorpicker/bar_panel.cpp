@@ -148,6 +148,11 @@ public:
 		SetImage(m_pPickerImg);
 	}
 
+	void SetPickerSize( int wide, int tall )
+	{
+		m_pPickerImg->SetSize( wide, tall );
+	}
+
 	virtual ~CBarImagePanel()
 	{
 		SetImage(static_cast<vgui2::IImage *>(nullptr));
@@ -233,15 +238,11 @@ void colorpicker::CBarPanel::ApplySchemeSettings(vgui2::IScheme *pScheme)
 	int wide, tall;
 	GetSize(wide, tall);
 
-	int panelY = (tall - BAR_TALL) / 2;
+	int panelY = (tall - GetScaledValue( BAR_TALL )) / 2;
 
-	m_pImagePanel->SetBounds(CIRCLE_SIZE / 2, panelY, wide - CIRCLE_SIZE, BAR_TALL);
+	m_pImagePanel->SetBounds(CIRCLE_SIZE / 2, panelY, wide - CIRCLE_SIZE, GetScaledValue( BAR_TALL ) );
+	m_pImagePanel->SetPickerSize( wide - CIRCLE_SIZE, GetScaledValue( BAR_TALL ) );
 	m_pMousePanel->SetBounds(0, 0, wide, tall);
-
-	if (wide - CIRCLE_SIZE != PICKER_WIDE)
-		Warning("colorpicker::CBarPanel: wide doesn't match\n");
-	if (tall != CIRCLE_SIZE)
-		Warning("colorpicker::CBarPanel: tall doesn't match\n");
 }
 
 void colorpicker::CBarPanel::SetCirclePos(int x)

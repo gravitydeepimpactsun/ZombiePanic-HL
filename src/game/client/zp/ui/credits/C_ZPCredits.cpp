@@ -29,7 +29,6 @@ using namespace vgui2;
 //-----------------------------------------------------------------------------
 C_ZPCredits::C_ZPCredits( vgui2::Panel *pParent ) : PropertyDialog( pParent, "ZPCredits" )
 {
-	SetDeleteSelfOnClose(true);
 	SetSizeable( false );
 	SetProportional( true );
 	SetDeleteSelfOnClose( true );
@@ -46,7 +45,7 @@ C_ZPCredits::C_ZPCredits( vgui2::Panel *pParent ) : PropertyDialog( pParent, "ZP
 	SetApplyButtonVisible( false );
 	SetCancelButtonVisible( false );
 
-	GetPropertySheet()->SetTabWidth(84);
+	GetPropertySheet()->SetTabWidth( GetScaledValue(84) );
 }
 
 //-----------------------------------------------------------------------------

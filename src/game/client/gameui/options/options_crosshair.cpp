@@ -143,6 +143,7 @@ CCrosshairSubOptions::CCrosshairSubOptions(vgui2::Panel *parent)
 	m_pPreviewImage = new CCrosshairPreview();
 	m_pPreviewPanel = new vgui2::ImagePanel(this, "PreviewPanel");
 	m_pPreviewPanel->SetImage(m_pPreviewImage);
+	m_pPreviewImage->SetSize( GetScaledValue(96), GetScaledValue(96) );
 
 	LoadControlSettings(VGUI2_ROOT_DIR "resource/options/CrosshairSubOptions.res");
 }

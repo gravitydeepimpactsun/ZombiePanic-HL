@@ -28,13 +28,14 @@ CCvarColor::CCvarColor(vgui2::Panel *parent, const char *panelName, const char *
 void CCvarColor::ApplySchemeSettings(vgui2::IScheme *pScheme)
 {
 	BaseClass::ApplySchemeSettings(pScheme);
-	int constexpr TALL = 24;
-	SetSize(128, TALL);
-	m_pPreview->SetBounds(0, 0, 48, TALL);
+	int TALL = GetScaledValue( 24 );
+	SetSize( GetScaledValue( 128 ), TALL);
+	m_pPreview->SetBounds(0, 0, GetScaledValue( 48 ), TALL);
 	m_pPreview->SetPaintBackgroundEnabled(true);
 	m_pPreview->SetBgColor(m_NewColor);
 	m_pPreview->SetBorder(pScheme->GetBorder("DepressedBorder"));
-	m_pBtn->SetPos(52, 0);
+	m_pBtn->SetPos( GetScaledValue( 52 ), GetScaledValue( 0 ) );
+	m_pBtn->SetSize( GetScaledValue( 52 ), TALL );
 }
 
 void CCvarColor::OnCommand(const char *pCmd)

@@ -22,10 +22,6 @@ namespace colorpicker
 
 void colorpicker::HSVtoRGB(float h, float s, float v, Color &output)
 {
-	Assert(h >= 0.f && h < 360.f);
-	Assert(s >= 0.f && s <= 100.f);
-	Assert(v >= 0.f && v <= 100.f);
-
 	int i;
 	float f, p, q, t;
 	uint8_t r, g, b;
@@ -234,6 +230,7 @@ CColorPicker::CColorPicker(vgui2::Panel *parent, const char *panelName, const ch
 	SetMinimizeButtonVisible(false);
 	SetCloseButtonVisible(true);
 	SetSizeable(false);
+	SetProportional(true);
 
 	m_pPickerPanel = new colorpicker::CPickerPanel(this, "PickerPanel");
 	m_pBarPanel = new colorpicker::CBarPanel(this, "BarPanel");

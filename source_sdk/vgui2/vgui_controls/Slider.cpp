@@ -52,7 +52,7 @@ Slider::Slider(Panel *parent, const char *panelName ) : BaseClass(parent, panelN
 	m_bUseSubRange = false;
 	m_bInverted = false;
 
-	SetThumbWidth( 8 );
+	SetThumbWidth( GetScaledValue( 8 ) );
 	RecomputeNobPosFromValue();
 	AddActionSignalTarget(this);
 	SetBlockDragChaining( true );
@@ -388,7 +388,7 @@ void Slider::GetTrackRect( int& x, int& y, int& w, int& h )
 	x = 0;
 	y = 8;
 	w = wide - (int)_nobSize;
-	h = 4;
+	h = GetScaledValue( 4 );
 }
 
 //-----------------------------------------------------------------------------
@@ -424,7 +424,7 @@ void Slider::DrawTicks()
 	float pixelspertick = freepixels / ( m_nNumTicks );
 
 	y += (int)_nobSize;
-	int tickHeight = 5;
+	int tickHeight = GetScaledValue( 5 );
 
     if (IsEnabled())
     {
@@ -524,7 +524,7 @@ void Slider::DrawNob()
 #endif
 	surface()->DrawSetColor(col);
 
-	int nobheight = 16;
+	int nobheight = GetScaledValue( 16 );
 
 	surface()->DrawFilledRect(
 		_nobPos[0], 

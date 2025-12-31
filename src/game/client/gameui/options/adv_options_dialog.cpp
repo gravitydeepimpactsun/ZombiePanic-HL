@@ -18,13 +18,11 @@
 CAdvOptionsDialog::CAdvOptionsDialog(vgui2::Panel *pParent)
     : BaseClass(pParent, "AdvOptionsDialog")
 {
-	LoadControlSettings(VGUI2_ROOT_DIR "resource/options/AdvancedOptions.res");
-
-	// So we don't become a tiny window
-	SetBounds(0, 0, 512, 406);
-
 	SetSizeable(false);
+	SetProportional(true);
 	SetDeleteSelfOnClose(true);
+
+	LoadControlSettings( VGUI2_ROOT_DIR "resource/options/AdvancedOptions.res" );
 
 	SetTitle("#ZP_Options", true);
 
@@ -36,9 +34,9 @@ CAdvOptionsDialog::CAdvOptionsDialog(vgui2::Panel *pParent)
 	//AddPage(new CModelSubOptions(this), "#ZP_AdvOptions_Models");
 	AddPage(new CAboutSubOptions(this), "#ZP_AdvOptions_About");
 
-	SetApplyButtonVisible(true);
-	EnableApplyButton(true);
-	GetPropertySheet()->SetTabWidth(84);
+	SetApplyButtonVisible(false);
+	EnableApplyButton(false);
+	GetPropertySheet()->SetTabWidth( GetScaledValue(84) );
 
 	MoveToCenterOfScreen();
 }

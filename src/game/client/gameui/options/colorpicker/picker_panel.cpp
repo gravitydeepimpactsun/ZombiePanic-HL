@@ -167,6 +167,11 @@ public:
 		m_pPickerImg->SetHue(h);
 	}
 
+	void SetPickerSize( int wide, int tall )
+	{
+		m_pPickerImg->SetSize( wide, tall );
+	}
+
 	virtual ~CPickerImagePanel()
 	{
 		SetImage(static_cast<vgui2::IImage *>(nullptr));
@@ -256,24 +261,27 @@ void colorpicker::CPickerPanel::ApplySchemeSettings(vgui2::IScheme *pScheme)
 	int wide, tall;
 	GetSize(wide, tall);
 	m_pImagePanel->SetBounds(CIRCLE_SIZE / 2, CIRCLE_SIZE / 2, wide - CIRCLE_SIZE, tall - CIRCLE_SIZE);
+	m_pImagePanel->SetPickerSize( wide - CIRCLE_SIZE, tall - CIRCLE_SIZE );
 	m_pMousePanel->SetBounds(0, 0, wide, tall);
-
-	if (wide - CIRCLE_SIZE != PICKER_WIDE)
-		Warning("colorpicker::CPickerPanel: wide doesn't match\n");
-	if (tall - CIRCLE_SIZE != PICKER_TALL)
-		Warning("colorpicker::CPickerPanel: tall doesn't match\n");
 }
 
 void colorpicker::CPickerPanel::SetCirclePos(int x, int y)
 {
 	m_pCircle->SetPos(x, y);
-	m_pCircle->SetDrawColor(gTexMgr.GetColorForPickerPixel(m_pImagePanel->m_pPickerImg->GetTextureIndex(), x, y));
+	//m_pCircle->SetDrawColor(gTexMgr.GetColorForPickerPixel(m_pImagePanel->m_pPickerImg->GetTextureIndex(), x, y));
 
 	m_flSat = 100.f * static_cast<float>(x) / static_cast<float>(m_pImagePanel->GetWide() + 1);
 	m_flVal = 100.f * static_cast<float>(y) / static_cast<float>(m_pImagePanel->GetTall() + 1);
 	m_flVal = 100.f - m_flVal;
 
 	GetParentPicker()->OnColorHSVChanged();
+
+	// We set the color here, because it just breaks the above version if we aren't using SetProportional
+	float h, s, v;
+	GetHSV( h, s, v );
+	Color c;
+	colorpicker::HSVtoRGB(h, s, v, c);
+	m_pCircle->SetDrawColor(c);
 }
 
 void colorpicker::CPickerPanel::SetHSV(float hue, float sat, float val)
@@ -292,6 +300,9 @@ void colorpicker::CPickerPanel::SetHSV(float hue, float sat, float val)
 void colorpicker::CPickerPanel::SetHue(float hue)
 {
 	m_flHue = hue;
+
+	int wide, tall;
+	GetSize(wide, tall);
 
 	Color c;
 	HSVtoRGB(m_flHue, m_flSat, m_flVal, c);

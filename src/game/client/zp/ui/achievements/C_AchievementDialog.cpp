@@ -134,7 +134,7 @@ C_AchievementDialog::C_AchievementDialog(vgui2::Panel *pParent)
 
 	// Setup achievement progress
 	ui_CurrentCompleted = GetChildPanel( "PercentageText", vgui2::Label );
-	hTextFont = pScheme->GetFont("AchievementItemDescription");
+	hTextFont = pScheme->GetFont( "AchievementItemDescription", true );
 	if ( hTextFont != vgui2::INVALID_FONT )
 		ui_CurrentCompleted->SetFont( hTextFont );
 	ui_CurrentCompleted->SetContentAlignment( vgui2::Label::a_east );

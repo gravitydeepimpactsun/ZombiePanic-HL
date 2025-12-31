@@ -1454,7 +1454,7 @@ void Frame::GetClientArea(int &x, int &y, int &wide, int &tall)
 
 		yinset += m_iTitleTextInsetYOverride;
 
-		y = yinset + GetScaledValue( captionTall ) + border + 1;
+		y = yinset + captionTall + border + 1;
 		tall = (tall - yinset) - y;
 	}
 

@@ -445,7 +445,7 @@ void AchievementList::PerformLayout()
 			item.desc->SetBounds( iScaledAchIcon + GetScaledValue( 12 ), y + GetScaledValue( 5 ), GetScaledValue( 390 ), GetScaledValue( 35 ) );
 
 		if ( item.progress_num )
-			item.progress_num->SetBounds( GetScaledValue( xpos + iCurrentColumn + 200 ), y + 30, GetScaledValue( 150 ), GetScaledValue( 12 ) );
+			item.progress_num->SetBounds( iScaledAchIcon + GetScaledValue( 190 ), y + GetScaledValue( 30 ), GetScaledValue( 150 ), GetScaledValue( 12 ) );
 
 		item.texture_obtained->SetBounds( GetScaledValue( 5 ), y, iColumnWidth + 50, item.texture->GetTall() );
 

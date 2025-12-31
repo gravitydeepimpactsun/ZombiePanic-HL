@@ -166,8 +166,8 @@ void CAchievementRequirementsHolder::AddItem( bool obtained, const char *text )
 			return;
 		}
 	}
-	int ypos = m_pLabel->GetYPos() + m_pLabel->GetTall() + 5;
-	ypos += (32 * m_pList.size()) + 5;
+	int ypos = m_pLabel->GetYPos() + m_pLabel->GetTall() + GetScaledValue( 5 );
+	ypos += (GetScaledValue( 32 ) * m_pList.size()) + GetScaledValue( 5 );
 	int xpos = m_pLabel->GetXPos();
 	CBasicItemCombo *pComboItem = new CBasicItemCombo( this, "ComboItem", obtained, text );
 	pComboItem->SetBounds( xpos, ypos, GetScaledValue( 500 ), GetScaledValue( 32 ) );
@@ -212,7 +212,7 @@ void CAchievementRequirementsHolder::UpdateSize( bool bExpand )
 
 	// Update our size!
 	if ( bExpand )
-		m_iSizeHeight = iHeight;
+		m_iSizeHeight = iHeight + GetScaledValue( 5 );
 	else
 		m_iSizeHeight = m_iSizeHeightDefault;
 

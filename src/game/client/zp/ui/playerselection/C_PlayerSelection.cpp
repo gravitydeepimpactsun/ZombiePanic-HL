@@ -139,19 +139,15 @@ C_PlayerSelection::C_PlayerSelection(vgui2::Panel *pParent)
 	bReadPages = false;
 
 	vgui2::IScheme *pScheme = vgui2::scheme()->GetIScheme( hScheme );
-	vgui2::HFont hFont = pScheme->GetFont( "Bio" );
+	vgui2::HFont hFont = pScheme->GetFont( "DefaultProportional", true );
 
 	// Setup survivor BIO
 	ui_SelectPlayerBio = GetChildPanel( "Character_bio", vgui2::Label );
-	ui_SelectPlayerBio->SetFont( hFont );
 	ui_SelectPlayerBio->SetWrap( true );
 	ui_SelectPlayerBio->SetContentAlignment( vgui2::Label::Alignment::a_northwest );
 	ui_SelectPlayerBio->SetPaintBackgroundEnabled( false );
 
-	hFont = pScheme->GetFont( "BioProportional", true );
 	ui_SelectPlayerBio->SetFont( hFont );
-
-	hFont = pScheme->GetFont( "DefaultProportional", true );
 	ui_Bttn_Back->SetFont( hFont );
 	ui_Bttn_Next->SetFont( hFont );
 	ui_Label_pagenum->SetFont( hFont );

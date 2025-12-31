@@ -18,6 +18,8 @@ using namespace vgui2;
 
 C_ZPCredits_Sub_Contrib::C_ZPCredits_Sub_Contrib(vgui2::Panel *parent) : PropertyPage(parent, NULL)
 {
+	SetSize(100, 100); // Silence "parent not sized yet" warning
+
 	// Label
 	//======================================
 	//======================================

@@ -14,6 +14,7 @@ using namespace vgui2;
 
 C_ZPCredits_Sub_Info::C_ZPCredits_Sub_Info(vgui2::Panel *parent) : PropertyPage(parent, NULL)
 {
+	SetSize(100, 100); // Silence "parent not sized yet" warning
 	LoadControlSettings( VGUI2_ROOT_DIR "resource/zps/credits/sub_info.res");
 }
 

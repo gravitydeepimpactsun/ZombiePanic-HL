@@ -15,6 +15,8 @@ using namespace vgui2;
 
 C_ZPCredits_Sub_Credits::C_ZPCredits_Sub_Credits(vgui2::Panel *parent) : PropertyPage(parent, NULL)
 {
+	SetSize(100, 100); // Silence "parent not sized yet" warning
+
 	LoadControlSettings( VGUI2_ROOT_DIR "resource/zps/credits/sub_credits.res");
 
 	Panel *pPanel = FindChildByName( "Label_Menu1" );

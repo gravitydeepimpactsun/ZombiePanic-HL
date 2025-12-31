@@ -1,6 +1,7 @@
 //========= Copyright (c) 2022 Zombie Panic! Team, All rights reserved. ============//
 
 #include "C_ZPCredits.h"
+#include "client_vgui.h"
 
 #include <vgui_controls/Button.h>
 #include <vgui_controls/CheckButton.h>
@@ -29,8 +30,11 @@ using namespace vgui2;
 C_ZPCredits::C_ZPCredits( vgui2::Panel *pParent ) : PropertyDialog( pParent, "ZPCredits" )
 {
 	SetDeleteSelfOnClose(true);
-	SetBounds(0, 0, 600, 406);
 	SetSizeable( false );
+	SetProportional( true );
+	SetDeleteSelfOnClose( true );
+
+	LoadControlSettings( VGUI2_ROOT_DIR "resource/zps/credits/credits.res" );
 
 	SetTitle( "#ZP_UI_Credits", true );
 
@@ -38,7 +42,7 @@ C_ZPCredits::C_ZPCredits( vgui2::Panel *pParent ) : PropertyDialog( pParent, "ZP
 	AddPage(new C_ZPCredits_Sub_Info(this), "#ZP_UI_SUB_Info");
 
 	// Only show OK button
-	SetOKButtonVisible( true );
+	SetOKButtonVisible( false );
 	SetApplyButtonVisible( false );
 	SetCancelButtonVisible( false );
 

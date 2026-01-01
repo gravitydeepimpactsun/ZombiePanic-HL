@@ -863,6 +863,8 @@ int Label::AddImage(IImage *image, int offset)
 	_imageDar[newImage].offset = (short)offset;
 	_imageDar[newImage].xpos = -1;
 	_imageDar[newImage].width = -1;
+	_imageDar[newImage].height = -1;
+	_imageDar[newImage].override_width = false;
 	InvalidateLayout();
 	return newImage;
 }

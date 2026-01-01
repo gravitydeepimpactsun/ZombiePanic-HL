@@ -899,6 +899,7 @@ void CGameUIViewport::OpenFileExplorer( const char *szFolder, const char *szPath
 void CGameUIViewport::ShowMessageDialog( const char *szTitle, const char *szDescription )
 {
 	vgui2::MessageBox *pMessageBox = new vgui2::MessageBox( szTitle, szDescription, this );
+	pMessageBox->SetProportional( true );
 	pMessageBox->SetOKButtonVisible( true );
 	pMessageBox->SetCancelButtonVisible( false );
 	pMessageBox->DoModal();

@@ -1561,6 +1561,20 @@ Vector CBaseEntity::FireBulletsPlayer(ULONG cShots, Vector vecSrc, Vector vecDir
 	}
 	ApplyMultiDamage(pev, pevAttacker);
 
+	// Dynlight
+	MESSAGE_BEGIN( MSG_PVS, SVC_TEMPENTITY, vecSrc );
+		WRITE_BYTE( TE_DLIGHT );
+		WRITE_COORD( vecSrc.x ); // X
+		WRITE_COORD( vecSrc.y ); // Y
+		WRITE_COORD( vecSrc.z ); // Z
+		WRITE_BYTE( 20 ); // radius * 0.1
+		WRITE_BYTE( 255 ); // r
+		WRITE_BYTE( 221 ); // g
+		WRITE_BYTE( 48 ); // b
+		WRITE_BYTE( 1 ); // time * 10
+		WRITE_BYTE( 0 ); // decay * 0.1
+	MESSAGE_END();
+
 	return Vector(x * vecSpread.x, y * vecSpread.y, 0.0);
 }
 

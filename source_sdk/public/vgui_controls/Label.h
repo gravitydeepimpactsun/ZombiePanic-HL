@@ -119,9 +119,22 @@ public:
 	virtual void ResetToSimpleTextImage();
 	// fixes the layout bounds of the image within the label
 	virtual void SetImageBounds(int index, int x, int width);
+	virtual void SetImageBounds(int index, int x, int width, int height, bool bOverride);
 
 	// Teturns a pointer to the default text image
 	virtual TextImage *GetTextImage();
+
+	struct TImageInfo
+	{
+		IImage *image;
+		short offset;
+		short xpos;
+		short width;
+		short height;
+		bool override_width;
+	};
+
+	TImageInfo GetImageData( int index );
 
 	// Moves where the default text image is within the image array (it starts in position 0)
 	// Setting it to -1 removes it from the image list
@@ -200,13 +213,6 @@ private:
 	Alignment  _contentAlignment;
 	TextImage *_textImage; // this is the textImage, if the full text will not
 							// fit we put as much as we can and add an elipsis (...)
-	struct TImageInfo
-	{
-		IImage *image;
-		short offset;
-		short xpos;
-		short width;
-	};
 	CUtlVector<TImageInfo> _imageDar;
 
 	int		   _textInset[2];

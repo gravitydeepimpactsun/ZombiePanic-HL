@@ -603,9 +603,12 @@ void Label::Paint()
 		{
 			int w, t;
 			image->GetSize(w, t);
-			if (w > imageInfo.width)
+			if (w > imageInfo.width || imageInfo.override_width)
 			{
+				if (imageInfo.height > 0)
+					t = imageInfo.height;
 				image->SetSize(imageInfo.width, t);
+				image->SetPos( x + GetScaledValue( 3 ), y - GetScaledValue( 3 ) );
 			}
 		}
 
@@ -918,6 +921,13 @@ int Label::GetImageCount()
 	return _imageDar.Count();
 }
 
+vgui2::Label::TImageInfo vgui2::Label::GetImageData(int index)
+{
+	if ( _imageDar.IsValidIndex( index ) )
+		return _imageDar[index];
+	return TImageInfo();
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: Move where the default text image is within the image array 
 //			(it starts in position 0)
@@ -972,8 +982,15 @@ void Label::SetImagePreOffset(int index, int preOffset)
 //-----------------------------------------------------------------------------
 void Label::SetImageBounds(int index, int x, int width)
 {
+	SetImageBounds( index, x, width, 0, false );
+}
+
+void Label::SetImageBounds(int index, int x, int width, int height, bool bOverride)
+{
 	_imageDar[index].xpos = (short)x;
 	_imageDar[index].width = (short)width;
+	_imageDar[index].height = (short)height;
+	_imageDar[index].override_width = bOverride;
 }
 
 //-----------------------------------------------------------------------------

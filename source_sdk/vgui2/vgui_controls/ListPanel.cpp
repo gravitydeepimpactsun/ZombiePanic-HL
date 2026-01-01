@@ -463,6 +463,7 @@ ListPanel::ListPanel(Panel *parent, const char *panelName) : BaseClass(parent, p
 	m_pLabel->SetVisible(false);
 	m_pLabel->SetPaintBackgroundEnabled(false);
 	m_pLabel->SetContentAlignment(Label::a_west);
+	m_pLabel->SetWrap(true);
 
 	m_pTextImage = new TextImage( "" );
 	m_pImagePanel = new ImagePanel(NULL, "ListImage");
@@ -733,6 +734,11 @@ void ListPanel::SetColumnHeaderImage(int column, int imageListIndex)
 	Assert(m_pImageList);
 	m_ColumnsData[m_CurrentColumns[column]].m_pHeader->SetTextImageIndex(-1);
 	m_ColumnsData[m_CurrentColumns[column]].m_pHeader->SetImageAtIndex(0, m_pImageList->GetImage(imageListIndex), 0);
+}
+
+void vgui2::ListPanel::SetColumnHeaderImageBounds(int column, int index, int xpos, int width, int height)
+{
+	m_ColumnsData[m_CurrentColumns[column]].m_pHeader->SetImageBounds( index, xpos, width, height, true );
 }
 
 //-----------------------------------------------------------------------------
@@ -1493,7 +1499,12 @@ Panel *ListPanel::GetCellRenderer(int itemID, int col)
 
 	if ( column.m_bTypeIsText ) 
 	{
+		vgui2::Label::TImageInfo imgInf = column.m_pHeader->GetImageData( 0 );
 		wchar_t tempText[ 256 ];
+
+		// If our header has this data, apply it here too.
+		if ( imgInf.override_width )
+			m_pLabel->SetImageBounds( 0, imgInf.offset, imgInf.width, imgInf.height, true );
 
 		// Grab cell text
 		GetCellText( itemID, col, tempText, 256 );

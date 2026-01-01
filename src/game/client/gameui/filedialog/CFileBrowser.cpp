@@ -133,6 +133,9 @@ CFileBrowser::CFileBrowser(vgui2::Panel *pParent)
 	pList->SetSortFunc( 3, FileTypes );
 	pList->SetSortFunc( 4, FileModified );
 
+	pList->SetColumnHeaderImageBounds(0, 0, GetScaledValue( 3 ), GetScaledValue( 12 ), GetScaledValue( 12 )); // Icon
+	pList->SetColumnTextAlignment(0, vgui2::Label::Alignment::a_center);
+
 	pList->SetSortColumn( 1 );
 
 	SetScheme( CGameUIViewport::Get()->GetScheme() );

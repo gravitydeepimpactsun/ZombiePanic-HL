@@ -44,7 +44,8 @@ CGameUITestPanel::CGameUITestPanel(vgui2::Panel *pParent)
 {
 	SetTitle("Message of The Day", false);
 	SetSizeable(true);
-	SetSize(460, 230);
+	SetProportional(true);
+	SetSize( GetScaledValue( 460 ), GetScaledValue( 230 ) );
 	SetDeleteSelfOnClose(true);
 	MoveToCenterOfScreen();
 

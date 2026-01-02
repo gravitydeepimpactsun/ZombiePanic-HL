@@ -111,8 +111,6 @@ CFileBrowser::CFileBrowser(vgui2::Panel *pParent)
 	pFile = new vgui2::TextEntry( this, "CurrentFile" );
 	pBackButton = new vgui2::ButtonImage( this, "BackOneFolder", "resource/icon_folderup", this, "BackOneFolder" );
 
-	SetScheme( vgui2::scheme()->LoadSchemeFromFile( VGUI2_ROOT_DIR "resource/ClientSourceSchemeBase.res", "ClientSourceSchemeBase" ) );
-
 	LoadControlSettings( VGUI2_ROOT_DIR "resource/filebrowser.res" );
 
 	// No edit, thanks.

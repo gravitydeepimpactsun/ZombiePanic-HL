@@ -5,6 +5,7 @@
 CVACBannedDialog::CVACBannedDialog( vgui2::Panel *pParent ) :
 	BaseClass( "#VAC_ConnectionRefusedTitle", "#VAC_ConnectionRefusedDetail", pParent )
 {
+	SetProportional(true);
 	m_pImage = new vgui2::ImagePanel( this, "Image" );
 	m_pImage->SetShouldScaleImage( true );
 	m_pImage->SetImage( "resource/VAC_shield" );

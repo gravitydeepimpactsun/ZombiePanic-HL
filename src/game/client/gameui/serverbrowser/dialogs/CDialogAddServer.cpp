@@ -24,6 +24,7 @@
 #include "gameui/serverbrowser/ServerListSorter.h"
 #include "gameui/gameui_viewport.h"
 #include "CDialogAddServer.h"
+#include "client_vgui.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
@@ -31,6 +32,7 @@
 //-----------------------------------------------------------------------------
 CDialogAddServer::CDialogAddServer( vgui2::Panel *parent, CBaseTab *gameList) : Frame(parent, "DialogAddServer" )
 {
+	SetProportional(true);
 	SetDeleteSelfOnClose(true);
 
 	m_pGameList = gameList;
@@ -39,37 +41,26 @@ CDialogAddServer::CDialogAddServer( vgui2::Panel *parent, CBaseTab *gameList) : 
 	SetSizeable( false );
 
 	m_pTabPanel = new vgui2::PropertySheet(this, "GameTabs");
-	m_pTabPanel->SetTabWidth(72);
+	m_pTabPanel->SetProportional(true);
+	m_pTabPanel->SetTabWidth( GetScaledValue(72));
 
 	m_pDiscoveredGames = new vgui2::ListPanel( this, "Servers" );
-
+	m_pDiscoveredGames->SetAllowUserModificationOfColumns( true );
 	// Add the column headers
-	m_pDiscoveredGames->AddColumnHeader(0, "Password", "#ServerBrowser_Password", 16, ListPanel::COLUMN_FIXEDSIZE | ListPanel::COLUMN_IMAGE);
-	m_pDiscoveredGames->AddColumnHeader(1, "Bots", "#ServerBrowser_Bots", 16, ListPanel::COLUMN_FIXEDSIZE | ListPanel::COLUMN_IMAGE | ListPanel::COLUMN_HIDDEN);
-	m_pDiscoveredGames->AddColumnHeader(2, "Secure", "#ServerBrowser_Secure", 16, ListPanel::COLUMN_FIXEDSIZE | ListPanel::COLUMN_IMAGE);
-	m_pDiscoveredGames->AddColumnHeader(3, "Name", "#ServerBrowser_Servers", 20, ListPanel::COLUMN_RESIZEWITHWINDOW | ListPanel::COLUMN_UNHIDABLE);
-	m_pDiscoveredGames->AddColumnHeader(4, "IPAddr", "#ServerBrowser_IPAddress", 60, ListPanel::COLUMN_HIDDEN);
-	m_pDiscoveredGames->AddColumnHeader(5, "GameDesc", "#ServerBrowser_Game", 150);
-	m_pDiscoveredGames->AddColumnHeader(6, "Players", "#ServerBrowser_Players", 60);
-	m_pDiscoveredGames->AddColumnHeader(7, "Map", "#ServerBrowser_Map", 80);
-	m_pDiscoveredGames->AddColumnHeader(8, "Ping", "#ServerBrowser_Latency", 60);
-
-	m_pDiscoveredGames->SetColumnHeaderTooltip(0, "#ServerBrowser_PasswordColumn_Tooltip");
-	m_pDiscoveredGames->SetColumnHeaderTooltip(1, "#ServerBrowser_BotColumn_Tooltip");
-	m_pDiscoveredGames->SetColumnHeaderTooltip(2, "#ServerBrowser_SecureColumn_Tooltip");
+	m_pDiscoveredGames->AddColumnHeader(0, "Name", "#ServerBrowser_Servers", GetScaledValue( 200 ), ListPanel::COLUMN_RESIZEWITHWINDOW | ListPanel::COLUMN_UNHIDABLE);
+	m_pDiscoveredGames->AddColumnHeader(1, "IPAddr", "#ServerBrowser_IPAddress", GetScaledValue( 100 ) );
+	m_pDiscoveredGames->AddColumnHeader(2, "Players", "#ServerBrowser_Players", GetScaledValue( 60 ));
+	m_pDiscoveredGames->AddColumnHeader(3, "Map", "#ServerBrowser_Map", GetScaledValue( 100 ));
+	m_pDiscoveredGames->AddColumnHeader(4, "Ping", "#ServerBrowser_Latency", GetScaledValue( 60 ));
 
 	// setup fast sort functions
-	m_pDiscoveredGames->SetSortFunc(0, PasswordCompare);
-	m_pDiscoveredGames->SetSortFunc(1, BotsCompare);
-	m_pDiscoveredGames->SetSortFunc(2, SecureCompare);
-	m_pDiscoveredGames->SetSortFunc(3, ServerNameCompare);
-	m_pDiscoveredGames->SetSortFunc(4, IPAddressCompare);
-	m_pDiscoveredGames->SetSortFunc(5, GameCompare);
-	m_pDiscoveredGames->SetSortFunc(6, PlayersCompare);
-	m_pDiscoveredGames->SetSortFunc(7, MapCompare);
-	m_pDiscoveredGames->SetSortFunc(8, PingCompare);
+	m_pDiscoveredGames->SetSortFunc(0, ServerNameCompare);
+	m_pDiscoveredGames->SetSortFunc(1, IPAddressCompare);
+	m_pDiscoveredGames->SetSortFunc(2, PlayersCompare);
+	m_pDiscoveredGames->SetSortFunc(3, MapCompare);
+	m_pDiscoveredGames->SetSortFunc(4, PingCompare);
 
-	m_pDiscoveredGames->SetSortColumn(8); // sort on ping
+	m_pDiscoveredGames->SetSortColumn(4); // sort on ping
 
 	m_pTextEntry = new vgui2::TextEntry( this, "ServerNameText" );
 	m_pTextEntry->AddActionSignalTarget( this );
@@ -79,7 +70,7 @@ CDialogAddServer::CDialogAddServer( vgui2::Panel *parent, CBaseTab *gameList) : 
 	m_pAddSelectedServerButton = new vgui2::Button( this, "SelectedOKButton", "", this, "addselected" );
 
 	m_pTabPanel->AddPage( m_pDiscoveredGames, "#ServerBrowser_Servers" );
-		  
+
 	LoadControlSettings("Servers/DialogAddServer.res");
 
 	// Setup the buttons. We leave them disabled until there is text in the textbox.
@@ -96,6 +87,9 @@ CDialogAddServer::CDialogAddServer( vgui2::Panel *parent, CBaseTab *gameList) : 
 	m_pTabPanel->GetPos( x, y );
 	m_OriginalHeight = m_pTabPanel->GetTall() + y + 50;
 	SetTall( y );
+
+	InvalidateLayout();
+	MoveToCenterOfScreen();
 }
 
 //-----------------------------------------------------------------------------
@@ -223,6 +217,7 @@ void CDialogAddServer::OnOK()
 	{
 		// could not parse the ip address, popup an error
 		vgui2::MessageBox *dlg = new vgui2::MessageBox("#ServerBrowser_AddServerErrorTitle", "#ServerBrowser_AddServerError");
+		dlg->SetProportional(true);
 		dlg->DoModal();
 	}
 
@@ -285,12 +280,12 @@ void CDialogAddServer::TestServers()
 		Q_UTF8ToUnicode( address, waddress, sizeof( waddress ) );
 		g_pVGuiLocalize->ConstructString( wstr, sizeof( wstr ), g_pVGuiLocalize->Find( "#ServerBrowser_ServersResponding"), 1, waddress );
 	}
-		
+
 	char str[512];
 	Q_UnicodeToUTF8( wstr, str, sizeof( str ) );
 	m_pTabPanel->AddPage( m_pDiscoveredGames, str );
-	m_pTabPanel->InvalidateLayout();
-	
+	m_pTabPanel->InvalidateLayout( true, true );
+
 	FOR_EACH_VEC( vecAdress, iAddress )
 	{
 		m_Queries.AddToTail( GetSteamAPI()->SteamMatchmakingServers()->PingServer( vecAdress[ iAddress ].GetIP(), vecAdress[ iAddress ].GetConnectionPort(), this ) );
@@ -307,23 +302,7 @@ void CDialogAddServer::ServerResponded( gameserveritem_t &server )
 
 	kv->SetString( "name", server.GetName() );
 	kv->SetString( "map", server.m_szMap );
-	kv->SetString( "GameDir", server.m_szGameDir );
-	kv->SetString( "GameDesc", server.m_szGameDescription );
-	kv->SetString( "GameTags", server.m_szGameTags );
-	kv->SetInt( "password", server.m_bPassword ? 1 : 0);
-	kv->SetInt( "bots", server.m_nBotPlayers ? 2 : 0);
-
-	if ( server.m_bSecure )
-	{
-		// show the denied icon if banned from secure servers, the secure icon otherwise
-		kv->SetInt("secure", CGameUIViewport::Get()->IsVACBanned() ?  4 : 3);
-	}
-	else
-	{
-		kv->SetInt("secure", 0);
-	}
-
-	kv->SetString("IPAddr", server.m_NetAdr.GetConnectionAddressString() );
+	kv->SetString( "IPAddr", server.m_NetAdr.GetConnectionAddressString() );
 
 	char buf[32];
 	Q_snprintf(buf, sizeof(buf), "%d / %d", server.m_nPlayers, server.m_nMaxPlayers);
@@ -351,25 +330,14 @@ void CDialogAddServer::ServerFailedToRespond()
 void CDialogAddServer::ApplySchemeSettings( vgui2::IScheme *pScheme )
 {
 	BaseClass::ApplySchemeSettings( pScheme );
-	vgui2::ImageList *imageList = new vgui2::ImageList(false);
-	imageList->AddImage(vgui2::scheme()->GetImage("servers/icon_password", false));
-	imageList->AddImage(vgui2::scheme()->GetImage("servers/icon_bots", false));
-	imageList->AddImage(vgui2::scheme()->GetImage("servers/icon_robotron", false));
-	imageList->AddImage(vgui2::scheme()->GetImage("servers/icon_secure_deny", false));
 
-	int passwordColumnImage = imageList->AddImage(vgui2::scheme()->GetImage("servers/icon_password_column", false));
-	int botColumnImage = imageList->AddImage(vgui2::scheme()->GetImage("servers/icon_bots_column", false));
-	int secureColumnImage = imageList->AddImage(vgui2::scheme()->GetImage("servers/icon_robotron_column", false));
-
-	m_pDiscoveredGames->SetImageList(imageList, true);
 	vgui2::HFont hFont = pScheme->GetFont( "ListSmall", IsProportional() );
 	if ( !hFont )
 		hFont = pScheme->GetFont( "DefaultSmall", IsProportional() );
 
 	m_pDiscoveredGames->SetFont( hFont );
-	m_pDiscoveredGames->SetColumnHeaderImage(0, passwordColumnImage);
-	m_pDiscoveredGames->SetColumnHeaderImage(1, botColumnImage);
-	m_pDiscoveredGames->SetColumnHeaderImage(2, secureColumnImage);
+
+	m_pDiscoveredGames->InvalidateLayout( true, true );
 }
 
 

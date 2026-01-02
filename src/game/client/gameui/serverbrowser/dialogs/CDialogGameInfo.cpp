@@ -33,8 +33,9 @@ CDialogGameInfo::CDialogGameInfo( vgui2::Panel *parent, int nIP, int iPort, unsi
 	m_CallbackPersonaStateChange( this, &CDialogGameInfo::OnPersonaStateChange )
 {
 	SetBounds(0, 0, 512, 512);
-	SetMinimumSize(416, 340);
+	SetMinimumSize(GetScaledValue(416), GetScaledValue(340));
 	SetDeleteSelfOnClose(true);
+	SetProportional(true);
 	m_bConnecting = false;
 	m_bServerFull = false;
 	m_bShowAutoRetryToggle = false;
@@ -192,7 +193,7 @@ void CDialogGameInfo::ChangeAddress( int serverIP, int queryPort, unsigned short
 	else
 	{
 		// moving from a single-player game -> multiplayer, reset dialog
-		SetMinimumSize(416, 340);
+		SetMinimumSize(GetScaledValue(416), GetScaledValue(340));
 		SetSizeable( true );
 		LoadControlSettings( "Servers/DialogGameInfo.res" );
 	}
@@ -411,7 +412,7 @@ void CDialogGameInfo::ShowAutoRetryOptions(bool state)
 	GetBounds( x, y, wide, tall );
 
 	// load a new layout file depending on the state
-	SetMinimumSize(416, 340);
+	SetMinimumSize(GetScaledValue(416), GetScaledValue(340));
 	if ( state )
 		LoadControlSettings( "Servers/DialogGameInfo_AutoRetry.res" );
 	else

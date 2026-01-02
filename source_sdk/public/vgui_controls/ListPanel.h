@@ -96,6 +96,7 @@ public:
 	virtual void SetColumnHeaderText(int column, wchar_t *text);
 	virtual void SetColumnHeaderImage(int column, int imageListIndex);
 	virtual void SetColumnHeaderImageBounds(int column, int index, int xpos, int width, int height);
+	virtual void SetColumnHeaderImageOffset(int column, int index, int xpos, int ypos);
 	virtual void SetColumnHeaderTooltip(int column, const char *tooltipText);
 	virtual void SetColumnTextAlignment( int column, int align );
 

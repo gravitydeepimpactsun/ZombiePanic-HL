@@ -120,6 +120,7 @@ public:
 	// fixes the layout bounds of the image within the label
 	virtual void SetImageBounds(int index, int x, int width);
 	virtual void SetImageBounds(int index, int x, int width, int height, bool bOverride);
+	virtual void SetImageOffset(int index, int x, int y);
 
 	// Teturns a pointer to the default text image
 	virtual TextImage *GetTextImage();
@@ -131,6 +132,8 @@ public:
 		short xpos;
 		short width;
 		short height;
+		short pos_offset_x;
+		short pos_offset_y;
 		bool override_width;
 	};
 

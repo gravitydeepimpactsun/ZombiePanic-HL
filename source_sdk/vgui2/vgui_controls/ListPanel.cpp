@@ -463,7 +463,6 @@ ListPanel::ListPanel(Panel *parent, const char *panelName) : BaseClass(parent, p
 	m_pLabel->SetVisible(false);
 	m_pLabel->SetPaintBackgroundEnabled(false);
 	m_pLabel->SetContentAlignment(Label::a_west);
-	m_pLabel->SetWrap(true);
 
 	m_pTextImage = new TextImage( "" );
 	m_pImagePanel = new ImagePanel(NULL, "ListImage");
@@ -739,6 +738,11 @@ void ListPanel::SetColumnHeaderImage(int column, int imageListIndex)
 void vgui2::ListPanel::SetColumnHeaderImageBounds(int column, int index, int xpos, int width, int height)
 {
 	m_ColumnsData[m_CurrentColumns[column]].m_pHeader->SetImageBounds( index, xpos, width, height, true );
+}
+
+void vgui2::ListPanel::SetColumnHeaderImageOffset(int column, int index, int xpos, int ypos)
+{
+	m_ColumnsData[m_CurrentColumns[column]].m_pHeader->SetImageOffset( index, xpos, ypos );
 }
 
 //-----------------------------------------------------------------------------
@@ -1504,7 +1508,10 @@ Panel *ListPanel::GetCellRenderer(int itemID, int col)
 
 		// If our header has this data, apply it here too.
 		if ( imgInf.override_width )
+		{
 			m_pLabel->SetImageBounds( 0, imgInf.offset, imgInf.width, imgInf.height, true );
+			m_pLabel->SetImageOffset( 0, imgInf.pos_offset_x, imgInf.pos_offset_y );
+		}
 
 		// Grab cell text
 		GetCellText( itemID, col, tempText, 256 );

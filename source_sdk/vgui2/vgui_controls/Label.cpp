@@ -608,7 +608,14 @@ void Label::Paint()
 				if (imageInfo.height > 0)
 					t = imageInfo.height;
 				image->SetSize(imageInfo.width, t);
-				image->SetPos( x + GetScaledValue( 3 ), y - GetScaledValue( 3 ) );
+				int xy[2];
+				xy[0] = x;
+				if ( imageInfo.pos_offset_x != 0 )
+					xy[0] += GetScaledValue( imageInfo.pos_offset_x );
+				xy[1] = y;
+				if ( imageInfo.pos_offset_y != 0 )
+					xy[1] -= GetScaledValue( imageInfo.pos_offset_y );
+				image->SetPos( xy[0], xy[1] );
 			}
 		}
 
@@ -864,6 +871,8 @@ int Label::AddImage(IImage *image, int offset)
 	_imageDar[newImage].xpos = -1;
 	_imageDar[newImage].width = -1;
 	_imageDar[newImage].height = -1;
+	_imageDar[newImage].pos_offset_x = 0;
+	_imageDar[newImage].pos_offset_y = 0;
 	_imageDar[newImage].override_width = false;
 	InvalidateLayout();
 	return newImage;
@@ -993,6 +1002,12 @@ void Label::SetImageBounds(int index, int x, int width, int height, bool bOverri
 	_imageDar[index].width = (short)width;
 	_imageDar[index].height = (short)height;
 	_imageDar[index].override_width = bOverride;
+}
+
+void vgui2::Label::SetImageOffset(int index, int x, int y)
+{
+	_imageDar[index].pos_offset_x = (short)x;
+	_imageDar[index].pos_offset_y = (short)y;
 }
 
 //-----------------------------------------------------------------------------

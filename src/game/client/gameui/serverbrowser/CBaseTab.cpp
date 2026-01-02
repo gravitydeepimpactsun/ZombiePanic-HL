@@ -107,10 +107,6 @@ CBaseTab::CBaseTab( vgui2::Panel *parent, const char *name, EPageType eType, con
 	m_pServerList->SetColumnHeaderTooltip(1, "#ServerBrowser_BotColumn_Tooltip");
 	m_pServerList->SetColumnHeaderTooltip(2, "#ServerBrowser_SecureColumn_Tooltip");
 
-	m_pServerList->SetColumnHeaderImageBounds(0, 0, 2, GetScaledValue( 12 ), GetScaledValue( 12 )); // Password
-	m_pServerList->SetColumnHeaderImageBounds(1, 0, 2, GetScaledValue( 12 ), GetScaledValue( 12 )); // Bots
-	m_pServerList->SetColumnHeaderImageBounds(2, 0, 2, GetScaledValue( 12 ), GetScaledValue( 12 )); // Secure
-
 	m_pServerList->SetColumnTextAlignment(0, vgui2::Label::Alignment::a_center);
 	m_pServerList->SetColumnTextAlignment(1, vgui2::Label::Alignment::a_center);
 	m_pServerList->SetColumnTextAlignment(2, vgui2::Label::Alignment::a_center);
@@ -261,6 +257,15 @@ void CBaseTab::ApplySchemeSettings(vgui2::IScheme *pScheme)
 	m_pServerList->SetColumnHeaderImage(0, passwordColumnImage);
 	m_pServerList->SetColumnHeaderImage(1, botColumnImage);
 	m_pServerList->SetColumnHeaderImage(2, secureColumnImage);
+
+	m_pServerList->SetColumnHeaderImageBounds(0, 0, 2, GetScaledValue( 12 ), GetScaledValue( 12 ));
+	m_pServerList->SetColumnHeaderImageBounds(1, 0, 2, GetScaledValue( 12 ), GetScaledValue( 12 ));
+	m_pServerList->SetColumnHeaderImageBounds(2, 0, 2, GetScaledValue( 12 ), GetScaledValue( 12 ));
+	m_pServerList->SetColumnHeaderImageBounds(3, 0, 2, GetScaledValue( 200 ), GetScaledValue( 12 ));
+
+	m_pServerList->SetColumnHeaderImageOffset(0, 0, 3, 3);
+	m_pServerList->SetColumnHeaderImageOffset(1, 0, 3, 3);
+	m_pServerList->SetColumnHeaderImageOffset(2, 0, 3, 3);
 }
 
 //-----------------------------------------------------------------------------

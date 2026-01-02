@@ -1132,7 +1132,7 @@ public:
 
 private:
 	bool m_Enabled = true;
-	bool m_EnableRem = false;
+	bool m_EnableRem = true;
 };
 
 LINK_ENTITY_TO_CLASS(trigger_multiple, CTriggerMultiple);

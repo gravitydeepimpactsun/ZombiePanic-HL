@@ -47,6 +47,10 @@ void CClientVGUI::Initialize(CreateInterfaceFn *pFactories, int iNumFactories)
 	g_pFullFileSystem->AddSearchPath( "zp_addon", "ADDON" );
 	g_pFullFileSystem->AddSearchPath( "", "ROOT" );
 
+	// Create the folders
+	g_pFullFileSystem->CreateDirHierarchy( "zp_workshop", "ROOT" );
+	g_pFullFileSystem->CreateDirHierarchy( "zp_addon", "ROOT" );
+
 	// Override proportional scale
 	// The Anniverssary Update changed the base resolution from 640x480 to 1280x720.
 	// This causes all old UI to be down-scaled.

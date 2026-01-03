@@ -6,6 +6,7 @@
 #include <vgui_controls/ButtonImage.h>
 #include <vgui_controls/TextEntry.h>
 #include <vgui_controls/ListPanel.h>
+#include <vgui_controls/ComboBox.h>
 #include <FileSystem.h>
 #include "IFileDialogManager.h"
 
@@ -37,6 +38,9 @@ public:
 
 protected:
 	MESSAGE_FUNC( OnItemSelected, "ItemSelected" );
+	void SetupFileSorting( int nFilter );
+	void PopulateFileList();
+	MESSAGE_FUNC_PARAMS( OnTextChanged, "TextChanged", kv );
 
 private:
 	void GetFileName( const char *szLocaPath, std::string &output );
@@ -74,6 +78,7 @@ private:
 	char szFolder[52];
 	char szPathID[32];
 	int nFilter;
+	int nFilterSort;
 	bool bIsFolderOnly;
 	DialogSelected_t pFunctor;
 
@@ -82,6 +87,8 @@ private:
 	CFileListPanel *pList;
 	vgui2::TextEntry *pFilePath;
 	vgui2::TextEntry *pFile;
+	vgui2::Label *pFilterLabel;
+	vgui2::ComboBox *pFileSortByType;
 	vgui2::ButtonImage *pBackButton;
 };
 

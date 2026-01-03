@@ -105,13 +105,27 @@ CFileBrowser::CFileBrowser(vgui2::Panel *pParent)
 	SetProportional( true );
 	SetDeleteSelfOnClose( true );
 
+	bIsFolderOnly = false;
+	nFilter = 0;
+	nFilterSort = 0;
+	pFunctor = nullptr;
+	szPathID[0] = 0;
+	szFolder[0] = 0;
+
 	pList = new CFileListPanel( this, "ItemList" );
 	pList->SetColumnHeaderHeight( GetScaledValue(20) );
 	pFilePath = new vgui2::TextEntry( this, "CurrentLocation" );
 	pFile = new vgui2::TextEntry( this, "CurrentFile" );
+	pFileSortByType = new vgui2::ComboBox( this, "FileSortByType", 8, false );
 	pBackButton = new vgui2::ButtonImage( this, "BackOneFolder", "resource/icon_folderup", this, "BackOneFolder" );
 
 	LoadControlSettings( VGUI2_ROOT_DIR "resource/filebrowser.res" );
+
+	pFilterLabel = new vgui2::Label( this, "FileSortByTypeLabel", "" );
+	pFilterLabel->SetBounds( 10, 224, 72, 24 );
+	pFilterLabel->SetPinCorner( vgui2::Panel::PIN_BOTTOMLEFT, 10, -12 );
+	pFilterLabel->SetContentAlignment( vgui2::Label::a_west );
+	pFilterLabel->SetAssociatedControl( pFileSortByType );
 
 	// No edit, thanks.
 	pFilePath->SetEditable( false );
@@ -176,6 +190,7 @@ void CFileBrowser::Open( int eFilter, const char *szFolder, const char *szPathID
 	pFunctor = pFunction;
 	bool bIsRoot = !Q_stricmp( szFolder, "" ) ? true : false;
 	OpenFolder( szFolder, this->szPathID, bIsRoot );
+	SetupFileSorting( nFilter );
 }
 
 void CFileBrowser::OnCommand( const char *pcCommand )
@@ -286,7 +301,46 @@ void CFileBrowser::OnItemSelected()
 		pFile->SetText( kv->GetString( "Name" ) );
 }
 
-void CFileBrowser::GetFileName( const char *szLocaPath, std::string &output )
+void CFileBrowser::SetupFileSorting( int nFilter )
+{
+	// Read FileType filters, and add what needs to be added.
+	// If folder, then hide the file filter.
+	if ( bIsFolderOnly )
+	{
+		pFileSortByType->SetVisible( false );
+		pFileSortByType->SetEnabled( false );
+		return;
+	}
+	int nItem = pFileSortByType->AddItem( "All types (*.*)", new KeyValues( "Item", "type", "all" ) );
+	pFileSortByType->ActivateItem( nItem );
+	if ( HasFilterFlag( OpenFileDialog_e::FILE_TGA ) ) pFileSortByType->AddItem( "Image targa file (*.tga)", new KeyValues( "Item", "type", OpenFileDialog_e::FILE_TGA ) );
+	if ( HasFilterFlag( OpenFileDialog_e::FILE_JPG ) ) pFileSortByType->AddItem( "Image jpeg file (*.jpg)", new KeyValues( "Item", "type", OpenFileDialog_e::FILE_JPG ) );
+	if ( HasFilterFlag( OpenFileDialog_e::FILE_PNG ) ) pFileSortByType->AddItem( "Lossless image file (*.png)", new KeyValues( "Item", "type", OpenFileDialog_e::FILE_PNG ) );
+	if ( HasFilterFlag( OpenFileDialog_e::FILE_BSP ) ) pFileSortByType->AddItem( "Map file (*.bsp)", new KeyValues( "Item", "type", OpenFileDialog_e::FILE_BSP ) );
+	if ( HasFilterFlag( OpenFileDialog_e::FILE_TXT ) ) pFileSortByType->AddItem( "Normal text file (*.txt)", new KeyValues( "Item", "type", OpenFileDialog_e::FILE_TXT ) );
+}
+
+void CFileBrowser::OnTextChanged( KeyValues* kv )
+{
+	Panel *pPanel = (Panel *) kv->GetPtr("panel", NULL);
+	if ( pPanel == pFileSortByType )
+		PopulateFileList();
+}
+
+void CFileBrowser::PopulateFileList()
+{
+	KeyValues *combokv = pFileSortByType->GetActiveItemUserData();
+	if ( combokv )
+		nFilterSort = combokv->GetInt( "type" );
+
+	bool bIsRoot = false;
+	// equals? then it's root.
+	if ( !Q_stricmp( szCurrentFolderSelected.c_str(), "" ) )
+		bIsRoot = true;
+	OpenFolder( szCurrentFolderSelected.c_str(), szPathID, bIsRoot );
+}
+
+void CFileBrowser::GetFileName(const char *szLocaPath, std::string &output)
 {
 	std::string path = szLocaPath;
 	if ( path.size() > 0 )
@@ -501,6 +555,7 @@ bool CFileBrowser::IsAllowedInFilter( const char *szLocalPath, FileType &eType )
 
 bool CFileBrowser::HasFilterFlag( int flag )
 {
+	if ( nFilterSort > OpenFileDialog_e::FILE_ANY ) return ((nFilterSort & flag) != 0);
 	if ( nFilter == OpenFileDialog_e::FILE_ANY ) return true;
 	return ((nFilter & flag) != 0);
 }

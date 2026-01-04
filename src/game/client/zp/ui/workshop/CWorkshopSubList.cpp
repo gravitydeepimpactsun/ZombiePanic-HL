@@ -138,11 +138,11 @@ void CWorkshopSubList::UpdateItems()
 			pActivated, pError,
 		    item.uWorkshopID
 		);
-	}
 
-	// Redraw the layout so >4 items are visible + scrollbar
-	pList->InvalidateLayout(true);
-	pList->Repaint();
+		// Redraw the layout so >4 items are visible + scrollbar
+		pList->InvalidateLayout( true, true );
+		pList->Repaint();
+	}
 }
 
 bool CWorkshopSubList::HasFilterFlag( int iFilters )

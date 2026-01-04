@@ -455,6 +455,7 @@ void CDialogGameInfo::OnTick()
 		m_iRequestRetry = 0;
 		RequestInfo();
 	}
+	MoveToFront();
 }
 
 

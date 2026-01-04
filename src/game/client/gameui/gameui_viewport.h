@@ -88,8 +88,13 @@ public:
 protected:
 	void UpdateAddonList();
 	void LoadWorkshop();
+	void CheckWorkshopSubscriptions();
+	bool HasSubscribedToItem( PublishedFileId_t nWorkshopID );
 	bool HasLoadedItem( PublishedFileId_t nWorkshopID );
 	void LoadWorkshopItems( bool bWorkshopFolder );
+
+	// Our subscribed items. If we subscribe to a new item, we want to mount it right away!
+	std::vector<PublishedFileId_t> m_SubscribedItems;
 
 	// list of our sources
 	std::vector<vgui2::WorkshopItem> m_Items;

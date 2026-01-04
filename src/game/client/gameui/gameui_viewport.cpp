@@ -62,7 +62,7 @@ CGameUIViewport::CGameUIViewport()
 	m_bNeedToReconnectAfterDownload = false;
 	m_bPrepareForQueryDownload = false;
 	m_hWorkshopInfoBox = nullptr;
-	m_flQueryWait = 0.0f;
+	SetQueryWait( 1.0f );
 
 	LoadWorkshopItems( false );
 	LoadWorkshop();
@@ -298,6 +298,8 @@ void CGameUIViewport::OnThink()
 				ShowWorkshopInfoBox( "", WorkshopInfoBoxState::State_DownloadingMapContentDisconnect );
 		}
 	}
+	else
+		CheckWorkshopSubscriptions();
 }
 
 void CGameUIViewport::OnDownloadItemResult( DownloadItemResult_t *pCallback )
@@ -331,6 +333,9 @@ void CGameUIViewport::OnDownloadItemResult( DownloadItemResult_t *pCallback )
 	}
 
 	ConPrintf( clr, "[Workshop] %s [%llu]\n", szMsg, pCallback->m_nPublishedFileId );
+
+	// Make sure we add this.
+	m_SubscribedItems.push_back( pCallback->m_nPublishedFileId );
 }
 
 void CGameUIViewport::GetCurrentItems( std::vector<vgui2::WorkshopItem> &items )
@@ -375,6 +380,38 @@ void CGameUIViewport::LoadWorkshop()
 		SteamAPICall_t apiCall = GetSteamAPI()->SteamUGC()->SendQueryUGCRequest( handle );
 		m_SteamCallResultOnSendQueryUGCRequest.Set( apiCall, this, &CGameUIViewport::OnSendQueryUGCRequest );
 	}
+}
+
+void CGameUIViewport::CheckWorkshopSubscriptions()
+{
+	if ( !GetSteamAPI() ) return;
+	if ( !GetSteamAPI()->SteamUGC() ) return;
+	if ( m_flQueryWait > 0.0f )
+	{
+		m_flQueryWait -= 1.0f;
+		return;
+	}
+	SetQueryWait( 1.55f );
+	const int MAX_WORKSHOP_ITEMS = 100;
+	PublishedFileId_t vWorkshopItems[ MAX_WORKSHOP_ITEMS ];
+	uint32 nItems = GetSteamAPI()->SteamUGC()->GetSubscribedItems( vWorkshopItems, MAX_WORKSHOP_ITEMS );
+	for ( size_t i = 0; i < nItems; i++ )
+	{
+		// We found a new subscribed item? Download it!
+		// This only returns true if we subscribed to an item while in-game.
+		if ( !HasSubscribedToItem( vWorkshopItems[i] ) )
+			DownloadWorkshopAddon( vWorkshopItems[i], false );
+	}
+}
+
+bool CGameUIViewport::HasSubscribedToItem( PublishedFileId_t nWorkshopID )
+{
+	for ( size_t i = 0; i < m_SubscribedItems.size(); i++ )
+	{
+		if ( m_SubscribedItems[i] == nWorkshopID )
+			return true;
+	}
+	return false;
 }
 
 bool CGameUIViewport::HasLoadedItem( PublishedFileId_t nWorkshopID )

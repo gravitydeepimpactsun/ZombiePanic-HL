@@ -297,6 +297,10 @@ void CGameUIViewport::OnThink()
 			if ( GetWorkshopInfoBoxState() == WorkshopInfoBoxState::State_DownloadingMapContent )
 				ShowWorkshopInfoBox( "", WorkshopInfoBoxState::State_DownloadingMapContentDisconnect );
 		}
+
+		UpdateAddonList();
+		UpdateWorkshopMapsFile( false );
+		UpdateWorkshopMapsFile( true );
 	}
 	else
 		CheckWorkshopSubscriptions();
@@ -359,6 +363,38 @@ void CGameUIViewport::UpdateAddonList()
 	}
 	// Save the file
 	pAddonList->SaveToFile( g_pFullFileSystem, "addonlist.txt", "WORKSHOP" );
+}
+
+void CGameUIViewport::UpdateWorkshopMapsFile( const bool &bWorkshopFolder )
+{
+	// Make sure the file exist
+	KeyValuesAD kvFileCheck( new KeyValues( "Workshop" ) );
+	if ( !kvFileCheck->LoadFromFile( g_pFullFileSystem, "workshop_maps.kv", "WORKSHOP" ) )
+		kvFileCheck->SaveToFile( g_pFullFileSystem, "workshop_maps.kv", "WORKSHOP" );
+
+	for ( int iID = 0; iID < m_Items.size(); iID++ )
+	{
+		vgui2::WorkshopItem &WorkshopAddon = m_Items[iID];
+		if ( WorkshopAddon.iFilterFlag & vgui2::FILTER_MAP && WorkshopAddon.uWorkshopID != 0 )
+		{
+			FileFindHandle_t mapfh;
+			char const *mapfn = g_pFullFileSystem->FindFirst( vgui2::VarArgs( "%llu/maps/*.bsp", WorkshopAddon.uWorkshopID ), &mapfh, bWorkshopFolder ? "WORKSHOPDL" : "WORKSHOP" );
+			if ( mapfn )
+			{
+				do
+				{
+					KeyValuesAD autoMapData( new KeyValues( "Workshop" ) );
+					if ( autoMapData->LoadFromFile( g_pFullFileSystem, "workshop_maps.kv", "WORKSHOP" ) )
+					{
+						autoMapData->SetString( mapfn, vgui2::VarArgs( "id=%llu", WorkshopAddon.uWorkshopID ) );
+						autoMapData->SaveToFile( g_pFullFileSystem, "workshop_maps.kv", "WORKSHOP" );
+					}
+				}
+				while ( ( mapfn = g_pFullFileSystem->FindNext( mapfh ) ) != NULL );
+				g_pFullFileSystem->FindClose( mapfh );
+			}
+		}
+	}
 }
 
 // ===================================
@@ -598,6 +634,7 @@ void CGameUIViewport::AutoMountWorkshopItem( vgui2::WorkshopItem &WorkshopFile )
 			WorkshopFile.uWorkshopID
 		);
 #endif
+		WorkshopFile.bMounted = true;
 		return;
 	}
 	if ( !WorkshopIDIsMounted( WorkshopFile.uWorkshopID ) ) return;
@@ -712,6 +749,7 @@ void CGameUIViewport::MountWorkshopItem( vgui2::WorkshopItem WorkshopFile, const
 				|| vgui2::FStrEq( strFile, "resource" )
 				|| vgui2::FStrEq( strFile, "sound" )
 				|| vgui2::FStrEq( strFile, "ui" )
+				|| vgui2::FStrEq( strFile, "gfx" )
 				|| vgui2::FStrEq( strFile, "sprites" ) )
 				bIsValidFile = true;
 		}

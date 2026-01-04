@@ -87,6 +87,7 @@ public:
 
 protected:
 	void UpdateAddonList();
+	void UpdateWorkshopMapsFile( const bool &bWorkshopFolder );
 	void LoadWorkshop();
 	void CheckWorkshopSubscriptions();
 	bool HasSubscribedToItem( PublishedFileId_t nWorkshopID );

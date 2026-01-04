@@ -27,6 +27,7 @@ extern IParticleMan *g_pParticleMan;
 
 ConVar r_dynamic_ent_light("r_dynamic_ent_light", "1", FCVAR_BHL_ARCHIVE);
 ConVar cl_hidecorpses("cl_hidecorpses", "0", FCVAR_BHL_ARCHIVE);
+ConVar cl_zladderdrawmode("cl_zladderdrawmode", "0", FCVAR_BHL_ARCHIVE, "Zombie ladder draw modes:\n0 - Always Render\n1 - Only render if in zombie vision.");
 
 void Game_AddObjects(void);
 
@@ -72,6 +73,19 @@ int CL_DLLEXPORT HUD_AddEntity(int type, struct cl_entity_s *ent, const char *mo
 	// note: we only do this when the animation is done (framerate is equal to 0)
 	if ((ent->player || ent->curstate.renderfx == kRenderFxDeadPlayer) && ent->curstate.framerate == 0)
 		ent->curstate.frame = 256.0f;
+
+	// Override the render amount if we are a ladde zombie.
+	// Then we check if we are a zombie player, if so, show the txeture on our ladder!
+	if ( ent->curstate.skin == CONTENTS_LADDER_ZOMBIE )
+	{
+		bool bIsZombie = ( gEngfuncs.GetLocalPlayer()->curstate.team == ZP::TEAM_ZOMBIE ? true : false );
+
+		// Is zombie vision on? If not, set this to false.
+		if ( bIsZombie && cl_zladderdrawmode.GetBool() )
+			bIsZombie = gHUD.m_bUseZombVision;
+
+		ent->curstate.renderamt = bIsZombie ? 255 : 0;
+	}
 
 	// each frame every entity passes this function, so the overview hooks it to filter the overview entities
 	// in spectator mode:

@@ -20,6 +20,7 @@ CMiscSubOptions::CMiscSubOptions(vgui2::Panel *parent)
 	m_pAutoWeaponSwitch = new CCvarCheckButton(this, "AutoSwitch", "#ZP_AdvOptions_General_AutoSwitch", "cl_autopickup");
 	m_pPanicToMelee = new CCvarCheckButton(this, "PanicToMelee", "#ZP_AdvOptions_General_PanicToMelee", "cl_panictomelee");
 	m_pHideScoreBoardIcon = new CCvarCheckButton(this, "HideScoreBoardIcon", "#ZP_AdvOptions_General_HideScoreBoardIcon", "cl_hidescoreboardicon");
+	m_pZombieLadderDrawMode = new CCvarCheckButton(this, "ZombieLadderDrawMode", "#ZP_AdvOptions_General_ZombieLadderDrawMode", "cl_zladderdrawmode");
 
 	LoadControlSettings(VGUI2_ROOT_DIR "resource/options/MiscSubOptions.res");
 }
@@ -30,6 +31,7 @@ void CMiscSubOptions::OnResetData()
 	m_pAutoWeaponSwitch->ResetData();
 	m_pPanicToMelee->ResetData();
 	m_pHideScoreBoardIcon->ResetData();
+	m_pZombieLadderDrawMode->ResetData();
 }
 
 void CMiscSubOptions::OnApplyChanges()
@@ -38,4 +40,5 @@ void CMiscSubOptions::OnApplyChanges()
 	m_pAutoWeaponSwitch->ApplyChanges();
 	m_pPanicToMelee->ApplyChanges();
 	m_pHideScoreBoardIcon->ApplyChanges();
+	m_pZombieLadderDrawMode->ApplyChanges();
 }

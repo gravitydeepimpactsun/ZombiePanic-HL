@@ -20,6 +20,7 @@ private:
 	CCvarCheckButton *m_pAutoWeaponSwitch = nullptr;
 	CCvarCheckButton *m_pPanicToMelee = nullptr;
 	CCvarCheckButton *m_pHideScoreBoardIcon = nullptr;
+	CCvarCheckButton *m_pZombieLadderDrawMode = nullptr;
 };
 
 #endif

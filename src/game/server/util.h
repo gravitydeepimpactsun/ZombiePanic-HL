@@ -225,7 +225,7 @@ typedef enum
 // Misc useful
 inline BOOL FStrEq(const char *sz1, const char *sz2)
 {
-	return (strcmp(sz1, sz2) == 0);
+	return (sz1 == sz2 || strcmp(sz1, sz2) == 0);
 }
 inline BOOL FClassnameIs(edict_t *pent, const char *szClassname)
 {

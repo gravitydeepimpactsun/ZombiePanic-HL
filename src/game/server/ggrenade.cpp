@@ -164,7 +164,6 @@ void CGrenade::Explode(TraceResult *pTrace, int bitsDamageType)
 // Only create flames if we hit the ground, not on walls or ceilings!
 bool UTIL_IS_VALID_FLAME_HIT( CBaseEntity *pEnt, TraceResult *pTrace )
 {
-	char szbuffer[64];
 	Vector vSrc = pTrace->vecEndPos;
 	Vector vMatEnd = pTrace->vecEndPos + Vector( 0, 0, -35 );
 
@@ -178,12 +177,12 @@ bool UTIL_IS_VALID_FLAME_HIT( CBaseEntity *pEnt, TraceResult *pTrace )
 void UTIL_CreateFlameDecal( edict_t *pEdict, const Vector &vPos )
 {
 	TraceResult trace;
-	Vector vNewPos = vPos + Vector( 0, 0, 5 );
+	Vector vNewPos = vPos;
 
 	// Move up if we can't create a decal.
 	for ( int i = 0; i < 20; i++ )
 	{
-		UTIL_TraceHull( vNewPos, vPos, ignore_monsters, head_hull, NULL, &trace );
+		UTIL_TraceLine( vNewPos, vPos + Vector( 0, 0, -32 ), ignore_monsters, pEdict, &trace );
 		if ( trace.fStartSolid || trace.flFraction == 1.0 )
 			vNewPos.z += 5;
 		else
@@ -199,7 +198,7 @@ void UTIL_CreateFlameDecal( edict_t *pEdict, const Vector &vPos )
 void CGrenade::TryCreateFlameAtPoint()
 {
 	TraceResult tr;
-	UTIL_TraceLine( pev->origin, pev->origin + Vector( 0, 0, -32 ), ignore_monsters, ENT(pev), &tr );
+	UTIL_TraceLine( pev->origin, pev->origin + Vector( 0, 0, -55 ), ignore_monsters, ENT(pev), &tr );
 	if ( tr.flFraction <= 1.0 )
 	{
 		if ( tr.fAllSolid || tr.fStartSolid ) return;
@@ -213,7 +212,7 @@ void CGrenade::TryCreateFlameAtPoint()
 		pEnt->pev->enemy = ENT( m_MolotovOwner );
 		m_FlameEnts.push_back( pEnt );
 
-		UTIL_CreateFlameDecal( pHit->edict(), tr.vecEndPos + Vector( 0, 0, 64 ) );
+		UTIL_CreateFlameDecal( pHit->edict(), tr.vecEndPos );
 	}
 }
 
@@ -221,7 +220,7 @@ bool CGrenade::TryCreateFlameAtPoint( int nSubID )
 {
 	const Vector vPos = m_vFirePos[ nSubID ];
 	TraceResult tr;
-	UTIL_TraceLine( vPos, vPos + Vector( 0, 0, -32 ), ignore_monsters, ENT(pev), &tr );
+	UTIL_TraceLine( vPos, vPos + Vector( 0, 0, -55 ), ignore_monsters, ENT(pev), &tr );
 	if ( tr.flFraction <= 1.0 )
 	{
 		if ( tr.fAllSolid || tr.fStartSolid ) return false;
@@ -235,7 +234,7 @@ bool CGrenade::TryCreateFlameAtPoint( int nSubID )
 		pEnt->pev->enemy = ENT( m_MolotovOwner );
 		m_FlameEnts.push_back( pEnt );
 
-		UTIL_CreateFlameDecal( pHit->edict(), tr.vecEndPos + Vector( 0, 0, 64 ) );
+		UTIL_CreateFlameDecal( pHit->edict(), tr.vecEndPos );
 		return true;
 	}
 	return false;

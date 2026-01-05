@@ -1435,7 +1435,7 @@ void CFlameBaseEnt::Spawn()
 
 	SetTouch( &CFlameBaseEnt::OnTouched );
 	if ( IsLargeFire() )
-		EMIT_SOUND_DYN( ENT(pev), CHAN_BODY, "ambience/burning3.wav", 1.0, ATTN_NORM, 0, PITCH_NORM );
+		EMIT_SOUND_DYN( ENT(pev), CHAN_BODY, "weapons/molotov/burning.wav", 1.0, ATTN_NORM, 0, PITCH_NORM );
 
 	SetThink( &CFlameBaseEnt::OnThink );
 	pev->nextthink = gpGlobals->time;

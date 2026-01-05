@@ -50,13 +50,10 @@ void CWeaponExplosiveMolotov::Precache(void)
 	PRECACHE_MODEL("models/v_molotov.mdl");
 	PRECACHE_MODEL("models/p_molotov.mdl");
 	PRECACHE_SOUND("weapons/molotov/fuse.wav");
-	PRECACHE_SOUND("weapons/molotov/lit_1.wav");
-	PRECACHE_SOUND("weapons/molotov/lit_2.wav");
-	PRECACHE_SOUND("ambience/flameburst1.wav");
-	PRECACHE_SOUND("ambience/burning1.wav");
-	PRECACHE_SOUND("ambience/burning2.wav");
-	PRECACHE_SOUND("ambience/burning3.wav");
-	PRECACHE_SOUND("debris/bustglass3.wav");
+	PRECACHE_SOUND("weapons/molotov/break.wav");
+	PRECACHE_SOUND("weapons/molotov/burning.wav");
+	PRECACHE_SOUND("weapons/lighter01.wav");
+	PRECACHE_SOUND("weapons/lighter02.wav");
 }
 
 float CWeaponExplosiveMolotov::Deploy()
@@ -85,9 +82,9 @@ void CWeaponExplosiveMolotov::PrimaryAttack()
 		m_flStartThrow = gpGlobals->time;
 		m_flReleaseThrow = 0;
 
-		AddWeaponSound( "weapons/molotov/lit_1.wav", 1, ATTN_NORM, GetAnimationTime( 2, 25 ) );
+		AddWeaponSound( "weapons/lighter01.wav", 1, ATTN_NORM, GetAnimationTime( 2, 25 ) );
 		AddWeaponSound( "weapons/molotov/fuse.wav", 1, ATTN_NORM, GetAnimationTime( 24, 25 ) );
-		AddWeaponSound( "weapons/molotov/lit_2.wav", 1, ATTN_NORM, GetAnimationTime( 25, 25 ) );
+		AddWeaponSound( "weapons/lighter02.wav", 1, ATTN_NORM, GetAnimationTime( 25, 25 ) );
 		SendWeaponAnim( ANIM_THROW_EXPLOSIVES_PINPULL );
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime( 34, 25 );
 	}
@@ -100,9 +97,9 @@ void CWeaponExplosiveMolotov::SecondaryAttack()
 		m_flStartThrow = gpGlobals->time;
 		m_flReleaseThrow = 0;
 
-		AddWeaponSound( "weapons/molotov/lit_1.wav", 1, ATTN_NORM, GetAnimationTime( 4, 25 ) );
+		AddWeaponSound( "weapons/lighter01.wav", 1, ATTN_NORM, GetAnimationTime( 4, 25 ) );
 		AddWeaponSound( "weapons/molotov/fuse.wav", 1, ATTN_NORM, GetAnimationTime( 24, 25 ) );
-		AddWeaponSound( "weapons/molotov/lit_2.wav", 1, ATTN_NORM, GetAnimationTime( 24, 25 ) );
+		AddWeaponSound( "weapons/lighter02.wav", 1, ATTN_NORM, GetAnimationTime( 24, 25 ) );
 		SendWeaponAnim( ANIM_THROW_EXPLOSIVES_PINPULL2 );
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime( 35, 25 );
 		m_bDoSecondaryAttack = true;

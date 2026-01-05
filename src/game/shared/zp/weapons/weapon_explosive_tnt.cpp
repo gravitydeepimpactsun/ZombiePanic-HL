@@ -50,8 +50,8 @@ void CWeaponExplosiveTNT::Precache(void)
 	PRECACHE_MODEL("models/v_tnt.mdl");
 	PRECACHE_MODEL("models/p_tnt.mdl");
 	PRECACHE_SOUND("weapons/tnt/fuse.wav");
-	PRECACHE_SOUND("weapons/tnt/lit_1.wav");
-	PRECACHE_SOUND("weapons/tnt/lit_2.wav");
+	PRECACHE_SOUND("weapons/lighter01.wav");
+	PRECACHE_SOUND("weapons/lighter02.wav");
 	PRECACHE_SOUND("weapons/tnt/spark.wav");
 }
 
@@ -81,9 +81,9 @@ void CWeaponExplosiveTNT::PrimaryAttack()
 		m_flStartThrow = gpGlobals->time;
 		m_flReleaseThrow = 0;
 
-		AddWeaponSound( "weapons/tnt/lit_1.wav", 1, ATTN_NORM, GetAnimationTime( 2, 25 ) );
+		AddWeaponSound( "weapons/lighter01.wav", 1, ATTN_NORM, GetAnimationTime( 2, 25 ) );
 		AddWeaponSound( "weapons/tnt/fuse.wav", 1, ATTN_NORM, GetAnimationTime( 24, 25 ) );
-		AddWeaponSound( "weapons/tnt/lit_2.wav", 1, ATTN_NORM, GetAnimationTime( 25, 25 ) );
+		AddWeaponSound( "weapons/lighter02.wav", 1, ATTN_NORM, GetAnimationTime( 25, 25 ) );
 		SendWeaponAnim( ANIM_THROW_EXPLOSIVES_PINPULL );
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime( 34, 25 );
 	}
@@ -96,9 +96,9 @@ void CWeaponExplosiveTNT::SecondaryAttack()
 		m_flStartThrow = gpGlobals->time;
 		m_flReleaseThrow = 0;
 
-		AddWeaponSound( "weapons/tnt/lit_1.wav", 1, ATTN_NORM, GetAnimationTime( 4, 25 ) );
+		AddWeaponSound( "weapons/lighter01.wav", 1, ATTN_NORM, GetAnimationTime( 4, 25 ) );
 		AddWeaponSound( "weapons/tnt/fuse.wav", 1, ATTN_NORM, GetAnimationTime( 24, 25 ) );
-		AddWeaponSound( "weapons/tnt/lit_2.wav", 1, ATTN_NORM, GetAnimationTime( 24, 25 ) );
+		AddWeaponSound( "weapons/lighter02.wav", 1, ATTN_NORM, GetAnimationTime( 24, 25 ) );
 		SendWeaponAnim( ANIM_THROW_EXPLOSIVES_PINPULL2 );
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime( 35, 25 );
 		m_bDoSecondaryAttack = true;

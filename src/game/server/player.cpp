@@ -5039,31 +5039,39 @@ void CBloodSplat::Spray(void)
 
 //==============================================
 
-void CBasePlayer::GiveNamedItem(const char *pszName)
+void CBasePlayer::GiveNamedItem( const char *pszName )
 {
 	if ( !IsAlive() ) return;
 	edict_t *pent;
 
-	int istr = MAKE_STRING(pszName);
+	char weaponName[ 256 ];
+	if ( V_strncasecmp( pszName, "weapon_", 7 ) == 0 )
+		V_strncpy( weaponName, pszName, sizeof( weaponName ) );
+	else if ( V_strncasecmp( pszName, "item_", 5 ) == 0 )
+		V_strncpy( weaponName, pszName, sizeof( weaponName ) );
+	else
+		V_snprintf( weaponName, sizeof( weaponName ), "weapon_%s", pszName );
+	V_strlower( weaponName );
 
-	pent = CREATE_NAMED_ENTITY(istr);
-	if (FNullEnt(pent))
+	pent = CREATE_NAMED_ENTITY( ALLOC_STRING( weaponName ) );
+	if ( FNullEnt( pent ) )
 	{
-		ALERT(at_console, "NULL Ent in GiveNamedItem!\n");
+		Msg( "NULL Ent in GiveNamedItem! Tried to give item [%s]\n", weaponName );
 		return;
 	}
-	VARS(pent)->origin = pev->origin;
+
+	VARS( pent )->origin = pev->origin;
 	pent->v.spawnflags |= SF_NORESPAWN;
-	if ( FStrEq( pszName, "weapon_fafo" ) && pev->team == ZP::TEAM_ZOMBIE )
+	if ( FStrEq( weaponName, "weapon_fafo" ) && pev->team == ZP::TEAM_ZOMBIE )
 		pent->v.team = ZP::TEAM_ZOMBIE; // Set team for FAFO if zombie
 
-	DispatchSpawn(pent);
+	DispatchSpawn( pent );
 
 	// Make sure this is set, so we can delete it if used
 	CBaseEntity *pItem = CBaseEntity::Instance( pent );
 	pItem->SetSpawnedTroughRandomEntity( true );
 
-	DispatchUse(pent, ENT(pev));
+	DispatchUse( pent, ENT( pev ) );
 }
 
 CBaseEntity *FindEntityForward(CBaseEntity *pMe)

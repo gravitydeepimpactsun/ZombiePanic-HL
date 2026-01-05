@@ -1031,7 +1031,7 @@ void CZombiePanicGameRules::OnWeaponGive( CBasePlayer *pPlayer, const char *szIt
 		// Display results
 		UTIL_PrintConsole( "Available weapons:\n", pPlayer );
 		for (WeaponInfo& i : found)
-			UTIL_PrintConsole( UTIL_VarArgs( "weapon_%s\n", i.szWeapon ), pPlayer );
+			UTIL_PrintConsole( i.szWeapon, pPlayer );
 		UTIL_PrintConsole( "--------------------\n", pPlayer );
 		UTIL_PrintConsole( "Usage: give <string>\n", pPlayer );
 		return;

@@ -46,7 +46,7 @@ void CWeaponSideArmRevolver::DoAudioFrame( void )
 				else
 				{
 #if !defined( CLIENT_DLL )
-					EMIT_SOUND( ENT(m_pPlayer->pev), CHAN_WEAPON, soundData.File, soundData.Volume, soundData.Attenuation );
+					EMIT_SOUND( ENT(m_pPlayer->pev), CHAN_AUTO, soundData.File, soundData.Volume, soundData.Attenuation );
 #endif
 				}
 			}

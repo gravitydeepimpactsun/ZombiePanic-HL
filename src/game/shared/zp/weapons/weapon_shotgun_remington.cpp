@@ -73,7 +73,7 @@ float CWeaponShotgunRemington::DoWeaponUnload()
 	// Pump it up!
 	m_pPlayer->SetAnimation( PLAYER_PUMP );
 	EMIT_SOUND_DYN( ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/shotgun/pump.wav", 1, ATTN_NORM, 0, 105 );
-	return 0.73f;
+	return GetAnimationTime( 22, 30 );
 }
 
 void CWeaponShotgunRemington::OnRequestedAnimation( SingleActionAnimReq act )

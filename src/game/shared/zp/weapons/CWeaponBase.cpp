@@ -316,7 +316,7 @@ void CWeaponBase::DoAudioFrame( void )
 #if !defined( CLIENT_DLL )
 			// Time to play the sound
 			if ( m_pPlayer )
-				EMIT_SOUND( ENT(m_pPlayer->pev), CHAN_WEAPON, soundData.File, soundData.Volume, soundData.Attenuation );
+				EMIT_SOUND( ENT(m_pPlayer->pev), CHAN_AUTO, soundData.File, soundData.Volume, soundData.Attenuation );
 #endif
 			// Remove it from the list
 			m_vecWeaponSoundData.erase( m_vecWeaponSoundData.begin() + x );

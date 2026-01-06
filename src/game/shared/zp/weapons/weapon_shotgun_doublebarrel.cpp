@@ -83,7 +83,7 @@ void CWeaponShotgunDoubleBarrel::DoAudioFrame( void )
 			{
 				// Don't play sounds in client DLL
 #if !defined( CLIENT_DLL )
-				EMIT_SOUND( ENT(m_pPlayer->pev), CHAN_WEAPON, soundData.File, soundData.Volume, soundData.Attenuation );
+				EMIT_SOUND( ENT(m_pPlayer->pev), CHAN_AUTO, soundData.File, soundData.Volume, soundData.Attenuation );
 #endif
 				// If this is the "out.wav" sound, play a shell ejection event. It's a shitty hack, but eh.
 				// At least the origin won't be fucked...

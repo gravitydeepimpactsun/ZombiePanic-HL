@@ -574,6 +574,11 @@ void CBasePlayer::DoHeadshotChunk( const Vector &vecPos, short modelIndex, int i
 	MESSAGE_END();
 }
 
+const char *CBasePlayer::GetPlayerName() const
+{
+	return STRING( pev->netname );
+}
+
 void CBasePlayer::DoHeadshotExploded( const Vector &vecPos )
 {
 	int iSize = 1;
@@ -5056,7 +5061,7 @@ void CBasePlayer::GiveNamedItem( const char *pszName )
 	pent = CREATE_NAMED_ENTITY( ALLOC_STRING( weaponName ) );
 	if ( FNullEnt( pent ) )
 	{
-		Msg( "NULL Ent in GiveNamedItem! Tried to give item [%s]\n", weaponName );
+		Msg( "NULL Ent in GiveNamedItem! %s tried to give themselves [%s]\n", GetPlayerName(), weaponName );
 		return;
 	}
 

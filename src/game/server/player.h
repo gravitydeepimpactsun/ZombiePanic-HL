@@ -471,6 +471,8 @@ private:
 
 	void DoHeadshotChunk( const Vector &vecPos, short modelIndex, int iAmount, int iScale );
 public:
+	const char *GetPlayerName() const;
+
 	const char *GetAPIRetrieveKey() const { return m_szAPIRetrieveKey; }
 	void ClearAPIRetrieveKey() { m_szAPIRetrieveKey[0] = '\0'; SetAPIPassed( false ); }
 	void SetAPIPassed( const bool &bState ) { m_bAPIOK = bState; }

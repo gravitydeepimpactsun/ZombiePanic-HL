@@ -431,12 +431,40 @@ void CGameUIViewport::CheckWorkshopSubscriptions()
 	const int MAX_WORKSHOP_ITEMS = 100;
 	PublishedFileId_t vWorkshopItems[ MAX_WORKSHOP_ITEMS ];
 	uint32 nItems = GetSteamAPI()->SteamUGC()->GetSubscribedItems( vWorkshopItems, MAX_WORKSHOP_ITEMS );
+	std::vector<PublishedFileId_t> m_SubCheckList;
 	for ( size_t i = 0; i < nItems; i++ )
 	{
 		// We found a new subscribed item? Download it!
 		// This only returns true if we subscribed to an item while in-game.
 		if ( !HasSubscribedToItem( vWorkshopItems[i] ) )
 			DownloadWorkshopAddon( vWorkshopItems[i], false );
+		m_SubCheckList.push_back( vWorkshopItems[i] );
+	}
+
+	// Now check if we uninstalled any addons.
+	for ( int iID = 0; iID < m_Items.size(); iID++ )
+	{
+		vgui2::WorkshopItem &WorkshopAddon = m_Items[iID];
+		bool bHasSubscribed = false;
+		for ( size_t i = 0; i < m_SubCheckList.size(); i++ )
+		{
+			// We already have this in the list? then skip.
+			if ( WorkshopAddon.uWorkshopID == m_SubCheckList[i] )
+			{
+				bHasSubscribed = true;
+				break;
+			}
+		}
+		if ( bHasSubscribed ) continue;
+
+		// We have an item here that we unsubscribed from, Unmount it (if activated) then purge it from the list.
+		if ( WorkshopAddon.bMounted )
+		{
+			CGameUIViewport::Get()->ShowWorkshopInfoBox( WorkshopAddon.szName, WorkshopInfoBoxState::State_Dismounting );
+			CGameUIViewport::Get()->MountWorkshopItem( WorkshopAddon, nullptr, nullptr );
+		}
+		else
+			m_Items.erase( m_Items.begin() + iID );
 	}
 }
 

@@ -876,6 +876,7 @@ void CPushable ::Spawn(void)
 	if (pev->friction > 399)
 		pev->friction = 399;
 
+	m_OldFriction = pev->friction;
 	m_maxSpeed = 400 - pev->friction;
 	SetBits(pev->flags, FL_FLOAT);
 	pev->friction = 0;
@@ -901,10 +902,7 @@ void CPushable::Restart()
 	pev->solid = SOLID_BBOX;
 	SET_MODEL(ENT(pev), STRING(pev->model));
 
-	if (pev->friction > 399)
-		pev->friction = 399;
-
-	m_maxSpeed = 400 - pev->friction;
+	m_maxSpeed = 400 - m_OldFriction;
 	SetBits(pev->flags, FL_FLOAT);
 	pev->friction = 0;
 

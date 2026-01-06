@@ -126,6 +126,7 @@ public:
 
 	// For Restart function
 	Vector oldPos;
+	float m_OldFriction;
 };
 
 

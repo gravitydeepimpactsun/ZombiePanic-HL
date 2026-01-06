@@ -36,6 +36,7 @@ private:
 	int m_lastSound;
 
 	Vector oldPos;
+	float m_OldFriction;
 };
 LINK_ENTITY_TO_CLASS( prop_pushable, CPropPushable );
 
@@ -73,6 +74,7 @@ void CPropPushable::Spawn()
 	if (pev->friction > 399)
 		pev->friction = 399;
 
+	m_OldFriction = pev->friction;
 	m_maxSpeed = 400 - pev->friction;
 	SetBits(pev->flags, FL_FLOAT);
 	pev->friction = 0;
@@ -103,10 +105,7 @@ void CPropPushable::Restart()
 	pev->solid = SOLID_BBOX;
 	pev->takedamage = DAMAGE_YES;
 
-	if (pev->friction > 399)
-		pev->friction = 399;
-
-	m_maxSpeed = 400 - pev->friction;
+	m_maxSpeed = 400 - m_OldFriction;
 	SetBits(pev->flags, FL_FLOAT);
 	pev->friction = 0;
 

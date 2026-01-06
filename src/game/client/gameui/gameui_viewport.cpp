@@ -298,7 +298,7 @@ void CGameUIViewport::OnThink()
 				ShowWorkshopInfoBox( "", WorkshopInfoBoxState::State_DownloadingMapContentDisconnect );
 		}
 
-		UpdateAddonList();
+		RebuiltAddonList();
 		UpdateWorkshopMapsFile( false );
 		UpdateWorkshopMapsFile( true );
 	}
@@ -345,24 +345,6 @@ void CGameUIViewport::OnDownloadItemResult( DownloadItemResult_t *pCallback )
 void CGameUIViewport::GetCurrentItems( std::vector<vgui2::WorkshopItem> &items )
 {
 	items = m_Items;
-}
-
-void CGameUIViewport::UpdateAddonList()
-{
-	// Update addonlist.txt
-	KeyValues *pAddonList = new KeyValues( "AddonList" );
-	KeyValuesAD autodel( pAddonList );
-	if ( pAddonList->LoadFromFile( g_pFullFileSystem, "addonlist.txt", "WORKSHOP" ) )
-	{
-		for ( int iID = 0; iID < m_Items.size(); iID++ )
-		{
-			vgui2::WorkshopItem &WorkshopAddon = m_Items[iID];
-			std::string strWorkshopID( std::to_string( WorkshopAddon.uWorkshopID ) );
-			pAddonList->SetBool( strWorkshopID.c_str(), WorkshopAddon.bMounted );
-		}
-	}
-	// Save the file
-	pAddonList->SaveToFile( g_pFullFileSystem, "addonlist.txt", "WORKSHOP" );
 }
 
 void CGameUIViewport::UpdateWorkshopMapsFile( const bool &bWorkshopFolder )
@@ -475,8 +457,16 @@ void CGameUIViewport::CheckWorkshopSubscriptions()
 			CGameUIViewport::Get()->MountWorkshopItem( WorkshopAddon, nullptr, nullptr );
 		}
 		else
-			m_Items.erase( m_Items.begin() + iID );
+			RemoveWorkshopItem( iID );
 	}
+}
+
+void CGameUIViewport::RemoveWorkshopItem( const int &nID )
+{
+	// Purge from the list
+	m_Items.erase( m_Items.begin() + nID );
+	// Remove the item from the addonlist.txt
+	RebuiltAddonList();
 }
 
 bool CGameUIViewport::HasSubscribedToItem( PublishedFileId_t nWorkshopID )
@@ -653,6 +643,20 @@ void CGameUIViewport::LoadWorkshopItems( bool bWorkshopFolder )
 	while(fn);
 
 	g_pFullFileSystem->FindClose(fh);
+}
+
+void CGameUIViewport::RebuiltAddonList()
+{
+	KeyValues *pAddonList = new KeyValues( "AddonList" );
+	KeyValuesAD autodel( pAddonList );
+	for ( int iID = 0; iID < m_Items.size(); iID++ )
+	{
+		vgui2::WorkshopItem &WorkshopAddon = m_Items[iID];
+		std::string strWorkshopID( std::to_string( WorkshopAddon.uWorkshopID ) );
+		pAddonList->SetBool( strWorkshopID.c_str(), WorkshopAddon.bMounted );
+	}
+	// Save the file
+	pAddonList->SaveToFile( g_pFullFileSystem, "addonlist.txt", "WORKSHOP" );
 }
 
 void CGameUIViewport::AutoMountWorkshopItem( vgui2::WorkshopItem &WorkshopFile )
@@ -854,7 +858,7 @@ void CGameUIViewport::MountWorkshopItem( vgui2::WorkshopItem WorkshopFile, const
 	while( fn );
 
 	SetMountedState( WorkshopFile.uWorkshopID, !WorkshopFile.bMounted );
-	UpdateAddonList();
+	RebuiltAddonList();
 
 	g_pFullFileSystem->FindClose( fh );
 }

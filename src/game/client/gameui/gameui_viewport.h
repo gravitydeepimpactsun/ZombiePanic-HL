@@ -86,13 +86,16 @@ public:
 	void DownloadWorkshopAddon( PublishedFileId_t nWorkshopID, const bool &bReconnect );
 
 protected:
-	void UpdateAddonList();
 	void UpdateWorkshopMapsFile( const bool &bWorkshopFolder );
 	void LoadWorkshop();
 	void CheckWorkshopSubscriptions();
+	void RemoveWorkshopItem( const int &nID );
 	bool HasSubscribedToItem( PublishedFileId_t nWorkshopID );
 	bool HasLoadedItem( PublishedFileId_t nWorkshopID );
 	void LoadWorkshopItems( bool bWorkshopFolder );
+
+	// Rebuilds the addonlist.txt
+	void RebuiltAddonList();
 
 	// Our subscribed items. If we subscribe to a new item, we want to mount it right away!
 	std::vector<PublishedFileId_t> m_SubscribedItems;

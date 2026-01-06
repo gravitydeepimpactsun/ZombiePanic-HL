@@ -61,6 +61,7 @@ StatData_t g_SteamStats[] = {
 	_STAT_ID(ZP_KILLS_SHOTGUN, 35),
 	_STAT_ID(ZP_KILLS_SATCHEL, 5),
 	_STAT_ID(ZP_KILLS_TNT, 10),
+	_STAT_ID(ZP_KILLS_MOLOTOV, 5),
 	_STAT_ID(ZP_KILLS_ZOMBIE, 20),
 	_STAT_ID(ZP_KILLS_MP5, 25),
 	_STAT_ID(ZP_FLEEESH, 50),
@@ -379,6 +380,7 @@ void CLIENT_UTIL_GiveAchievement( int iAchievement )
 			    if ( !CLIENT_UTIL_GetStatAchievement( EAchievements::KILLS_SHOTGUN ) ) return;
 			    if ( !CLIENT_UTIL_GetStatAchievement( EAchievements::KILLS_DBARREL ) ) return;
 			    if ( !CLIENT_UTIL_GetStatAchievement( EAchievements::KILLS_TNT ) ) return;
+			    if ( !CLIENT_UTIL_GetStatAchievement( EAchievements::KILLS_MOLOTOV ) ) return;
 			}
 			break;
 

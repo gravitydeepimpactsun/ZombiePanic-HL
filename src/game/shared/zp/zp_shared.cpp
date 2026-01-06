@@ -98,7 +98,8 @@ std::vector<RequiredStepsTable> m_JackOfTradesSteps = {
 	RequiredStepsTable( ZP_KILLS_SHOTGUN, 1 ),
 	RequiredStepsTable( ZP_KILLS_DBARREL, 1 ),
 	RequiredStepsTable( ZP_KILLS_SATCHEL, 1 ),
-	RequiredStepsTable( ZP_KILLS_TNT, 1 )
+	RequiredStepsTable( ZP_KILLS_TNT, 1 ),
+	RequiredStepsTable( ZP_KILLS_MOLOTOV, 1 )
 };
 
 static DialogAchievementData g_DAchievements[] =
@@ -115,6 +116,7 @@ static DialogAchievementData g_DAchievements[] =
 	_ACH_ADD_ID(KILLS_DBARREL,					CATEGORY_KILLS,			ZP_KILLS_DBARREL),
 	_ACH_ADD_ID(KILLS_SATCHEL,					CATEGORY_KILLS,			ZP_KILLS_SATCHEL),
 	_ACH_ADD_ID(KILLS_TNT,						CATEGORY_KILLS,			ZP_KILLS_TNT),
+	_ACH_ADD_ID(KILLS_MOLOTOV,					CATEGORY_KILLS,			ZP_KILLS_MOLOTOV),
 	_ACH_ADD_ID(KILLS_ZOMBIE,					CATEGORY_KILLS,			ZP_KILLS_ZOMBIE),
 	_ACH_ADD_ID(YOU_WILL_DIE_WITH_ME,			CATEGORY_KILLS,			INVALID_STAT),
 	_ACH_ADD_ID(UNSAFE_HANDLING,				CATEGORY_KILLS,			INVALID_STAT),

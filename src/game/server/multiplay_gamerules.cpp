@@ -971,6 +971,8 @@ void CHalfLifeMultiplay::DeathNotice(CBasePlayer *pVictim, entvars_t *pKiller, e
 				}
 				pAttacker->GiveAchievement( KILLS_TNT );
 			}
+			else if (!strcmp(killer_weapon_name, "flame_large") || !strcmp(killer_weapon_name, "flame_medium"))
+				pAttacker->GiveAchievement( KILLS_MOLOTOV );
 			else if (!strcmp(killer_weapon_name, "swipe"))
 			{
 				if ( pVictim->pev->team == ZP::TEAM_SURVIVIOR )

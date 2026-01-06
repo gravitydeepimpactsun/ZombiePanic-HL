@@ -428,11 +428,22 @@ void CGameUIViewport::CheckWorkshopSubscriptions()
 		return;
 	}
 	SetQueryWait( 1.55f );
-	const int MAX_WORKSHOP_ITEMS = 100;
-	PublishedFileId_t vWorkshopItems[ MAX_WORKSHOP_ITEMS ];
-	uint32 nItems = GetSteamAPI()->SteamUGC()->GetSubscribedItems( vWorkshopItems, MAX_WORKSHOP_ITEMS );
+
+	// Get dynamic count of subscribed items and allocate accordingly.
+	uint32 maxItems = GetSteamAPI()->SteamUGC()->GetNumSubscribedItems();
+
+	std::vector<PublishedFileId_t> vWorkshopItems;
+	if ( maxItems > 0 )
+		vWorkshopItems.resize( maxItems );
+
+	uint32 nItems = 0;
+	if ( maxItems > 0 )
+		nItems = GetSteamAPI()->SteamUGC()->GetSubscribedItems( vWorkshopItems.data(), maxItems );
+	else
+		nItems = 0;
+
 	std::vector<PublishedFileId_t> m_SubCheckList;
-	for ( size_t i = 0; i < nItems; i++ )
+	for ( uint32 i = 0; i < nItems; ++i )
 	{
 		// We found a new subscribed item? Download it!
 		// This only returns true if we subscribed to an item while in-game.

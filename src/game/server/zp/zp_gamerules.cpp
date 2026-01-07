@@ -729,7 +729,15 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 			pPlayer->NotifyOfEarnedAchivement( atoi( pAchivement ) );
 		return TRUE;
 	}
-	else if (FStrEq(pcmd, "give"))
+	else if (FStrEq(pcmd, "giveammo"))
+	{
+		const char *pSetCommand = CMD_ARGV(1);
+		bool bIsCheatsEnabled = CVAR_GET_FLOAT("sv_cheats") >= 1 ? true : false;
+		if ( bIsCheatsEnabled )
+			pPlayer->GiveCurrentAmmo();
+		return TRUE;
+	}
+	else if (FStrEq(pcmd, "giveitem"))
 	{
 		int iszItem = ALLOC_STRING( CMD_ARGV(1) ); // Make a copy of the classname
 		OnWeaponGive( pPlayer, STRING(iszItem) );
@@ -1031,7 +1039,7 @@ void CZombiePanicGameRules::OnWeaponGive( CBasePlayer *pPlayer, const char *szIt
 		// Display results
 		UTIL_PrintConsole( "Available weapons:\n", pPlayer );
 		for (WeaponInfo& i : found)
-			UTIL_PrintConsole( i.szWeapon, pPlayer );
+			UTIL_PrintConsole( UTIL_VarArgs( "%s\n", i.szWeapon ), pPlayer );
 		UTIL_PrintConsole( "--------------------\n", pPlayer );
 		UTIL_PrintConsole( "Usage: give <string>\n", pPlayer );
 		return;

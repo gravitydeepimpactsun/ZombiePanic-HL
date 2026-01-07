@@ -574,6 +574,16 @@ void CBasePlayer::DoHeadshotChunk( const Vector &vecPos, short modelIndex, int i
 	MESSAGE_END();
 }
 
+void CBasePlayer::GiveCurrentAmmo()
+{
+	if ( !m_pActiveItem ) return;
+	int nPrimaryAmmo = m_pActiveItem->PrimaryAmmoIndex();
+	if ( nPrimaryAmmo == -1 ) return;
+	AmmoData data = GetAmmoByAmmoID( nPrimaryAmmo );
+	PickupAmmo( data.MaxCarry, data );
+	EMIT_SOUND( ENT(pev), CHAN_ITEM, "items/ammo_pickup.wav", 1, ATTN_NORM );
+}
+
 const char *CBasePlayer::GetPlayerName() const
 {
 	return STRING( pev->netname );
@@ -5053,6 +5063,8 @@ void CBasePlayer::GiveNamedItem( const char *pszName )
 	if ( V_strncasecmp( pszName, "weapon_", 7 ) == 0 )
 		V_strncpy( weaponName, pszName, sizeof( weaponName ) );
 	else if ( V_strncasecmp( pszName, "item_", 5 ) == 0 )
+		V_strncpy( weaponName, pszName, sizeof( weaponName ) );
+	else if ( V_strncasecmp( pszName, "ammo_", 5 ) == 0 )
 		V_strncpy( weaponName, pszName, sizeof( weaponName ) );
 	else
 		V_snprintf( weaponName, sizeof( weaponName ), "weapon_%s", pszName );

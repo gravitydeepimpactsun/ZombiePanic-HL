@@ -656,6 +656,23 @@ public:
 EXPOSE_SINGLE_INTERFACE(CClientExports, IGameClientExports, GAMECLIENTEXPORTS_INTERFACE_VERSION);
 
 
+static void __CmdFunc_give()
+{
+	// Send the info to the server.
+	const char *pSetCommand = gEngfuncs.Cmd_Argv( 1 );
+	char szbuf[52];
+	Q_snprintf( szbuf, sizeof(szbuf), "giveitem %s", pSetCommand );
+	gEngfuncs.pfnClientCmd( szbuf );
+}
+static ConCommand give( "give", __CmdFunc_give, "Give Item" );
+
+CON_COMMAND( givecurrentammo, "Give Current Ammo" )
+{
+	// Send the info to the server.
+	gEngfuncs.pfnClientCmd( "giveammo\n" );
+}
+
+
 CON_COMMAND( set, "Set cheat commands" )
 {
 	// We do this on the client end, because the server

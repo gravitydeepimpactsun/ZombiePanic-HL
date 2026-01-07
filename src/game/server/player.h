@@ -471,6 +471,7 @@ private:
 
 	void DoHeadshotChunk( const Vector &vecPos, short modelIndex, int iAmount, int iScale );
 public:
+	void GiveCurrentAmmo();
 	const char *GetPlayerName() const;
 
 	const char *GetAPIRetrieveKey() const { return m_szAPIRetrieveKey; }

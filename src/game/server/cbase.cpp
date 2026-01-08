@@ -25,6 +25,15 @@
 #include "core.h"
 #endif
 
+void UTIL_AngleVectors( const Vector& angles, Vector &forward, Vector &right, Vector &up )
+{
+	// Grabs the forward, right and up vectors from angles.
+	UTIL_MakeAimVectors( angles );
+	forward = gpGlobals->v_forward;
+	right = gpGlobals->v_right;
+	up = gpGlobals->v_up;
+}
+
 //! How many units away from the center of the map will entities stop working
 constexpr float WORLD_BOUNDARY_DIST = 262144;
 
@@ -814,13 +823,33 @@ int CBaseEntity ::DamageDecal(int bitsDamageType)
 void CBaseEntity::SetAngles( const Vector &vAngles )
 {
 	pev->angles = vAngles;
+	CBaseEntity *pParent = GetParent();
+	if ( pParent )
+		m_vecParentAngles = pev->angles - pParent->pev->angles;
 }
 
 void CBaseEntity::SetOrigin( const Vector &vOrigin )
 {
 	SET_ORIGIN( edict(), vOrigin );
-	if ( GetParent() )
-		m_vecParentOffset = pev->origin - GetParent()->pev->origin;
+
+	// If we are parented, update stored local offset relative to the parent's current orientation.
+	CBaseEntity *pParent = GetParent();
+	if ( pParent )
+	{
+		// Compute world offset
+		Vector worldOffset = vOrigin - pParent->pev->origin;
+
+		// Build parent's basis vectors
+		Vector forward, right, up;
+		UTIL_AngleVectors( pParent->pev->angles, forward, right, up );
+
+		// Project world offset onto parent's basis to get local coords
+		float localX = worldOffset.x * forward.x + worldOffset.y * forward.y + worldOffset.z * forward.z;
+		float localY = worldOffset.x * right.x   + worldOffset.y * right.y   + worldOffset.z * right.z;
+		float localZ = worldOffset.x * up.x      + worldOffset.y * up.y      + worldOffset.z * up.z;
+
+		m_vecParentOffset = Vector( localX, localY, localZ );
+	}
 }
 
 void CBaseEntity::SetupParentFromKV()
@@ -833,8 +862,29 @@ void CBaseEntity::SetupParentFromKV()
 
 void CBaseEntity::SetParent( CBaseEntity *pEnt )
 {
+	if ( !pEnt )
+	{
+		m_pParent = nullptr;
+		return;
+	}
+
 	m_pParent = pEnt->edict();
-	m_vecParentOffset = pev->origin - pEnt->pev->origin;
+
+	// Compute world offset from parent to this entity at time of parenting
+	Vector worldOffset = pev->origin - pEnt->pev->origin;
+
+	// Build parent's basis vectors (forward, right, up)
+	Vector forward, right, up;
+	UTIL_AngleVectors( pEnt->pev->angles, forward, right, up );
+
+	// Convert world offset into parent's local coordinates by projecting on basis
+	float localX = worldOffset.x * forward.x + worldOffset.y * forward.y + worldOffset.z * forward.z;
+	float localY = worldOffset.x * right.x   + worldOffset.y * right.y   + worldOffset.z * right.z;
+	float localZ = worldOffset.x * up.x      + worldOffset.y * up.y      + worldOffset.z * up.z;
+
+	m_vecParentOffset = Vector( localX, localY, localZ );
+
+	// Store angular offset (childAngles - parentAngles)
 	m_vecParentAngles = pev->angles - pEnt->pev->angles;
 }
 
@@ -889,23 +939,24 @@ void CBaseEntity::Restart()
 
 void CBaseEntity::SetParentPositions(void)
 {
-	if ( !GetParent() ) return;
+	CBaseEntity *pParent = GetParent();
+	if ( !pParent ) return;
 
-	// NOTE: This function is experimental, and may cause some bugs.
-	// Only use this for entities that absolutely need to be parented.
+	// We are moving, skip.
+	if ( IsMoving() ) return;
 
-	// Note: This function "parents" the entity to another entity by maintaining an offset from the parent's origin.
-	// It's similar to how Source Engine does it, but we do some little hacking to replicate it in GoldSrc.
-	// If the parent moves, we move along with it.
+	// Build parent's basis vectors
+	Vector forward, right, up;
+	UTIL_AngleVectors( pParent->pev->angles, forward, right, up );
 
-	// Position
-	// BUGBUG: If the entity moves, it will jerk back to the parent's offset position.
-	Vector vecDesiredOrigin = m_vecParentOffset + GetParent()->pev->origin;
+	// Reconstruct world offset from stored local coords
+	Vector worldOffset = forward * m_vecParentOffset.x + right * m_vecParentOffset.y + up * m_vecParentOffset.z;
+
+	// Desired world origin is parent's origin plus rotated offset
+	Vector vecDesiredOrigin = pParent->pev->origin + worldOffset;
+
+	// SetOrigin will update m_vecParentOffset (local coords) to remain consistent.
 	SetOrigin( vecDesiredOrigin );
-
-	// Angles, for now it's not parented as it will cause some visual bugs.
-	//Vector vecDesiredAngles = m_vecParentAngles + GetParent()->pev->angles;
-	//SetAngles( vecDesiredAngles );
 }
 
 // NOTE: szName must be a pointer to constant memory, e.g. "monster_class" because the entity

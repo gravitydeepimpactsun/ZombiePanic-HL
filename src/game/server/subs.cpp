@@ -444,6 +444,10 @@ void CBaseToggle ::LinearMoveDone(void)
 		}
 
 		pev->flags &= ~FL_ALWAYSTHINK;
+
+		// If we have a parent, we require to set the new position.
+		if ( GetParent() )
+			SetOrigin( m_vecFinalDest );
 	}
 	else
 	{
@@ -456,7 +460,7 @@ void CBaseToggle ::LinearMoveDone(void)
 		}
 
 		// setting origin could lead to stuck of other entities (OK in singleplayer)
-		UTIL_SetOrigin(pev, m_vecFinalDest);
+		SetOrigin(m_vecFinalDest);
 	}
 
 	// trigger a call to MoveDone when dest is reached

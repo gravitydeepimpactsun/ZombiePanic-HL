@@ -868,6 +868,24 @@ void CBaseButton::Spawn()
 #endif
 }
 
+void CBaseButton::SetOrigin( const Vector &vOrigin )
+{
+	BaseClass::SetOrigin( vOrigin );
+
+	// If we got a parent, this make sure we change this.
+	CBaseEntity *pParent = GetParent();
+	if ( pParent )
+	{
+		m_vecPosition1 = vOrigin;
+		// Subtract 2 from size because the engine expands bboxes by 1 in all directions making the size too big
+		m_vecPosition2 = m_vecPosition1 + (pev->movedir * (fabs(pev->movedir.x * (pev->size.x - 2)) + fabs(pev->movedir.y * (pev->size.y - 2)) + fabs(pev->movedir.z * (pev->size.z - 2)) - m_flLip));
+
+		// Is this a non-moving button?
+		if (((m_vecPosition2 - m_vecPosition1).Length() < 1) || (pev->spawnflags & SF_BUTTON_DONTMOVE))
+			m_vecPosition2 = m_vecPosition1;
+	}
+}
+
 void CBaseButton::OnScriptCallBack( KeyValues *pData )
 {
 	const char *szAction = pData->GetString( "Action" );

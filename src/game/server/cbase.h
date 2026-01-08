@@ -367,8 +367,8 @@ public:
 	Vector m_vecParentAngles = g_vecZero;
 
 #if defined( SERVER_DLL )
-	void SetAngles( const Vector &vAngles );
-	void SetOrigin( const Vector &vOrigin );
+	virtual void SetAngles( const Vector &vAngles );
+	virtual void SetOrigin( const Vector &vOrigin );
 #endif
 
 	void SetupParentFromKV();
@@ -754,6 +754,8 @@ char *ButtonSound(int sound); // get string of button sound number
 //
 class CBaseButton : public CBaseToggle
 {
+	SET_BASECLASS( CBaseToggle );
+
 public:
 	void Spawn(void);
 	void Restart();
@@ -761,6 +763,10 @@ public:
 	void RotSpawn(void);
 	virtual void KeyValue(KeyValueData *pkvd);
 	void OnScriptCallBack(KeyValues *pData);
+	
+#if defined( SERVER_DLL )
+	void SetOrigin( const Vector &vOrigin );
+#endif
 
 	void ButtonActivate();
 	void SparkSoundCache(void);

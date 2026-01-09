@@ -18,7 +18,7 @@ float CWeaponSideArmPPK::DoWeaponUnload()
 	AddWeaponSound( "weapons/ppk/clipout.wav", 1, ATTN_NORM, GetAnimationTime( 8, 32 ) );
 	AddWeaponSound( "weapons/ppk/clipin.wav", 1, ATTN_NORM, GetAnimationTime( 33, 32 ) );
 	AddWeaponSound( "weapons/ppk/slideback.wav", 1, ATTN_NORM, GetAnimationTime( 54, 32 ) );
-	return 1.84f;
+	return GetAnimationTime( 87, 32 );
 }
 
 void CWeaponSideArmPPK::Spawn()

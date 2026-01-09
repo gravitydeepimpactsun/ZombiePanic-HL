@@ -110,7 +110,7 @@ float CWeaponSideArmRevolver::DoWeaponUnload()
 	AddWeaponSound( "weapons/revolver/open.wav", 1, ATTN_NORM, GetAnimationTime( 16, 20 ) );
 	AddWeaponSound( "weapons/revolver/remove.wav", 1, ATTN_NORM, GetAnimationTime( 23, 20 ) );
 	AddWeaponSound( "weapons/revolver/close.wav", 1, ATTN_NORM, GetAnimationTime( 55, 20 ) );
-	return 1.84f;
+	return GetAnimationTime( 75, 20 );
 }
 
 void CWeaponSideArmRevolver::PrimaryAttack()

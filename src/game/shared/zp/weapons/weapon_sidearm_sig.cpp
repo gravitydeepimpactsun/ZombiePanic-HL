@@ -16,10 +16,10 @@ float CWeaponSideArmSig::DoHolsterAnimation()
 float CWeaponSideArmSig::DoWeaponUnload()
 {
 	SendWeaponAnim( ANIM_PISTOL_UNLOAD );
-	AddWeaponSound( "weapons/sig/clipout_unload.wav", 1, ATTN_NORM, GetAnimationTime( 8, 30 ) );
-	AddWeaponSound( "weapons/sig/clipin.wav", 1, ATTN_NORM, GetAnimationTime( 34, 30 ) );
-	AddWeaponSound( "weapons/sig/slideback.wav", 1, ATTN_NORM, GetAnimationTime( 53, 30 ) );
-	return GetAnimationTime( 87, 30 );
+	AddWeaponSound( "weapons/sig/clipout_unload.wav", 1, ATTN_NORM, GetAnimationTime( 8, 25 ) );
+	AddWeaponSound( "weapons/sig/clipin.wav", 1, ATTN_NORM, GetAnimationTime( 34, 25 ) );
+	AddWeaponSound( "weapons/sig/slideback.wav", 1, ATTN_NORM, GetAnimationTime( 53, 25 ) );
+	return GetAnimationTime( 86, 25 );
 }
 
 void CWeaponSideArmSig::Spawn()
@@ -131,13 +131,13 @@ void CWeaponSideArmSig::Reload(void)
 	if (m_pPlayer->ammo_9mm <= 0)
 		return;
 
-	int iResult = DefaultReload( IsEmpty() ? ANIM_PISTOL_RELOAD_EMPTY : ANIM_PISTOL_RELOAD, GetAnimationTime( 60, 30 ) );
+	int iResult = DefaultReload( IsEmpty() ? ANIM_PISTOL_RELOAD_EMPTY : ANIM_PISTOL_RELOAD, GetAnimationTime( 60, 25 ) );
 	if ( iResult )
 	{
-		AddWeaponSound( "weapons/sig/clipout.wav", 1, ATTN_NORM, GetAnimationTime( 8, 30 ) );
-		AddWeaponSound( "weapons/sig/clipin.wav", 1, ATTN_NORM, GetAnimationTime( 34, 30 ) );
+		AddWeaponSound( "weapons/sig/clipout.wav", 1, ATTN_NORM, GetAnimationTime( 8, 25 ) );
+		AddWeaponSound( "weapons/sig/clipin.wav", 1, ATTN_NORM, GetAnimationTime( 34, 25 ) );
 		if ( IsEmpty() )
-			AddWeaponSound( "weapons/sig/slideforward.wav", 1, ATTN_NORM, GetAnimationTime( 43, 30 ) );
+			AddWeaponSound( "weapons/sig/slideforward.wav", 1, ATTN_NORM, GetAnimationTime( 43, 25 ) );
 	}
 }
 
@@ -156,18 +156,18 @@ void CWeaponSideArmSig::WeaponIdle(void)
 	{
 	case 0:
 		iAnim = IsEmpty() ? ANIM_PISTOL_IDLE1_EMPTY : ANIM_PISTOL_IDLE1;
-		flTime = GetAnimationTime( 41, 8 );
+		flTime = GetAnimationTime( 41, 10 );
 		break;
 
 	default:
 	case 1:
 		iAnim = IsEmpty() ? ANIM_PISTOL_IDLE2_EMPTY : ANIM_PISTOL_IDLE2;
-		flTime = GetAnimationTime( 41, 10 );
+		flTime = GetAnimationTime( 41, 20 );
 		break;
 
 	case 2:
 		iAnim = IsEmpty() ? ANIM_PISTOL_IDLE3_EMPTY : ANIM_PISTOL_IDLE3;
-		flTime = GetAnimationTime( 41, 20 );
+		flTime = GetAnimationTime( 46, 30 );
 		break;
 	}
 

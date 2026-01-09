@@ -145,19 +145,6 @@ void CWeaponExplosiveMolotov::WeaponIdle(void)
 		m_bDoSecondaryAttack = false;
 
 		m_iClip--;
-
-		if (!m_iClip)
-		{
-			// just threw last grenade
-			// set attack times in the future, and weapon idle in the future so we can see the whole throw
-			// animation, weapon idle will automatically retire the weapon for us.
-			m_flTimeWeaponIdle = m_flNextSecondaryAttack = m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + 0.5; // ensure that the animation can finish playing
-#ifndef CLIENT_DLL
-			// Auto switch to next best weapon if we have no more grenades.
-			m_pPlayer->WeaponSlotSet( this, false );
-			DestroyItem();
-#endif
-		}
 		return;
 	}
 	else if (m_flReleaseThrow > 0)
@@ -169,7 +156,11 @@ void CWeaponExplosiveMolotov::WeaponIdle(void)
 			DoDeployAnimation();
 		else
 		{
-			RetireWeapon();
+#ifndef CLIENT_DLL
+			// Auto switch to next best weapon if we have no more grenades.
+			m_pPlayer->WeaponSlotSet( this, false );
+			DestroyItem();
+#endif
 			return;
 		}
 

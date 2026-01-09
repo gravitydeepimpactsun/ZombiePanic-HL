@@ -15,9 +15,9 @@ float CWeaponSideArmPPK::DoHolsterAnimation()
 float CWeaponSideArmPPK::DoWeaponUnload()
 {
 	SendWeaponAnim( ANIM_PISTOL_UNLOAD );
-	AddWeaponSound( "weapons/ppk/clipout.wav", 1, ATTN_NORM, GetAnimationTime( 8, 25 ) );
-	AddWeaponSound( "weapons/ppk/clipin.wav", 1, ATTN_NORM, GetAnimationTime( 33, 25 ) );
-	AddWeaponSound( "weapons/ppk/slideback.wav", 1, ATTN_NORM, GetAnimationTime( 54, 25 ) );
+	AddWeaponSound( "weapons/ppk/clipout.wav", 1, ATTN_NORM, GetAnimationTime( 8, 32 ) );
+	AddWeaponSound( "weapons/ppk/clipin.wav", 1, ATTN_NORM, GetAnimationTime( 33, 32 ) );
+	AddWeaponSound( "weapons/ppk/slideback.wav", 1, ATTN_NORM, GetAnimationTime( 54, 32 ) );
 	return 1.84f;
 }
 
@@ -133,14 +133,14 @@ void CWeaponSideArmPPK::Reload(void)
 	{
 		if ( IsEmpty() )
 		{
-			AddWeaponSound( "weapons/ppk/clipout.wav", 1, ATTN_NORM, GetAnimationTime( 10, 25 ) );
-			AddWeaponSound( "weapons/ppk/clipin.wav", 1, ATTN_NORM, GetAnimationTime( 32, 25 ) );
-			AddWeaponSound( "weapons/ppk/slideforward.wav", 1, ATTN_NORM, GetAnimationTime( 43, 25 ) );
+			AddWeaponSound( "weapons/ppk/clipout.wav", 1, ATTN_NORM, GetAnimationTime( 10, 32 ) );
+			AddWeaponSound( "weapons/ppk/clipin.wav", 1, ATTN_NORM, GetAnimationTime( 32, 32 ) );
+			AddWeaponSound( "weapons/ppk/slideforward.wav", 1, ATTN_NORM, GetAnimationTime( 43, 32 ) );
 		}
 		else
 		{
-			AddWeaponSound( "weapons/ppk/clipout.wav", 1, ATTN_NORM, GetAnimationTime( 8, 25 ) );
-			AddWeaponSound( "weapons/ppk/clipin.wav", 1, ATTN_NORM, GetAnimationTime( 36, 25 ) );
+			AddWeaponSound( "weapons/ppk/clipout.wav", 1, ATTN_NORM, GetAnimationTime( 8, 32 ) );
+			AddWeaponSound( "weapons/ppk/clipin.wav", 1, ATTN_NORM, GetAnimationTime( 36, 32 ) );
 		}
 	}
 }

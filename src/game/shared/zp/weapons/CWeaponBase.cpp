@@ -287,9 +287,9 @@ void CWeaponBase::Unload()
 	// Let's tell our weapon classes to play a specific animation.
 	float flDelay = DoWeaponUnload();
 	m_flNextPrimaryAttack = m_flNextSecondaryAttack
-		= m_flTimeWeaponIdle
-		= m_pPlayer->m_flNextAttack
-		= UTIL_WeaponTimeBase() + flDelay;
+		= m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + flDelay;
+	// next attack requires needs to remove 0.15, so we don't get the weird snap issue.
+	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + flDelay - 0.15f;
 	m_bIsUnloading = true;
 }
 

@@ -69,15 +69,15 @@ BOOL CWeaponExplosiveTNT::CanHolster(void)
 
 float CWeaponExplosiveTNT::DoHolsterAnimation()
 {
-#ifndef CLIENT_DLL
 	// We threw it, and got nothing left.
 	if ( m_flReleaseThrow > 0 && !m_iClip )
 	{
+#ifndef CLIENT_DLL
 		m_pPlayer->WeaponSlotSet( this, false );
+#endif
 		DestroyItem();
 		return 0.0f;
 	}
-#endif
 	SendWeaponAnim( ANIM_THROW_EXPLOSIVES_HOLSTER );
 	return GetAnimationTime( 8, 20 );
 }
@@ -172,8 +172,8 @@ void CWeaponExplosiveTNT::WeaponIdle(void)
 #ifndef CLIENT_DLL
 			// Auto switch to next best weapon if we have no more grenades.
 			m_pPlayer->WeaponSlotSet( this, false );
-			DestroyItem();
 #endif
+			DestroyItem();
 			return;
 		}
 

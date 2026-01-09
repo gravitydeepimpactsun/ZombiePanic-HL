@@ -57,6 +57,7 @@ enum
 	ANIM_SHOTGUN_RELOAD_END,
 	ANIM_SHOTGUN_DRAW,
 	ANIM_SHOTGUN_HOLSTER,
+	ANIM_SHOTGUN_UNLOAD,
 };
 
 // Double Barrel Shotgun animations

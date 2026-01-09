@@ -723,7 +723,6 @@ unsigned CopyFilesToNewDestination( void *Data )
 	std::ifstream src( ((CopyPath *)Data)->from, std::ios::binary );
 	std::ofstream dest( ((CopyPath *)Data)->to, std::ios::binary );
 	dest << src.rdbuf();
-	CGameUIViewport::Get()->ShowWorkshopInfoBox( CGameUIViewport::Get()->GetWorkshopItem( ((CopyPath *)Data)->item ).szName, WorkshopInfoBoxState::State_Done );
 	return 1;
 }
 
@@ -735,7 +734,6 @@ struct DeleteFile
 unsigned RemoveFilesFromAddons( void *Data )
 {
 	g_pFullFileSystem->RemoveFile( ((DeleteFile *)Data)->file.c_str(), "ADDON" );
-	CGameUIViewport::Get()->ShowWorkshopInfoBox( CGameUIViewport::Get()->GetWorkshopItem( ((CopyPath *)Data)->item ).szName, WorkshopInfoBoxState::State_Done );
 	return 1;
 }
 

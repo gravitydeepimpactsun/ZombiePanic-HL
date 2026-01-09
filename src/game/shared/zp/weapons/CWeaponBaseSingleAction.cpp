@@ -88,12 +88,14 @@ void CWeaponBaseSingleAction::Reload( void )
 		// Already full?
 		if ( m_iClip == GetData().MaxClip ) return;
 
-		OnRequestedAnimation( ANIM_RELOAD_START);
-		m_fInSpecialReload = 1;
+		// Default timing
 		m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 0.55;
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.55;
 		m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + 1.0;
 		m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + 1.0;
+
+		OnRequestedAnimation( ANIM_RELOAD_START);
+		m_fInSpecialReload = 1;
 		return;
 	}
 	else if ( m_fInSpecialReload == 1 )

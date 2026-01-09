@@ -15,8 +15,9 @@ float CWeaponSideArmPPK::DoHolsterAnimation()
 float CWeaponSideArmPPK::DoWeaponUnload()
 {
 	SendWeaponAnim( ANIM_PISTOL_UNLOAD );
-	AddWeaponSound( "weapons/ppk/clipout.wav", 1, ATTN_NORM, 0.28f );
-	AddWeaponSound( "weapons/ppk/clipin.wav", 1, ATTN_NORM, 0.96f );
+	AddWeaponSound( "weapons/ppk/clipout.wav", 1, ATTN_NORM, GetAnimationTime( 8, 25 ) );
+	AddWeaponSound( "weapons/ppk/clipin.wav", 1, ATTN_NORM, GetAnimationTime( 33, 25 ) );
+	AddWeaponSound( "weapons/ppk/slideback.wav", 1, ATTN_NORM, GetAnimationTime( 54, 25 ) );
 	return 1.84f;
 }
 
@@ -42,6 +43,7 @@ void CWeaponSideArmPPK::Precache(void)
 	PRECACHE_SOUND("weapons/ppk/clipin.wav"); //handgun
 	PRECACHE_SOUND("weapons/ppk/clipout.wav"); //handgun
 	PRECACHE_SOUND("weapons/ppk/slideforward.wav"); //handgun
+	PRECACHE_SOUND("weapons/ppk/slideback.wav"); //handgun
 
 	m_nEventPrimary = PRECACHE_EVENT(1, "events/ppk.sc");
 }
@@ -126,13 +128,20 @@ void CWeaponSideArmPPK::Reload(void)
 	if (m_pPlayer->ammo_longrifle <= 0)
 		return;
 
-	int iResult = DefaultReload( IsEmpty() ? ANIM_PISTOL_RELOAD_EMPTY : ANIM_PISTOL_RELOAD, 1.84f );
+	int iResult = DefaultReload( IsEmpty() ? ANIM_PISTOL_RELOAD_EMPTY : ANIM_PISTOL_RELOAD, GetAnimationTime( 60, 32 ) );
 	if ( iResult )
 	{
-		AddWeaponSound( "weapons/ppk/clipout.wav", 1, ATTN_NORM, 0.28f );
-		AddWeaponSound( "weapons/ppk/clipin.wav", 1, ATTN_NORM, 0.96f );
 		if ( IsEmpty() )
-			AddWeaponSound( "weapons/ppk/slideforward.wav", 1, ATTN_NORM, 1.28f );
+		{
+			AddWeaponSound( "weapons/ppk/clipout.wav", 1, ATTN_NORM, GetAnimationTime( 10, 25 ) );
+			AddWeaponSound( "weapons/ppk/clipin.wav", 1, ATTN_NORM, GetAnimationTime( 32, 25 ) );
+			AddWeaponSound( "weapons/ppk/slideforward.wav", 1, ATTN_NORM, GetAnimationTime( 43, 25 ) );
+		}
+		else
+		{
+			AddWeaponSound( "weapons/ppk/clipout.wav", 1, ATTN_NORM, GetAnimationTime( 8, 25 ) );
+			AddWeaponSound( "weapons/ppk/clipin.wav", 1, ATTN_NORM, GetAnimationTime( 36, 25 ) );
+		}
 	}
 }
 

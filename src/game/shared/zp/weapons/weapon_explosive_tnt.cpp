@@ -52,6 +52,7 @@ void CWeaponExplosiveTNT::Precache(void)
 	PRECACHE_SOUND("weapons/lighter01.wav");
 	PRECACHE_SOUND("weapons/lighter02.wav");
 	PRECACHE_SOUND("weapons/tnt/spark.wav");
+	PRECACHE_SOUND("weapons/explosion1.wav");
 }
 
 float CWeaponExplosiveTNT::Deploy()

@@ -186,8 +186,10 @@ void CThrowableSatchelCharge::IEDExplode()
 		WRITE_SHORT(g_sModelIndexWExplosion);
 	WRITE_BYTE((150 - 50) * .60); // scale * 10
 	WRITE_BYTE(15); // framerate
-	WRITE_BYTE(TE_EXPLFLAG_NONE);
+	WRITE_BYTE(TE_EXPLFLAG_NOSOUND);
 	MESSAGE_END();
+
+	EMIT_SOUND_DYN( ENT(pev), CHAN_BODY, "weapons/explosion1.wav", 1.0, ATTN_NORM, 0, PITCH_NORM );
 
 	CSoundEnt::InsertSound( bits_SOUND_COMBAT, vecSpot, NORMAL_EXPLOSION_VOLUME, 3.0 );
 	entvars_t *pevOwner;

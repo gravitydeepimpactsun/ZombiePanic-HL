@@ -80,10 +80,7 @@ void CGrenade::Explode(TraceResult *pTrace, int bitsDamageType)
 	}
 	WRITE_BYTE((100 - 50) * .60); // scale * 10
 	WRITE_BYTE(15); // framerate
-	if ( m_Type == CONTACT_TYPE::TYPE_MOLOTOV )
-		WRITE_BYTE(TE_EXPLFLAG_NOSOUND);
-	else
-		WRITE_BYTE(TE_EXPLFLAG_NONE);
+	WRITE_BYTE(TE_EXPLFLAG_NOSOUND);
 	MESSAGE_END();
 
 	CSoundEnt::InsertSound(bits_SOUND_COMBAT, pev->origin, NORMAL_EXPLOSION_VOLUME, 3.0);
@@ -121,6 +118,8 @@ void CGrenade::Explode(TraceResult *pTrace, int bitsDamageType)
 		pev->nextthink = gpGlobals->time;
 		return;
 	}
+
+	EMIT_SOUND_DYN( ENT(pev), CHAN_BODY, "weapons/explosion1.wav", 1.0, ATTN_NORM, 0, PITCH_NORM );
 
 	RadiusDamage(pev, pevOwner, pev->dmg, CLASS_NONE, bitsDamageType, m_flExplodeRange);
 

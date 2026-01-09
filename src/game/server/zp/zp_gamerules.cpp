@@ -683,7 +683,13 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 				pPlayer->SetOrigin( Vector( x, y, z ) );
 				// If we got all 6 args, set angles too
 				if ( args == 6 )
+				{
 					pPlayer->SetAngles( Vector( pitch, yaw, roll ) );
+					pPlayer->pev->v_angle.z = 0; // Clear out roll
+					pPlayer->pev->angles = pPlayer->pev->v_angle;
+					pPlayer->pev->fixangle = TRUE; // turn this way immediately
+				}
+				pPlayer->pev->velocity = g_vecZero;
 			}
 			else
 				UTIL_PrintConsole( "Usage: setpos \"x y z pitch yaw roll\"\n", pPlayer );

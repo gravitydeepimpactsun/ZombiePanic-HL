@@ -1440,7 +1440,7 @@ void CFlameBaseEnt::Spawn()
 	SetThink( &CFlameBaseEnt::OnThink );
 	pev->nextthink = gpGlobals->time;
 	pev->frame = 0;
-	pev->framerate = IsLargeFire() ? 60 : 8;
+	pev->framerate = IsLargeFire() ? -60 : 8;
 }
 
 

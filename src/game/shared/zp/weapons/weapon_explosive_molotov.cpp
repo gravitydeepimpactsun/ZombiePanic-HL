@@ -13,12 +13,6 @@ void CWeaponExplosiveMolotov::Spawn()
 	DefaultSpawn();
 }
 
-void CWeaponExplosiveMolotov::DeactivateThrow()
-{
-	m_flReleaseThrow = -1;
-	m_flStartThrow = 0;
-}
-
 int CWeaponExplosiveMolotov::AddToPlayer(CBasePlayer *pPlayer)
 {
 	if ( BaseClass::AddToPlayer( pPlayer ) )
@@ -58,7 +52,6 @@ void CWeaponExplosiveMolotov::Precache(void)
 
 float CWeaponExplosiveMolotov::Deploy()
 {
-	m_flReleaseThrow = -1;
 	DoDeploy( "models/v_molotov.mdl", "models/p_molotov.mdl", ANIM_THROW_EXPLOSIVES_DRAW, "crowbar" );
 	return GetAnimationTime( 26, 30 );
 }
@@ -71,6 +64,15 @@ BOOL CWeaponExplosiveMolotov::CanHolster(void)
 
 float CWeaponExplosiveMolotov::DoHolsterAnimation()
 {
+#ifndef CLIENT_DLL
+	// We threw it, and got nothing left.
+	if ( m_flReleaseThrow > 0 && !m_iClip )
+	{
+		m_pPlayer->WeaponSlotSet( this, false );
+		DestroyItem();
+		return 0.0f;
+	}
+#endif
 	SendWeaponAnim( ANIM_THROW_EXPLOSIVES_HOLSTER );
 	return GetAnimationTime( 8, 20 );
 }

@@ -971,7 +971,7 @@ BOOL CBasePlayerWeapon ::PlayEmptySound(void)
 {
 	if (m_iPlayEmptySound)
 	{
-		EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_WEAPON, GetEmptySound(), 1.0, ATTN_NORM);
+		EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_ITEM, GetEmptySound(), 1.0, ATTN_NORM);
 		m_iPlayEmptySound = 0;
 		return 0;
 	}

@@ -1988,6 +1988,120 @@ void CBasePlayer::SendScoreInfo()
 //
 #define PLAYER_SEARCH_RADIUS (float)64
 
+float IntervalDistance( float x, float x0, float x1 )
+{
+	// swap so x0 < x1
+	if ( x0 > x1 )
+	{
+		float tmp = x0;
+		x0 = x1;
+		x1 = tmp;
+	}
+
+	if ( x < x0 )
+		return x0-x;
+	else if ( x > x1 )
+		return x - x1;
+	return 0;
+}
+
+// Backported from Source SDK 2013, so we don't interact with crap behind walls etc.
+CBaseEntity *CBasePlayer::FindUseEntity()
+{
+	CBaseEntity *pObject = NULL;
+	CBaseEntity *pClosest = NULL;
+	Vector vecLOS;
+	float flMaxDot = VIEW_FIELD_NARROW;
+	float flDot;
+
+	UTIL_MakeVectors(pev->v_angle); // so we know which way we are facing
+
+	TraceResult tr;
+
+	// Search for objects in a sphere (tests for entities that are not solid, yet still useable)
+	Vector searchCenter = EyePosition();
+
+	float nearestDist = FLT_MAX;
+
+	const int NUM_TANGENTS = 8;
+	// trace a box at successive angles down
+	//							forward, 45 deg, 30 deg, 20 deg, 15 deg, 10 deg, -10, -15
+	const float tangents[NUM_TANGENTS] = { 0, 1, 0.57735026919f, 0.3639702342f, 0.267949192431f, 0.1763269807f, -0.1763269807f, -0.267949192431f };
+	for ( int i = 0; i < NUM_TANGENTS; i++ )
+	{
+		if ( i == 0 )
+		{
+			UTIL_TraceLine( searchCenter, searchCenter + gpGlobals->v_forward * 1024, dont_ignore_monsters, ENT(pev), &tr );
+		}
+		else
+		{
+			Vector down = gpGlobals->v_forward - tangents[i] * gpGlobals->v_up;
+			VectorNormalize(down);
+			UTIL_TraceHull( searchCenter, searchCenter + down * 72, dont_ignore_monsters, head_hull, ENT(pev), &tr );
+		}
+		pObject = CBaseEntity::Instance( tr.pHit );
+		if ( !pObject ) continue;
+
+		if (pObject->ObjectCaps() & (FCAP_IMPULSE_USE | FCAP_CONTINUOUS_USE | FCAP_ONOFF_USE))
+		{
+			// GoldSrc does not have CollisionProp(), so we cannot use that.
+			// Instead, we use our Quake BBox.
+			Vector vOBB[2];
+			ExtractBbox( pev->sequence, vOBB[0], vOBB[1] );
+
+			Vector delta = tr.vecEndPos - searchCenter;
+			float centerZ = Center().z;
+			delta.z = IntervalDistance( tr.vecEndPos.z, centerZ + vOBB[0].z, centerZ + vOBB[1].z );
+			float dist = delta.Length();
+			if ( dist < PLAYER_SEARCH_RADIUS )
+			{
+				pClosest = pObject;
+				
+				// if this is directly under the cursor just return it now
+				if ( i == 0 )
+					return pObject;
+			}
+		}
+	}
+
+	while ((pObject = UTIL_FindEntityInSphere(pObject, pev->origin, PLAYER_SEARCH_RADIUS)) != NULL)
+	{
+		if (pObject->ObjectCaps() & (FCAP_IMPULSE_USE | FCAP_CONTINUOUS_USE | FCAP_ONOFF_USE))
+		{
+			// Since this has purely been a radius search to this point, we now
+			// make sure the object isn't behind glass or a grate.
+			TraceResult trCheckOccluded;
+			UTIL_TraceLine( searchCenter, pObject->Center(), dont_ignore_monsters, ENT(pev), &trCheckOccluded );
+
+			CBaseEntity *pCheckHit = CBaseEntity::Instance( trCheckOccluded.pHit );
+			if ( trCheckOccluded.flFraction == 1.0 || pCheckHit == pObject )
+			{
+				// !!!PERFORMANCE- should this check be done on a per case basis AFTER we've determined that
+				// this object is actually usable? This dot is being done for every object within PLAYER_SEARCH_RADIUS
+				// when player hits the use key. How many objects can be in that area, anyway? (sjb)
+				vecLOS = (VecBModelOrigin(pObject->pev) - (pev->origin + pev->view_ofs));
+
+				// This essentially moves the origin of the target to the corner nearest the player to test to see
+				// if it's "hull" is in the view cone
+				vecLOS = UTIL_ClampVectorToBox(vecLOS, pObject->pev->size * 0.5);
+
+				flDot = DotProduct(vecLOS, gpGlobals->v_forward);
+				if ( flDot > flMaxDot )
+				{
+					// only if the item is in front of the user
+					pClosest = pObject;
+					flMaxDot = flDot;
+					//ALERT( at_console, "%s : %f\n", STRING( pObject->pev->classname ), flDot );
+				}
+				//ALERT( at_console, "%s : %f\n", STRING( pObject->pev->classname ), flDot );
+			}
+		}
+	}
+	pObject = pClosest;
+
+	return pObject;
+}
+
 void CBasePlayer::PlayerUse(void)
 {
 	// Was use pressed or released?
@@ -2039,39 +2153,7 @@ void CBasePlayer::PlayerUse(void)
 		}
 	}
 
-	CBaseEntity *pObject = NULL;
-	CBaseEntity *pClosest = NULL;
-	Vector vecLOS;
-	float flMaxDot = VIEW_FIELD_NARROW;
-	float flDot;
-
-	UTIL_MakeVectors(pev->v_angle); // so we know which way we are facing
-
-	while ((pObject = UTIL_FindEntityInSphere(pObject, pev->origin, PLAYER_SEARCH_RADIUS)) != NULL)
-	{
-
-		if (pObject->ObjectCaps() & (FCAP_IMPULSE_USE | FCAP_CONTINUOUS_USE | FCAP_ONOFF_USE))
-		{
-			// !!!PERFORMANCE- should this check be done on a per case basis AFTER we've determined that
-			// this object is actually usable? This dot is being done for every object within PLAYER_SEARCH_RADIUS
-			// when player hits the use key. How many objects can be in that area, anyway? (sjb)
-			vecLOS = (VecBModelOrigin(pObject->pev) - (pev->origin + pev->view_ofs));
-
-			// This essentially moves the origin of the target to the corner nearest the player to test to see
-			// if it's "hull" is in the view cone
-			vecLOS = UTIL_ClampVectorToBox(vecLOS, pObject->pev->size * 0.5);
-
-			flDot = DotProduct(vecLOS, gpGlobals->v_forward);
-			if (flDot > flMaxDot)
-			{ // only if the item is in front of the user
-				pClosest = pObject;
-				flMaxDot = flDot;
-				//				ALERT( at_console, "%s : %f\n", STRING( pObject->pev->classname ), flDot );
-			}
-			//			ALERT( at_console, "%s : %f\n", STRING( pObject->pev->classname ), flDot );
-		}
-	}
-	pObject = pClosest;
+	CBaseEntity *pObject = FindUseEntity();
 
 	// Found an object
 	if (pObject)

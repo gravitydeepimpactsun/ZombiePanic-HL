@@ -471,6 +471,8 @@ private:
 
 	void DoHeadshotChunk( const Vector &vecPos, short modelIndex, int iAmount, int iScale );
 public:
+	CBaseEntity *FindUseEntity(); // Backported from Source SDK 2013
+
 	void GiveCurrentAmmo();
 	const char *GetPlayerName() const;
 

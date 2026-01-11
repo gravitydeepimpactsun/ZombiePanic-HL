@@ -13,8 +13,6 @@
 
 DEFINE_HUD_ELEM( CObjectiveText );
 
-extern globalvars_t *gpGlobals;
-
 bool CObjectiveText::m_bObjectiveChanged;
 ObjectiveState CObjectiveText::m_State;
 std::string CObjectiveText::m_strObjectiveString[2];
@@ -84,7 +82,7 @@ void CObjectiveText::Paint()
 	// Now draw our lives
 	m_pText->SetBounds( m_iTextX, m_iTextY, m_iTextWide, m_iTextTall );
 
-	int clrFlash = abs( sin( gpGlobals->time * 2 ) * 255 );
+	int clrFlash = abs( sin( gHUD.m_flTime * 2 ) * 255 );
 	int clrR,
 		clrG,
 		clrB,

@@ -8,6 +8,7 @@
 #include "zp/zp_shared.h"
 
 #define OBJECTIVE_MESSAGE_FIRST (1<<0)
+#define OBJECTIVE_DONT_USE_ALT (1<<1)
 
 class CObjectiveMessage : public CPointEntity
 {
@@ -27,6 +28,7 @@ public:
 private:
 	ObjectiveState m_State;
 	string_t m_NextObj = 0;
+	string_t m_AltObj = 0;
 	string_t m_ZombieText = 0;
 };
 

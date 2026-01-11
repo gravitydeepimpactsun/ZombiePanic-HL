@@ -50,6 +50,11 @@ void CObjectiveMessage::KeyValue( KeyValueData *pkvd )
 		m_NextObj = ALLOC_STRING(pkvd->szValue); // Make a copy of the next objective
 		pkvd->fHandled = TRUE;
 	}
+	else if ( FStrEq( pkvd->szKeyName, "alt_obj" ) )
+	{
+		m_AltObj = ALLOC_STRING(pkvd->szValue); // Make a copy of the next objective
+		pkvd->fHandled = TRUE;
+	}
 	else if ( FStrEq( pkvd->szKeyName, "zombo_text" ) )
 	{
 		m_ZombieText = ALLOC_STRING(pkvd->szValue); // Make a copy of the next objective
@@ -79,6 +84,12 @@ void CObjectiveMessage::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_
 	{
 		// If completed, then fire the next objective after x amount of seconds.
 		case State_Completed:
+		{
+			SetThink( &CObjectiveMessage::CallNewObjective );
+		    pev->nextthink = gpGlobals->time + 1.0f;
+		}
+		break;
+		case State_Failed:
 		{
 			SetThink( &CObjectiveMessage::CallNewObjective );
 		    pev->nextthink = gpGlobals->time + 1.0f;
@@ -130,7 +141,10 @@ void CObjectiveMessage::CallNewObjective()
 		pFind->Use( nullptr, nullptr, USE_TOGGLE, 0 );
 
 	// Go to our next objective
-	pFind = UTIL_FindEntityByTargetname( nullptr, STRING( m_NextObj ) );
+	if ( m_State == ObjectiveState::State_Failed && !( pev->spawnflags & OBJECTIVE_DONT_USE_ALT ) )
+		pFind = UTIL_FindEntityByTargetname( nullptr, STRING( m_AltObj ) );
+	else
+		pFind = UTIL_FindEntityByTargetname( nullptr, STRING( m_NextObj ) );
 	if ( !pFind ) return;
 	pFind->Use( nullptr, nullptr, USE_ON, 0 );
 }

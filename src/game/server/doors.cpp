@@ -932,6 +932,9 @@ public:
 	void Spawn(void);
 	void Restart(void);
 	virtual void SetToggleState(int state);
+
+private:
+	Vector mSavedOpenAngle;
 };
 
 LINK_ENTITY_TO_CLASS(func_door_rotating, CRotDoor);
@@ -970,6 +973,7 @@ void CRotDoor::Spawn(void)
 	if (FBitSet(pev->spawnflags, SF_DOOR_START_OPEN))
 	{ // swap pos1 and pos2, put door at pos2, invert movement direction
 		SetAngles( m_vecAngle2 );
+		mSavedOpenAngle = m_vecAngle2;
 		Vector vecSav = m_vecAngle1;
 		m_vecAngle2 = m_vecAngle1;
 		m_vecAngle1 = vecSav;
@@ -1000,31 +1004,16 @@ void CRotDoor::Restart()
 	if (pev->speed == 0)
 		pev->speed = 100;
 
-	// DOOR_START_OPEN is to allow an entity to be lighted in the closed position
-	// but spawn in the open position
-	if (pev->spawnflags & SF_DOOR_START_OPEN)
+	m_toggle_state = TS_AT_BOTTOM;
+
+	// If we started open, then make sure we reset to that point.
+	if (FBitSet(pev->spawnflags, SF_DOOR_START_OPEN))
 	{
-#ifdef REGAMEDLL_FIXES
-		SetAngles( m_vecAngle1 );
-#else
-		SetAngles( m_vecAngle2 );
-
-		Vector vecSav = m_vecAngle1;
-		m_vecAngle2 = m_vecAngle1;
-		m_vecAngle1 = vecSav;
-#endif
-
+		SetAngles( mSavedOpenAngle );
 		pev->movedir = pev->movedir * -1;
 	}
-#ifdef REGAMEDLL_FIXES
-	else if (pev->netname.IsNull())
-	{
-		SetAngles( m_vecAngle1 );
-	}
-#endif
-
-	m_toggle_state = TS_AT_BOTTOM;
-	DoorGoDown();
+	else
+		DoorGoDown();
 }
 
 void CRotDoor ::SetToggleState(int state)

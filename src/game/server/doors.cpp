@@ -367,6 +367,9 @@ void CBaseDoor::Restart()
 		SetTouch(nullptr);
 	else
 		SetTouch(&CBaseDoor::DoorTouch);
+
+	STOP_SOUND(ENT(pev), CHAN_STATIC, (char *)STRING(pev->noiseMoving));
+	STOP_SOUND(ENT(pev), CHAN_STATIC, (char *)STRING(pev->noiseArrived));
 }
 
 void CBaseDoor ::SetToggleState(int state)
@@ -1014,6 +1017,10 @@ void CRotDoor::Restart()
 	}
 	else
 		DoorGoDown();
+
+	// Tell the doors to shut up!
+	STOP_SOUND(ENT(pev), CHAN_STATIC, (char *)STRING(pev->noiseMoving));
+	STOP_SOUND(ENT(pev), CHAN_STATIC, (char *)STRING(pev->noiseArrived));
 }
 
 void CRotDoor ::SetToggleState(int state)

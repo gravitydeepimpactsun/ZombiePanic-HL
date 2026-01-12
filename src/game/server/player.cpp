@@ -4480,6 +4480,8 @@ static CBaseEntity *EntSelectSpawnPointZPFallback(CBaseEntity *pPlayer, const ch
 	return nullptr;
 }
 
+ConVar sv_player_spawndebug( "sv_player_spawndebug", "0", FCVAR_CHEATS );
+
 static CBaseEntity *EntSelectSpawnPointZP(CBaseEntity *pPlayer)
 {
 	std::vector<CBaseEntity *> spotInfos;
@@ -4501,14 +4503,33 @@ retry_spawns:
 	// try to find team spawn
 	while ((pSpot = UTIL_FindEntityByClassname(pSpot, szSpawnLocation)))
 	{
-		if ( CheckSpawnPointValidity(pPlayer, pSpot) != SpawnPointValidity::Valid )
+		SpawnPointValidity nSpotCheck = CheckSpawnPointValidity(pPlayer, pSpot);
+		if ( sv_player_spawndebug.GetBool() )
+		{
+			switch ( nSpotCheck )
+			{
+				case SpawnPointValidity::NonValid: Msg( "Spawn %s is not valid!\n", STRING(pSpot->pev->targetname) ); break;
+				case SpawnPointValidity::NonValidDisabled: Msg( "Spawn %s is disabled!\n", STRING(pSpot->pev->targetname) ); break;
+				case SpawnPointValidity::NonValidWasRecentlyUsed: Msg( "Spawn %s was recently used!\n", STRING(pSpot->pev->targetname) ); break;
+				case SpawnPointValidity::NonValidAlreadyUsed: Msg( "Spawn %s is already used!\n", STRING(pSpot->pev->targetname) ); break;
+				case SpawnPointValidity::NonValidOccupied: Msg( "Spawn %s is already occupied!\n", STRING(pSpot->pev->targetname) ); break;
+				case SpawnPointValidity::NonValidInPVS: Msg( "Spawn %s can be seen by the player!\n", STRING(pSpot->pev->targetname) ); break;
+				case SpawnPointValidity::Valid: Msg( "Spawn %s is valid!\n", STRING(pSpot->pev->targetname) ); break;
+			}
+		}
+
+		if ( nSpotCheck != SpawnPointValidity::Valid )
 			continue;
+
 		spotInfos.push_back( pSpot );
 	}
 
 	// Sort them
 	int validSpots = spotInfos.size();
 	int limit = validSpots;
+
+	if ( sv_player_spawndebug.GetBool() )
+		Msg( "FindSpawn: %s - Limit: %i\n", szSpawnLocation, limit );
 
 	// Still zero? Something must be wrong with the map,
 	// or we are missing spawn locations.
@@ -4520,13 +4541,17 @@ retry_spawns:
 		// If true, we have no spawns at all, so just fallback to normal spawn selection.
 		// This will cause the player to spawn in front of others, but at least they will spawn.
 		if ( m_bTriedFallback )
+		{
+			Msg( "Using fallback spawns...\n" );
 			return EntSelectSpawnPointZPFallback( pPlayer, szSpawnLocation );
+		}
 
 		// Avoid looping
 		m_bTriedFallback = true;
+		if ( sv_player_spawndebug.GetBool() )
+			Msg( "No spawns found, resetting and trying fallback...\n" );
 		goto retry_spawns;
 	}
-	//Msg( "FindSpawn: %s - Limit: %i\n", szSpawnLocation, limit );
 
 	int take = rand() % limit;
 

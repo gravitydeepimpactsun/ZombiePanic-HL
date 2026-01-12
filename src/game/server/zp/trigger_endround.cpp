@@ -7,6 +7,8 @@
 #include "player.h"
 #include "zp/gamemodes/zp_gamemodebase.h"
 
+#define SF_CHECK_ZOMBIES 1
+
 class CTriggerEndRound : public CBaseTrigger
 {
 public:
@@ -19,6 +21,8 @@ public:
 private:
 	bool m_Enabled = true;
 	bool m_EnableRem = false;
+	bool m_CheckZombies = true;
+	float m_flNextCheck = 0.0f;
 };
 LINK_ENTITY_TO_CLASS( trigger_endround, CTriggerEndRound );		// For backwards compatibility
 LINK_ENTITY_TO_CLASS( trigger_escape, CTriggerEndRound );
@@ -34,6 +38,8 @@ void CTriggerEndRound::Spawn(void)
 void CTriggerEndRound::Restart(void)
 {
 	m_Enabled = m_EnableRem;
+	m_CheckZombies = true;
+	m_flNextCheck = gpGlobals->time + 2.0f;
 }
 
 void CTriggerEndRound::KeyValue( KeyValueData *pkvd )
@@ -50,6 +56,7 @@ void CTriggerEndRound::KeyValue( KeyValueData *pkvd )
 void CTriggerEndRound::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
 	m_Enabled = !m_Enabled;
+	m_flNextCheck = gpGlobals->time + 2.0f;
 }
 
 void CTriggerEndRound::OnEndRoundTouch( CBaseEntity *pOther )
@@ -57,6 +64,25 @@ void CTriggerEndRound::OnEndRoundTouch( CBaseEntity *pOther )
 	if ( !m_Enabled ) return;
 	if ( !pOther->IsPlayer() ) return;
 	if ( !pOther->IsAlive() ) return;
+
+	if (FBitSet(pev->spawnflags, SF_CHECK_ZOMBIES))
+	{
+		// A very simple "are there any zombies blocking this trigger" check.
+		if ( m_CheckZombies )
+		{
+			// If we hit 0, or less, then turn this off
+			if ( m_flNextCheck - gpGlobals->time <= 0 )
+			{
+				m_CheckZombies = false;
+				return;
+			}
+			// We found a zombie! Delay again by 2 more seconds
+			if ( pOther->pev->team == ZP::TEAM_ZOMBIE )
+				m_flNextCheck = gpGlobals->time + 2.0f;
+			return;
+		}
+	}
+
 	if ( pOther->pev->team != ZP::TEAM_SURVIVIOR ) return;
 	IGameModeBase *pGameMode = ZP::GetCurrentGameMode();
 	if ( !pGameMode ) return;

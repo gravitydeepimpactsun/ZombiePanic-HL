@@ -2935,6 +2935,7 @@ void CBasePlayer::SelectWeapon( CBasePlayerWeapon *pWeapon )
 		return;
 	}
 	if ( pBaseWeapon->IsHolstering() ) return;
+	if ( !pBaseWeapon->CanHolster() ) return;
 
 	// Check if this is a CWeaponBaseSingleAction, if so,
 	// make sure we can't switch if we are pumping the weapon.
@@ -3034,6 +3035,7 @@ void CBasePlayer::DropWeapon( CBasePlayerWeapon *pWeapon, bool bAutoSwitch, bool
 {
 	if ( ZP::GetCurrentRoundState() < ZP::RoundState::RoundState_RoundHasBegun ) return;
 	if ( !pWeapon ) return;
+	if ( !pWeapon->CanHolster() ) return;
 	m_flLastWeaponDrop = gpGlobals->time + 0.5f;
 
 	string_t weaponname = ALLOC_STRING( pWeapon->GetData().Classname ); // Make a copy of the classname;
@@ -7000,6 +7002,10 @@ void CBasePlayer::DoPanic()
 		UTIL_SayText( "#ZP_Deny_Panic", this );
 		return;
 	}
+
+	CWeaponBase *pActive = dynamic_cast<CWeaponBase *>( m_pActiveItem );
+	if ( pActive && !pActive->CanHolster() ) return;
+
 	/*
 	if ( RoundJustBegun() )
 	{

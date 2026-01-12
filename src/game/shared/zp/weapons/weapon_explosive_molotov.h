@@ -27,6 +27,7 @@ public:
 
 private:
 	bool m_bDoSecondaryAttack = false;
+	float m_flCanHolster = -1;
 };
 
 #endif

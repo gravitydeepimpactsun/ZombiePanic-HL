@@ -63,8 +63,10 @@ float CWeaponExplosiveTNT::Deploy()
 
 BOOL CWeaponExplosiveTNT::CanHolster(void)
 {
-	// can only holster when not primed!
-	return (m_flStartThrow == 0);
+	// If not primed, we can holster
+	if ( (m_flStartThrow == 0) ) return true;
+	// It's primed, only allow this after we played the animation.
+	return (m_flCanHolster - gpGlobals->time <= 0);
 }
 
 float CWeaponExplosiveTNT::DoHolsterAnimation()
@@ -94,6 +96,7 @@ void CWeaponExplosiveTNT::PrimaryAttack()
 		AddWeaponSound( "weapons/lighter02.wav", 1, ATTN_NORM, GetAnimationTime( 25, 25 ) );
 		SendWeaponAnim( ANIM_THROW_EXPLOSIVES_PINPULL );
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime( 34, 25 );
+		m_flCanHolster = gpGlobals->time + 2.0f;
 	}
 }
 
@@ -109,6 +112,7 @@ void CWeaponExplosiveTNT::SecondaryAttack()
 		AddWeaponSound( "weapons/lighter02.wav", 1, ATTN_NORM, GetAnimationTime( 24, 25 ) );
 		SendWeaponAnim( ANIM_THROW_EXPLOSIVES_PINPULL2 );
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime( 35, 25 );
+		m_flCanHolster = gpGlobals->time + 2.0f;
 		m_bDoSecondaryAttack = true;
 	}
 }

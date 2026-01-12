@@ -17,7 +17,7 @@ float CWeaponSMGMP5::DoWeaponUnload()
 	AddWeaponSound( "weapons/mp5/magout.wav", 1, ATTN_NORM, GetAnimationTime( 5, 25 ) );
 	AddWeaponSound( "weapons/mp5/magin.wav", 1, ATTN_NORM, GetAnimationTime( 32, 25 ) );
 	AddWeaponSound( "weapons/mp5/slide_forward.wav", 1, ATTN_NORM, GetAnimationTime( 39, 25 ) );
-	return GetAnimationTime( 48, 25 );
+	return GetAnimationTime( 70, 25 );
 }
 
 void CWeaponSMGMP5::Spawn()

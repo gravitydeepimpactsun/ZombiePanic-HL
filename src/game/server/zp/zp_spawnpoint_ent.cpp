@@ -3,9 +3,12 @@
 #include "zp/zp_shared.h"
 #include "zp/gamemodes/zp_gamemodebase.h"
 #include "zp_spawnpoint_ent.h"
+#include <convar.h>
 #ifdef SCRIPT_SYSTEM
 #include "core.h"
 #endif
+
+extern ConVar sv_player_spawndebug;
 
 LINK_ENTITY_TO_CLASS( info_player_team1, CBasePlayerSpawnPoint );
 LINK_ENTITY_TO_CLASS( info_player_team2, CBasePlayerSpawnPoint );
@@ -88,4 +91,15 @@ void CBasePlayerSpawnPoint::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, 
 		m_bEnabled = true;
 	else if ( useType == USE_OFF )
 		m_bEnabled = false;
+
+	if ( sv_player_spawndebug.GetBool() )
+	{
+		switch ( useType )
+		{
+			case USE_TOGGLE: Msg( "%s has enabled state has been toggled!\n", STRING(pev->targetname) ); break;
+			case USE_ON: Msg( "%s has been enabled!\n", STRING(pev->targetname) ); break;
+			case USE_OFF: Msg( "%s has been disabled!\n", STRING(pev->targetname) ); break;
+			case USE_SET: Msg( "%s has been set to %f!\n", STRING(pev->targetname), value ); break;
+		}
+	}
 }

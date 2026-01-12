@@ -80,6 +80,7 @@ public:
 	BYTE m_bUnlockedSound;
 	BYTE m_bUnlockedSentence;
 	bool m_bIsLocked;
+	bool m_bHasRestarted = false;
 };
 
 TYPEDESCRIPTION CBaseDoor::m_SaveData[] = {
@@ -358,6 +359,10 @@ void CBaseDoor::Spawn()
 
 void CBaseDoor::Restart()
 {
+	m_bHasRestarted = true;
+	float prevspeed = pev->speed;
+	pev->speed = 999;
+
 	m_bIsLocked = false;
 	SetMovedir(pev);
 	DoorGoDown();
@@ -370,6 +375,8 @@ void CBaseDoor::Restart()
 
 	STOP_SOUND(ENT(pev), CHAN_STATIC, (char *)STRING(pev->noiseMoving));
 	STOP_SOUND(ENT(pev), CHAN_STATIC, (char *)STRING(pev->noiseArrived));
+
+	pev->speed = prevspeed;
 }
 
 void CBaseDoor ::SetToggleState(int state)
@@ -732,7 +739,9 @@ void CBaseDoor::DoorHitTop(void)
 	if (!FBitSet(pev->spawnflags, SF_DOOR_SILENT))
 	{
 		STOP_SOUND(ENT(pev), CHAN_STATIC, (char *)STRING(pev->noiseMoving));
-		EMIT_SOUND(ENT(pev), CHAN_STATIC, (char *)STRING(pev->noiseArrived), 1, ATTN_NORM);
+		if ( !m_bHasRestarted )
+			EMIT_SOUND(ENT(pev), CHAN_STATIC, (char *)STRING(pev->noiseArrived), 1, ATTN_NORM);
+		m_bHasRestarted = false;
 	}
 
 	m_toggle_state = TS_AT_TOP;
@@ -798,7 +807,9 @@ void CBaseDoor::DoorHitBottom(void)
 		if (!FBitSet(pev->spawnflags, SF_DOOR_SILENT))
 		{
 			STOP_SOUND(ENT(pev), CHAN_STATIC, (char *)STRING(pev->noiseMoving));
-			EMIT_SOUND(ENT(pev), CHAN_STATIC, (char *)STRING(pev->noiseArrived), 1, ATTN_NORM);
+			if ( !m_bHasRestarted )
+				EMIT_SOUND(ENT(pev), CHAN_STATIC, (char *)STRING(pev->noiseArrived), 1, ATTN_NORM);
+			m_bHasRestarted = false;
 		}
 		return;
 	}
@@ -996,6 +1007,7 @@ void CRotDoor::Spawn(void)
 void CRotDoor::Restart()
 {
 	m_bIsLocked = false;
+	m_bHasRestarted = true;
 
 	CBaseToggle::AxisDir(pev);
 
@@ -1006,6 +1018,9 @@ void CRotDoor::Restart()
 
 	if (pev->speed == 0)
 		pev->speed = 100;
+
+	float prevspeed = pev->speed;
+	pev->speed = 999;
 
 	m_toggle_state = TS_AT_BOTTOM;
 
@@ -1021,6 +1036,8 @@ void CRotDoor::Restart()
 	// Tell the doors to shut up!
 	STOP_SOUND(ENT(pev), CHAN_STATIC, (char *)STRING(pev->noiseMoving));
 	STOP_SOUND(ENT(pev), CHAN_STATIC, (char *)STRING(pev->noiseArrived));
+
+	pev->speed = prevspeed;
 }
 
 void CRotDoor ::SetToggleState(int state)

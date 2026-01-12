@@ -1995,6 +1995,7 @@ class CTriggerPush : public CBaseTrigger
 {
 public:
 	void Spawn(void);
+	void Restart();
 	void KeyValue(KeyValueData *pkvd);
 	void Touch(CBaseEntity *pOther);
 };
@@ -2024,6 +2025,17 @@ void CTriggerPush ::Spawn()
 	SetUse(&CTriggerPush::ToggleUse);
 
 	UTIL_SetOrigin(pev, pev->origin); // Link into the list
+}
+
+void CTriggerPush::Restart()
+{
+	pev->solid = SOLID_TRIGGER;
+	pev->movetype = MOVETYPE_NONE;
+
+	if (FBitSet(pev->spawnflags, SF_TRIGGER_PUSH_START_OFF)) // if flagged to Start Turned Off, make trigger nonsolid.
+		pev->solid = SOLID_NOT;
+
+	SetUse(&CTriggerPush::ToggleUse);
 }
 
 void CTriggerPush ::Touch(CBaseEntity *pOther)

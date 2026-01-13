@@ -87,6 +87,9 @@ CZombiePanicGameRules::CZombiePanicGameRules()
 	m_flRoundJustBegun = -1;
 	m_Volunteers.clear();
 
+	// Saved objective state, for clients.
+	m_savedobjtext[0] = m_savedobjtext[1] = m_savedobjstate = 0;
+
 	m_flNextAPICallTime = gpGlobals->time + 5.0f;
 
 	m_iRounds = 1;
@@ -182,6 +185,7 @@ extern int gmsgScoreInfo;
 extern int gmsgRounds;
 extern int gmsgRoundResetPre;
 extern int gmsgRoundResetPost;
+extern int gmsgObjective;
 
 void CZombiePanicGameRules::UpdateGameMode(CBasePlayer *pPlayer)
 {
@@ -590,6 +594,12 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 					pBeacon->UpdateMessageStateForEntity( pPlayer );
 					pBeacon = (CInfoBeacon *)UTIL_FindEntityByClassname( pBeacon, "info_beacon" );
 				}
+				// Make sure to also set the current objective text.
+				MESSAGE_BEGIN( MSG_ONE, gmsgObjective, NULL, pPlayer->edict() );
+				WRITE_SHORT( m_savedobjstate );
+				WRITE_STRING( STRING( m_savedobjtext[0] ) );
+				WRITE_STRING( STRING( m_savedobjtext[1] ) );
+				MESSAGE_END();
 			}
 
 			if ( bLateJoin

@@ -69,10 +69,20 @@ public:
 	void DoAPICallBack( CBasePlayer *pPlayer );
 	ClientAPIData_t GetClientAPI( CBasePlayer *pPlayer );
 
+	inline void SetObjectiveText( unsigned int hObj, unsigned int zObj, int iObjState )
+	{
+		m_savedobjtext[0] = hObj;
+		m_savedobjtext[1] = zObj;
+		m_savedobjstate = iObjState;
+	}
+
 protected:
 	void ProcessAPICalls();
 	std::vector<int> m_vecPendingAPICalls;
 	float m_flNextAPICallTime;
+
+	unsigned int m_savedobjtext[2];
+	int m_savedobjstate;
 
 private:
 	void CheckCheats();

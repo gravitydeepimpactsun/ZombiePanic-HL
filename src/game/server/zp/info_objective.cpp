@@ -5,6 +5,8 @@
 #include "eiface.h"
 #include "zp/gamemodes/zp_gamemodebase.h"
 #include "zp/info_objective.h"
+#include "gamerules.h"
+#include "zp/zp_gamerules.h"
 #ifdef SCRIPT_SYSTEM
 #include "core.h"
 #endif
@@ -113,6 +115,9 @@ void CObjectiveMessage::UpdateMessageState()
 	WRITE_STRING( STRING( pev->message ) );
 	WRITE_STRING( STRING( m_ZombieText ) );
 	MESSAGE_END();
+
+	// Save the current objective text for our late joiners.
+	ZPGameRules()->SetObjectiveText( pev->message, m_ZombieText, m_State );
 
 	const char *szValue = nullptr;
 	switch ( m_State )

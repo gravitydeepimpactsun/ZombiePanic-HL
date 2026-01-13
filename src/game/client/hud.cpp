@@ -402,6 +402,10 @@ void CHud::Init(void)
 	// VGUI Menus
 	HookViewportMessage<&CClientViewport::MsgFunc_VGUIMenu>("VGUIMenu");
 
+	// Round reset Message Functions
+	HookViewportMessage<&CClientViewport::MsgFunc_RRndPre>("RRndPre");
+	HookViewportMessage<&CClientViewport::MsgFunc_RRndPost>("RRndPost");
+
 	m_iLogo = 0;
 	m_iFOV = 0;
 

@@ -180,9 +180,8 @@ extern int gmsgTeamInfo;
 extern int gmsgTeamNames;
 extern int gmsgScoreInfo;
 extern int gmsgRounds;
-extern int gmsgVGUIMenu;
-extern int gmsgRoundState;
-extern int gmsgBeaconReset;
+extern int gmsgRoundResetPre;
+extern int gmsgRoundResetPost;
 
 void CZombiePanicGameRules::UpdateGameMode(CBasePlayer *pPlayer)
 {
@@ -298,63 +297,32 @@ void CZombiePanicGameRules::ResetRound()
 
 		// Fade out to black!
 		UTIL_ScreenFadeAll( Vector( 0, 0, 0 ), 1.0f, 5.0f, 255, FFADE_OUT );
-		MESSAGE_BEGIN( MSG_ALL, gmsgRoundState );
-		WRITE_SHORT( m_pGameMode->GetRoundState() );
-		WRITE_SHORT( winner );
-		MESSAGE_END();
 		m_flRoundRestartDelay = gpGlobals->time + 5.0f;
 
 		int iPlayers = 0;
 		for ( int i = 1; i <= gpGlobals->maxClients; i++ )
 		{
 			CBasePlayer *plr = (CBasePlayer *)UTIL_PlayerByIndex( i );
-			if ( plr && plr->IsConnected() && plr->pev->team == ZP::TEAM_SURVIVIOR )
-				iPlayers++;
-		}
-
-		for ( int i = 1; i <= gpGlobals->maxClients; i++ )
-		{
-			CBasePlayer *plr = (CBasePlayer *)UTIL_PlayerByIndex( i );
-			if ( plr )
+			if ( plr && plr->IsConnected() )
 			{
 				// No more buttons
 				plr->pev->button = 0;
 
-				// For these, we do not care about team etc.
-				plr->GiveAchievement( EAchievements::MARATHON );
-				plr->GiveAchievement( EAchievements::PLAY_ALL_SURVIVAL );
-				plr->GiveAchievement( EAchievements::PLAY_ALL_OBJECTIVE );
-
-				int iTeam = plr->pev->team;
-				if ( iTeam == ZP::TEAM_SURVIVIOR && winner == IGameModeBase::WinState_e::State_SurvivorWin )
-				{
-					// Last survivor?
-					if ( iPlayers == 1 )
-						plr->GiveAchievement( EAchievements::LASTMANSTAND );
-					// 4 or more players?
-					if ( iPlayers >= 4 )
-						plr->GiveAchievement( EAchievements::THE_ATEAM );
-					plr->GiveAchievement( EAchievements::PARTNERINCRIME ); // Only give this if we are actually winning
-					switch ( m_pGameMode->GetGameModeType() )
-					{
-						case ZP::GameModeType_e::GAMEMODE_SURVIVAL:
-						{
-							if ( m_pGameMode->HasTimeRanOut() )
-								plr->GiveAchievement( EAchievements::CLOCKOUT );
-							plr->GiveAchievement( EAchievements::FIRST_SURVIVAL );
-						}
-						break;
-
-						case ZP::GameModeType_e::GAMEMODE_OBJECTIVE: plr->GiveAchievement( EAchievements::FIRST_OBJECTIVE ); break;
-					}
-				}
-				else if ( iTeam == ZP::TEAM_ZOMBIE && winner == IGameModeBase::WinState_e::State_ZombieWin )
-				{
-					plr->GiveAchievement( EAchievements::PARTNERINCRIME ); // Only give this if we are actually winning
-					plr->GiveAchievement( EAchievements::PARTOFHORDE );
-				}
+				// If survivor, then increase the player count
+				if ( plr->pev->team == ZP::TEAM_SURVIVIOR )
+					iPlayers++;
 			}
 		}
+
+		// Sets the data from gmsgRoundState and contains the data for all the achievement giving.
+		MESSAGE_BEGIN( MSG_ALL, gmsgRoundResetPre );
+		WRITE_SHORT( m_pGameMode->GetRoundState() );
+		WRITE_SHORT( m_pGameMode->GetGameModeType() );
+		WRITE_SHORT( winner );
+		WRITE_SHORT( iPlayers );
+		WRITE_BYTE( m_pGameMode->HasTimeRanOut() ? 1 : 0 );
+		MESSAGE_END();
+
 		return;
 	}
 	if ( m_flRoundRestartDelay - gpGlobals->time > 0 ) return;
@@ -404,21 +372,13 @@ void CZombiePanicGameRules::ResetRound()
 
 	m_pGameMode->RestartRound();
 
-	// Show the team menu for all players
-	MESSAGE_BEGIN(MSG_ALL, gmsgVGUIMenu);
-	WRITE_BYTE(2);
-	MESSAGE_END();
-
 	// Increase the round value
 	m_iRounds++;
 
-	// Make sure we tell everyone that our rounds have increased
-	MESSAGE_BEGIN(MSG_ALL, gmsgRounds, NULL);
+	// On round reset, we set our round data, similar to gmsgRounds
+	// But we also set the team menu to draw, similar to gmsgVGUIMenu
+	MESSAGE_BEGIN(MSG_ALL, gmsgRoundResetPost, NULL);
 	WRITE_BYTE(m_iRounds);
-	MESSAGE_END();
-
-	// Make sure we clear our beacons
-	MESSAGE_BEGIN(MSG_ALL, gmsgBeaconReset, NULL);
 	MESSAGE_END();
 }
 

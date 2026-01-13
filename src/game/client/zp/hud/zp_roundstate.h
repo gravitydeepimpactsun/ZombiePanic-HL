@@ -19,6 +19,7 @@ public:
 	virtual void ApplySchemeSettings(vgui2::IScheme *pScheme);
 
 	int MsgFunc_RoundState(const char *pszName, int iSize, void *pbuf);
+	void SetRoundState( ZP::RoundState iState, int iWinner );
 	void PlayAudio( const char *szAudio );
 
 private:

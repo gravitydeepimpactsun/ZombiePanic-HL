@@ -279,7 +279,8 @@ int gmsgWeather = 0;
 
 int gmsgObjective = 0;
 int gmsgBeaconDraw = 0;
-int gmsgBeaconReset = 0;
+int gmsgRoundResetPre = 0;
+int gmsgRoundResetPost = 0;
 int gmsgAchievement = 0;
 int gmsgAchEarned = 0;
 int gmsgRoundTime = 0;
@@ -367,7 +368,12 @@ void LinkUserMessages(void)
 	gmsgWeather = REG_USER_MSG("Weather", 16);
 
 	gmsgBeaconDraw = REG_USER_MSG("BcnD", -1);
-	gmsgBeaconReset = REG_USER_MSG("BcnR", -1);
+
+	// When we reset our round.
+	// We do not want to send too many messages, as it may cause the client to "soft crash",
+	// by kicking them back to the mainmenu, aka disconnecting them. Probably due to an overflow.
+	gmsgRoundResetPre = REG_USER_MSG("RRndPre", -1);
+	gmsgRoundResetPost = REG_USER_MSG("RRndPost", -1);
 
 	gmsgObjective = REG_USER_MSG("ObjMsg", -1);
 	gmsgAchievement = REG_USER_MSG("GiveAch", -1);

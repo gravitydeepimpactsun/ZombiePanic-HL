@@ -156,6 +156,8 @@ public:
 	void MsgFunc_Feign(const char *pszName, int iSize, void *pbuf);
 	void MsgFunc_Detpack(const char *pszName, int iSize, void *pbuf);
 	void MsgFunc_VGUIMenu(const char *pszName, int iSize, void *pbuf);
+	void MsgFunc_RRndPre(const char *pszName, int iSize, void *pbuf);
+	void MsgFunc_RRndPost(const char *pszName, int iSize, void *pbuf);
 	void MsgFunc_MOTD(const char *pszName, int iSize, void *pbuf);
 	void MsgFunc_HtmlMOTD(const char *pszName, int iSize, void *pbuf);
 	void MsgFunc_BuildSt(const char *pszName, int iSize, void *pbuf);

@@ -15,6 +15,9 @@
 #include "hud/spectator.h"
 #include "cl_util.h"
 #include "zp/zp_shared.h"
+#include "steam_achievements.h"
+
+#include "zp/hud/zp_roundstate.h"
 
 #include "score_panel.h"
 #include "client_motd.h"
@@ -580,6 +583,64 @@ void CClientViewport::MsgFunc_VGUIMenu(const char *pszName, int iSize, void *pbu
 
 	// Bring up the menu
 	ShowVGUIMenu((vguiMenuID)iMenu);
+}
+
+void CClientViewport::MsgFunc_RRndPre(const char *pszName, int iSize, void *pbuf)
+{
+	CPlayerInfo *localplayer = GetPlayerInfo( gEngfuncs.GetLocalPlayer()->index );
+	if ( !localplayer->IsConnected() ) return;
+
+	BEGIN_READ( pbuf, iSize );
+	ZP::RoundState state = (ZP::RoundState)READ_SHORT();
+	ZP::GameModeType_e gmtype = (ZP::GameModeType_e)READ_SHORT();
+	int winner = READ_SHORT();
+	int iPlayers = READ_SHORT();
+	bool bHasTimeRanOut = ( READ_BYTE() == 1 );
+
+	CHudRoundState::Get()->SetRoundState( state, winner );
+
+	// For these, we do not care about team etc.
+	CLIENT_UTIL_GiveAchievement( EAchievements::MARATHON );
+	CLIENT_UTIL_GiveAchievement( EAchievements::PLAY_ALL_SURVIVAL );
+	CLIENT_UTIL_GiveAchievement( EAchievements::PLAY_ALL_OBJECTIVE );
+
+	int iTeam = localplayer->GetTeamNumber();
+	if ( iTeam == ZP::TEAM_SURVIVIOR && winner == 3 )
+	{
+		// Last survivor?
+		if ( iPlayers == 1 )
+			CLIENT_UTIL_GiveAchievement( EAchievements::LASTMANSTAND );
+		// 4 or more players?
+		if ( iPlayers >= 4 )
+			CLIENT_UTIL_GiveAchievement( EAchievements::THE_ATEAM );
+		CLIENT_UTIL_GiveAchievement( EAchievements::PARTNERINCRIME ); // Only give this if we are actually winning
+		switch ( gmtype )
+		{
+			case ZP::GameModeType_e::GAMEMODE_SURVIVAL:
+			{
+				if ( bHasTimeRanOut )
+					CLIENT_UTIL_GiveAchievement( EAchievements::CLOCKOUT );
+				CLIENT_UTIL_GiveAchievement( EAchievements::FIRST_SURVIVAL );
+			}
+			break;
+
+			case ZP::GameModeType_e::GAMEMODE_OBJECTIVE: CLIENT_UTIL_GiveAchievement( EAchievements::FIRST_OBJECTIVE ); break;
+		}
+	}
+	else if ( iTeam == ZP::TEAM_ZOMBIE && winner == 2 )
+	{
+		CLIENT_UTIL_GiveAchievement( EAchievements::PARTNERINCRIME ); // Only give this if we are actually winning
+		CLIENT_UTIL_GiveAchievement( EAchievements::PARTOFHORDE );
+	}
+}
+
+void CClientViewport::MsgFunc_RRndPost(const char *pszName, int iSize, void *pbuf)
+{
+	// Our meat and potatos are inside this function
+	gHUD.MsgFunc_Rounds( pszName, iSize, pbuf );
+
+	// Show our team menu
+	ShowVGUIMenu( MENU_TEAM );
 }
 
 void CClientViewport::MsgFunc_MOTD(const char *pszName, int iSize, void *pbuf)

@@ -98,7 +98,14 @@ int CHudRoundState::MsgFunc_RoundState(const char *pszName, int iSize, void *pbu
 	BEGIN_READ( pbuf, iSize );
 	int state = READ_SHORT();
 	int winner = READ_SHORT();
-	gHUD.m_RoundState = (ZP::RoundState)state;
+	SetRoundState( (ZP::RoundState)state, winner );
+
+	return 1;
+}
+
+void CHudRoundState::SetRoundState( ZP::RoundState iState, int iWinner )
+{
+	gHUD.m_RoundState = iState;
 
 	switch ( gHUD.m_RoundState )
 	{
@@ -143,7 +150,7 @@ int CHudRoundState::MsgFunc_RoundState(const char *pszName, int iSize, void *pbu
 		    // Zombie Panic! never had any "round win" audio,
 		    // so we will use a modified one from Zombie Panic! Source instead.
 		    const char *szSoundToPlay = nullptr;
-			switch ( winner )
+			switch ( iWinner )
 			{
 				case 1:
 				{
@@ -172,8 +179,6 @@ int CHudRoundState::MsgFunc_RoundState(const char *pszName, int iSize, void *pbu
 	    break;
 	    default: m_pText->SetVisible( false ); break;
 	}
-
-	return 1;
 }
 
 void CHudRoundState::PlayAudio( const char *szAudio )

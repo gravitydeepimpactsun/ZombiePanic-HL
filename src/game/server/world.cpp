@@ -761,7 +761,6 @@ void CWorld::OnWorldCreated()
 		// Old Ammo names for compatibility
 		"ammo_9mmclip",
 		"ammo_9mmar",
-		"ammo_9mmbox",
 		"ammo_556ar",
 		"ammo_556box",
 		"ammo_357",

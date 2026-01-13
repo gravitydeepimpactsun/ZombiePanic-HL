@@ -27,7 +27,7 @@ void CPropStaticSpawn::Spawn()
 	m_bCanUse = false;
 
 	pev->movetype = MOVETYPE_PUSHSTEP;
-	pev->solid = SOLID_BBOX;
+	pev->solid = SOLID_NOT;
 	pev->effects = EF_NODRAW;
 	pev->sequence = 0;
 	pev->gravity = 0;
@@ -54,10 +54,8 @@ void CPropStaticSpawn::Restart()
 		m_bDisabled = false;
 	m_bCanUse = false;
 	pev->movetype = MOVETYPE_PUSHSTEP;
-	pev->solid = SOLID_BBOX;
-	pev->sequence = 0;
-	pev->gravity = 0;
-	SetSequenceBox();
+	pev->solid = SOLID_NOT;
+	pev->effects = EF_NODRAW;
 }
 
 void CPropStaticSpawn::KeyValue( KeyValueData *pkvd )
@@ -98,8 +96,8 @@ void CPropStaticSpawn::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_T
 
 int CPropStaticSpawn::ObjectCaps()
 {
-	if ( pev->effects == EF_NODRAW ) return CBaseEntity::ObjectCaps() | FCAP_MUST_RESET;
-	return CBaseEntity::ObjectCaps() | FCAP_MUST_RESET | FCAP_IMPULSE_USE;
+	if ( pev->effects == EF_NODRAW ) return FCAP_MUST_RESET;
+	return FCAP_MUST_RESET | FCAP_IMPULSE_USE;
 }
 
 

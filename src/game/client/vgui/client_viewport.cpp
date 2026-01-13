@@ -18,6 +18,7 @@
 #include "steam_achievements.h"
 
 #include "zp/hud/zp_roundstate.h"
+#include "zp/hud/zp_beacons.h"
 
 #include "score_panel.h"
 #include "client_motd.h"
@@ -641,6 +642,9 @@ void CClientViewport::MsgFunc_RRndPost(const char *pszName, int iSize, void *pbu
 
 	// Show our team menu
 	ShowVGUIMenu( MENU_TEAM );
+
+	// Reset the beacons
+	CZPBeacons::Get()->ResetBeacons();
 }
 
 void CClientViewport::MsgFunc_MOTD(const char *pszName, int iSize, void *pbuf)

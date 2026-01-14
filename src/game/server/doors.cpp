@@ -68,6 +68,8 @@ public:
 	void EXPORT DoorHitTop(void);
 	void EXPORT DoorHitBottom(void);
 
+	void EXPORT WaitRestart();
+
 	BYTE m_bHealthValue; // some doors are medi-kit doors, they give players health
 
 	BYTE m_bMoveSnd; // sound a door makes while moving
@@ -359,7 +361,18 @@ void CBaseDoor::Spawn()
 
 void CBaseDoor::Restart()
 {
+	// If we have a parent, wait a little
+	if ( GetParent() && !m_bHasRestarted )
+	{
+		pev->nextthink = pev->ltime + 1.0f;
+		// If our parent has a parent, add 1 extra second.
+		if ( GetParent()->GetParent() )
+			pev->nextthink += 1.0f;
+		SetThink( &CBaseDoor::WaitRestart );
+		return;
+	}
 	m_bHasRestarted = true;
+
 	float prevspeed = pev->speed;
 	pev->speed = 999;
 
@@ -834,6 +847,13 @@ void CBaseDoor::DoorHitBottom(void)
 		FireTargets(STRING(pev->netname), m_hActivator, this, USE_TOGGLE, 0);
 }
 
+void CBaseDoor::WaitRestart()
+{
+	m_bHasRestarted = true;
+	SetThink(NULL);
+	Restart();
+}
+
 void CBaseDoor::Blocked(CBaseEntity *pOther)
 {
 	edict_t *pentTarget = NULL;
@@ -1007,6 +1027,17 @@ void CRotDoor::Spawn(void)
 void CRotDoor::Restart()
 {
 	m_bIsLocked = false;
+
+	// If we have a parent, wait a little
+	if ( GetParent() && !m_bHasRestarted )
+	{
+		pev->nextthink = pev->ltime + 1.0f;
+		// If our parent has a parent, add 1 extra second.
+		if ( GetParent()->GetParent() )
+			pev->nextthink += 1.0f;
+		SetThink( &CBaseDoor::WaitRestart );
+		return;
+	}
 	m_bHasRestarted = true;
 
 	CBaseToggle::AxisDir(pev);

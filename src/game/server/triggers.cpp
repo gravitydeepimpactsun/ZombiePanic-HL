@@ -1998,6 +1998,8 @@ public:
 	void Restart();
 	void KeyValue(KeyValueData *pkvd);
 	void Touch(CBaseEntity *pOther);
+	bool IsImportant() const override { return true; }
+	void SoftRemove() override;
 };
 LINK_ENTITY_TO_CLASS(trigger_push, CTriggerPush);
 
@@ -2038,6 +2040,11 @@ void CTriggerPush::Restart()
 	SetUse(&CTriggerPush::ToggleUse);
 }
 
+void CTriggerPush::SoftRemove()
+{
+	pev->solid = SOLID_NOT;
+}
+
 void CTriggerPush ::Touch(CBaseEntity *pOther)
 {
 	if ( !IsFilterValid( pOther ) ) return;
@@ -2062,7 +2069,7 @@ void CTriggerPush ::Touch(CBaseEntity *pOther)
 			pevToucher->velocity = pevToucher->velocity + (pev->speed * pev->movedir);
 			if (pevToucher->velocity.z > 0)
 				pevToucher->flags &= ~FL_ONGROUND;
-			UTIL_Remove(this);
+			SoftRemove();
 		}
 		else
 		{ // Push field, transfer to base velocity
@@ -2077,6 +2084,7 @@ void CTriggerPush ::Touch(CBaseEntity *pOther)
 		}
 	}
 }
+
 
 //======================================
 // teleport trigger

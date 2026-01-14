@@ -173,6 +173,7 @@ public:
 #if defined( SERVER_DLL )
 	virtual void Restart(void);
 	virtual void SetParentPositions(void);
+	virtual bool IsImportant() const { return false; }
 #endif
 
 	virtual void BounceSound() { }

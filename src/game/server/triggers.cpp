@@ -38,10 +38,11 @@
 #include <random>
 #include <algorithm>
 
+#define SF_TRIGGER_SNOWSTORM_START_OFF  1 //spawnflag that makes trigger_snowstorm spawn turned OFF
 #define SF_TRIGGER_PUSH_START_OFF       2 //spawnflag that makes trigger_push spawn turned OFF
 #define SF_TRIGGER_HURT_TARGETONCE      1 // Only fire hurt target once
-#define SF_TRIGGER_HURT_START_OFF       2 //spawnflag that makes trigger_push spawn turned OFF
-#define SF_TRIGGER_HURT_NO_CLIENTS      8 //spawnflag that makes trigger_push spawn turned OFF
+#define SF_TRIGGER_HURT_START_OFF       2 //spawnflag that makes trigger_hurt spawn turned OFF
+#define SF_TRIGGER_HURT_NO_CLIENTS      8 //spawnflag that makes trigger_hurt spawn turned OFF
 #define SF_TRIGGER_HURT_CLIENTONLYFIRE  16 // trigger hurt will only fire its target if it is hurting a client
 #define SF_TRIGGER_HURT_CLIENTONLYTOUCH 32 // only clients may touch this trigger.
 
@@ -638,6 +639,144 @@ public:
 };
 
 LINK_ENTITY_TO_CLASS(trigger_hurt, CTriggerHurt);
+
+//
+// trigger_snowstorm
+//
+
+class CTriggerSnowstorm : public CBaseTrigger
+{
+	SET_BASECLASS( CBaseTrigger );
+public:
+	void Spawn(void);
+	void Restart(void);
+	void KeyValue(KeyValueData *pkvd) override;
+	void EXPORT SnowstormThink(void);
+	void EXPORT SnowstormTouch(CBaseEntity *pOther);
+
+private:
+	struct snowplayer_t
+	{
+		int client;				// The player
+		int dmg;				// Current damage
+		float first_touch;		// Since first touch, used by hurt_delay.
+		float next_breath;		// The next time we will cause the sprite to be created
+		float still_touching;	// Are we still touching? GoldSrc doesn't really have a "EndTouch"
+	};
+	std::vector<snowplayer_t> m_List;
+	int max_dmg;
+	float hurt_delay;
+};
+
+LINK_ENTITY_TO_CLASS(trigger_snowstorm, CTriggerSnowstorm);
+
+void CTriggerSnowstorm::KeyValue(KeyValueData* pkvd)
+{
+	if (FStrEq(pkvd->szKeyName, "max_dmg"))
+	{
+		max_dmg = atoi(pkvd->szValue);
+		pkvd->fHandled = TRUE;
+	}
+	else if (FStrEq(pkvd->szKeyName, "delay"))
+	{
+		hurt_delay = atof(pkvd->szValue);
+		pkvd->fHandled = TRUE;
+	}
+	else
+		BaseClass::KeyValue(pkvd);
+}
+
+void CTriggerSnowstorm::Spawn()
+{
+	InitTrigger();
+
+	SetTouch(&CTriggerSnowstorm::SnowstormTouch);
+	SetUse(&CTriggerSnowstorm::ToggleUse);
+	SetThink(&CTriggerSnowstorm::SnowstormThink);
+
+	pev->nextthink = gpGlobals->time + 1.0f;
+
+	if (FBitSet(pev->spawnflags, SF_TRIGGER_SNOWSTORM_START_OFF)) // if flagged to Start Turned Off, make trigger nonsolid.
+		pev->solid = SOLID_NOT;
+
+	UTIL_SetOrigin(pev, pev->origin); // Link into the list
+}
+
+void CTriggerSnowstorm::Restart()
+{
+	if (FBitSet(pev->spawnflags, SF_TRIGGER_SNOWSTORM_START_OFF)) // if flagged to Start Turned Off, make trigger nonsolid.
+		pev->solid = SOLID_NOT;
+}
+
+void CTriggerSnowstorm::SnowstormThink()
+{
+	float flTime = gpGlobals->time;
+	for ( size_t i = 0; i < m_List.size(); i++ )
+	{
+		snowplayer_t &player = m_List[i];
+		if ( player.still_touching - gpGlobals->time > 0 )
+		{
+			CBasePlayer *plr = (CBasePlayer *)UTIL_PlayerByIndex( player.client );
+
+			// Can we damage the player?
+			if ( flTime > player.first_touch )
+			{
+				int temp_dmg = player.dmg + 1;
+				player.dmg = clamp( temp_dmg, 0, max_dmg );
+				plr->TakeDamage( pev, pev, player.dmg, DMG_SLOWFREEZE );
+				player.first_touch = flTime + 5.0f;
+			}
+
+			// Should we do the breath sprite?
+			if ( flTime > player.next_breath )
+			{
+				// We grab our eye location, and move down the vector a bit
+				Vector vecPos = plr->EyePosition() + Vector( 0, 0, -3 );
+
+				MESSAGE_BEGIN( MSG_PVS, SVC_TEMPENTITY, vecPos );
+				WRITE_BYTE( TE_SPRITE );
+				WRITE_COORD( vecPos.x ); // pos
+				WRITE_COORD( vecPos.y );
+				WRITE_COORD( vecPos.z );
+				WRITE_SHORT( g_engfuncs.pfnModelIndex( "sprites/effects/rainsplash.spr" ) ); // sprite
+				WRITE_BYTE( 5 ); // scale
+				WRITE_BYTE( 200 ); // alpha
+				MESSAGE_END();
+
+				player.next_breath = flTime + 3.0f;
+			}
+		}
+		else
+			m_List.erase( m_List.begin() + i );
+	}
+	pev->nextthink = flTime + 0.1f;
+}
+
+void CTriggerSnowstorm::SnowstormTouch( CBaseEntity* pOther )
+{
+	// Make sure this is a valid ent
+	if ( !pOther ) return;
+	// We only care about players.
+	if ( !pOther->IsPlayer() ) return;
+
+	for (size_t i = 0; i < m_List.size(); i++)
+	{
+		snowplayer_t &player = m_List[i];
+		if ( player.client == pOther->entindex() )
+		{
+			player.still_touching = gpGlobals->time + 0.15f;
+			return;
+		}
+	}
+
+	snowplayer_t new_player;
+	new_player.client = pOther->entindex();
+	new_player.dmg = 0;
+	new_player.first_touch = gpGlobals->time + hurt_delay;
+	new_player.still_touching = gpGlobals->time + 0.15f;
+	new_player.next_breath = gpGlobals->time + 1.0f;
+	m_List.push_back( new_player );
+}
 
 //
 // trigger_monsterjump

@@ -1004,6 +1004,9 @@ void ClientPrecache(void)
 	// Weapon chrome
 	PRECACHE_MODEL("sprites/weapon_highlight.spr");
 
+	// trigger_snowstorm
+	PRECACHE_MODEL("sprites/effects/rainsplash.spr");
+
 	// Precache the player models
 	PrecachePlayerModels();
 

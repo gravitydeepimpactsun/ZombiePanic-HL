@@ -56,6 +56,7 @@ void CMusicManager::OnMapStart()
 
 void CMusicManager::OnThink()
 {
+	if ( !m_bHasStarted ) return;
 	if ( !HasPlayableMusic() ) return;
 	if ( m_flPlayTime - GetEngineTime() > 0 ) return;
 	PlayNextTrack();

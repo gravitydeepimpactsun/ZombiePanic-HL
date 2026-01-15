@@ -136,12 +136,10 @@ CBaseMenu::CBaseMenu( vgui2::Panel *pParent )
 	for ( int i = 0; i < MenuPagesTable_t::PAGE_MAX; i++ )
 		pPage[i] = nullptr;
 	m_Page = MenuPagesTable_t::PAGE_MAIN;
-	m_hPatreonButton = nullptr;
 	m_hDiscordButton = nullptr;
 	m_hMessageBox = nullptr;
 
-	// TODO: Go check the folders, and randomise it.
-	SetNewBackgroundImage( "background01" );
+	ReadBackgroundFolder();
 }
 
 void CBaseMenu::OnCommand( const char *pcCommand )
@@ -308,20 +306,6 @@ void CBaseMenu::SetMenuBounds( const int &x, const int &y, const int &w, const i
 		SetupBackgroundBaseBounds( 2, i );
 	}
 
-	// Because Steam doesn't want people to support outside of their ecosystem? wow.
-#if 0
-	// Create our dialog right away!
-	if ( !m_hPatreonButton )
-	{
-		int wide = GetScaledValue( 128 );
-		int tall = GetScaledValue( 64 );
-		int nudge = GetScaledValue( 50 );
-		m_hPatreonButton = new CImageMenuButton( this, "ui/patreon_button", "https://patreon.com/wuffesan" );
-		m_hPatreonButton->MakePopup( false, false );
-		m_hPatreonButton->SetContent( (w - wide) - nudge, (t - tall) - nudge, wide, tall );
-		m_hPatreonButton->MoveToFront();
-	}
-#endif
 	// Create our dialog right away!
 	if ( !m_hDiscordButton )
 	{
@@ -371,7 +355,62 @@ void CBaseMenu::ToggleBackground( bool bVisible )
 	}
 }
 
-void CBaseMenu::CreateBackgroundBase( int iTopIndex, int iImages )
+void CBaseMenu::ReadBackgroundFolder()
+{
+	std::vector<std::string> m_List;
+
+	// Check our folders, and see if we have the TGA files.
+	FileFindHandle_t fh;
+	char const *fn = g_pFullFileSystem->FindFirst( "ui/backgrounds/*.*", &fh );
+	do
+	{
+		// Setup the path string, and lowercase it, so we don't need to search for both uppercase, and lowercase files.
+		char strFile[ 4028 ];
+		bool isSameDir = false;
+		strFile[ 0 ] = 0;
+		V_strcpy_safe( strFile, fn );
+		Q_strlower( strFile );
+
+		// Ignore the same folder
+		if ( vgui2::FStrEq( strFile, "." ) || vgui2::FStrEq( strFile, ".." ) )
+			isSameDir = true;
+
+		// Folder found!
+		if ( g_pFullFileSystem->FindIsDirectory( fh ) && !isSameDir )
+		{
+			// Setup the string
+			std::string strBasePath = "ui/backgrounds/" + std::string( strFile );
+			bool bHasFile = true;
+			for ( int i = 0; i < 4; i++ )
+			{
+				// Top
+				if ( !g_pFullFileSystem->FileExists( vgui2::VarArgs( "%s/%i_%i.tga", strBasePath.c_str(), 0, i ) ) )
+					bHasFile = false;
+				// Middle
+				if ( !g_pFullFileSystem->FileExists( vgui2::VarArgs( "%s/%i_%i.tga", strBasePath.c_str(), 1, i ) ) )
+					bHasFile = false;
+				// Bottom
+				if ( !g_pFullFileSystem->FileExists( vgui2::VarArgs( "%s/%i_%i.tga", strBasePath.c_str(), 2, i ) ) )
+					bHasFile = false;
+			}
+			if ( bHasFile )
+				m_List.push_back( strFile );
+		}
+
+		fn = g_pFullFileSystem->FindNext( fh );
+	}
+	while(fn);
+
+	g_pFullFileSystem->FindClose( fh );
+
+	// If the list is empty, just read background01
+	if ( m_List.size() == 0 )
+		SetNewBackgroundImage( "background01" );
+	else
+		SetNewBackgroundImage( m_List[ RandomInt( 0, m_List.size() - 1 ) ].c_str() );
+}
+
+void CBaseMenu::CreateBackgroundBase(int iTopIndex, int iImages)
 {
 	m_pBackgroundImage[iTopIndex][iImages] = new vgui2::ImagePanel( this, vgui2::VarArgs( "bg%i_%i", iTopIndex, iImages ) );
 	m_pBackgroundImage[iTopIndex][iImages]->SetFillColor( Color( 0, 0, 0, 255 ) );
@@ -397,8 +436,6 @@ void CBaseMenu::InternalMousePressed(int code)
 void CBaseMenu::DoDialogHackFix()
 {
 	// Make sure we move this to the front!
-	if ( m_hPatreonButton && HasFocus() )
-		m_hPatreonButton->MoveToFront();
 	if ( m_hDiscordButton && HasFocus() )
 		m_hDiscordButton->MoveToFront();
 

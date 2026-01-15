@@ -24,6 +24,7 @@ public:
 	void ToggleBackground( bool bVisible );
 
 protected:
+	void ReadBackgroundFolder();
 	void CreateBackgroundBase( int iTopIndex, int iImages );
 	void SetupBackgroundBaseBounds( int iTopIndex, int iImages );
 	void InternalMousePressed( int code ) override;
@@ -31,7 +32,6 @@ protected:
 	void DoDialogHackFix();
 
 private:
-	vgui2::DHANDLE<CImageMenuButton> m_hPatreonButton;
 	vgui2::DHANDLE<CImageMenuButton> m_hDiscordButton;
 	vgui2::DHANDLE<vgui2::MessageBox> m_hMessageBox;
 	MenuPagesTable_t m_Page;

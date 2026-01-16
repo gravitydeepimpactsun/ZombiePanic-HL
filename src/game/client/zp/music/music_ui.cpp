@@ -76,9 +76,10 @@ void CMusicUI::NewTrackPlaying()
 	if ( !pString ) pString = L"Now Playing:";
 	char szNowPlaying[128];
 	g_pVGuiLocalize->ConvertUnicodeToANSI( pString, szNowPlaying, sizeof( szNowPlaying ) );
-	m_pTextTitle->SetColorCodedText( vgui2::VarArgs( "%s %s", szNowPlaying, CMusicManager::GetInstance()->GetTrackName() ) );
-	m_pTextTitleBG1->SetColorCodedText( vgui2::VarArgs( "%s %s", szNowPlaying, CMusicManager::GetInstance()->GetTrackName() ) );
-	m_pTextTitleBG2->SetColorCodedText( vgui2::VarArgs( "%s %s", szNowPlaying, CMusicManager::GetInstance()->GetTrackName() ) );
+	const char *szFormatedString = vgui2::VarArgs( "%s %s", szNowPlaying, CMusicManager::GetInstance()->GetTrackName() );
+	m_pTextTitle->SetColorCodedText( szFormatedString );
+	m_pTextTitleBG1->SetColorCodedText( szFormatedString );
+	m_pTextTitleBG2->SetColorCodedText( szFormatedString );
 	m_flDrawTime = gHUD.m_flTime + 4.0;
 }
 

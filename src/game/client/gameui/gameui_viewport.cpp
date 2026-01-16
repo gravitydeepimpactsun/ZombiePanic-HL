@@ -883,6 +883,8 @@ void CGameUIViewport::MountWorkshopItem( vgui2::WorkshopItem WorkshopFile, const
 				data->file = strNewFilePathDest;
 				CreateSimpleThread( RemoveFilesFromAddons, data );
 			}
+
+			AddExtraWorkshopInfoBoxTime( 1.0f, 2.0f );
 		}
 
 		fn = g_pFullFileSystem->FindNext( fh );
@@ -968,6 +970,12 @@ void CGameUIViewport::SetWorkshopInfoBoxProgress( float flProgress )
 {
 	if ( !m_hWorkshopInfoBox ) return;
 	m_hWorkshopInfoBox->SetProgressState( flProgress );
+}
+
+void CGameUIViewport::AddExtraWorkshopInfoBoxTime( float flTime, float flMaxTime )
+{
+	if ( !m_hWorkshopInfoBox ) return;
+	m_hWorkshopInfoBox->AddExtraTime( flTime, flMaxTime );
 }
 
 bool CGameUIViewport::WorkshopIDIsMounted( PublishedFileId_t nWorkshopID )

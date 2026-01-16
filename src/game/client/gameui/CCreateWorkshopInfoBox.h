@@ -29,6 +29,13 @@ public:
 	CCreateWorkshopInfoBox(vgui2::Panel *pParent);
 	void SetData( const char *szString, WorkshopInfoBoxState nState );
 	void SetProgressState( float flProgress );
+	inline void AddExtraTime( float flTime, float flMaxTime )
+	{
+		if ( m_RemoveTime >= flMaxTime )
+			m_RemoveTime = flMaxTime;
+		else
+			m_RemoveTime += flTime;
+	}
 
 	WorkshopInfoBoxState GetState() const { return m_state; }
 

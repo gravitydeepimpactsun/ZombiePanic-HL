@@ -54,7 +54,7 @@ void CCreateWorkshopInfoBox::SetData( const char *szString, WorkshopInfoBoxState
 		m_RemoveTime = 2.0f;
 	// Delay the disconnect. Because we may be changing level
 	else if ( m_state == WorkshopInfoBoxState::State_DownloadingMapContentDisconnect )
-		m_RemoveTime = 1.0f;
+		m_RemoveTime = 3.0f;
 }
 
 void CCreateWorkshopInfoBox::SetProgressState( float flProgress )

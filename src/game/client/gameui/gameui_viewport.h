@@ -72,6 +72,7 @@ public:
 	WorkshopInfoBoxState GetWorkshopInfoBoxState();
 	void ShowWorkshopInfoBox( const char *szText, WorkshopInfoBoxState nState );
 	void SetWorkshopInfoBoxProgress( float flProgress );
+	void AddExtraWorkshopInfoBoxTime( float flTime, float flMaxTime );
 
 	bool WorkshopIDIsMounted( PublishedFileId_t nWorkshopID );
 	bool ShouldAutoMount( PublishedFileId_t nWorkshopID );

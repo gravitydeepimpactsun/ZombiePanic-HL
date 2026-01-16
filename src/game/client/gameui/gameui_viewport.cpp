@@ -206,7 +206,8 @@ void CGameUIViewport::OnThink()
 		if ( g_bIsConnected != bConnected )
 		{
 			g_bIsConnected = bConnected;
-			CMusicManager::GetInstance()->OnMapShutdown();
+			if ( !g_bIsConnected )
+				CMusicManager::GetInstance()->OnMapShutdown();
 			m_hMenu->Repopulate();
 			m_hMenu->ToggleBackground( !g_bIsConnected );
 		}

@@ -50,7 +50,7 @@ static BackgroundBounds_s BackgroundImageBounds[3][4] = {
 /// <summary>
 /// This is the most hacky shit ever in this piece of code.
 /// We have no access to the GameUI, so we gotta do this fucked up shit.
-/// I do not recommend doing this, and ths is terrible as fuck.
+/// I do not recommend doing this, and this is terrible as fuck.
 /// </summary>
 /// <returns>GameMenu VPanel</returns>
 static void GetGameMenuVPanelItems( vgui2::VPANEL &vCreateServer, vgui2::VPANEL &vOpenOptionsDialog, vgui2::VPANEL &vMenuItem1, vgui2::VPANEL &vMenuItem2 )

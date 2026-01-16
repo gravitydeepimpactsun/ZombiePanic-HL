@@ -89,9 +89,11 @@ public:
 	void AddGrenade( int type, CGrenade *grenade );				///< add an active grenade to the bot's awareness
 	void RemoveGrenade( CGrenade *grenade );					///< the grenade entity in the world is going away
 	void ValidateActiveGrenades( void );						///< destroy any invalid active grenades
-	void DestroyAllGrenades( void );
+	void DestroyAllGrenades(void);
+#ifdef CSTRIKE_DLL
 	bool IsLineBlockedBySmoke( const Vector *from, const Vector *to );	///< return true if line intersects smoke volume
 	bool IsInsideSmokeCloud( const Vector *pos );				///< return true if position is inside a smoke cloud
+#endif
 
 private:
 	ActiveGrenadeList m_activeGrenadeList;///< the list of active grenades the bots are aware of

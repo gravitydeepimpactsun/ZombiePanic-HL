@@ -19,15 +19,16 @@
 #include "gamerules.h"
 #include "player.h"
 #include "client.h"
-#include "perf_counter.h"
 
 #include "bot.h"
 #include "bot_manager.h"
 #include "nav_area.h"
 #include "bot_util.h"
-#include "hostage.h"
 
+#ifdef CSTRIKE_DLL
+#include "hostage.h"
 #include "tutor.h"
+#endif
 
 const float smokeRadius = 115.0f;		///< for smoke grenades
 
@@ -243,11 +244,13 @@ void CBotManager::OnEvent( GameEventType event, CBaseEntity *entity, CBaseEntity
 		bot->OnEvent( event, entity, other );
 	}
 
+#ifdef CSTRIKE_DLL
 	if (TheTutor)
 		TheTutor->OnEvent( event, entity, other );
 
 	if (g_pHostages)
 		g_pHostages->OnEvent( event, entity, other );
+#endif
 }
 
 //--------------------------------------------------------------------------------------------------------------
@@ -310,6 +313,7 @@ void CBotManager::DestroyAllGrenades( void )
 	m_activeGrenadeList.clear();
 }
 
+#ifdef CSTRIKE_DLL
 //--------------------------------------------------------------------------------------------------------------
 /**
  * Return true if position is inside a smoke cloud
@@ -472,3 +476,4 @@ bool CBotManager::IsLineBlockedBySmoke( const Vector *from, const Vector *to )
 	// return true if the total length of smoke-covered line-of-sight is too much
 	return (totalSmokedLength > maxSmokedLength);
 }
+#endif

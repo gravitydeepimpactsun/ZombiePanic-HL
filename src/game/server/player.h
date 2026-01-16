@@ -473,8 +473,11 @@ private:
 public:
 	CBaseEntity *FindUseEntity(); // Backported from Source SDK 2013
 
+	virtual bool IsBot( void ) { return false; }
+
 	void GiveCurrentAmmo();
 	const char *GetPlayerName() const;
+	int GetTeamNumber() const;
 
 	const char *GetAPIRetrieveKey() const { return m_szAPIRetrieveKey; }
 	void ClearAPIRetrieveKey() { m_szAPIRetrieveKey[0] = '\0'; SetAPIPassed( false ); }

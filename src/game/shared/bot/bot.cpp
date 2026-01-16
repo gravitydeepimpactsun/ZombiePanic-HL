@@ -420,7 +420,7 @@ bool CBot::IsEnemy( CBaseEntity *ent ) const
 	CBasePlayer *player = static_cast<CBasePlayer *>( ent );
 
 	// if they are on our team, they are our friends
-	if (player->m_iTeam == m_iTeam)
+	if (player->GetTeamNumber() == GetTeamNumber())
 		return false;
 
 	// yep, we hate 'em
@@ -512,7 +512,7 @@ bool CBot::IsLocalPlayerWatchingMe( void ) const
 	if (player == NULL)
 		return false;
 
-	if (player->pev->flags & FL_SPECTATOR || player->m_iTeam == SPECTATOR)
+	if (player->pev->flags & FL_SPECTATOR || player->GetTeamNumber() == ZP::TEAM_OBSERVER)
 	{
 		if (player->pev->iuser2 == myIndex)
 		{
@@ -596,7 +596,7 @@ ActiveGrenade::ActiveGrenade( int weaponID, CGrenade *grenadeEntity )
 //--------------------------------------------------------------------------------------------------------------
 void ActiveGrenade::OnEntityGone( void )									///< called when the grenade in the world goes away
 {
-	if (m_id == WEAPON_SMOKEGRENADE)
+	if (m_id == WEAPON_MOLOTOV)
 	{
 		// smoke lingers after grenade is gone
 		const float smokeLingerTime = 4.0f;

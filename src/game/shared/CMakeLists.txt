@@ -1,4 +1,6 @@
 add_subdirectory( zp )
+# cs bot code from HL25th anniversary
+#add_subdirectory( bot )
 
 add_sources(
 	CMakeLists.txt

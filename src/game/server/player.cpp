@@ -595,6 +595,11 @@ const char *CBasePlayer::GetPlayerName() const
 	return STRING( pev->netname );
 }
 
+int CBasePlayer::GetTeamNumber() const
+{
+	return pev->team;
+}
+
 void CBasePlayer::DoHeadshotExploded( const Vector &vecPos )
 {
 	int iSize = 1;

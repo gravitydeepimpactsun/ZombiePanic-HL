@@ -31,9 +31,11 @@
 
 #include "bot_util.h"
 
+#ifdef CSTRIKE_DLL
 /// @todo Abstract these out of here (TheBotPhrases)
 #include "cs_bot.h"
 #include "cs_bot_manager.h"
+#endif
 
 #include "nav.h"
 #include "nav_node.h"

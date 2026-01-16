@@ -30,10 +30,12 @@
 #include "gamerules.h"
 #include "bot_util.h"
 
+#ifdef CSTRIKE_DLL
 /// @todo Abstract hostages and cs-bots out of here
 #include "cs_bot.h"
 #include "cs_bot_manager.h"
 #include "hostage.h"
+#endif
 
 #include "nav.h"
 #include "nav_node.h"

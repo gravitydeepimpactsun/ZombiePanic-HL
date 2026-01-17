@@ -70,6 +70,7 @@ public:
 	void SetMountedState( PublishedFileId_t nWorkshopID, bool state );
 
 	WorkshopInfoBoxState GetWorkshopInfoBoxState();
+	bool IsWorkshopInfoBoxVisible();
 	void ShowWorkshopInfoBox( const char *szText, WorkshopInfoBoxState nState );
 	void SetWorkshopInfoBoxProgress( float flProgress );
 	void AddExtraWorkshopInfoBoxTime( float flTime, float flMaxTime );

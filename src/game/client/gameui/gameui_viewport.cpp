@@ -410,6 +410,11 @@ void CGameUIViewport::CheckWorkshopSubscriptions()
 		m_flQueryWait -= 1.0f;
 		return;
 	}
+
+	// It's already visible. Stop.
+	if ( IsWorkshopInfoBoxVisible() )
+		return;
+
 	SetQueryWait( 1.55f );
 
 	// Get dynamic count of subscribed items and allocate accordingly.
@@ -456,6 +461,7 @@ void CGameUIViewport::CheckWorkshopSubscriptions()
 		{
 			CGameUIViewport::Get()->ShowWorkshopInfoBox( WorkshopAddon.szName, WorkshopInfoBoxState::State_Dismounting );
 			CGameUIViewport::Get()->MountWorkshopItem( WorkshopAddon, nullptr, nullptr );
+			break;
 		}
 		else
 			RemoveWorkshopItem( iID );
@@ -734,7 +740,10 @@ struct DeleteFile
 
 unsigned RemoveFilesFromAddons( void *Data )
 {
-	g_pFullFileSystem->RemoveFile( ((DeleteFile *)Data)->file.c_str(), "ADDON" );
+	std::string szFile = ((DeleteFile *)Data)->file;
+	std::string szFrom = "zp_addon/" + szFile;
+	if ( std::filesystem::exists( szFrom ) )
+		g_pFullFileSystem->RemoveFile( szFile.c_str(), "ADDON" );
 	return 1;
 }
 
@@ -876,15 +885,16 @@ void CGameUIViewport::MountWorkshopItem( vgui2::WorkshopItem WorkshopFile, const
 #endif
 
 			if ( !WorkshopFile.bMounted )
+			{
 				CreateSimpleThread( CopyFilesToNewDestination, data );
+				AddExtraWorkshopInfoBoxTime( 1.0f, 2.0f );
+			}
 			else
 			{
 				DeleteFile *data = new DeleteFile;
 				data->file = strNewFilePathDest;
 				CreateSimpleThread( RemoveFilesFromAddons, data );
 			}
-
-			AddExtraWorkshopInfoBoxTime( 1.0f, 2.0f );
 		}
 
 		fn = g_pFullFileSystem->FindNext( fh );
@@ -938,6 +948,12 @@ WorkshopInfoBoxState CGameUIViewport::GetWorkshopInfoBoxState()
 	if ( !m_hWorkshopInfoBox )
 		return WorkshopInfoBoxState::State_GatheringData;
 	return m_hWorkshopInfoBox->GetState();
+}
+
+bool CGameUIViewport::IsWorkshopInfoBoxVisible()
+{
+	if ( m_hWorkshopInfoBox ) return true;
+	return false;
 }
 
 void CGameUIViewport::ShowWorkshopInfoBox(const char *szText, WorkshopInfoBoxState nState)

@@ -714,18 +714,11 @@ bool CompareFiles( const std::string &p1, const std::string &p2 )
 		return false; //size mismatch
 	}
 
-	//seek back to beginning and use std::equal to compare contents
-	f1.seekg(0, std::ifstream::beg);
-	f2.seekg(0, std::ifstream::beg);
-	bool bRet = std::equal(std::istreambuf_iterator<char>(f1.rdbuf()),
-	    std::istreambuf_iterator<char>(),
-	    std::istreambuf_iterator<char>(f2.rdbuf()));
-
 	// Make sure to close the files
 	f1.close();
 	f2.close();
 
-	return bRet;
+	return true;
 }
 
 unsigned CopyFilesToNewDestination( void *Data )

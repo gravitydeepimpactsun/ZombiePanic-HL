@@ -123,6 +123,8 @@ void CWorkshopSubList::UpdateItems()
 
 		vgui2::Label *pError = new vgui2::Label( this, "Error", "" );
 		pError->SetPaintBackgroundEnabled( false );
+		if ( hTextFont != vgui2::INVALID_FONT )
+			pError->SetFont( hTextFont );
 
 		wchar_t *pStr = g_pVGuiLocalize->Find( "ZP_UI_Workshop_AddonError" );
 		if ( pStr )

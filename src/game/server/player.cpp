@@ -1822,6 +1822,8 @@ void CBasePlayer::StartDeathCam(void)
 
 	CopyToBodyQue(pev);
 
+	const int PLAYER_HEIGHT_ADJUSTMENT = 36;
+
 	pSpot = FIND_ENTITY_BY_CLASSNAME(NULL, "info_player_observer");
 	if (!FNullEnt(pSpot))
 	{
@@ -1840,7 +1842,7 @@ void CBasePlayer::StartDeathCam(void)
 			iRand--;
 		}
 
-		UTIL_SetOrigin(pev, pSpot->v.origin);
+		UTIL_SetOrigin(pev, pSpot->v.origin - Vector( 0, 0, PLAYER_HEIGHT_ADJUSTMENT ) );
 		// Find target for intermission
 		edict_t *pTarget = FIND_ENTITY_BY_TARGETNAME(NULL, STRING(pSpot->v.target));
 		if (pTarget && !FNullEnt(pTarget))
@@ -1885,6 +1887,7 @@ void CBasePlayer::StartWelcomeCam(void)
 
 	m_bInWelcomeCam = TRUE;
 
+	const int PLAYER_HEIGHT_ADJUSTMENT = 36;
 	edict_t *pSpot, *pNewSpot;
 	pSpot = FIND_ENTITY_BY_CLASSNAME(NULL, "info_player_observer");
 	if (!FNullEnt(pSpot))
@@ -1904,7 +1907,7 @@ void CBasePlayer::StartWelcomeCam(void)
 			iRand--;
 		}
 
-		UTIL_SetOrigin(pev, pSpot->v.origin);
+		UTIL_SetOrigin(pev, pSpot->v.origin - Vector( 0, 0, PLAYER_HEIGHT_ADJUSTMENT ) );
 		// Find target for intermission
 		edict_t *pTarget = FIND_ENTITY_BY_TARGETNAME(NULL, STRING(pSpot->v.target));
 		if (pTarget && !FNullEnt(pTarget))

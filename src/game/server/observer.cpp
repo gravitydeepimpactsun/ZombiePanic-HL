@@ -258,9 +258,9 @@ void CBasePlayer::Observer_FindNextPlayer(bool bReverse, bool bOverview)
 // Find the next spot and move spectator to it
 void CBasePlayer::Observer_FindNextSpot(bool bReverse)
 {
-	const int classesCount = 3;
-	char *classes[] = { "info_intermission", "info_player_observer", "info_player_start" };
-	vec_t offsets[] = { 0, VEC_VIEW.z, VEC_VIEW.z, VEC_VIEW.z }; // View offset for spots (will looks like we spawn)
+	const int classesCount = 2;
+	char *classes[] = { "info_player_observer", "info_player_start" };
+	const int PLAYER_HEIGHT_ADJUSTMENT = 36;
 
 	int iStartClass = 0;
 	if (m_hObserverTarget)
@@ -279,7 +279,6 @@ void CBasePlayer::Observer_FindNextSpot(bool bReverse)
 	}
 
 	CBaseEntity *pSpot = m_hObserverTarget, *pResultSpot = NULL;
-	vec_t iResultSpotOffset;
 
 	for (int i = 0; i < classesCount; i++)
 	{
@@ -295,7 +294,6 @@ void CBasePlayer::Observer_FindNextSpot(bool bReverse)
 
 		// Spot found
 		pResultSpot = pSpot;
-		iResultSpotOffset = offsets[current];
 		break;
 	}
 
@@ -308,7 +306,7 @@ void CBasePlayer::Observer_FindNextSpot(bool bReverse)
 	m_hObserverTarget = pResultSpot;
 
 	// Move player there
-	UTIL_SetOrigin(pev, m_hObserverTarget->pev->origin + Vector(0, 0, iResultSpotOffset));
+	UTIL_SetOrigin(pev, m_hObserverTarget->pev->origin);
 	// Find target for intermission
 	edict_t *pTarget = FIND_ENTITY_BY_TARGETNAME(NULL, STRING(m_hObserverTarget->pev->target));
 	if (pTarget && !FNullEnt(pTarget))

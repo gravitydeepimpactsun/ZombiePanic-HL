@@ -60,6 +60,7 @@ Called by SpectatorThink if the spectator entered an impulse
 */
 void CBaseSpectator::SpectatorImpulseCommand(void)
 {
+	const int PLAYER_HEIGHT_ADJUSTMENT = 36;
 	static edict_t *pGoal = NULL;
 	edict_t *pPreviousGoal;
 	edict_t *pCurrentGoal;
@@ -98,7 +99,7 @@ void CBaseSpectator::SpectatorImpulseCommand(void)
 			break;
 
 		pGoal = pCurrentGoal;
-		UTIL_SetOrigin(pev, pGoal->v.origin);
+		UTIL_SetOrigin(pev, pGoal->v.origin - Vector( 0, 0, PLAYER_HEIGHT_ADJUSTMENT ));
 		pev->angles = pGoal->v.angles;
 		pev->fixangle = FALSE;
 		break;

@@ -77,7 +77,17 @@ edict_t *CGameRules ::GetPlayerSpawnSpot(CBasePlayer *pPlayer)
 {
 	edict_t *pentSpawnSpot = EntSelectSpawnPoint(pPlayer);
 
-	pPlayer->pev->origin = VARS(pentSpawnSpot)->origin + Vector(0, 0, 1);
+	// We now read from the origin point, so we need to remove some height from
+	// the player to keep them from getting stuck in the ceiling.
+	// In short, we aren't using the player model as a base anymore, but a simple camera model that
+	// reads at it's origin point.
+	const int PLAYER_HEIGHT_ADJUSTMENT = 36;
+
+	// Make sure this is an info_player_observer entity
+	if ( FClassnameIs( pentSpawnSpot, "info_player_observer" ) )
+		pPlayer->pev->origin = VARS(pentSpawnSpot)->origin - Vector( 0, 0, PLAYER_HEIGHT_ADJUSTMENT );
+	else
+		pPlayer->pev->origin = VARS(pentSpawnSpot)->origin + Vector( 0, 0, 1 );
 	pPlayer->pev->v_angle = g_vecZero;
 	pPlayer->pev->velocity = g_vecZero;
 	pPlayer->pev->angles = VARS(pentSpawnSpot)->angles;

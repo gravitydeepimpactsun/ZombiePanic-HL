@@ -38,6 +38,7 @@
 #include "zp/gamemodes/zp_gamemodebase.h"
 #include "zp/weapons/CWeaponBase.h"
 #include "zp/weapons/CWeaponBaseSingleAction.h"
+#include "zp/weapons/weapon_sidearm_revolver.h"
 #include "zp/zp_gamerules.h"
 #include "zp/zp_shared.h"
 #include "zp/zp_spawnpoint_ent.h"
@@ -3078,6 +3079,11 @@ void CBasePlayer::DropWeapon( CBasePlayerWeapon *pWeapon, bool bAutoSwitch, bool
 
 	int nClipWeHad = pWeapon->m_iClip;
 	int nDefAmmo = pWeapon->m_iDefaultAmmo;
+	// If revolver, then check if we unloaded it or not.
+	bool bHasUnloadedRevolver = false;
+	CWeaponSideArmRevolver *pRevolver = dynamic_cast< CWeaponSideArmRevolver* >( pWeapon );
+	if ( pRevolver )
+		bHasUnloadedRevolver = pRevolver->HasBeenUnloaded();
 
 	if ( bAutoSwitch )
 		g_pGameRules->GetNextBestWeapon( this, pWeapon );
@@ -3108,6 +3114,11 @@ void CBasePlayer::DropWeapon( CBasePlayerWeapon *pWeapon, bool bAutoSwitch, bool
 		pNewWeapon->pev->velocity = vecDir * 300 + RandomVector( -200, 200 );
 	else
 		pNewWeapon->pev->velocity = vecDir * 300 + vecDir * 100;
+
+	// Check revolver unloaded state
+	pRevolver = dynamic_cast< CWeaponSideArmRevolver* >( pNewWeapon );
+	if ( pRevolver )
+		pRevolver->m_bHasUnloaded = bHasUnloadedRevolver;
 
 	// Play drop sound
 	EMIT_SOUND(ENT(pNewWeapon->pev), CHAN_VOICE, "player/pl_drop_weapon.wav", 1, ATTN_NORM);

@@ -22,6 +22,8 @@ public:
 	void Reload( void );
 	void PrimaryAttack( void );
 	void WeaponIdle( void );
+	inline bool HasBeenUnloaded() const { return ( m_bHasUnloaded && m_iClip == 0 ); }
+	bool m_bHasUnloaded = false;
 };
 
 #endif

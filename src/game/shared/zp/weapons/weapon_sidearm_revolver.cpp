@@ -62,7 +62,7 @@ float CWeaponSideArmRevolver::DoHolsterAnimation()
 #if defined( SERVER_DLL )
 	m_pPlayer->m_iWeaponKillCount = 0;
 #endif
-	SendWeaponAnim( ANIM_357_HOLSTER );
+	SendWeaponAnim( HasBeenUnloaded() ? ANIM_357_UNLOADED_HOLSTER : ANIM_357_HOLSTER );
 	return GetAnimationTime( 15, 30 );
 }
 
@@ -100,17 +100,18 @@ float CWeaponSideArmRevolver::Deploy()
 	if ( m_pPlayer )
 		m_pPlayer->m_iWeaponKillCount = 0;
 #endif
-	DoDeploy( "models/v_357.mdl", "models/p_357.mdl", ANIM_357_DRAW, "python" );
+	DoDeploy( "models/v_357.mdl", "models/p_357.mdl", HasBeenUnloaded() ? ANIM_357_UNLOADED_DRAW : ANIM_357_DRAW, "python" );
 	return GetAnimationTime( 21, 16 );
 }
 
 float CWeaponSideArmRevolver::DoWeaponUnload()
 {
 	SendWeaponAnim( ANIM_357_UNLOAD );
-	AddWeaponSound( "weapons/revolver/open.wav", 1, ATTN_NORM, GetAnimationTime( 16, 20 ) );
-	AddWeaponSound( "weapons/revolver/remove.wav", 1, ATTN_NORM, GetAnimationTime( 23, 20 ) );
-	AddWeaponSound( "weapons/revolver/close.wav", 1, ATTN_NORM, GetAnimationTime( 55, 20 ) );
-	return GetAnimationTime( 75, 20 );
+	AddWeaponSound( "weapons/revolver/open.wav", 1, ATTN_NORM, GetAnimationTime( 21, 20 ) );
+	AddWeaponSound( "weapons/revolver/remove.wav", 1, ATTN_NORM, GetAnimationTime( 30, 20 ) );
+	AddWeaponSound( "weapons/revolver/close.wav", 1, ATTN_NORM, GetAnimationTime( 44, 20 ) );
+	m_bHasUnloaded = true;
+	return GetAnimationTime( 76, 20 );
 }
 
 void CWeaponSideArmRevolver::PrimaryAttack()
@@ -176,18 +177,28 @@ void CWeaponSideArmRevolver::PrimaryAttack()
 void CWeaponSideArmRevolver::Reload(void)
 {
 	if ( m_pPlayer->ammo_357 <= 0 ) return;
-	if ( DefaultReload( ANIM_357_RELOAD, GetAnimationTime( 75, 20 ) ) )
+	if ( DefaultReload( HasBeenUnloaded() ? ANIM_357_UNLOADED_RELOAD : ANIM_357_RELOAD, GetAnimationTime( HasBeenUnloaded() ? 62 : 75, 20 ) ) )
 	{
 		// Make sure we only use PLAYER_RELOAD and not empty, since we only have 1 reload animation anyway.
 		m_pPlayer->SetAnimation( PLAYER_RELOAD );
 #if defined( SERVER_DLL )
 		m_pPlayer->m_iWeaponKillCount = 0;
 #endif
-		AddWeaponSound( "weapons/revolver/open.wav", 1, ATTN_NORM, GetAnimationTime( 16, 20 ) );
-		AddWeaponSound( "weapons/revolver/remove.wav", 1, ATTN_NORM, GetAnimationTime( 23, 20 ) );
-		AddWeaponSound( "EVENT_SHELLS", 1, ATTN_NORM, GetAnimationTime( 30, 20 ) );
-		AddWeaponSound( "weapons/revolver/insert.wav", 1, ATTN_NORM, GetAnimationTime( 43, 20 ) );
-		AddWeaponSound( "weapons/revolver/close.wav", 1, ATTN_NORM, GetAnimationTime( 55, 20 ) );
+		if ( HasBeenUnloaded() )
+		{
+			AddWeaponSound( "weapons/revolver/open.wav", 1, ATTN_NORM, GetAnimationTime( 16, 20 ) );
+			AddWeaponSound( "weapons/revolver/insert.wav", 1, ATTN_NORM, GetAnimationTime( 34, 20 ) );
+			AddWeaponSound( "weapons/revolver/close.wav", 1, ATTN_NORM, GetAnimationTime( 45, 20 ) );
+		}
+		else
+		{
+			AddWeaponSound( "weapons/revolver/open.wav", 1, ATTN_NORM, GetAnimationTime( 16, 20 ) );
+			AddWeaponSound( "weapons/revolver/remove.wav", 1, ATTN_NORM, GetAnimationTime( 23, 20 ) );
+			AddWeaponSound( "EVENT_SHELLS", 1, ATTN_NORM, GetAnimationTime( 30, 20 ) );
+			AddWeaponSound( "weapons/revolver/insert.wav", 1, ATTN_NORM, GetAnimationTime( 43, 20 ) );
+			AddWeaponSound( "weapons/revolver/close.wav", 1, ATTN_NORM, GetAnimationTime( 55, 20 ) );
+		}
+		m_bHasUnloaded = false;
 	}
 }
 
@@ -204,22 +215,22 @@ void CWeaponSideArmRevolver::WeaponIdle(void)
 	float flRand = UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15);
 	if (flRand <= 0.5)
 	{
-		iAnim = ANIM_357_IDLE1;
-		m_flTimeWeaponIdle = GetAnimationTime( 41, 10 );
+		iAnim = HasBeenUnloaded() ? ANIM_357_UNLOADED_IDLE1 : ANIM_357_IDLE1;
+		m_flTimeWeaponIdle = GetAnimationTime( 41, 15 );
 	}
 	else if (flRand <= 0.7)
 	{
-		iAnim = ANIM_357_IDLE2;
+		iAnim = HasBeenUnloaded() ? ANIM_357_UNLOADED_IDLE2 : ANIM_357_IDLE2;
 		m_flTimeWeaponIdle = GetAnimationTime( 41, 5 );
 	}
 	else if (flRand <= 0.9)
 	{
-		iAnim = ANIM_357_IDLE3;
+		iAnim = HasBeenUnloaded() ? ANIM_357_UNLOADED_IDLE3 : ANIM_357_IDLE3;
 		m_flTimeWeaponIdle = GetAnimationTime( 41, 10 );
 	}
 	else
 	{
-		iAnim = ANIM_357_FIDGET;
+		iAnim = HasBeenUnloaded() ? ANIM_357_UNLOADED_FIDGET : ANIM_357_FIDGET;
 		m_flTimeWeaponIdle = GetAnimationTime( 100, 30 );
 	}
 

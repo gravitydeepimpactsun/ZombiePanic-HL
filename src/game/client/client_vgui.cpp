@@ -49,21 +49,6 @@ void CClientVGUI::Initialize(CreateInterfaceFn *pFactories, int iNumFactories)
 	g_pFullFileSystem->AddSearchPath( "zp_addon", "ADDON" );
 	g_pFullFileSystem->AddSearchPath( "", "ROOT" );
 
-	// Nuke the old addon files.
-	// The reason why we do this, is to prevent
-	// windows from screwing up some file permissions (somehow) or corrupting files.
-	{
-		// Our path to zp.exe
-		char path[MAX_PATH];
-		g_pFullFileSystem->GetLocalPath("zp.exe", path, sizeof(path));
-		// Remove zp.exe from the path
-		path[std::strlen(path) - 6] = '\0';
-		// Now we append zp_addon
-		std::strcat( path, "zp_addon" );
-		// Remove all files/folders in zp_addon
-		std::filesystem::remove_all( std::filesystem::path( path ) );
-	}
-
 	// Create the folders
 	g_pFullFileSystem->CreateDirHierarchy( "zp_workshop", "ROOT" );
 	g_pFullFileSystem->CreateDirHierarchy( "zp_addon", "ROOT" );

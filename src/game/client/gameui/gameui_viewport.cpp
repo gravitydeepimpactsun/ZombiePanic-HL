@@ -411,10 +411,6 @@ void CGameUIViewport::CheckWorkshopSubscriptions()
 		return;
 	}
 
-	// It's already visible. Stop.
-	if ( IsWorkshopInfoBoxVisible() )
-		return;
-
 	SetQueryWait( 1.55f );
 
 	// Get dynamic count of subscribed items and allocate accordingly.
@@ -461,7 +457,6 @@ void CGameUIViewport::CheckWorkshopSubscriptions()
 		{
 			CGameUIViewport::Get()->ShowWorkshopInfoBox( WorkshopAddon.szName, WorkshopInfoBoxState::State_Dismounting );
 			CGameUIViewport::Get()->MountWorkshopItem( WorkshopAddon, nullptr, nullptr );
-			break;
 		}
 		else
 			RemoveWorkshopItem( iID );
@@ -698,7 +693,6 @@ struct CopyPath
 	uint64 item;
 };
 
-// From: https://stackoverflow.com/questions/6163611/compare-two-files
 bool CompareFiles( const std::string &p1, const std::string &p2 )
 {
 	std::ifstream f1(p1, std::ifstream::binary | std::ifstream::ate);
@@ -706,20 +700,32 @@ bool CompareFiles( const std::string &p1, const std::string &p2 )
 
 	if (f1.fail() || f2.fail())
 	{
+		// Make sure to close the files
+		f1.close();
+		f2.close();
 		return false; //file problem
 	}
 
 	if (f1.tellg() != f2.tellg())
 	{
+		// Make sure to close the files
+		f1.close();
+		f2.close();
 		return false; //size mismatch
 	}
 
 	//seek back to beginning and use std::equal to compare contents
 	f1.seekg(0, std::ifstream::beg);
 	f2.seekg(0, std::ifstream::beg);
-	return std::equal(std::istreambuf_iterator<char>(f1.rdbuf()),
+	bool bRet = std::equal(std::istreambuf_iterator<char>(f1.rdbuf()),
 	    std::istreambuf_iterator<char>(),
 	    std::istreambuf_iterator<char>(f2.rdbuf()));
+
+	// Make sure to close the files
+	f1.close();
+	f2.close();
+
+	return bRet;
 }
 
 unsigned CopyFilesToNewDestination( void *Data )

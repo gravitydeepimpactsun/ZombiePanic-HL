@@ -23,7 +23,7 @@ public:
 	void UpdateMessageStateForEntity( CBasePlayer *pPlayer );
 	virtual int ObjectCaps(void) { return CBaseEntity::ObjectCaps() | FCAP_MUST_RESET; }
 	bool IsActive() const { return m_bActive && !m_bForcedOff; }
-	inline void UpdateHealth( int health ) { pev->health = clamp( health, 0, 100 ); UpdateMessageState(); }
+	inline void UpdateHealth( float health ) { pev->health = clamp( health, 0, 100 ); UpdateMessageState(); }
 	void OnScriptCallBack( KeyValues *pData );
 
 private:

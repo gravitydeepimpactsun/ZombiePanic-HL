@@ -12,6 +12,7 @@ add_sources(
 	prop_barricade.cpp
 	prop_static_spawn.cpp
 	prop_static_spawn.h
+	trigger_capture_point.cpp
 	trigger_spawnblocker.cpp
 	trigger_endround.cpp
 	info_random_base.cpp

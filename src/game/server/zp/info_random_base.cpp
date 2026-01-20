@@ -590,6 +590,8 @@ bool CRandomItemBase::IsLimited( SpawnList *item ) const
 	return false;
 }
 
+extern void UTIL_EnableTriggerCapturePoints();
+
 void ZP::OnGameModeRoundStart()
 {
 	// Clear it
@@ -629,4 +631,7 @@ void ZP::OnGameModeRoundStart()
 		pStaticSpawn->SpawnItem();
 		pStaticSpawn = (CPropStaticSpawn *)UTIL_FindEntityByClassname( pStaticSpawn, "prop_static_spawn" );
 	}
+
+	// Enable trigger capture points (if they start enabled)
+	UTIL_EnableTriggerCapturePoints();
 }

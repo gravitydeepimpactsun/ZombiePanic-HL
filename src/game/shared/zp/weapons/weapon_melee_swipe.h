@@ -11,6 +11,7 @@ class CWeaponMeleeSwipe : public CWeaponBaseMelee
 
 public:
 	ZPWeaponID GetWeaponID() override { return WEAPON_SWIPE; }
+	void Spawn( void ) override;
 	void Precache( void );
 	const char *GetMeleeWorldModel() const { return "models/w_swipe.mdl"; }
 	const char *GetMeleeViewModel() const { return "models/v_swipe.mdl"; }

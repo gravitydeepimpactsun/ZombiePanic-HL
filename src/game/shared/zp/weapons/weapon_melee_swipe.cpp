@@ -9,7 +9,13 @@
 LINK_ENTITY_TO_CLASS( weapon_swipe, CWeaponMeleeSwipe );
 PRECACHE_WEAPON_REGISTER( weapon_swipe );
 
-void CWeaponMeleeSwipe::Precache( void )
+void CWeaponMeleeSwipe::Spawn(void)
+{
+	BaseClass::Spawn();
+	pev->team = ZP::TEAM_ZOMBIE;
+}
+
+void CWeaponMeleeSwipe::Precache(void)
 {
 	PRECACHE_MODEL("models/v_swipe.mdl");
 	PRECACHE_MODEL("models/w_swipe.mdl");

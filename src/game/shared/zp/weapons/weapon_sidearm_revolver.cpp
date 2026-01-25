@@ -170,7 +170,7 @@ void CWeaponSideArmRevolver::PrimaryAttack()
 		// HEV suit - indicate out of ammo condition
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", FALSE, 0);
 
-	m_flNextPrimaryAttack = PrimaryFireRate();
+	m_flNextPrimaryAttack = gpGlobals->time + PrimaryFireRate();
 	m_flTimeWeaponIdle = GetAnimationTime( 18, 30 );
 }
 

@@ -136,7 +136,9 @@ static constexpr HudScaleInfo HUD_SCALE_INFO[] = {
 	HudScaleInfo { 2560, 1920, EHudScale::X4,  "sprites/2560/hud_bucket0.spr" },
 };
 
+#if defined(CLIENT_WEAPONS)
 extern cvar_t *cl_lw;
+#endif
 extern globalvars_t *gpGlobals;
 
 ConVar cl_bhopcap("cl_bhopcap", "2", FCVAR_BHL_ARCHIVE, "Enables/disables bhop speed cap, '2' - detect automatically");
@@ -409,7 +411,9 @@ void CHud::Init(void)
 	m_iLogo = 0;
 	m_iFOV = 0;
 
+#if defined(CLIENT_WEAPONS)
 	cl_lw = gEngfuncs.pfnGetCvarPointer("cl_lw");
+#endif
 
 	m_pSpriteList = NULL;
 

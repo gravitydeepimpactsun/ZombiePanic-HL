@@ -48,7 +48,9 @@ static int tracerCount[32];
 void V_PunchAxis(int axis, float punch);
 void VectorAngles(const float *forward, float *angles);
 
+#if defined(CLIENT_WEAPONS)
 extern cvar_t *cl_lw;
+#endif
 
 // ------------------------------------------------------------------------
 // Shell ejection cvars cords
@@ -1623,6 +1625,7 @@ void EV_EgonFire(event_args_t *args)
 	if (EV_IsLocal(idx))
 		gEngfuncs.pEventAPI->EV_WeaponAnimation(g_fireAnims1[gEngfuncs.pfnRandomLong(0, 3)], 1);
 
+#if defined(CLIENT_WEAPONS)
 	if (iStartup == 1 && EV_IsLocal(idx) && !IS_FIRSTPERSON_SPEC && !pBeam && !pBeam2 && cl_lw->value) //Adrian: Added the cl_lw check for those lital people that hate weapon prediction.
 	{
 		Vector vecSrc, vecEnd, origin, angles, forward, right, up;
@@ -1673,6 +1676,7 @@ void EV_EgonFire(event_args_t *args)
 			pBeam2 = gEngfuncs.pEfxAPI->R_BeamEntPoint(idx | 0x1000, tr.endpos, iBeamModelIndex, 999999, 5.0, 0.08, 0.7, 25, 0, 0, r, g, b);
 		}
 	}
+#endif
 }
 
 void EV_EgonStop(event_args_t *args)

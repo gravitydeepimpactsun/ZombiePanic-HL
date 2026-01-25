@@ -54,7 +54,9 @@ void ClearEventList(void);
 extern ConVar zoom_sensitivity_ratio;
 extern float g_lastFOV;
 
+#if defined(CLIENT_WEAPONS)
 cvar_t *cl_lw = nullptr;
+#endif
 
 ClientAPIData_t g_ClientAPIDataArray[ MAX_PLAYERS ] = {};
 ClientAPIData_t GetClientAPIData( int iClient )
@@ -183,9 +185,11 @@ int CHud::MsgFunc_SetFOV(const char *pszName, int iSize, void *pbuf)
 	int newfov = READ_BYTE();
 	int def_fov = default_fov.GetInt();
 
+#if defined(CLIENT_WEAPONS)
 	//Weapon prediction already takes care of changing the fog. ( g_lastFOV ).
 	if (cl_lw && cl_lw->value)
 		return 1;
+#endif
 
 	g_lastFOV = newfov;
 

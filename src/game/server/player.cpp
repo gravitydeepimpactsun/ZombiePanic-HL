@@ -1382,26 +1382,65 @@ void CBasePlayer::SetAnimation(PLAYER_ANIM playerAnim)
 		break;
 
 	case ACT_MELEE_HEAVY_ATTACK_PRE:
-		if (FBitSet(pev->flags, FL_DUCKING)) // crouching
-			UTIL_strcpy(szAnim, "crouch_shoot_heavy_pre");
+		// If crowbar, then use specific animations
+		if ( FStrEq( m_szAnimExtention, "crowbar" ) )
+		{
+			if (FBitSet(pev->flags, FL_DUCKING)) // crouching
+				UTIL_strcpy(szAnim, "crouch_shoot_heavy_pre");
+			else
+				UTIL_strcpy(szAnim, "ref_shoot_heavy_pre");
+		}
 		else
-			UTIL_strcpy(szAnim, "ref_shoot_heavy_pre");
+		{
+			if (FBitSet(pev->flags, FL_DUCKING)) // crouching
+				UTIL_strcpy(szAnim, "crouch_shoot_heavy_");
+			else
+				UTIL_strcpy(szAnim, "ref_shoot_heavy_");
+			strcat(szAnim, m_szAnimExtention);
+			strcat(szAnim, "_pre");
+		}
 		animDesired = SetNewActivity( szAnim, false );
 		break;
 
 	case ACT_MELEE_HEAVY_ATTACK_LOOP:
-		if (FBitSet(pev->flags, FL_DUCKING)) // crouching
-			UTIL_strcpy(szAnim, "crouch_shoot_heavy_loop");
+		// If crowbar, then use specific animations
+		if ( FStrEq( m_szAnimExtention, "crowbar" ) )
+		{
+			if (FBitSet(pev->flags, FL_DUCKING)) // crouching
+				UTIL_strcpy(szAnim, "crouch_shoot_heavy_loop");
+			else
+				UTIL_strcpy(szAnim, "ref_shoot_heavy_loop");
+		}
 		else
-			UTIL_strcpy(szAnim, "ref_shoot_heavy_loop");
+		{
+			if (FBitSet(pev->flags, FL_DUCKING)) // crouching
+				UTIL_strcpy(szAnim, "crouch_shoot_heavy_");
+			else
+				UTIL_strcpy(szAnim, "ref_shoot_heavy_");
+			strcat(szAnim, m_szAnimExtention);
+			strcat(szAnim, "_loop");
+		}
 		animDesired = SetNewActivity( szAnim, false );
 		break;
 
 	case ACT_MELEE_HEAVY_ATTACK_POST:
-		if (FBitSet(pev->flags, FL_DUCKING)) // crouching
-			UTIL_strcpy(szAnim, "crouch_shoot_heavy_post");
+		// If crowbar, then use specific animations
+		if ( FStrEq( m_szAnimExtention, "crowbar" ) )
+		{
+			if (FBitSet(pev->flags, FL_DUCKING)) // crouching
+				UTIL_strcpy(szAnim, "crouch_shoot_heavy_post");
+			else
+				UTIL_strcpy(szAnim, "ref_shoot_heavy_post");
+		}
 		else
-			UTIL_strcpy(szAnim, "ref_shoot_heavy_post");
+		{
+			if (FBitSet(pev->flags, FL_DUCKING)) // crouching
+				UTIL_strcpy(szAnim, "crouch_shoot_heavy_");
+			else
+				UTIL_strcpy(szAnim, "ref_shoot_heavy_");
+			strcat(szAnim, m_szAnimExtention);
+			strcat(szAnim, "_post");
+		}
 		animDesired = SetNewActivity( szAnim, false );
 		break;
 

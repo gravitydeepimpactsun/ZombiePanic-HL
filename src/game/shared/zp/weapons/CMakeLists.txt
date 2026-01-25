@@ -2,6 +2,8 @@ add_sources(
 	CMakeLists.txt
 	CWeaponBase.cpp
 	CWeaponBase.h
+	CWeaponBaseMelee.cpp
+	CWeaponBaseMelee.h
 	CWeaponBaseSingleAction.cpp
 	CWeaponBaseSingleAction.h
 	throwable_satchel.cpp
@@ -28,6 +30,8 @@ add_sources(
 	weapon_melee_crowbar.h
 	weapon_melee_leadpipe.cpp
 	weapon_melee_leadpipe.h
+	weapon_melee_fireaxe.cpp
+	weapon_melee_fireaxe.h
 	weapon_melee_swipe.cpp
 	weapon_melee_swipe.h
 	weapon_explosive_molotov.cpp

@@ -3,28 +3,20 @@
 #ifndef SHARED_WEAPON_MELEE_CROWBAR_H
 #define SHARED_WEAPON_MELEE_CROWBAR_H
 
-#include "CWeaponBase.h"
+#include "CWeaponBaseMelee.h"
 
-class CWeaponMeleeCrowbar : public CWeaponBase
+class CWeaponMeleeCrowbar : public CWeaponBaseMelee
 {
-	DECLARE_CLASS_SIMPLE( CWeaponMeleeCrowbar, CWeaponBase );
+	DECLARE_CLASS_SIMPLE( CWeaponMeleeCrowbar, CWeaponBaseMelee );
 
 public:
-	bool IsMeleeWeapon() override { return true; }
 	ZPWeaponID GetWeaponID() override { return WEAPON_CROWBAR; }
-	void Spawn( void );
 	void Precache( void );
-	void EXPORT SwingAgain( void );
-	void EXPORT Smack( void );
-	int AddToPlayer( CBasePlayer *pPlayer );
-
-	void PrimaryAttack( void );
-	int Swing( int fFirst );
-	void WeaponIdle();
-	float Deploy( void );
-	float DoHolsterAnimation() override;
-	int m_iSwing;
-	TraceResult m_trHit;
+	const char *GetMeleeWorldModel() const { return "models/w_crowbar.mdl"; }
+	const char *GetMeleeViewModel() const { return "models/v_crowbar.mdl"; }
+	const char *GetMeleePlayerModel() const { return "models/p_crowbar.mdl"; }
+	void DoWeaponSoundFromAttack( MeleeAttackType attackType, bool bHitWorld ) override;
+	void DoWeaponSoundFromMiss( MeleeAttackType attackType ) override;
 };
 
 #endif

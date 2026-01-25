@@ -42,6 +42,7 @@
 #include "zp/weapons/weapon_melee_swipe.h"
 #include "zp/weapons/weapon_melee_crowbar.h"
 #include "zp/weapons/weapon_melee_leadpipe.h"
+#include "zp/weapons/weapon_melee_fireaxe.h"
 #include "zp/weapons/weapon_explosive_tnt.h"
 #include "zp/weapons/weapon_explosive_ied.h"
 #include "zp/weapons/weapon_explosive_molotov.h"
@@ -67,20 +68,7 @@ int g_irunninggausspred = 0;
 Vector previousorigin;
 
 // Weapon entities.
-CWeaponSideArmSig g_Sig;
-CWeaponSideArmPPK g_PPK;
-CWeaponSideArmFafo g_Fafo;
-CWeaponMeleeCrowbar g_Crowbar;
-CWeaponMeleeLeadPipe g_LeadPipe;
-CWeaponMeleeSwipe g_Swipe;
-CWeaponSideArmRevolver g_Python;
-CWeaponSMGMP5 g_Mp5;
-CWeaponRifleM16 g_M16;
-CWeaponShotgunRemington g_Shotgun;
-CWeaponShotgunDoubleBarrel g_Dbarrel;
-CWeaponExplosiveTNT g_TNT;
-CWeaponExplosiveIED g_IED;
-CWeaponExplosiveMolotov g_Molotov;
+CWeaponBase g_Weapons[ LAST_WEAPON_ID ];
 
 /*
 ======================
@@ -636,20 +624,11 @@ void HUD_InitClientWeapons(void)
 	HUD_PrepEntity(&player, NULL);
 
 	// Allocate slot(s) for each weapon that we are going to be predicting
-	HUD_PrepEntity(&g_Sig, &player);
-	HUD_PrepEntity(&g_PPK, &player);
-	HUD_PrepEntity(&g_Fafo, &player);
-	HUD_PrepEntity(&g_Crowbar, &player);
-	HUD_PrepEntity(&g_LeadPipe, &player);
-	HUD_PrepEntity(&g_Swipe, &player);
-	HUD_PrepEntity(&g_Python, &player);
-	HUD_PrepEntity(&g_Mp5, &player);
-	HUD_PrepEntity(&g_M16, &player);
-	HUD_PrepEntity(&g_Shotgun, &player);
-	HUD_PrepEntity(&g_Dbarrel, &player);
-	HUD_PrepEntity(&g_TNT, &player);
-	HUD_PrepEntity(&g_IED, &player);
-	HUD_PrepEntity(&g_Molotov, &player);
+	for ( size_t i = ZPWeaponID::WEAPON_CROWBAR; i < ZPWeaponID::LAST_WEAPON_ID; i++ )
+	{
+		// Prepare weapon entities
+		HUD_PrepEntity( &g_Weapons[i], &player );
+	}
 }
 
 /*
@@ -712,65 +691,9 @@ void HUD_WeaponsPostThink(local_state_s *from, local_state_s *to, usercmd_t *cmd
 	gpGlobals->time = time;
 
 	// Fill in data based on selected weapon
-	// FIXME, make this a method in each weapon?  where you pass in an entity_state_t *?
-	switch (from->client.m_iId)
-	{
-	case WEAPON_CROWBAR:
-		pWeapon = &g_Crowbar;
-		break;
-
-	case WEAPON_LEADPIPE:
-		pWeapon = &g_LeadPipe;
-		break;
-
-	case WEAPON_SWIPE:
-		pWeapon = &g_Swipe;
-		break;
-
-	case WEAPON_SIG:
-		pWeapon = &g_Sig;
-		break;
-
-	case WEAPON_PPK:
-		pWeapon = &g_PPK;
-		break;
-
-	case WEAPON_FAFO_ERW:
-		pWeapon = &g_Fafo;
-		break;
-
-	case WEAPON_PYTHON:
-		pWeapon = &g_Python;
-		break;
-
-	case WEAPON_MP5:
-		pWeapon = &g_Mp5;
-		break;
-
-	case WEAPON_556AR:
-		pWeapon = &g_M16;
-		break;
-
-	case WEAPON_SHOTGUN:
-		pWeapon = &g_Shotgun;
-		break;
-
-	case WEAPON_DOUBLEBARREL:
-		pWeapon = &g_Dbarrel;
-		break;
-
-	case WEAPON_TNT:
-		pWeapon = &g_TNT;
-		break;
-
-	case WEAPON_SATCHEL:
-		pWeapon = &g_IED;
-		break;
-
-	case WEAPON_MOLOTOV:
-		pWeapon = &g_Molotov;
-		break;
-	}
+	int nWeaponID = from->client.m_iId;
+	if ( nWeaponID > WEAPON_NONE && nWeaponID < LAST_WEAPON_ID )
+		pWeapon = &g_Weapons[ nWeaponID ];
 
 	// Store pointer to our destination entity_state_t so we can get our origin, etc. from it
 	//  for setting up events on the client

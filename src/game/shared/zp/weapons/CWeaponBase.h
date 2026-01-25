@@ -20,6 +20,9 @@ class CWeaponBase : public CBasePlayerWeapon
 	DECLARE_CLASS_SIMPLE( CWeaponBase, CBasePlayerWeapon );
 
 public:
+	// Default, required for client.
+	ZPWeaponID GetWeaponID() { return WEAPON_NONE; }
+
 	virtual int ObjectCaps(void) { return BaseClass::ObjectCaps() | FCAP_IMPULSE_USE; }
 	bool IsUseableItem() const override { return true; }
 	virtual bool AllowAmmoSteal() const { return true; }

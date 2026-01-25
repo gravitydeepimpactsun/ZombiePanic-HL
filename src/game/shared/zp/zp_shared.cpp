@@ -204,6 +204,7 @@ static WeaponInfo sWeaponInfoList[] = {
 	// { const char *szWeapon, ZPWeaponID WeaponID, bool Hidden }
 	{ "crowbar", WEAPON_CROWBAR, false },
 	{ "leadpipe", WEAPON_LEADPIPE, false },
+	{ "fireaxe", WEAPON_FIREAXE, false },
 	{ "swipe", WEAPON_SWIPE, true },
 	{ "sig", WEAPON_SIG, false },
 	{ "ppk", WEAPON_PPK, false },
@@ -359,7 +360,7 @@ WeaponData CreateWeaponSlotData( ZPWeaponID WeaponID )
 		case WEAPON_CROWBAR: szWeaponScriptFile = "weapon_crowbar"; break;
 		case WEAPON_LEADPIPE: szWeaponScriptFile = "weapon_leadpipe"; break;
 		//case WEAPON_MACHETE: szWeaponScriptFile = "weapon_machete"; break;
-		//case WEAPON_FIREAXE: szWeaponScriptFile = "weapon_fireaxe"; break;
+		case WEAPON_FIREAXE: szWeaponScriptFile = "weapon_fireaxe"; break;
 		case WEAPON_SWIPE: szWeaponScriptFile = "weapon_swipe"; break;
 		case WEAPON_SIG: szWeaponScriptFile = "weapon_sig"; break;
 		case WEAPON_PYTHON: szWeaponScriptFile = "weapon_357"; break;

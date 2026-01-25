@@ -3,28 +3,21 @@
 #ifndef SHARED_WEAPON_MELEE_SWIPE_H
 #define SHARED_WEAPON_MELEE_SWIPE_H
 
-#include "CWeaponBase.h"
+#include "CWeaponBaseMelee.h"
 
-class CWeaponMeleeSwipe : public CWeaponBase
+class CWeaponMeleeSwipe : public CWeaponBaseMelee
 {
-	DECLARE_CLASS_SIMPLE( CWeaponMeleeSwipe, CWeaponBase );
+	DECLARE_CLASS_SIMPLE( CWeaponMeleeSwipe, CWeaponBaseMelee );
 
 public:
-	bool IsMeleeWeapon() override { return true; }
 	ZPWeaponID GetWeaponID() override { return WEAPON_SWIPE; }
-	void Spawn( void );
 	void Precache( void );
-	void EXPORT SwingAgain( void );
-	void EXPORT Smack( void );
-	int AddToPlayer( CBasePlayer *pPlayer );
-
-	void PrimaryAttack(void);
-	void WeaponIdle();
-	int Swing( int fFirst );
-	float Deploy( void );
-	float DoHolsterAnimation() override;
-	int m_iSwing;
-	TraceResult m_trHit;
+	const char *GetMeleeWorldModel() const { return "models/w_swipe.mdl"; }
+	const char *GetMeleeViewModel() const { return "models/v_swipe.mdl"; }
+	const char *GetMeleePlayerModel() const { return "models/p_swipe.mdl"; }
+	const char *GetMeleePlayerExt() const { return "swipe"; }
+	void DoWeaponSoundFromAttack( MeleeAttackType attackType, bool bHitWorld ) override;
+	void DoWeaponSoundFromMiss( MeleeAttackType attackType ) override;
 };
 
 #endif

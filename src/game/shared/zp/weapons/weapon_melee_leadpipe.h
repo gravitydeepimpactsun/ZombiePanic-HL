@@ -3,33 +3,21 @@
 #ifndef SHARED_WEAPON_MELEE_LEADPIPE_H
 #define SHARED_WEAPON_MELEE_LEADPIPE_H
 
-#include "CWeaponBase.h"
+#include "CWeaponBaseMelee.h"
 
-class CWeaponMeleeLeadPipe : public CWeaponBase
+class CWeaponMeleeLeadPipe : public CWeaponBaseMelee
 {
-	DECLARE_CLASS_SIMPLE( CWeaponMeleeLeadPipe, CWeaponBase );
+	DECLARE_CLASS_SIMPLE( CWeaponMeleeLeadPipe, CWeaponBaseMelee );
 
 public:
-	bool IsMeleeWeapon() override { return true; }
 	ZPWeaponID GetWeaponID() override { return WEAPON_LEADPIPE; }
-	void Spawn( void );
+	bool CanUseHeavyAttack() const override { return true; }
 	void Precache( void );
-	void EXPORT SwingAgain( void );
-	void EXPORT Smack( void );
-	int AddToPlayer( CBasePlayer *pPlayer );
-
-	void PrimaryAttack( void );
-	void SecondaryAttack( void ) override;
-	int Swing( int fFirst );
-	void DoHeavyAttack();
-	void WeaponIdle();
-	float Deploy( void );
-	float DoHolsterAnimation() override;
-	int m_iSwing;
-	TraceResult m_trHit;
-
-private:
-	bool m_bIsInHeavyAttack = false;
+	const char *GetMeleeWorldModel() const { return "models/w_leadpipe.mdl"; }
+	const char *GetMeleeViewModel() const { return "models/v_leadpipe.mdl"; }
+	const char *GetMeleePlayerModel() const { return "models/p_leadpipe.mdl"; }
+	void DoWeaponSoundFromAttack( MeleeAttackType attackType, bool bHitWorld ) override;
+	void DoWeaponSoundFromMiss( MeleeAttackType attackType ) override;
 };
 
 #endif

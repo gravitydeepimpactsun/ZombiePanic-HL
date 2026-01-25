@@ -104,7 +104,7 @@ void CWeaponBase::DoDeployAnimation()
 {
 	float flDeploy = Deploy();
 	m_flHolsterTime = -1;
-	m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flTimeWeaponIdle = m_pPlayer->m_flNextAttack = flDeploy;
+	m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flTimeWeaponIdle = m_pPlayer->m_flNextAttack = gpGlobals->time + flDeploy;
 	m_pPlayer->SetAnimation( PLAYER_DRAW );
 }
 

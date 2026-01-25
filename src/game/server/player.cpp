@@ -3003,8 +3003,8 @@ void CBasePlayer::SelectNewActiveWeapon( CBasePlayerWeapon *pWeapon )
 	{
 		if ( pev->team == ZP::TEAM_SURVIVIOR )
 			EMIT_SOUND(ENT(pev), CHAN_ITEM, "common/wpn_select.wav", 1, ATTN_NORM);
-		m_pActiveItem->DoDeployAnimation();
 		m_pActiveItem->UpdateItemInfo();
+		m_pActiveItem->DoDeployAnimation();
 		m_flLastWeaponDrop = gpGlobals->time + 0.5f;
 	}
 }
@@ -5568,6 +5568,11 @@ int CBasePlayer::AddPlayerItem(CBasePlayerItem *pItem)
 						pWeapon->pev->velocity = vNewVel;
 						pWeapon->m_iClip -= iAmount;
 						pWeapon->pev->playerclass = (pWeapon->m_iClip == 0) ? 1 : 0; // if iuser1 is 1, it's empty
+						// Nab the ammo, so we have nothing inside the cylinder.
+						// Omnomnom, delicious ammo!
+						CWeaponSideArmRevolver *pRevolver = dynamic_cast<CWeaponSideArmRevolver *>( pWeapon );
+						if ( pRevolver )
+							pRevolver->m_bHasUnloaded = true;
 					}
 				}
 				return FALSE;

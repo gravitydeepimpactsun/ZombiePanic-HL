@@ -87,9 +87,6 @@ extern "C"
 	void EV_PythonShells(struct event_args_s *args);
 	void EV_FireGauss(struct event_args_s *args);
 	void EV_SpinGauss(struct event_args_s *args);
-	void EV_Swipe(struct event_args_s *args);
-	void EV_Crowbar(struct event_args_s *args);
-	void EV_LeadPipe(struct event_args_s *args);
 	void EV_FireCrossbow(struct event_args_s *args);
 	void EV_FireCrossbow2(struct event_args_s *args);
 	void EV_FireRpg(struct event_args_s *args);
@@ -1364,86 +1361,6 @@ void EV_FireGauss(event_args_t *args)
 }
 //======================
 //	   GAUSS END
-//======================
-
-//======================
-//	   CROWBAR START
-//======================
-
-int g_iSwing;
-
-void EV_MeleeSwingMissAnim(int eState)
-{
-	switch (eState)
-	{
-	case 0:
-		gEngfuncs.pEventAPI->EV_WeaponAnimation(ANIM_MELEE_ATTACK1MISS, 1);
-		break;
-	case 1:
-		gEngfuncs.pEventAPI->EV_WeaponAnimation(ANIM_MELEE_ATTACK2MISS, 1);
-		break;
-	case 2:
-		gEngfuncs.pEventAPI->EV_WeaponAnimation(ANIM_MELEE_ATTACK3MISS, 1);
-		break;
-	}
-}
-
-//Only predict the miss sounds, hit sounds are still played
-//server side, so players don't get the wrong idea.
-void EV_Crowbar(event_args_t *args)
-{
-	int idx;
-	Vector origin;
-	Vector angles;
-	Vector velocity;
-
-	idx = args->entindex;
-	VectorCopy(args->origin, origin);
-
-	if (EV_IsLocal(idx))
-	{
-		int nSwingState = (g_iSwing++) % 3;
-		EV_MeleeSwingMissAnim(nSwingState);
-	}
-}
-
-// Same as crowbar, but we use the lead pipe sound
-void EV_LeadPipe(event_args_t *args)
-{
-	int idx;
-	Vector origin;
-	Vector angles;
-	Vector velocity;
-
-	idx = args->entindex;
-	VectorCopy(args->origin, origin);
-
-	if (EV_IsLocal(idx))
-	{
-		int nSwingState = (g_iSwing++) % 3;
-		EV_MeleeSwingMissAnim(nSwingState);
-	}
-}
-
-// Same as crowbar, but we use the zombie moan rawr xdx
-void EV_Swipe(event_args_t *args)
-{
-	int idx;
-	Vector origin;
-	Vector angles;
-	Vector velocity;
-
-	idx = args->entindex;
-	VectorCopy(args->origin, origin);
-
-	if (EV_IsLocal(idx))
-	{
-		int nSwingState = (g_iSwing++) % 3;
-		EV_MeleeSwingMissAnim(nSwingState);
-	}
-}
-//======================
-//	   CROWBAR END
 //======================
 
 //======================

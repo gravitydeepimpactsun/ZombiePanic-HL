@@ -624,7 +624,7 @@ void HUD_InitClientWeapons(void)
 	HUD_PrepEntity(&player, NULL);
 
 	// Allocate slot(s) for each weapon that we are going to be predicting
-	for ( size_t i = ZPWeaponID::WEAPON_CROWBAR; i < ZPWeaponID::LAST_WEAPON_ID; i++ )
+	for ( size_t i = 0; i < ZPWeaponID::LAST_WEAPON_ID; i++ )
 	{
 		// Prepare weapon entities
 		HUD_PrepEntity( &g_Weapons[i], &player );

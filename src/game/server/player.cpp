@@ -3097,7 +3097,7 @@ void CBasePlayer::DropWeapon( CBasePlayerWeapon *pWeapon, bool bAutoSwitch, bool
 	UTIL_MakeVectors(pev->angles);
 	Vector vecDir = gpGlobals->v_forward;
 
-	CBasePlayerWeapon *pNewWeapon = (CBasePlayerWeapon *)CBaseEntity::Create((char *)STRING(weaponname), pev->origin + vecDir * 10, pev->angles, nullptr);
+	CWeaponBase *pNewWeapon = (CWeaponBase *)CBaseEntity::Create((char *)STRING(weaponname), pev->origin + vecDir * 10, pev->angles, nullptr);
 	if ( !pNewWeapon )
 	{
 		Msg( "Failed to create weapon %s!\n", STRING(weaponname) );
@@ -3110,6 +3110,8 @@ void CBasePlayer::DropWeapon( CBasePlayerWeapon *pWeapon, bool bAutoSwitch, bool
 	pNewWeapon->pev->playerclass = (nClipWeHad == 0) ? 1 : 0; // if iuser1 is 1, it's empty
 	pNewWeapon->pev->angles.x = 0;
 	pNewWeapon->pev->angles.z = 0;
+	pNewWeapon->m_bHasDropped = true;
+	pNewWeapon->CheckIfStuckInWorld();
 	if ( pukevel )
 		pNewWeapon->pev->velocity = vecDir * 300 + RandomVector( -200, 200 );
 	else
@@ -6916,6 +6918,8 @@ bool CBasePlayer::DropAmmo( int ammoindex, int amount, Vector Dir, bool pukevel 
 	pAmmoItem->pev->angles.z = 0;
 	pAmmoItem->pev->impulse = 1;
 	pAmmoItem->SetSpawnedTroughRandomEntity( true );
+	pAmmoItem->m_bHasDropped = true;
+	pAmmoItem->CheckIfStuckInWorld();
 
 	// for gpGlobals->v_forward
 	UTIL_MakeVectors( pev->v_angle );

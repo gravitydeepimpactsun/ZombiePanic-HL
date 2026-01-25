@@ -91,7 +91,13 @@ void CWeaponBase::OnWeaponTouch( CBaseEntity *pOther )
 void CWeaponBase::OnWeaponThink()
 {
 	if ( ZP::Physics::Simulate( this ) )
+	{
+#if !defined( CLIENT_DLL )
+		if ( m_bHasDropped )
+			CheckIfStuckInWorld();
+#endif
 		pev->nextthink = gpGlobals->time + 0.1f;
+	}
 }
 
 void CWeaponBase::BounceSound()
@@ -361,6 +367,26 @@ void CWeaponBase::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE u
 
 	BaseClass::Use( pActivator, pCaller, useType, value );
 }
+
+#if !defined( CLIENT_DLL )
+void CWeaponBase::CheckIfStuckInWorld()
+{
+	if ( m_StuckChecks >= 5 )
+		return; // We've already checked enough times
+
+	// First we set the new size
+	SetSequenceBox();
+
+	// Now we grab our mins/maxs, and check if we are stuck in the world
+	Vector vecMins = pev->mins + Vector( -5, -5, -5 );
+	Vector vecMaxs = pev->maxs + Vector( 5, 5, 0 );
+	if ( UTIL_IsBoxInWorld( this, vecMins, vecMaxs ) )
+		return; // Not stuck
+
+	// We are stuck, remove our size.
+	UTIL_SetSize( pev, Vector(0,0,0), Vector(0,0,0) );
+}
+#endif
 
 void CWeaponBase::DefaultSpawn()
 {

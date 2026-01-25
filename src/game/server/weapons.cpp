@@ -1139,7 +1139,13 @@ void CBasePlayerAmmo ::DefaultTouch(CBaseEntity *pOther)
 void CBasePlayerAmmo::DoAmmoThink()
 {
 	if ( ZP::Physics::Simulate( this ) )
+	{
+#if !defined( CLIENT_DLL )
+		if ( m_bHasDropped )
+			CheckIfStuckInWorld();
+#endif
 		pev->nextthink = gpGlobals->time + 0.1f;
+	}
 }
 
 void CBasePlayerAmmo::BounceSound( void )
@@ -1165,6 +1171,94 @@ bool CBasePlayerAmmo::GiveAmmoToPlayer( CBaseEntity *pOther )
 #endif
 	return m_iAmountLeft <= 0 ? true : false;
 }
+
+//=========================================================
+//=========================================================
+
+extern int ExtractBbox( void *pmodel, int sequence, float *mins, float *maxs );
+
+int CBasePlayerAmmo::ExtractBbox( int sequence, float *mins, float *maxs )
+{
+	return ::ExtractBbox( GET_MODEL_PTR(ENT(pev)), sequence, mins, maxs );
+}
+
+void CBasePlayerAmmo::SetSequenceBox()
+{
+	Vector mins, maxs;
+
+	// Get sequence bbox
+	if ( ExtractBbox( pev->sequence, mins, maxs ) )
+	{
+		// expand box for rotation
+		// find min / max for rotations
+		float yaw = pev->angles.y * (M_PI / 180.0);
+
+		Vector xvector, yvector;
+		xvector.x = cos(yaw);
+		xvector.y = sin(yaw);
+		yvector.x = -sin(yaw);
+		yvector.y = cos(yaw);
+		Vector bounds[2];
+
+		bounds[0] = mins;
+		bounds[1] = maxs;
+
+		Vector rmin(9999, 9999, 9999);
+		Vector rmax(-9999, -9999, -9999);
+		Vector base, transformed;
+
+		for (int i = 0; i <= 1; i++)
+		{
+			base.x = bounds[i].x;
+			for (int j = 0; j <= 1; j++)
+			{
+				base.y = bounds[j].y;
+				for (int k = 0; k <= 1; k++)
+				{
+					base.z = bounds[k].z;
+
+					// transform the point
+					transformed.x = xvector.x * base.x + yvector.x * base.y;
+					transformed.y = xvector.y * base.x + yvector.y * base.y;
+					transformed.z = base.z;
+
+					if (transformed.x < rmin.x)
+						rmin.x = transformed.x;
+					if (transformed.x > rmax.x)
+						rmax.x = transformed.x;
+					if (transformed.y < rmin.y)
+						rmin.y = transformed.y;
+					if (transformed.y > rmax.y)
+						rmax.y = transformed.y;
+					if (transformed.z < rmin.z)
+						rmin.z = transformed.z;
+					if (transformed.z > rmax.z)
+						rmax.z = transformed.z;
+				}
+			}
+		}
+		UTIL_SetSize(pev, rmin, rmax);
+	}
+}
+
+void CBasePlayerAmmo::CheckIfStuckInWorld()
+{
+	if ( m_StuckChecks >= 5 )
+		return; // We've already checked enough times
+
+	// First we set the new size
+	SetSequenceBox();
+
+	// Now we grab our mins/maxs, and check if we are stuck in the world
+	Vector vecMins = pev->mins + Vector( -5, -5, -5 );
+	Vector vecMaxs = pev->maxs + Vector( 5, 5, 0 );
+	if ( UTIL_IsBoxInWorld( this, vecMins, vecMaxs ) )
+		return; // Not stuck
+
+	// We are stuck, remove our size.
+	UTIL_SetSize( pev, Vector(0,0,0), Vector(0,0,0) );
+}
+
 
 //=========================================================
 // called by the new item with the existing item as parameter

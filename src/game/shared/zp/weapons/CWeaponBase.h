@@ -84,6 +84,12 @@ public:
 	bool IsHolstering( void ) const { return m_bIsHolstering; }
 	float GetHolsterTime( void ) const { return m_flHolsterTime; }
 
+#if !defined( CLIENT_DLL )
+	bool m_bHasDropped = false; // Have we dropped this weapon?
+	int m_StuckChecks = 0; // How many times have we checked if we are stuck?
+	void CheckIfStuckInWorld();
+#endif
+
 protected:
 	void DefaultSpawn();
 	bool CanAttack( float attack_time, float curtime, bool isPredicted );

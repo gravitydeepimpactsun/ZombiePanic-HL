@@ -413,6 +413,9 @@ extern float UTIL_DotPoints(const Vector &vecSrc, const Vector &vecCheck, const 
 
 extern void UTIL_StripToken(const char *pKey, char *pDest, int nLen); // for redundant keynames
 
+// Checks if an entity is in the world.
+extern bool UTIL_IsBoxInWorld( CBaseEntity *pEntity, const Vector &vecMin, const Vector &vecMax );
+
 // Misc functions
 extern void SetMovedir(entvars_t *pev);
 extern Vector VecBModelOrigin(entvars_t *pevBModel);

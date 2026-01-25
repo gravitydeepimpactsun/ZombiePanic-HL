@@ -1777,6 +1777,19 @@ void UTIL_StripToken(const char *pKey, char *pDest, int nLen)
 	pDest[i] = 0;
 }
 
+//=========================================================
+// UTIL_IsBoxInWorld - returns TRUE if any part of the box is in the world, and not stuck in a wall
+//=========================================================
+bool UTIL_IsBoxInWorld( CBaseEntity *pEntity, const Vector &vecMin, const Vector &vecMax )
+{
+	TraceResult tr;
+	Vector vecOrigin = pEntity->pev->origin;
+	UTIL_TraceHull( vecOrigin + vecMin, vecOrigin + vecMax, ignore_monsters, point_hull, pEntity->edict(), &tr );
+	if ( tr.fAllSolid || tr.fStartSolid || tr.flFraction != 1.0 )
+		return false;
+	return true;
+}
+
 // --------------------------------------------------------------
 //
 // CSave

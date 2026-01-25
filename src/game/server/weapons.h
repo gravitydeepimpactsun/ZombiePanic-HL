@@ -377,6 +377,15 @@ public:
 	CBaseEntity *Respawn(void);
 	void EXPORT Materialize(void);
 
+#if !defined( CLIENT_DLL )
+	void SetSequenceBox();
+	int ExtractBbox( int sequence, float *mins, float *maxs );
+
+	bool m_bHasDropped = false; // Have we dropped this weapon?
+	int m_StuckChecks = 0; // How many times have we checked if we are stuck?
+	void CheckIfStuckInWorld();
+#endif
+
 	float m_flDisallowPickup = -1;
 	int m_iAmountLeft = 0;
 	int m_iAmmoToGive = 0;

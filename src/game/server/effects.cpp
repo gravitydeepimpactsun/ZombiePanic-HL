@@ -1391,6 +1391,7 @@ public:
 	void EXPORT OnThink();
 
 private:
+	bool IsValidFilterEntity( CBaseEntity *pHit );
 	void KillSound() { EMIT_SOUND_DYN( ENT(pev), CHAN_BODY, "common/null.wav", 0, ATTN_NORM, 0, PITCH_NORM ); }
 
 	struct entity_flamed_t
@@ -1444,10 +1445,36 @@ void CFlameBaseEnt::Spawn()
 }
 
 
+bool CFlameBaseEnt::IsValidFilterEntity( CBaseEntity *pHit )
+{
+	if ( !pHit ) return false;
+	if ( FClassnameIs( ENT(pHit->pev), "worldspawn" ) ) return false;
+	if ( FClassnameIs( ENT(pHit->pev), "flame_large" ) ) return false;
+	if ( FClassnameIs( ENT(pHit->pev), "flame_medium" ) ) return false;
+	// Is this a breakable entity?
+	CBreakable *pBreakable = dynamic_cast< CBreakable* >( pHit );
+	if ( pBreakable )
+	{
+		// Now we check what material it is made of,
+		// we need to make sure we ignore unbreakable glass, concrete, metal, etc.
+		switch ( pBreakable->m_Material )
+		{
+		    case Materials::matUnbreakableGlass:
+		    case Materials::matMetal:
+		    case Materials::matCeilingTile:
+		    case Materials::matRocks:
+		    case Materials::matComputer:
+		    case Materials::matCinderBlock: return false;
+		}
+	}
+	return true;
+}
+
+
 void CFlameBaseEnt::OnTouched( CBaseEntity* pOther )
 {
 	if ( !pOther ) return;
-	if ( FClassnameIs( ENT(pOther->pev), "worldspawn" ) ) return;
+	if ( !IsValidFilterEntity( pOther ) ) return;
 	for ( size_t i = 0; i < m_List.size(); i++ )
 	{
 		entity_flamed_t client = m_List[i];

@@ -60,7 +60,7 @@ static CBasePlayer player;
 // Local version of game .dll global variables ( time, etc. )
 static globalvars_t Globals;
 
-static CBasePlayerWeapon *g_pWpns[32];
+static CWeaponBase *g_pWpns[ LAST_WEAPON_ID ];
 
 float g_flApplyVel = 0.0;
 int g_irunninggausspred = 0;
@@ -110,7 +110,16 @@ Links the raw entity to an entvars_s holder.  If a player is passed in as the ow
 we set up the m_pPlayer field.
 =====================
 */
-void HUD_PrepEntity(CBaseEntity *pEntity, CBasePlayer *pWeaponOwner)
+void HUD_PrepEntity(CBaseEntity *pEntity)
+{
+	memset(&ev[num_ents], 0, sizeof(entvars_t));
+	pEntity->pev = &ev[num_ents++];
+
+	pEntity->Precache();
+	pEntity->Spawn();
+}
+
+void HUD_PrepWeapon(CWeaponBase *pEntity, ZPWeaponID nID, CBasePlayer *pWeaponOwner)
 {
 	memset(&ev[num_ents], 0, sizeof(entvars_t));
 	pEntity->pev = &ev[num_ents++];
@@ -118,15 +127,14 @@ void HUD_PrepEntity(CBaseEntity *pEntity, CBasePlayer *pWeaponOwner)
 	pEntity->Precache();
 	pEntity->Spawn();
 
-	if (pWeaponOwner)
+	if ( pWeaponOwner )
 	{
 		ItemInfo info;
 
-		((CBasePlayerWeapon *)pEntity)->m_pPlayer = pWeaponOwner;
+		pEntity->m_pPlayer = pWeaponOwner;
+		pEntity->GetItemInfo( &info );
 
-		((CBasePlayerWeapon *)pEntity)->GetItemInfo(&info);
-
-		g_pWpns[info.iId] = (CBasePlayerWeapon *)pEntity;
+		g_pWpns[ nID ] = pEntity;
 	}
 }
 
@@ -621,13 +629,13 @@ void HUD_InitClientWeapons(void)
 	g_engfuncs.pfnRandomLong = gEngfuncs.pfnRandomLong;
 
 	// Allocate a slot for the local player
-	HUD_PrepEntity(&player, NULL);
+	HUD_PrepEntity( &player );
 
 	// Allocate slot(s) for each weapon that we are going to be predicting
 	for ( size_t i = 0; i < ZPWeaponID::LAST_WEAPON_ID; i++ )
 	{
 		// Prepare weapon entities
-		HUD_PrepEntity( &g_Weapons[i], &player );
+		HUD_PrepWeapon( &g_Weapons[i], (ZPWeaponID)i, &player );
 	}
 }
 
@@ -720,7 +728,7 @@ void HUD_WeaponsPostThink(local_state_s *from, local_state_s *to, usercmd_t *cmd
 	if (!pWeapon)
 		return;
 
-	for (i = 0; i < 32; i++)
+	for (i = 0; i < LAST_WEAPON_ID; i++)
 	{
 		pCurrent = g_pWpns[i];
 		if (!pCurrent)
@@ -901,7 +909,7 @@ void HUD_WeaponsPostThink(local_state_s *from, local_state_s *to, usercmd_t *cmd
 		HUD_SendWeaponAnim(to->client.weaponanim, body, 1);
 	}
 
-	for (i = 0; i < 32; i++)
+	for (i = 0; i < LAST_WEAPON_ID; i++)
 	{
 		pCurrent = g_pWpns[i];
 

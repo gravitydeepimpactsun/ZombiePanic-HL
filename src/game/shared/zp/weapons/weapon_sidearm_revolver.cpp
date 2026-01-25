@@ -171,7 +171,7 @@ void CWeaponSideArmRevolver::PrimaryAttack()
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", FALSE, 0);
 
 	m_flNextPrimaryAttack = gpGlobals->time + PrimaryFireRate();
-	m_flTimeWeaponIdle = GetAnimationTime( 18, 30 );
+	m_flTimeWeaponIdle = gpGlobals->time + GetAnimationTime( 18, 30 );
 }
 
 void CWeaponSideArmRevolver::Reload(void)
@@ -216,22 +216,22 @@ void CWeaponSideArmRevolver::WeaponIdle(void)
 	if (flRand <= 0.5)
 	{
 		iAnim = HasBeenUnloaded() ? ANIM_357_UNLOADED_IDLE1 : ANIM_357_IDLE1;
-		m_flTimeWeaponIdle = GetAnimationTime( 41, 15 );
+		m_flTimeWeaponIdle = gpGlobals->time + GetAnimationTime( 41, 15 );
 	}
 	else if (flRand <= 0.7)
 	{
 		iAnim = HasBeenUnloaded() ? ANIM_357_UNLOADED_IDLE2 : ANIM_357_IDLE2;
-		m_flTimeWeaponIdle = GetAnimationTime( 41, 5 );
+		m_flTimeWeaponIdle = gpGlobals->time + GetAnimationTime( 41, 5 );
 	}
 	else if (flRand <= 0.9)
 	{
 		iAnim = HasBeenUnloaded() ? ANIM_357_UNLOADED_IDLE3 : ANIM_357_IDLE3;
-		m_flTimeWeaponIdle = GetAnimationTime( 41, 10 );
+		m_flTimeWeaponIdle = gpGlobals->time + GetAnimationTime( 41, 10 );
 	}
 	else
 	{
 		iAnim = HasBeenUnloaded() ? ANIM_357_UNLOADED_FIDGET : ANIM_357_FIDGET;
-		m_flTimeWeaponIdle = GetAnimationTime( 100, 30 );
+		m_flTimeWeaponIdle = gpGlobals->time + GetAnimationTime( 100, 30 );
 	}
 
 	int bUseScope = FALSE;

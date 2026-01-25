@@ -16,6 +16,7 @@ public:
 	bool IsMeleeWeapon() override { return true; }
 	virtual bool CanUseHeavyAttack() const { return false; }
 	void LoadMeleeConfigFile();
+	int GetMeleeDamageTypeFromString( const char *szDmgType ) const;
 	void Spawn( void );
 	virtual void Precache( void ) {}
 	int AddToPlayer( CBasePlayer *pPlayer );

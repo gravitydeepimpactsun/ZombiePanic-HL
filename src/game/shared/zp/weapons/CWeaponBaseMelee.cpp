@@ -49,13 +49,7 @@ void CWeaponBaseMelee::LoadMeleeConfigFile()
 		pPrimaryAttack = pAttackMap->FindKey( "Primary" );
 		if ( pPrimaryAttack )
 		{
-			m_attackTracers[0].iDmgType = 0;
-			const char* pszDamageType = pPrimaryAttack->GetString( "Type", "BLUNT" );
-			if ( Q_stristr( pszDamageType, "CRUSH" ) != 0 )			m_attackTracers[0].iDmgType |= DMG_CRUSH;
-			if ( Q_stristr( pszDamageType, "BLUNT" ) != 0 )			m_attackTracers[0].iDmgType |= DMG_CLUB;
-			if ( Q_stristr( pszDamageType, "SHARP" ) != 0 )			m_attackTracers[0].iDmgType |= DMG_SLASH;
-			if ( Q_stristr( pszDamageType, "ALWAYSGIB" ) != 0 )		m_attackTracers[0].iDmgType |= DMG_ALWAYSGIB;
-
+			m_attackTracers[0].iDmgType = GetMeleeDamageTypeFromString( pPrimaryAttack->GetString( "Type", "BLUNT" ) );
 			m_attackTracers[0].iAmount = pPrimaryAttack->GetInt( "Count", 16 );
 			m_attackTracers[0].flRange = pPrimaryAttack->GetFloat( "Length", 58 );
 			UTIL_StringToVector( m_attackTracers[0].vecStart.Base(), pPrimaryAttack->GetString( "Start", "20 -10 8" ) );
@@ -65,19 +59,23 @@ void CWeaponBaseMelee::LoadMeleeConfigFile()
 		pSecondaryAttack = pAttackMap->FindKey( "Secondary" );
 		if ( pSecondaryAttack )
 		{
-			m_attackTracers[1].iDmgType = 0;
-			const char* pszDamageType = pSecondaryAttack->GetString( "Type", "BLUNT" );
-			if ( Q_stristr( pszDamageType, "CRUSH" ) != 0 )			m_attackTracers[1].iDmgType |= DMG_CRUSH;
-			if ( Q_stristr( pszDamageType, "BLUNT" ) != 0 )			m_attackTracers[1].iDmgType |= DMG_CLUB;
-			if ( Q_stristr( pszDamageType, "SHARP" ) != 0 )			m_attackTracers[1].iDmgType |= DMG_SLASH;
-			if ( Q_stristr( pszDamageType, "ALWAYSGIB" ) != 0 )		m_attackTracers[1].iDmgType |= DMG_ALWAYSGIB;
-
+			m_attackTracers[1].iDmgType = GetMeleeDamageTypeFromString( pSecondaryAttack->GetString( "Type", "BLUNT" ) );
 			m_attackTracers[1].iAmount = pSecondaryAttack->GetInt( "Count", 16 );
 			m_attackTracers[1].flRange = pSecondaryAttack->GetFloat( "Length", 58 );
 			UTIL_StringToVector( m_attackTracers[1].vecStart.Base(), pSecondaryAttack->GetString( "Start", "20 -10 8" ) );
 			UTIL_StringToVector( m_attackTracers[1].vecEnd.Base(), pSecondaryAttack->GetString( "End", "20 10 -10" ) );
 		}
 	}
+}
+
+int CWeaponBaseMelee::GetMeleeDamageTypeFromString( const char *szDmgType ) const
+{
+	int iDmgType = 0;
+	if ( Q_stristr( szDmgType, "CRUSH" ) != 0 )			iDmgType |= DMG_CRUSH;
+	if ( Q_stristr( szDmgType, "BLUNT" ) != 0 )			iDmgType |= DMG_CLUB;
+	if ( Q_stristr( szDmgType, "SHARP" ) != 0 )			iDmgType |= DMG_SLASH;
+	if ( Q_stristr( szDmgType, "ALWAYSGIB" ) != 0 )		iDmgType |= DMG_ALWAYSGIB;
+	return iDmgType;
 }
 
 void CWeaponBaseMelee::Spawn()
@@ -136,8 +134,8 @@ void CWeaponBaseMelee::SecondaryAttack( void )
 	SendWeaponAnim( ANIM_MELEE_HEAVY_HOLD );
 	m_pPlayer->SetAnimation( PLAYER_ATTACK2_PRE );
 	n_meleeAttackType = MELEE_ATTACK_HEAVY;
-	m_flNextPrimaryAttack = m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + GetMeleeAttackAnimationTime( n_meleeAttackType );
-	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetMeleeAttackAnimationTime( n_meleeAttackType );
+	m_flNextPrimaryAttack = m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + 1.0f;
+	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.0f;
 }
 
 float CWeaponBaseMelee::DoWeaponIdleAnimation( int iAnim )

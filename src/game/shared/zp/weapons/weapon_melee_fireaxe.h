@@ -16,7 +16,7 @@ public:
 	const char *GetMeleeWorldModel() const { return "models/w_fireaxe.mdl"; }
 	const char *GetMeleeViewModel() const { return "models/v_fireaxe.mdl"; }
 	const char *GetMeleePlayerModel() const { return "models/p_fireaxe.mdl"; }
-	//const char *GetMeleePlayerExt() const { return "2handed"; } // TODO: Create 2handed melee ext animations
+	const char *GetMeleePlayerExt() const { return "2handed"; }
 	void DoWeaponSoundFromAttack( MeleeAttackType attackType, bool bHitWorld ) override;
 	void DoWeaponSoundFromMiss( MeleeAttackType attackType ) override;
 };

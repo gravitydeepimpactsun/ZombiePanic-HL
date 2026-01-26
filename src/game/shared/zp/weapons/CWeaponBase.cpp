@@ -385,6 +385,7 @@ void CWeaponBase::CheckIfStuckInWorld()
 
 	// We are stuck, remove our size.
 	UTIL_SetSize( pev, Vector(0,0,0), Vector(0,0,0) );
+	pev->velocity = pev->basevelocity = Vector( 0, 0, 0 ); // Stop moving
 }
 #endif
 

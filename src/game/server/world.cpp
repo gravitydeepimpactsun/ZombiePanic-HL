@@ -130,6 +130,11 @@ DLL_DECALLIST gDecals[] = {
 	{ "{zswipe3", 0 }, // DECAL_ZOMBIE_SWIPE3
 	{ "{zswipe4", 0 }, // DECAL_ZOMBIE_SWIPE4
 	{ "{zswipe5", 0 }, // DECAL_ZOMBIE_SWIPE5
+	{ "{mwshrp1", 0 }, // DECAL_MELEE_SHARP1
+	{ "{mwshrp2", 0 }, // DECAL_MELEE_SHARP2
+	{ "{mwshrp3", 0 }, // DECAL_MELEE_SHARP3
+	{ "{mwshrp4", 0 }, // DECAL_MELEE_SHARP4
+	{ "{mwshrp5", 0 }, // DECAL_MELEE_SHARP5
 };
 
 /*

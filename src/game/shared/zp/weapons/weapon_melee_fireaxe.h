@@ -17,6 +17,7 @@ public:
 	const char *GetMeleeViewModel() const { return "models/v_fireaxe.mdl"; }
 	const char *GetMeleePlayerModel() const { return "models/p_fireaxe.mdl"; }
 	const char *GetMeleePlayerExt() const { return "2handed"; }
+	Bullet GetBulletType() const { return BULLET_PLAYER_SHARP; }
 	void DoWeaponSoundFromAttack( MeleeAttackType attackType, bool bHitWorld ) override;
 	void DoWeaponSoundFromMiss( MeleeAttackType attackType ) override;
 };

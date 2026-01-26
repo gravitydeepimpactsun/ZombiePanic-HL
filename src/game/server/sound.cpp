@@ -1945,7 +1945,7 @@ float TEXTURETYPE_PlaySound(TraceResult *ptr, Vector vecSrc, Vector vecEnd, int 
 		cnt = 3;
 		break;
 	case CHAR_TEX_FLESH:
-		if (iBulletType == BULLET_PLAYER_CROWBAR)
+		if (iBulletType == BULLET_PLAYER_CROWBAR || iBulletType == BULLET_PLAYER_SHARP || iBulletType == BULLET_PLAYER_SWIPE)
 			return 0.0; // crowbar already makes this sound
 		fvol = 1.0;
 		fvolbar = 0.2;

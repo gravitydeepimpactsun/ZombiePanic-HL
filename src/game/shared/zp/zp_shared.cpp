@@ -523,6 +523,7 @@ int ZP::GrabCorrectDecal( int iDamageFlag )
 	{
 		case DMG_CLUB: return DECAL_CROWBAR1 + RANDOM_LONG(0, 4);
 		case DMG_SLASH: return DECAL_ZOMBIE_SWIPE1 + RANDOM_LONG(0, 4);
+		case DMG_SONIC: return DECAL_MELEE_SHARP1 + RANDOM_LONG(0, 4);
 	}
 	// Default, if we found nothing.
 	return DECAL_GUNSHOT1 + RANDOM_LONG(0, 4);

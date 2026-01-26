@@ -180,6 +180,9 @@ void DecalGunshot(TraceResult *pTrace, const Vector &vDir, int iBulletType)
 		case BULLET_PLAYER_CROWBAR:
 			iDmgDecal = DamageDecal(pEntity, DMG_CLUB);
 			break;
+		case BULLET_PLAYER_SHARP:
+			iDmgDecal = DamageDecal(pEntity, DMG_SONIC);
+			break;
 		case BULLET_PLAYER_SWIPE:
 			iDmgDecal = DamageDecal(pEntity, DMG_SLASH);
 			break;

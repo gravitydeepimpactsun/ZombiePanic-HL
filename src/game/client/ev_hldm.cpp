@@ -261,10 +261,8 @@ float EV_HLDM_PlayTextureSound(int idx, pmtrace_t *ptr, float *vecSrc, float *ve
 		cnt = 3;
 		break;
 	case CHAR_TEX_FLESH:
-		if (iBulletType == BULLET_PLAYER_CROWBAR)
+		if (iBulletType == BULLET_PLAYER_CROWBAR || iBulletType == BULLET_PLAYER_SHARP || iBulletType == BULLET_PLAYER_SWIPE)
 			return 0.0; // crowbar already makes this sound
-		if (iBulletType == BULLET_PLAYER_SWIPE)
-			return 0.0; // zombie swipe already makes this sound
 		fvol = 1.0;
 		fvolbar = 0.2;
 		rgsz[0] = "weapons/bullet_hit1.wav";

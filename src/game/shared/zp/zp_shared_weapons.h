@@ -17,6 +17,7 @@ typedef enum
 	BULLET_PLAYER_DBARREL, // double barrel
 	BULLET_PLAYER_CROWBAR, // crowbar swipe
 	BULLET_PLAYER_SWIPE, // zombie swipe
+	BULLET_PLAYER_SHARP, // sharp melee weapon
 
 	BULLET_PLAYER_FAFO,
 

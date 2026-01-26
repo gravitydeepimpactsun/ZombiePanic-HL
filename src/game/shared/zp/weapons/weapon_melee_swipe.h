@@ -17,6 +17,7 @@ public:
 	const char *GetMeleeViewModel() const { return "models/v_swipe.mdl"; }
 	const char *GetMeleePlayerModel() const { return "models/p_swipe.mdl"; }
 	const char *GetMeleePlayerExt() const { return "swipe"; }
+	Bullet GetBulletType() const { return BULLET_PLAYER_SWIPE; }
 	void DoWeaponSoundFromAttack( MeleeAttackType attackType, bool bHitWorld ) override;
 	void DoWeaponSoundFromMiss( MeleeAttackType attackType ) override;
 };

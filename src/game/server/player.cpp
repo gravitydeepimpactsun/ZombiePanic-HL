@@ -3136,7 +3136,7 @@ void CBasePlayer::DropWeapon( CBasePlayerWeapon *pWeapon, bool bAutoSwitch, bool
 	UTIL_MakeVectors(pev->angles);
 	Vector vecDir = gpGlobals->v_forward;
 
-	CWeaponBase *pNewWeapon = (CWeaponBase *)CBaseEntity::Create((char *)STRING(weaponname), pev->origin + vecDir * 10, pev->angles, nullptr);
+	CWeaponBase *pNewWeapon = (CWeaponBase *)CBaseEntity::Create((char *)STRING(weaponname), pev->origin + vecDir, pev->angles, nullptr);
 	if ( !pNewWeapon )
 	{
 		Msg( "Failed to create weapon %s!\n", STRING(weaponname) );
@@ -3150,11 +3150,11 @@ void CBasePlayer::DropWeapon( CBasePlayerWeapon *pWeapon, bool bAutoSwitch, bool
 	pNewWeapon->pev->angles.x = 0;
 	pNewWeapon->pev->angles.z = 0;
 	pNewWeapon->m_bHasDropped = true;
-	pNewWeapon->CheckIfStuckInWorld();
 	if ( pukevel )
-		pNewWeapon->pev->velocity = vecDir * 300 + RandomVector( -200, 200 );
+		pNewWeapon->pev->velocity = vecDir * 250 + RandomVector( -200, 200 );
 	else
-		pNewWeapon->pev->velocity = vecDir * 300 + vecDir * 100;
+		pNewWeapon->pev->velocity = vecDir * 300;
+	pNewWeapon->CheckIfStuckInWorld();
 
 	// Check revolver unloaded state
 	pRevolver = dynamic_cast< CWeaponSideArmRevolver* >( pNewWeapon );
@@ -6958,7 +6958,6 @@ bool CBasePlayer::DropAmmo( int ammoindex, int amount, Vector Dir, bool pukevel 
 	pAmmoItem->pev->impulse = 1;
 	pAmmoItem->SetSpawnedTroughRandomEntity( true );
 	pAmmoItem->m_bHasDropped = true;
-	pAmmoItem->CheckIfStuckInWorld();
 
 	// for gpGlobals->v_forward
 	UTIL_MakeVectors( pev->v_angle );
@@ -6966,6 +6965,7 @@ bool CBasePlayer::DropAmmo( int ammoindex, int amount, Vector Dir, bool pukevel 
 		pAmmoItem->pev->velocity = gpGlobals->v_forward * 325;
 	else
 		pAmmoItem->pev->velocity = gpGlobals->v_forward * 300;
+	pAmmoItem->CheckIfStuckInWorld();
 
 	// Play drop sound
 	EMIT_SOUND(ENT(pAmmoItem->pev), CHAN_VOICE, "player/pl_drop_ammo.wav", 1, ATTN_NORM);
@@ -6976,7 +6976,7 @@ bool CBasePlayer::DropAmmo( int ammoindex, int amount, Vector Dir, bool pukevel 
 bool CBasePlayer::DropAmmo( int ammoindex, int amount )
 {
 	UTIL_MakeVectors(pev->angles);
-	return DropAmmo( ammoindex, amount, pev->origin + gpGlobals->v_forward * 10, false );
+	return DropAmmo( ammoindex, amount, pev->origin + gpGlobals->v_forward, false );
 }
 
 void CBasePlayer::ChangeAmmoTypeToDrop()

@@ -268,14 +268,14 @@ bool CWeaponBaseMelee::DidMeleeAttackHit( MeleeAttackType attackTrace )
 				{
 #ifndef CLIENT_DLL
 					Vector vecEnd = vPos + (vTraceTargetDir * flMeleeMaxTraceDist);
-					TEXTURETYPE_PlaySound( &m_trHit, vPos, vPos + (vecEnd - vPos) * 2, BULLET_PLAYER_CROWBAR );
+					TEXTURETYPE_PlaySound( &m_trHit, vPos, vPos + (vecEnd - vPos) * 2, GetBulletType() );
 #endif
 					record.IsWorld = true;
 				}
 			}
 			else
 				record.IsWorld = true;
-			DecalGunshot( &m_trHit, vForward, BULLET_PLAYER_CROWBAR );
+			DecalGunshot( &m_trHit, vForward, GetBulletType() );
 
 			hitEntities.push_back( record );
 		}

@@ -49,6 +49,7 @@ public:
 	virtual const char *GetMeleeViewModel() const { return "models/v_crowbar.mdl"; }
 	virtual const char *GetMeleePlayerModel() const { return "models/p_crowbar.mdl"; }
 	virtual const char *GetMeleePlayerExt() const { return "crowbar"; }
+	virtual Bullet GetBulletType() const { return BULLET_PLAYER_CROWBAR; }
 
 	float GetMeleeAttackRange( MeleeAttackType attackType ) const;
 	float GetMeleeAttackDamage( MeleeAttackType attackType ) const;

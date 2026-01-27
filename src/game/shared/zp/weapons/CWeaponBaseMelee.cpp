@@ -314,19 +314,16 @@ CWeaponBaseMelee::WhatDidWeHit CWeaponBaseMelee::DoAttackTrace( MeleeAttackType 
 			if ( pHitEntity )
 			{
 				if ( pHitEntity->Classify() != CLASS_NONE && pHitEntity->Classify() != CLASS_MACHINE )
-				{
 					eWhatDidWeHit = HIT_ENTITY;
-					pHitEntity->TraceAttack( m_pPlayer->pev, flMeleeDaamge, vTraceTargetDir, &m_trHit, bitsDamageType );
-				}
 				else
 				{
 #ifndef CLIENT_DLL
 					Vector vecEnd = vPos + (vTraceTargetDir * flMeleeMaxTraceDist);
 					TEXTURETYPE_PlaySound( &m_trHit, vPos, vPos + (vecEnd - vPos) * 2, GetBulletType() );
 #endif
-					pHitEntity->TraceAttack( m_pPlayer->pev, flMeleeDaamge, vTraceTargetDir, &m_trHit, bitsDamageType );
 					eWhatDidWeHit = HIT_WORLD;
 				}
+				pHitEntity->TraceAttack( m_pPlayer->pev, flMeleeDaamge, vTraceTargetDir, &m_trHit, bitsDamageType );
 			}
 			else
 				eWhatDidWeHit = HIT_WORLD;

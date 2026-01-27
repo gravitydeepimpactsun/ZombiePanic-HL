@@ -8,6 +8,9 @@
 #define MELEE_SND_BODYHIT_VOLUME 128
 #define MELEE_SND_WALLHIT_VOLUME 512
 
+#define MELEE_MAX_ATTACKMAP_TRACES 2
+#define MELEE_MAX_ATTACKMAP_TRACER_SETS 2
+
 class CWeaponBaseMelee : public CWeaponBase
 {
 	DECLARE_CLASS_SIMPLE( CWeaponBaseMelee, CWeaponBase );
@@ -37,7 +40,15 @@ public:
 		MELEE_ATTACK_HEAVY		// Secondary attack
 	};
 	
+	enum WhatDidWeHit
+	{
+		HIT_NOTHING = 0,
+		HIT_WORLD,
+		HIT_ENTITY
+	};
+
 	bool DidMeleeAttackHit( MeleeAttackType attackTrace );
+	WhatDidWeHit DoAttackTrace( MeleeAttackType attackType, int iTracerSet, bool bDoHullTrace );
 	void DoMeleeAttack();
 
 	bool IsAttackInProgress() const { return ( n_meleeAttackType != MELEE_ATTACK_NONE ); }
@@ -72,25 +83,16 @@ protected:
 		float flAnimTimeHold; // Only used for heavy attacks for now.
 		float flRange;
 		float flDamage;
-		Vector vecStart;
-		Vector vecEnd;
+		Vector vecStart[MELEE_MAX_ATTACKMAP_TRACER_SETS];
+		Vector vecEnd[MELEE_MAX_ATTACKMAP_TRACER_SETS];
 	};
-	MeleeAttackTrace m_attackTracers[2];
+	MeleeAttackTrace m_attackTracers[MELEE_MAX_ATTACKMAP_TRACES];
 
 	// Attack tracer
 	TraceResult m_trHit;
 
 private:
-	struct MeleeAttackRecord
-	{
-		edict_t		*HitEntity;
-		int			HitGroup;
-		float		Fraction;
-		bool		IsWorld;
-		Vector		End;
-		Vector		Direction;
-	};
-	bool IsEntityAlreadyHit( edict_t *pEntity, const std::vector<MeleeAttackRecord> &hitEntities );
+	bool IsEntityAlreadyHit( edict_t *pEntity, const std::vector<edict_t *> &hitEntities );
 };
 
 #endif

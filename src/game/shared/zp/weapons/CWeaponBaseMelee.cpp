@@ -52,8 +52,10 @@ void CWeaponBaseMelee::LoadMeleeConfigFile()
 			m_attackTracers[0].iDmgType = GetMeleeDamageTypeFromString( pPrimaryAttack->GetString( "Type", "BLUNT" ) );
 			m_attackTracers[0].iAmount = pPrimaryAttack->GetInt( "Count", 16 );
 			m_attackTracers[0].flRange = pPrimaryAttack->GetFloat( "Length", 58 );
-			UTIL_StringToVector( m_attackTracers[0].vecStart.Base(), pPrimaryAttack->GetString( "Start", "20 -10 8" ) );
-			UTIL_StringToVector( m_attackTracers[0].vecEnd.Base(), pPrimaryAttack->GetString( "End", "20 10 -10" ) );
+			UTIL_StringToVector( m_attackTracers[0].vecStart[0].Base(), pPrimaryAttack->GetString( "Start", "20 -10 8" ) );
+			UTIL_StringToVector( m_attackTracers[0].vecEnd[0].Base(), pPrimaryAttack->GetString( "End", "20 10 -10" ) );
+			UTIL_StringToVector( m_attackTracers[0].vecStart[1].Base(), pPrimaryAttack->GetString( "Start2", "0 0 0" ) );
+			UTIL_StringToVector( m_attackTracers[0].vecEnd[1].Base(), pPrimaryAttack->GetString( "End2", "0 0 0" ) );
 		}
 
 		pSecondaryAttack = pAttackMap->FindKey( "Secondary" );
@@ -62,8 +64,10 @@ void CWeaponBaseMelee::LoadMeleeConfigFile()
 			m_attackTracers[1].iDmgType = GetMeleeDamageTypeFromString( pSecondaryAttack->GetString( "Type", "BLUNT" ) );
 			m_attackTracers[1].iAmount = pSecondaryAttack->GetInt( "Count", 16 );
 			m_attackTracers[1].flRange = pSecondaryAttack->GetFloat( "Length", 58 );
-			UTIL_StringToVector( m_attackTracers[1].vecStart.Base(), pSecondaryAttack->GetString( "Start", "20 -10 8" ) );
-			UTIL_StringToVector( m_attackTracers[1].vecEnd.Base(), pSecondaryAttack->GetString( "End", "20 10 -10" ) );
+			UTIL_StringToVector( m_attackTracers[1].vecStart[0].Base(), pSecondaryAttack->GetString( "Start", "20 -10 8" ) );
+			UTIL_StringToVector( m_attackTracers[1].vecEnd[0].Base(), pSecondaryAttack->GetString( "End", "20 10 -10" ) );
+			UTIL_StringToVector( m_attackTracers[1].vecStart[1].Base(), pPrimaryAttack->GetString( "Start2", "0 0 0" ) );
+			UTIL_StringToVector( m_attackTracers[1].vecEnd[1].Base(), pPrimaryAttack->GetString( "End2", "0 0 0" ) );
 		}
 	}
 }
@@ -171,11 +175,11 @@ int CWeaponBaseMelee::GetMeleeDamageType(MeleeAttackType attackType) const
 	return m_attackTracers[ attackType == MELEE_ATTACK_HEAVY ? 1 : 0 ].iDmgType;
 }
 
-bool CWeaponBaseMelee::IsEntityAlreadyHit( edict_t *pEntity, const std::vector<MeleeAttackRecord> &hitEntities )
+bool CWeaponBaseMelee::IsEntityAlreadyHit( edict_t *pEntity, const std::vector<edict_t *> &hitEntities )
 {
 	for ( size_t i = 0; i < hitEntities.size(); ++i )
 	{
-		if ( hitEntities[i].HitEntity == pEntity )
+		if ( hitEntities[i] == pEntity )
 			return true;
 	}
 	return false;
@@ -201,12 +205,46 @@ void CWeaponBaseMelee::WeaponIdle()
 	SendWeaponAnim( iAnim );
 }
 
-bool CWeaponBaseMelee::DidMeleeAttackHit( MeleeAttackType attackTrace )
-{
-	bool bHitSomething = false;
-	std::vector<MeleeAttackRecord> hitEntities;
-	MeleeAttackTrace *pMelee = &m_attackTracers[ attackTrace == MELEE_ATTACK_HEAVY ? 1 : 0 ];
+#ifndef CLIENT_DLL
+static ConVar sv_melee_debug_traces( "sv_melee_debug_traces", "0", FCVAR_CHEATS, "Enable to visualize melee attack traces." );
+#endif
 
+bool CWeaponBaseMelee::DidMeleeAttackHit( MeleeAttackType attackType )
+{
+	// Check for hits with the 1st tracer set.
+	// First we do line tracer, then hull tracer (if nothing was hit).
+	WhatDidWeHit eWhatDidWeHit1 = DoAttackTrace( attackType, 0, false );
+	if ( eWhatDidWeHit1 == HIT_NOTHING ) eWhatDidWeHit1 = DoAttackTrace( attackType, 0, true );
+
+	// Now do 2nd tracer set, and do the same thing.
+	WhatDidWeHit eWhatDidWeHit2 = DoAttackTrace( attackType, 1, false );
+	if ( eWhatDidWeHit2 == HIT_NOTHING ) eWhatDidWeHit2 = DoAttackTrace( attackType, 1, true );
+
+	// If we didn't hit anything with the 1st tracer, use the result from the 2nd tracer.
+	if ( eWhatDidWeHit1 == HIT_NOTHING ) eWhatDidWeHit1 = eWhatDidWeHit2;
+
+	// What did we hit?
+	bool bHitSomething = false;
+
+	// We managed to hit something
+	if ( eWhatDidWeHit1 > HIT_NOTHING )
+	{
+		bool bHitWorld = ( eWhatDidWeHit1 == HIT_WORLD );
+		DoWeaponSoundFromAttack( attackType, bHitWorld );
+		m_pPlayer->m_iWeaponVolume = bHitWorld ? MELEE_SND_WALLHIT_VOLUME : MELEE_SND_BODYHIT_VOLUME;
+		bHitSomething = true;
+	}
+	else
+		DoWeaponSoundFromMiss( attackType );
+
+	return bHitSomething;
+}
+
+CWeaponBaseMelee::WhatDidWeHit CWeaponBaseMelee::DoAttackTrace( MeleeAttackType attackType, int iTracerSet, bool bDoHullTrace )
+{
+	std::vector<edict_t *> hitEntities;
+	MeleeAttackTrace *pMelee = &m_attackTracers[ attackType == MELEE_ATTACK_HEAVY ? 1 : 0 ];
+	WhatDidWeHit eWhatDidWeHit = HIT_NOTHING;
 	UTIL_MakeVectors( m_pPlayer->pev->v_angle );
 
 	Vector vPos, vForward, vRight, vUp;
@@ -216,8 +254,8 @@ bool CWeaponBaseMelee::DidMeleeAttackHit( MeleeAttackType attackTrace )
 	vUp = gpGlobals->v_up;
 
 	// Get the front, right, and up movement vectors.
-	Vector vStartFRU = pMelee->vecStart;
-	Vector vEndFRU = pMelee->vecEnd;
+	Vector vStartFRU = pMelee->vecStart[ iTracerSet ];
+	Vector vEndFRU = pMelee->vecEnd[ iTracerSet ];
 
 	// Calculate the FRU start and end vectors.
 	Vector vStart = vPos
@@ -236,6 +274,12 @@ bool CWeaponBaseMelee::DidMeleeAttackHit( MeleeAttackType attackTrace )
 	int nMeleeTraceCount = pMelee->iAmount;
 	float flMeleeMaxTraceDist = pMelee->flRange;
 
+	float flMeleeDaamge = GetMeleeAttackDamage( attackType );
+	int bitsDamageType = GetMeleeDamageType( attackType );
+
+	// Clear multi damage
+	ClearMultiDamage();
+
 	// Calculate the distance to move per trace.
 	float flMeleeTraceDist = vStart.DistTo( vEnd ) / max( nMeleeTraceCount, 1 );
 	for ( int n = 0; n <= nMeleeTraceCount; ++n )
@@ -247,94 +291,58 @@ bool CWeaponBaseMelee::DidMeleeAttackHit( MeleeAttackType attackTrace )
 		Vector vTraceTargetDir = vTraceTarget - vPos;
 		VectorNormalize( vTraceTargetDir );
 
-		trace_t trTrace;
-		UTIL_TraceLine( vPos, vPos + (vTraceTargetDir * flMeleeMaxTraceDist), dont_ignore_monsters, ENT(m_pPlayer->pev), &m_trHit );
+		// Do hull trace, if the line trace didn't hit anything from the previous call.
+		// But we only care about this on the server side.
+#ifndef CLIENT_DLL
+		if ( bDoHullTrace )
+			UTIL_TraceHull( vPos, vPos + (vTraceTargetDir * flMeleeMaxTraceDist), dont_ignore_monsters, point_hull, ENT(m_pPlayer->pev), &m_trHit );
+		else
+#endif
+			UTIL_TraceLine( vPos, vPos + (vTraceTargetDir * flMeleeMaxTraceDist), dont_ignore_monsters, ENT(m_pPlayer->pev), &m_trHit );
+
 		if ( m_trHit.flFraction < 1.0 )
 		{
-			if ( IsEntityAlreadyHit( m_trHit.pHit, hitEntities ) ) continue;
-			MeleeAttackRecord record;
-			record.HitEntity = m_trHit.pHit;
-			record.HitGroup = m_trHit.iHitgroup;
-			record.Fraction = m_trHit.flFraction;
-			record.End = m_trHit.vecEndPos;
-			record.Direction = vTraceTargetDir;
+#ifndef CLIENT_DLL
+			// TODO: Create a proper user message to the player, that visualizes the melee traces.
+			// As GoldSrc does not have debug overlays like Source.
+			if ( sv_melee_debug_traces.GetBool() )
+				DecalGunshot( &m_trHit, vForward, DMG_BULLET );
+#endif
 
-			CBaseEntity *pHitEntity = CBaseEntity::Instance( record.HitEntity );
+			if ( IsEntityAlreadyHit( m_trHit.pHit, hitEntities ) ) continue;
+			CBaseEntity *pHitEntity = CBaseEntity::Instance( m_trHit.pHit );
 			if ( pHitEntity )
 			{
 				if ( pHitEntity->Classify() != CLASS_NONE && pHitEntity->Classify() != CLASS_MACHINE )
-					record.IsWorld = false;
+				{
+					eWhatDidWeHit = HIT_ENTITY;
+					pHitEntity->TraceAttack( m_pPlayer->pev, flMeleeDaamge, vTraceTargetDir, &m_trHit, bitsDamageType );
+				}
 				else
 				{
 #ifndef CLIENT_DLL
 					Vector vecEnd = vPos + (vTraceTargetDir * flMeleeMaxTraceDist);
 					TEXTURETYPE_PlaySound( &m_trHit, vPos, vPos + (vecEnd - vPos) * 2, GetBulletType() );
 #endif
-					record.IsWorld = true;
+					pHitEntity->TraceAttack( m_pPlayer->pev, flMeleeDaamge, vTraceTargetDir, &m_trHit, bitsDamageType );
+					eWhatDidWeHit = HIT_WORLD;
 				}
 			}
 			else
-				record.IsWorld = true;
+				eWhatDidWeHit = HIT_WORLD;
+
 			DecalGunshot( &m_trHit, vForward, GetBulletType() );
-
-			hitEntities.push_back( record );
+			hitEntities.push_back( m_trHit.pHit );
 		}
 	}
 
-	// We managed to hit something
-	if ( hitEntities.size() > 0 )
-	{
-		float flMeleeDaamge = GetMeleeAttackDamage( attackTrace );
-		int bitsDamageType = GetMeleeDamageType( attackTrace );
-		for ( size_t i = 0; i < hitEntities.size(); ++i )
-		{
-			CBaseEntity *pHitEntity = CBaseEntity::Instance( hitEntities[i].HitEntity );
-			if ( pHitEntity )
-			{
-				// Apply damage
-				ClearMultiDamage();
-				Vector vecEndPos = hitEntities[i].End;
-				Vector vecTraceDir = hitEntities[i].Direction;
-				Vector vecOrigin = vecEndPos - vecTraceDir * 4;
+	// Apply all the damage we traced this frame
+	ApplyMultiDamage( m_pPlayer->pev, m_pPlayer->pev );
 
-				// Make sure we add multi damage properly
-				AddMultiDamage( m_pPlayer->pev, pHitEntity, flMeleeDaamge, bitsDamageType );
+	// Clear it after use
+	hitEntities.clear();
 
-				// Hit world?
-				if ( !hitEntities[i].IsWorld )
-				{
-					// Hit an entity
-					DoWeaponSoundFromAttack( attackTrace, false );
-
-					// Spawn blood from the shot
-					SpawnBlood( vecOrigin, BLOOD_COLOR_RED, flMeleeDaamge );
-
-#ifndef CLIENT_DLL
-					// Do blood decal stuff
-					TraceResult Bloodtr;
-					UTIL_TraceLine( vecEndPos, vecEndPos + vecTraceDir * -172, ignore_monsters, ENT(pev), &Bloodtr );
-					if ( Bloodtr.flFraction != 1.0 )
-						UTIL_BloodDecalTrace( &Bloodtr, BloodColor(), false );
-#endif
-				}
-				else
-				{
-					// Hit world
-					DoWeaponSoundFromAttack( attackTrace, true );
-				}
-				m_pPlayer->m_iWeaponVolume = hitEntities[i].IsWorld ? MELEE_SND_WALLHIT_VOLUME : MELEE_SND_BODYHIT_VOLUME;
-
-				// Apply all the damage
-				ApplyMultiDamage( m_pPlayer->pev, m_pPlayer->pev );
-			}
-		}
-		bHitSomething = true;
-		hitEntities.clear();
-	}
-	else
-		DoWeaponSoundFromMiss( attackTrace );
-
-	return bHitSomething;
+	return eWhatDidWeHit;
 }
 
 void CWeaponBaseMelee::DoMeleeAttack()

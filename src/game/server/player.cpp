@@ -289,6 +289,9 @@ int gmsgMouseFix = 0;
 
 int gmsgZPAPICall = 0;
 
+// Debugging
+int gmsgDebugLine = 0;
+
 const char *const gCustomMessages[] = {
 	"IconInfo",
 	"CheatCheck",
@@ -348,6 +351,9 @@ void LinkUserMessages(void)
 	gmsgFade = REG_USER_MSG("ScreenFade", sizeof(ScreenFade));
 	gmsgAmmoX = REG_USER_MSG("AmmoX", 2);
 	gmsgTeamNames = REG_USER_MSG("TeamNames", -1);
+
+	// Debugging
+	gmsgDebugLine = REG_USER_MSG( "DebugLine", -1 );
 
 	gmsgStatusText = REG_USER_MSG("StatusText", -1);
 	gmsgStatusValue = REG_USER_MSG("StatusValue", 3);

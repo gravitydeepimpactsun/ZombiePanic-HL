@@ -356,6 +356,9 @@ void CHud::Init(void)
 	HookHudMessage<&CHud::MsgFunc_Voice>("Voice");
 	HookHudMessage<&CHud::MsgFunc_APICheck>("APICheck");
 
+	// Debugging
+	HookHudMessage<&CHud::MsgFunc_DebugLine>("DebugLine");
+
 	// TFFree CommandMenu
 	HookCommand("+commandmenu", [] {
 		if (g_pViewport)

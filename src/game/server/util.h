@@ -399,6 +399,18 @@ extern void UTIL_HudMessageAll(const hudtextparms_t &textparms, const char *pMes
 extern void UTIL_HudMessage(CBaseEntity *pEntity, const hudtextparms_t &textparms, const char *pMessage);
 extern void UTIL_HudMessageRaw(CBaseEntity *pEntity, const hudtextparms_t &textparms, const char *pMessage);
 
+// Debugging
+typedef struct
+{
+	int red;
+	int green;
+	int blue;
+	float duration;
+	Vector start;
+	Vector end;
+} UtilDebugLine;
+extern void UTIL_DoDebugLine( CBaseEntity *pEntity, const UtilDebugLine &dbg );
+
 // for handy use with ClientPrint params
 extern char *UTIL_dtos1(int d);
 extern char *UTIL_dtos2(int d);

@@ -407,3 +407,25 @@ int CHud::MsgFunc_APICheck(const char *pszName, int iSize, void *pbuf)
 	g_ClientAPIDataArray[ iPlayer ].Key = szKey;
 	return 1;
 }
+
+int CHud::MsgFunc_DebugLine(const char* pszName, int iSize, void* pbuf)
+{
+	BEGIN_READ(pbuf, iSize);
+	Vector start;
+	Vector end;
+	for (int i = 0; i < 3; i++)
+	{
+		start[i] = READ_COORD();
+	}
+	for (int i = 0; i < 3; i++)
+	{
+		end[i] = READ_COORD();
+	}
+	int r = READ_BYTE();
+	int g = READ_BYTE();
+	int b = READ_BYTE();
+	float life = READ_FLOAT();
+	// TODO: Create a debug overlay system.
+	//DebugOverlay::AddDebugLine( start, end, r, g, b, life, false );
+	return 1;
+}

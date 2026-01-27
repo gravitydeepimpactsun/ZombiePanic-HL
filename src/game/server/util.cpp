@@ -956,6 +956,29 @@ void UTIL_SayTextAll(const char *pText, CBaseEntity *pEntity)
 	MESSAGE_END();
 }
 
+extern int gmsgDebugLine;
+void UTIL_DoDebugLine( CBaseEntity *pEntity, const UtilDebugLine &dbg )
+{
+	if (!pEntity || !pEntity->IsNetClient())
+		return;
+
+	MESSAGE_BEGIN( MSG_ONE, gmsgDebugLine, NULL, pEntity->edict() );
+		// Start and end positions
+		WRITE_COORD( dbg.start.x );
+		WRITE_COORD( dbg.start.y );
+		WRITE_COORD( dbg.start.z );
+		WRITE_COORD( dbg.end.x );
+		WRITE_COORD( dbg.end.y );
+		WRITE_COORD( dbg.end.z );
+		// Color
+		WRITE_BYTE( dbg.red );
+		WRITE_BYTE( dbg.green );
+		WRITE_BYTE( dbg.blue );
+		// Life time
+		WRITE_FLOAT( dbg.duration );
+	MESSAGE_END();
+}
+
 char *UTIL_dtos1(int d)
 {
 	static char buf[8];

@@ -300,15 +300,22 @@ CWeaponBaseMelee::WhatDidWeHit CWeaponBaseMelee::DoAttackTrace( MeleeAttackType 
 #endif
 			UTIL_TraceLine( vPos, vPos + (vTraceTargetDir * flMeleeMaxTraceDist), dont_ignore_monsters, ENT(m_pPlayer->pev), &m_trHit );
 
-		if ( m_trHit.flFraction < 1.0 )
-		{
 #ifndef CLIENT_DLL
-			// TODO: Create a proper user message to the player, that visualizes the melee traces.
-			// As GoldSrc does not have debug overlays like Source.
-			if ( sv_melee_debug_traces.GetBool() )
-				DecalGunshot( &m_trHit, vForward, DMG_BULLET );
+		if ( sv_melee_debug_traces.GetBool() )
+		{
+			UtilDebugLine vDbgLine;
+			vDbgLine.start = vPos;
+			vDbgLine.end = m_trHit.vecEndPos;
+			vDbgLine.red = 255;
+			vDbgLine.green = 0;
+			vDbgLine.blue = 0;
+			vDbgLine.duration = 2.0f;
+			UTIL_DoDebugLine( m_pPlayer, vDbgLine );
+		}
 #endif
 
+		if ( m_trHit.flFraction < 1.0 )
+		{
 			if ( IsEntityAlreadyHit( m_trHit.pHit, hitEntities ) ) continue;
 			CBaseEntity *pHitEntity = CBaseEntity::Instance( m_trHit.pHit );
 			if ( pHitEntity )

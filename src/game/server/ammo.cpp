@@ -73,3 +73,6 @@ REGISTER_BACKWARD_COMPATIBLE_AMMO_BOX( ammo_556AR, ammo_riflebox );
 
 // Long rifle ammo box
 REGISTER_AMMO_BOX( ammo_22lrbox, "models/w_22lrbox.mdl", ZPAmmoTypes::AMMO_LONGRIFLE );
+
+// Our barricade plank (not really an ammo box, but oh well)
+REGISTER_AMMO_BOX( ammo_barricade, "models/w_barricade.mdl", ZPAmmoTypes::AMMO_BARRICADE );

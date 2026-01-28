@@ -289,6 +289,8 @@ int gmsgMouseFix = 0;
 
 int gmsgZPAPICall = 0;
 
+int gmsgBarricadeBuildProgress = 0;
+
 // Debugging
 int gmsgDebugLine = 0;
 
@@ -389,6 +391,8 @@ void LinkUserMessages(void)
 	gmsgMouseFix = REG_USER_MSG("MouseFix", -1);
 
 	gmsgZPAPICall = REG_USER_MSG("APICheck", -1);
+
+	gmsgBarricadeBuildProgress = REG_USER_MSG("Barricade", sizeof(float));
 }
 
 LINK_ENTITY_TO_CLASS(player, CBasePlayer);
@@ -1234,6 +1238,10 @@ void CBasePlayer::SetAnimation(PLAYER_ANIM playerAnim)
 
 	case PLAYER_SUPERJUMP:
 		m_IdealActivity = ACT_LEAP;
+		break;
+
+	case PLAYER_BARRICADE:
+		m_IdealActivity = ACT_BARRICADE;
 		break;
 
 	case PLAYER_DIE:
@@ -2368,6 +2376,7 @@ bool CBasePlayer::CanActiveInteruptAnimation()
 	    case ACT_DISARM:
 		case ACT_RANGE_ATTACK1:
 		case ACT_RANGE_ATTACK2:
+	    case ACT_BARRICADE:
 		case ACT_MELEE_HEAVY_ATTACK_PRE:
 		case ACT_MELEE_HEAVY_ATTACK_LOOP:
 		case ACT_MELEE_HEAVY_ATTACK_POST:

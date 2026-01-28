@@ -408,6 +408,14 @@ int CHud::MsgFunc_APICheck(const char *pszName, int iSize, void *pbuf)
 	return 1;
 }
 
+int CHud::MsgFunc_Barricade(const char *pszName, int iSize, void *pbuf)
+{
+	BEGIN_READ( pbuf, iSize );
+	float fBuiltTime = READ_FLOAT();
+	// TODO: Create barricade building UI or something.
+	return 1;
+}
+
 int CHud::MsgFunc_DebugLine(const char* pszName, int iSize, void* pbuf)
 {
 	BEGIN_READ(pbuf, iSize);

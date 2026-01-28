@@ -714,6 +714,14 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 			pPlayer->GiveCurrentAmmo();
 		return TRUE;
 	}
+	else if (FStrEq(pcmd, "giveboard"))
+	{
+		const char *pSetCommand = CMD_ARGV(1);
+		bool bIsCheatsEnabled = CVAR_GET_FLOAT("sv_cheats") >= 1 ? true : false;
+		if ( bIsCheatsEnabled )
+			pPlayer->PickupAmmo( 1, GetAmmoByAmmoID( AMMO_BARRICADE ) );
+		return TRUE;
+	}
 	else if (FStrEq(pcmd, "giveitem"))
 	{
 		int iszItem = ALLOC_STRING( CMD_ARGV(1) ); // Make a copy of the classname

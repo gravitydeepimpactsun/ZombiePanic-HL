@@ -17,6 +17,7 @@
 #include "cl_voice_status.h"
 #include "engine_builds.h"
 #include "fog.h"
+#include "hud/ammohistory.h"
 
 #if USE_PARANOIA_RENDER
 	#include "paranoia/gl_renderer.h"
@@ -85,6 +86,25 @@ int CL_DLLEXPORT HUD_AddEntity(int type, struct cl_entity_s *ent, const char *mo
 			bIsZombie = gHUD.m_bUseZombVision;
 
 		ent->curstate.renderamt = bIsZombie ? 255 : 0;
+	}
+
+	// Override if this is an barricade prop that is not built yet.
+	if ( ent->curstate.skin == CONTENTS_BARRICADE_NOT_BUILT )
+	{
+		bool bIsZombie = ( gEngfuncs.GetLocalPlayer()->curstate.team == ZP::TEAM_ZOMBIE ? true : false );
+		if ( bIsZombie )
+			ent->curstate.renderamt = 0;
+		else
+		{
+			// If we have ammo for wooden boards, show the barricade.
+			if ( gWR.CountAmmo( ZPAmmoTypes::AMMO_BARRICADE ) > 0 )
+			{
+				ent->curstate.renderfx = kRenderFxHologram;
+				ent->curstate.renderamt = 125;
+			}
+			else
+				ent->curstate.renderamt = 0;
+		}
 	}
 
 	// each frame every entity passes this function, so the overview hooks it to filter the overview entities

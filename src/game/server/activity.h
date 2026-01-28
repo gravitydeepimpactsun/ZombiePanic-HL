@@ -104,6 +104,8 @@ typedef enum
 	ACT_RELOAD_START,
 	ACT_RELOAD_END,
 	ACT_PUMP,
+
+	ACT_BARRICADE,
 } Activity;
 
 typedef struct

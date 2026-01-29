@@ -124,7 +124,7 @@ void CHudRoundState::SetRoundState( ZP::RoundState iState, int iWinner )
 			Input_StopAllMovements( true );
 		}
 		break;
-		// Use these or???
+
 		case ZP::RoundState_RoundIsStarting:
 		{
 			m_pText->SetVisible( false );
@@ -132,6 +132,7 @@ void CHudRoundState::SetRoundState( ZP::RoundState iState, int iWinner )
 			Input_StopAllMovements( true );
 		}
 	    break;
+
 		//case ZP::RoundState_PickVolunteers: break;
 		//case ZP::RoundState_RoundHasBegunPost: break;
 		//case ZP::RoundState_RoundHasBegun: break;
@@ -152,6 +153,7 @@ void CHudRoundState::SetRoundState( ZP::RoundState iState, int iWinner )
 		    const char *szSoundToPlay = nullptr;
 			switch ( iWinner )
 			{
+				default:
 				case 1:
 				{
 					m_pText->SetText( "#ZP_Win_Draw" );

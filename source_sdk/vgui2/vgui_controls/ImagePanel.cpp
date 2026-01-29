@@ -77,6 +77,15 @@ void ImagePanel::SetImage(IImage *image)
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void ImagePanel::SetImageSize(int wide, int tall)
+{
+	if ( !m_pImage ) return;
+	m_pImage->SetSize( wide, tall );
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: sets an image by file name
 //-----------------------------------------------------------------------------
 void ImagePanel::SetImage(const char *imageName)

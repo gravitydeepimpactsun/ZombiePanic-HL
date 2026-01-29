@@ -37,6 +37,7 @@ extern IParticleMan *g_pParticleMan;
 #include "fog.h"
 #include "sphl/weather.h"
 #include "zp/zp_apicallback.h"
+#include "zp/hud/zp_progressbar.h"
 
 extern weather_properties WeatherData;
 
@@ -412,7 +413,7 @@ int CHud::MsgFunc_Barricade(const char *pszName, int iSize, void *pbuf)
 {
 	BEGIN_READ( pbuf, iSize );
 	float fBuiltTime = READ_FLOAT();
-	// TODO: Create barricade building UI or something.
+	CZPProgressBar::Get()->DrawText( "Barricading...", fBuiltTime );
 	return 1;
 }
 

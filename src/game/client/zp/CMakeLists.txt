@@ -10,6 +10,8 @@ add_sources(
 	hud/zp_ammobank.h
 	hud/zp_beacons.cpp
 	hud/zp_beacons.h
+	hud/zp_progressbar.cpp
+	hud/zp_progressbar.h
 	music/music_ui.h
 	music/music_ui.cpp
 	music/music_manager.h

@@ -35,6 +35,8 @@ public:
 	virtual IImage *GetImage();
 	char *GetImageName();
 
+	virtual void SetImageSize( int wide, int tall );
+
 	void SetShouldCenterImage( bool state ) { m_bCenterImage = state; }
 	bool GetShouldCenterImage() const { return m_bCenterImage; }
 

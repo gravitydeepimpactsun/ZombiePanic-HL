@@ -1362,6 +1362,7 @@ void CBasePlayer::SetAnimation(PLAYER_ANIM playerAnim)
 	case ACT_PUMP: animDesired = SetNewActivity( "_pump", true ); break;
 	case ACT_ARM: animDesired = SetNewActivity( "_draw", true ); break;
 	case ACT_DISARM: animDesired = SetNewActivity( "_holster", true ); break;
+	case ACT_BARRICADE: animDesired = SetNewActivity( "barricade", false ); break;
 
 	case ACT_RANGE_ATTACK1:
 		// If m_szAnimExtention is empty, then we change it to use "empty"
@@ -6862,6 +6863,8 @@ const char *CBasePlayer::szAmmoToDropClassnames(int ammoindex)
 	    case ZPAmmoTypes::AMMO_RIFLE: return "ammo_556AR";
 		// Long Rifle
 	    case ZPAmmoTypes::AMMO_LONGRIFLE: return "ammo_22lrbox";
+		// Barricade
+	    case ZPAmmoTypes::AMMO_BARRICADE: return "ammo_barricade";
 	}
 	return "ammo_9mmclip";
 }

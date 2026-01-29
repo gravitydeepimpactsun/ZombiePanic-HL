@@ -103,8 +103,8 @@ void CPropBarricade::Spawn()
 	pev->skin = CONTENTS_BARRICADE_NOT_BUILT;
 	pev->rendermode = kRenderTransAlpha;
 
-	// Default built time is around 3 seconds.
-	m_flBuildTime = 3.0f;
+	// Default build time
+	m_flBuildTime = 1.6f;
 
 	if (pev->friction > 399)
 		pev->friction = 399;

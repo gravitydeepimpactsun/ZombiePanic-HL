@@ -216,6 +216,7 @@ void CPropBarricade::OnBarricadeBuilt()
 	CBasePlayer *pPlayer = static_cast<CBasePlayer *>( UTIL_PlayerByIndex( m_nBuilder ) );
 	if ( pPlayer )
 	{
+		pPlayer->m_Activity = ACT_RESET;
 		pPlayer->SetAnimation( PLAYER_IDLE );
 		pPlayer->m_rgAmmo[ ZPAmmoTypes::AMMO_BARRICADE ] = 0; // Consume the wooden boards.
 	}
@@ -258,6 +259,7 @@ void CPropBarricade::StopBuilding()
 		MESSAGE_BEGIN( MSG_ONE, gmsgBarricadeBuildProgress, NULL, pPlayer->pev );
 			WRITE_FLOAT( 0.0f );
 		MESSAGE_END();
+		pPlayer->m_Activity = ACT_RESET;
 		pPlayer->SetAnimation( PLAYER_IDLE );
 	}
 

@@ -796,6 +796,8 @@ Studio_FxTransform
 */
 void CStudioModelRenderer::StudioFxTransform(cl_entity_t *ent, float transform[3][4])
 {
+	if ( ent->curstate.skin == CONTENTS_BARRICADE_NOT_BUILT )
+		return; // No fx transform on unbuilt barricades
 	switch (ent->curstate.renderfx)
 	{
 	case kRenderFxDistort:

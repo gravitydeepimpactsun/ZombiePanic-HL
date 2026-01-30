@@ -533,6 +533,11 @@ void CBaseButton::KeyValue(KeyValueData *pkvd)
 //
 int CBaseButton::TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int bitsDamageType)
 {
+	// Ignore damage of any kind
+	if ( pev->takedamage == DAMAGE_NO ) return 0;
+	// If 0, then refuse to take damage
+	if ( pev->health == 0 ) return 0;
+
 	if ( m_iButtonHealth > 0 )
 	{
 		// Do the same as CBreakable, where crowbar deal 2 times the damage

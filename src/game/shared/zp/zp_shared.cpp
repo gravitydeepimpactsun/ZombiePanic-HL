@@ -195,7 +195,6 @@ static AmmoData sAmmoDataList[] = {
 	AmmoData( AMMO_GRENADE, "explosive_tnt", 0, 3, 0.1f ),
 	AmmoData( AMMO_SATCHEL, "explosive_ied", 0, 0, 0.5f ),
 
-	// Barricade ammo (not droppable)
 	AmmoData( AMMO_BARRICADE, "barricade", 1, 1, 0.0f ),
 
 	// MUST BE LAST, DO NOT CHANGE THIS.

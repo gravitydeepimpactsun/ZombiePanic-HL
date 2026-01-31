@@ -56,6 +56,7 @@ private:
 
 	Rect_t panelrect;
 	vgui2::ImagePanel		*m_pBackground;
+	vgui2::ImagePanel		*m_pBarricade;
 
 	int		m_iSelectedAmmoToDrop;
 	bool	m_bHasPanelRect;

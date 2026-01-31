@@ -38,13 +38,16 @@ CHudAmmoBank::CHudAmmoBank()
 	m_iSelectedAmmoToDrop = 0;
 	m_bHasPanelRect = false;
 
-	panelrect.x = GetWide() / 2;
-	panelrect.y = GetTall() / 2;
-	panelrect.width = 0;
-	panelrect.height = 0;
+	// Start down in the corner
+	SetDefaultPos();
 
 	m_pBackground = new vgui2::ImagePanel( this, "background" );
 	m_pBackground->SetFillColor( COLOR_INVISIBLE );
+
+	m_pBarricade = new vgui2::ImagePanel( this, "barricade" );
+	m_pBarricade->SetShouldScaleImage( true );
+	m_pBarricade->SetAlpha( 128 );
+	m_pBarricade->SetImage( "ui/icons/weapons/boards_c" );
 
 	m_pWeightText = new vgui2::Label( m_pBackground, "weight_text", "#ZP_HUD_Ammo_DropAmount_Weight" );
 	m_pWeightText->SetContentAlignment( vgui2::Label::a_northwest );
@@ -89,12 +92,15 @@ void CHudAmmoBank::VidInit()
 
 void CHudAmmoBank::SetDefaultPos()
 {
-	int wide, tall;
-	vgui2::surface()->GetScreenSize( wide, tall );
-	panelrect.x = wide;
-	panelrect.y = tall;
+	// Our ammo panel rect
+	panelrect.x = ScreenWidth;
+	panelrect.y = ScreenHeight;
 	panelrect.width = 1;
 	panelrect.height = 1;
+
+	// Set the default size and pos
+	SetSize( ScreenWidth, ScreenHeight );
+	SetPos( 0, 0 );
 }
 
 void CHudAmmoBank::ApplySchemeSettings(vgui2::IScheme *pScheme)
@@ -139,8 +145,8 @@ void CHudAmmoBank::PaintBackground()
 	if ( !IsAllowedToDraw() ) return;
 	// hurrdidurr
 	DrawBox(
-		0, 0,
-	    GetWide(), GetTall(),
+	    panelrect.x, panelrect.y,
+	    panelrect.width, panelrect.height,
 		Color( 15, 15, 15, 160 ),
 		1.0f
 	);
@@ -154,8 +160,8 @@ void CHudAmmoBank::Paint()
 		return;
 	}
 
-	m_pBackground->SetSize( GetWide(), GetTall() );
-	m_pBackground->SetPos( 0, 0 );
+	m_pBackground->SetSize( panelrect.width, panelrect.height );
+	m_pBackground->SetPos( panelrect.x, panelrect.y );
 
 	const int TextBuffer = 8;
 
@@ -279,12 +285,15 @@ void CHudAmmoBank::Paint()
 
 	UpdateVisibility( m_bHasPanelRect );
 
-	SetSize( panelrect.width, panelrect.height );
-	SetPos( panelrect.x, panelrect.y );
-
 	// On next frame, we will draw it.
 	if ( !m_bHasPanelRect )
 		m_bHasPanelRect = true;
+
+	// Let's draw our barricade icon above the ammobank now.
+	int barricadeWide = panelrect.width;
+	int barricadeTall = YRES( 30 );
+	m_pBarricade->SetSize( barricadeWide, barricadeTall );
+	m_pBarricade->SetPos( panelrect.x, panelrect.y - barricadeTall - YRES( 4 ) );
 }
 
 int CHudAmmoBank::MsgFunc_AmmoBankUpdate(const char *pszName, int iSize, void *pbuf)
@@ -372,4 +381,8 @@ void CHudAmmoBank::UpdateVisibility( bool state )
 	m_pWeightText->SetVisible( state );
 	m_pWeightStatus->SetVisible( state );
 	m_pBackground->SetVisible( state );
+	if ( state && gWR.CountAmmo( ZPAmmoTypes::AMMO_BARRICADE ) > 0 )
+		m_pBarricade->SetVisible( true );
+	else
+		m_pBarricade->SetVisible( false );
 }

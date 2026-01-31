@@ -193,7 +193,7 @@ static AmmoData sAmmoDataList[] = {
 	AmmoData( AMMO_LONGRIFLE, "longrifle", 10, 100, 0.48f ),
 
 	AmmoData( AMMO_GRENADE, "explosive_tnt", 0, 3, 0.1f ),
-	AmmoData( AMMO_SATCHEL, "explosive_ied", 0, 2, 0.5f ),
+	AmmoData( AMMO_SATCHEL, "explosive_ied", 0, 0, 0.5f ),
 
 	// Barricade ammo (not droppable)
 	AmmoData( AMMO_BARRICADE, "barricade", 1, 1, 0.0f ),

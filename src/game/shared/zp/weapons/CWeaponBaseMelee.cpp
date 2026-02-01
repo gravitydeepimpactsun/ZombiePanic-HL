@@ -237,12 +237,14 @@ bool CWeaponBaseMelee::DidMeleeAttackHit( MeleeAttackType attackType )
 	else
 		DoWeaponSoundFromMiss( attackType );
 
+	// Clear it after our attack
+	m_hitEntities.clear();
+
 	return bHitSomething;
 }
 
 CWeaponBaseMelee::WhatDidWeHit CWeaponBaseMelee::DoAttackTrace( MeleeAttackType attackType, int iTracerSet, bool bDoHullTrace )
 {
-	std::vector<edict_t *> hitEntities;
 	MeleeAttackTrace *pMelee = &m_attackTracers[ attackType == MELEE_ATTACK_HEAVY ? 1 : 0 ];
 	WhatDidWeHit eWhatDidWeHit = HIT_NOTHING;
 	UTIL_MakeVectors( m_pPlayer->pev->v_angle );
@@ -316,7 +318,7 @@ CWeaponBaseMelee::WhatDidWeHit CWeaponBaseMelee::DoAttackTrace( MeleeAttackType 
 
 		if ( m_trHit.flFraction < 1.0 )
 		{
-			if ( IsEntityAlreadyHit( m_trHit.pHit, hitEntities ) ) continue;
+			if ( IsEntityAlreadyHit( m_trHit.pHit, m_hitEntities ) ) continue;
 			CBaseEntity *pHitEntity = CBaseEntity::Instance( m_trHit.pHit );
 			if ( pHitEntity )
 			{
@@ -336,15 +338,12 @@ CWeaponBaseMelee::WhatDidWeHit CWeaponBaseMelee::DoAttackTrace( MeleeAttackType 
 				eWhatDidWeHit = HIT_WORLD;
 
 			DecalGunshot( &m_trHit, vForward, GetBulletType() );
-			hitEntities.push_back( m_trHit.pHit );
+			m_hitEntities.push_back( m_trHit.pHit );
 		}
 	}
 
 	// Apply all the damage we traced this frame
 	ApplyMultiDamage( m_pPlayer->pev, m_pPlayer->pev );
-
-	// Clear it after use
-	hitEntities.clear();
 
 	return eWhatDidWeHit;
 }

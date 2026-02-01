@@ -91,6 +91,9 @@ protected:
 	// Attack tracer
 	TraceResult m_trHit;
 
+	// Entities hit during current attack
+	std::vector<edict_t *> m_hitEntities;
+
 private:
 	bool IsEntityAlreadyHit( edict_t *pEntity, const std::vector<edict_t *> &hitEntities );
 };

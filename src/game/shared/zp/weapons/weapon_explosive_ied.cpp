@@ -238,12 +238,12 @@ void CWeaponExplosiveIED::WeaponIdle( void )
 	{
 		default:
 			iAnimation = bHasSatchel ? ANIM_SATCHEL_DETONATOR_IDLE : ANIM_SATCHEL_IDLE;
-			flDelay = GetAnimationTime( bHasSatchel ? 36 : 39, 30 );
+			flDelay = GetAnimationTime( bHasSatchel ? 36 : 39, 5 );
 		break;
 
 		case 4:
 		    iAnimation = bHasSatchel ? ANIM_SATCHEL_DETONATOR_FIDGET : ANIM_SATCHEL_FIDGET;
-			flDelay = GetAnimationTime( bHasSatchel ? 36 : 50, 30 );
+			flDelay = GetAnimationTime( bHasSatchel ? 36 : 50, 20 );
 		break;
 	}
 

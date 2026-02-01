@@ -153,7 +153,7 @@ void CWeaponSMGMP5::WeaponIdle(void)
 	{
 	case 0:
 		iAnim = ANIM_MP5_LONGIDLE;
-		flDelay = GetAnimationTime( 25, 15 );
+		flDelay = GetAnimationTime( 25, 12 );
 		break;
 
 	default:

@@ -49,3 +49,27 @@ void CWeaponMeleeSwipe::DoWeaponSoundFromMiss( MeleeAttackType attackType )
 	}
 	EMIT_SOUND( ENT(m_pPlayer->pev), CHAN_ITEM, szSoundFile, 1, ATTN_NORM );
 }
+
+float CWeaponMeleeSwipe::Deploy()
+{
+	BaseClass::Deploy();
+	return GetAnimationTime( 31, 35 );
+}
+
+float CWeaponMeleeSwipe::DoHolsterAnimation()
+{
+	BaseClass::DoHolsterAnimation();
+	return GetAnimationTime( 11, 35 );
+}
+
+float CWeaponMeleeSwipe::DoWeaponIdleAnimation( int iAnim )
+{
+	switch ( RANDOM_LONG(0, 4) )
+	{
+		default:
+		case ANIM_MELEE_IDLE1: return GetAnimationTime( 30, 10 );
+		case ANIM_MELEE_IDLE2: return GetAnimationTime( 15, 15 );
+	    case ANIM_MELEE_IDLE3: return GetAnimationTime( 16, 15 );
+	}
+	return 1.0f;
+}

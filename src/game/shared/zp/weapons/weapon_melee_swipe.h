@@ -20,6 +20,9 @@ public:
 	Bullet GetBulletType() const { return BULLET_PLAYER_SWIPE; }
 	void DoWeaponSoundFromAttack( MeleeAttackType attackType, bool bHitWorld ) override;
 	void DoWeaponSoundFromMiss( MeleeAttackType attackType ) override;
+	float Deploy() override;
+	float DoHolsterAnimation() override;
+	float DoWeaponIdleAnimation( int iAnim ) override;
 };
 
 #endif

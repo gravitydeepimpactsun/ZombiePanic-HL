@@ -80,8 +80,18 @@ void CWeaponShotgunRemington::OnRequestedAnimation( SingleActionAnimReq act )
 {
 	switch ( act )
 	{
-		case CWeaponBaseSingleAction::ANIM_IDLE: SendWeaponAnim( ANIM_SHOTGUN_IDLE ); break;
-		case CWeaponBaseSingleAction::ANIM_LONGIDLE: SendWeaponAnim( ANIM_SHOTGUN_IDLE2 ); break;
+		case CWeaponBaseSingleAction::ANIM_IDLE:
+		{
+			SendWeaponAnim( ANIM_SHOTGUN_IDLE );
+		    m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime( 30, 5 );
+		}
+		break;
+		case CWeaponBaseSingleAction::ANIM_LONGIDLE:
+		{
+			SendWeaponAnim( ANIM_SHOTGUN_IDLE2 );
+		    m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime( 30, 10 );
+		}
+		break;
 		//case CWeaponBaseSingleAction::ANIM_PRIMARYATTACK: SendWeaponAnim( SHOTGUN_FIRE ); break;
 		case CWeaponBaseSingleAction::ANIM_PUMP:
 		{

@@ -17,6 +17,9 @@ public:
 	const char *GetMeleePlayerModel() const { return "models/p_crowbar.mdl"; }
 	void DoWeaponSoundFromAttack( MeleeAttackType attackType, bool bHitWorld ) override;
 	void DoWeaponSoundFromMiss( MeleeAttackType attackType ) override;
+	float Deploy() override;
+	float DoHolsterAnimation() override;
+	float DoWeaponIdleAnimation( int iAnim ) override;
 };
 
 #endif

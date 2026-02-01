@@ -84,3 +84,27 @@ void CWeaponMeleeFireaxe::DoWeaponSoundFromMiss( MeleeAttackType attackType )
 	}
 	EMIT_SOUND( ENT(m_pPlayer->pev), CHAN_ITEM, szSoundFile, 1, ATTN_NORM );
 }
+
+float CWeaponMeleeFireaxe::Deploy()
+{
+	BaseClass::Deploy();
+	return GetAnimationTime( 25, 20 );
+}
+
+float CWeaponMeleeFireaxe::DoHolsterAnimation()
+{
+	BaseClass::DoHolsterAnimation();
+	return GetAnimationTime( 17, 35 );
+}
+
+float CWeaponMeleeFireaxe::DoWeaponIdleAnimation( int iAnim )
+{
+	switch ( RANDOM_LONG(0, 4) )
+	{
+		default:
+		case ANIM_MELEE_IDLE1: return GetAnimationTime( 26, 30 );
+		case ANIM_MELEE_IDLE2: return GetAnimationTime( 70, 30 );
+	    case ANIM_MELEE_IDLE3: return GetAnimationTime( 70, 15 );
+	}
+	return 1.0f;
+}

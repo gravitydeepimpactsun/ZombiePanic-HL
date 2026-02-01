@@ -49,3 +49,27 @@ void CWeaponMeleeCrowbar::DoWeaponSoundFromMiss( MeleeAttackType attackType )
 {
 	EMIT_SOUND( ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/melee/crowbar/miss.wav", 1, ATTN_NORM );
 }
+
+float CWeaponMeleeCrowbar::Deploy()
+{
+	BaseClass::Deploy();
+	return GetAnimationTime( 24, 30 );
+}
+
+float CWeaponMeleeCrowbar::DoHolsterAnimation()
+{
+	BaseClass::DoHolsterAnimation();
+	return GetAnimationTime( 15, 30 );
+}
+
+float CWeaponMeleeCrowbar::DoWeaponIdleAnimation( int iAnim )
+{
+	switch ( RANDOM_LONG(0, 4) )
+	{
+		default:
+		case ANIM_MELEE_IDLE1: return GetAnimationTime( 33, 12 );
+		case ANIM_MELEE_IDLE2: return GetAnimationTime( 30, 12 );
+	    case ANIM_MELEE_IDLE3: return GetAnimationTime( 80, 12 );
+	}
+	return 1.0f;
+}

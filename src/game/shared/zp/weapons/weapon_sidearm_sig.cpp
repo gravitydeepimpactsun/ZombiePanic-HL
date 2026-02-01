@@ -123,7 +123,7 @@ void CWeaponSideArmSig::PrimaryAttack(void)
 		// HEV suit - indicate out of ammo condition
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", FALSE, 0);
 
-	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15);
+	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime( 14, 30 );
 }
 
 void CWeaponSideArmSig::Reload(void)
@@ -156,13 +156,13 @@ void CWeaponSideArmSig::WeaponIdle(void)
 	{
 	case 0:
 		iAnim = IsEmpty() ? ANIM_PISTOL_IDLE1_EMPTY : ANIM_PISTOL_IDLE1;
-		flTime = GetAnimationTime( 41, 10 );
+		flTime = GetAnimationTime( 43, 10 );
 		break;
 
 	default:
 	case 1:
 		iAnim = IsEmpty() ? ANIM_PISTOL_IDLE2_EMPTY : ANIM_PISTOL_IDLE2;
-		flTime = GetAnimationTime( 41, 20 );
+		flTime = GetAnimationTime( 43, 20 );
 		break;
 
 	case 2:

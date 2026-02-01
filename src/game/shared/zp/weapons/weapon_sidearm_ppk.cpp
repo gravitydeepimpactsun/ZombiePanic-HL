@@ -120,7 +120,7 @@ void CWeaponSideArmPPK::PrimaryAttack(void)
 		// HEV suit - indicate out of ammo condition
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", FALSE, 0);
 
-	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + PrimaryFireRate() - 0.01;
+	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime( 14, 30 );
 }
 
 void CWeaponSideArmPPK::Reload(void)
@@ -159,18 +159,18 @@ void CWeaponSideArmPPK::WeaponIdle(void)
 	{
 	case 0:
 		iAnim = IsEmpty() ? ANIM_PISTOL_IDLE1_EMPTY : ANIM_PISTOL_IDLE1;
-		flTime = 3.8f;
+		flTime = GetAnimationTime( 41, 10 );
 		break;
 
 	default:
 	case 1:
 		iAnim = IsEmpty() ? ANIM_PISTOL_IDLE2_EMPTY : ANIM_PISTOL_IDLE2;
-		flTime = 3.8f;
+		flTime = GetAnimationTime( 41, 10 );
 		break;
 
 	case 2:
 		iAnim = IsEmpty() ? ANIM_PISTOL_IDLE3_EMPTY : ANIM_PISTOL_IDLE3;
-		flTime = 1.2f;
+		flTime = GetAnimationTime( 41, 10 );
 		break;
 	}
 

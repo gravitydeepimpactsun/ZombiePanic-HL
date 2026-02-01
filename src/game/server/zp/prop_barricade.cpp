@@ -15,7 +15,8 @@ extern int gmsgBarricadeBuildProgress;
 #define BGROUP_SUB_DAMAGED 1
 #define BGROUP_SUB_DESTROYED 2
 
-#define SF_BARRICADE_START_BUILT (1<<0)
+#define SF_BARRICADE_START_BUILT (1<<0)		// Start already built?
+#define SF_BARRICADE_LARGE       (1 << 1)	// Large barricade (longer build time, and more health)
 
 static char *s_blockClasses[] =
 {
@@ -40,6 +41,7 @@ public:
 	int TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int bitsDamageType );
 	EXPORT void OnBarricading();
 	void StopBuilding();
+	void SetBarricadeMode();
 
 protected:
 	void SetSequenceBox();
@@ -47,8 +49,6 @@ protected:
 	void OnBarricadeBuilt();
 
 private:
-	int m_nHealthRem;
-
 	enum BuildingState
 	{
 		NOT_BUILT = 0,
@@ -90,16 +90,12 @@ void CPropBarricade::Spawn()
 	SET_MODEL( ENT(pev), STRING(pev->model) );
 
 	SetBodygroup( GET_MODEL_PTR(ENT(pev)), pev, BGROUP_BODY, BGROUP_SUB_HEALTHY );
-	pev->sequence = 0;
-	SetSequenceBox(); // Copied from CBaseAnimating
-
-	// Just add extra 26 if Z is 1...
-	if ( pev->maxs.z == 1 )
-		pev->maxs.z += 26;
+	UTIL_SetSize( pev, g_vecZero, g_vecZero );
 
 	pev->movetype = MOVETYPE_FLY;
-	pev->solid = SOLID_TRIGGER;
-	pev->takedamage = DAMAGE_YES;
+	pev->deadflag = DEAD_DEAD;
+	pev->solid = SOLID_NOT;
+	pev->takedamage = DAMAGE_NO;
 	pev->skin = CONTENTS_BARRICADE_NOT_BUILT;
 	pev->rendermode = kRenderTransAlpha;
 
@@ -115,7 +111,7 @@ void CPropBarricade::Spawn()
 	m_eIsBuilt = NOT_BUILT;
 	m_nBuilder = 0;
 
-	m_nHealthRem = pev->health;
+	SetBarricadeMode();
 
 	// Pre-Built?
 	if ( pev->spawnflags & SF_BARRICADE_START_BUILT )
@@ -128,16 +124,14 @@ void CPropBarricade::Restart()
 	SET_MODEL(ENT(pev), STRING(pev->model));
 
 	SetBodygroup( GET_MODEL_PTR(ENT(pev)), pev, BGROUP_BODY, BGROUP_SUB_HEALTHY );
-	pev->sequence = 0;
-	SetSequenceBox(); // Copied from CBaseAnimating
+	UTIL_SetSize( pev, g_vecZero, g_vecZero );
 
-	// Remember our previous health.
-	pev->health = m_nHealthRem;
-
-	pev->movetype = MOVETYPE_FLY;
-	pev->solid = SOLID_TRIGGER;
-	pev->takedamage = DAMAGE_YES;
+	pev->deadflag = DEAD_DEAD;
+	pev->solid = SOLID_NOT;
+	pev->takedamage = DAMAGE_NO;
 	pev->rendermode = kRenderTransAlpha;
+
+	SetBarricadeMode();
 
 	// Make sure skin is set to not built, so it appears invisible for zombies.
 	// But if we have some woodenboards "ammo" we will be able to see and build it.
@@ -157,8 +151,6 @@ void CPropBarricade::KeyValue( KeyValueData *pkvd )
 {
 	if ( FStrEq( pkvd->szKeyName, "model" ) )
 		pev->model = ALLOC_STRING( pkvd->szValue );
-	else if ( FStrEq( pkvd->szKeyName, "health" ) )
-		pev->health = atof( pkvd->szValue );
 	else
 		BaseClass::KeyValue( pkvd );
 }
@@ -229,10 +221,15 @@ void CPropBarricade::OnBarricadeBuilt()
 
 	// Now, let's make sure we set the barricade to be solid.
 	pev->solid = SOLID_BBOX;
+	pev->deadflag = DEAD_NO;
 	pev->skin = 0;
+	pev->takedamage = DAMAGE_YES;
 	pev->rendermode = kRenderNormal; // Make sure it's fully visible now.
 	m_eIsBuilt = BUILT;
 	m_nBuilder = 0;
+
+	pev->sequence = 0;
+	SetSequenceBox(); // Copied from CBaseAnimating
 
 	// Let's play a simple button sound to indicate building is done.
 	EMIT_SOUND( ENT( pev ), CHAN_VOICE, "barricade/built.wav", 1.0, ATTN_NORM );
@@ -269,6 +266,22 @@ void CPropBarricade::StopBuilding()
 	m_eIsBuilt = NOT_BUILT;
 	m_nBuilder = 0;
 	SetThink( NULL );
+}
+
+void CPropBarricade::SetBarricadeMode()
+{
+	if ( pev->spawnflags & SF_BARRICADE_LARGE )
+	{
+		// We don't have an animation for large barricades yet, so let's just increase the health instead for now.
+		m_flBuildTime = 1.6f;
+		//m_flBuildTime = 3.2f;
+		pev->health = 350;
+	}
+	else
+	{
+		m_flBuildTime = 1.6f;
+		pev->health = 200;
+	}
 }
 
 

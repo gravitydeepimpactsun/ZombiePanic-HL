@@ -108,6 +108,8 @@ cvar_t mp_dmg_tripmine = { "mp_dmg_tripmine", "150", FCVAR_SERVER };
 cvar_t mp_dmg_m203 = { "mp_dmg_m203", "100", FCVAR_SERVER };
 cvar_t mp_item_armor = { "mp_item_armor", "35", FCVAR_SERVER };
 cvar_t mp_item_medkit = { "mp_item_medkit", "50", FCVAR_SERVER };
+cvar_t mp_item_medkit_medium = { "mp_item_medkit_medium", "50", FCVAR_SERVER };
+cvar_t mp_item_medkit_small = { "mp_item_medkit_small", "50", FCVAR_SERVER };
 
 // Engine Cvars
 cvar_t *g_psv_gravity = NULL;
@@ -621,6 +623,8 @@ void GameDLLInit(void)
 	CVAR_REGISTER(&mp_dmg_tripmine);
 	CVAR_REGISTER(&mp_dmg_m203);
 	CVAR_REGISTER(&mp_item_medkit);
+	CVAR_REGISTER(&mp_item_medkit_medium);
+	CVAR_REGISTER(&mp_item_medkit_small);
 	CVAR_REGISTER(&mp_item_armor);
 
 	// REGISTER CVARS FOR SKILL LEVEL STUFF

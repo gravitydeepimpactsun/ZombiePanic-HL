@@ -74,6 +74,8 @@ extern cvar_t mp_dmg_satchel;
 extern cvar_t mp_dmg_tripmine;
 extern cvar_t mp_dmg_m203;
 extern cvar_t mp_item_medkit;
+extern cvar_t mp_item_medkit_medium;
+extern cvar_t mp_item_medkit_small;
 extern cvar_t mp_item_armor;
 
 // Engine Cvars

@@ -208,6 +208,8 @@ void ZP::SetupDefaultSpawnList()
 		WEAPON_DOUBLEBARREL,
 
 		ITEM_HEALTHKIT,
+		ITEM_HEALTHKIT_MEDIUM,
+		ITEM_HEALTHKIT_SMALL,
 		ITEM_PAINKILLER,
 		ITEM_BANDAGE,
 		ITEM_BATTERY,
@@ -242,6 +244,8 @@ void ZP::SetupDefaultSpawnList()
 		{ "weapon_doublebarrel", 0, ItemType::TypeWeapon },
 
 		{ "item_healthkit", 0, ItemType::TypeItem },
+		{ "item_healthkit_medium", 3, ItemType::TypeItem },
+		{ "item_healthkit_small", 3, ItemType::TypeItem },
 		{ "item_painkiller", 4, ItemType::TypeItem },
 		{ "item_bandage", 4, ItemType::TypeItem },
 		{ "item_battery", 0, ItemType::TypeItem },
@@ -267,6 +271,8 @@ void ZP::SetupDefaultSpawnList()
 		defaultSpawns[WEAPON_DOUBLEBARREL].iLimit = 2;
 
 		defaultSpawns[ITEM_HEALTHKIT].iLimit = 3;
+		defaultSpawns[ITEM_HEALTHKIT_MEDIUM].iLimit = 3;
+		defaultSpawns[ITEM_HEALTHKIT_SMALL].iLimit = 3;
 		defaultSpawns[ITEM_PAINKILLER].iLimit = 6;
 		defaultSpawns[ITEM_BANDAGE].iLimit = 6;
 		defaultSpawns[ITEM_BATTERY].iLimit = 3;
@@ -291,6 +297,8 @@ void ZP::SetupDefaultSpawnList()
 		defaultSpawns[WEAPON_DOUBLEBARREL].iLimit = 2;
 
 		defaultSpawns[ITEM_HEALTHKIT].iLimit = 3;
+		defaultSpawns[ITEM_HEALTHKIT_MEDIUM].iLimit = 3;
+		defaultSpawns[ITEM_HEALTHKIT_SMALL].iLimit = 3;
 		defaultSpawns[ITEM_PAINKILLER].iLimit = 5;
 		defaultSpawns[ITEM_BANDAGE].iLimit = 5;
 		defaultSpawns[ITEM_BATTERY].iLimit = 3;
@@ -315,6 +323,8 @@ void ZP::SetupDefaultSpawnList()
 		defaultSpawns[WEAPON_DOUBLEBARREL].iLimit = 2;
 
 		defaultSpawns[ITEM_HEALTHKIT].iLimit = 3;
+		defaultSpawns[ITEM_HEALTHKIT_MEDIUM].iLimit = 3;
+		defaultSpawns[ITEM_HEALTHKIT_SMALL].iLimit = 3;
 		defaultSpawns[ITEM_PAINKILLER].iLimit = 5;
 		defaultSpawns[ITEM_BATTERY].iLimit = 2;
 		defaultSpawns[ITEM_SATCHEL].iLimit = 1;
@@ -338,6 +348,8 @@ void ZP::SetupDefaultSpawnList()
 		defaultSpawns[WEAPON_DOUBLEBARREL].iLimit = 2;
 
 		defaultSpawns[ITEM_HEALTHKIT].iLimit = 2;
+		defaultSpawns[ITEM_HEALTHKIT_MEDIUM].iLimit = 2;
+		defaultSpawns[ITEM_HEALTHKIT_SMALL].iLimit = 2;
 		defaultSpawns[ITEM_BATTERY].iLimit = 2;
 		defaultSpawns[ITEM_SATCHEL].iLimit = 1;
 		defaultSpawns[ITEM_TNT].iLimit = 2;
@@ -360,6 +372,8 @@ void ZP::SetupDefaultSpawnList()
 		defaultSpawns[WEAPON_DOUBLEBARREL].iLimit = 1;
 
 		defaultSpawns[ITEM_HEALTHKIT].iLimit = 2;
+		defaultSpawns[ITEM_HEALTHKIT_MEDIUM].iLimit = 2;
+		defaultSpawns[ITEM_HEALTHKIT_SMALL].iLimit = 2;
 		defaultSpawns[ITEM_BATTERY].iLimit = 1;
 		defaultSpawns[ITEM_SATCHEL].iLimit = 1;
 		defaultSpawns[ITEM_TNT].iLimit = 2;
@@ -382,6 +396,8 @@ void ZP::SetupDefaultSpawnList()
 		defaultSpawns[WEAPON_DOUBLEBARREL].iLimit = 1;
 
 		defaultSpawns[ITEM_HEALTHKIT].iLimit = 1;
+		defaultSpawns[ITEM_HEALTHKIT_MEDIUM].iLimit = 1;
+		defaultSpawns[ITEM_HEALTHKIT_SMALL].iLimit = 1;
 		defaultSpawns[ITEM_BATTERY].iLimit = 1;
 		defaultSpawns[ITEM_SATCHEL].iLimit = 1;
 		defaultSpawns[ITEM_TNT].iLimit = 1;
@@ -404,6 +420,8 @@ void ZP::SetupDefaultSpawnList()
 		defaultSpawns[WEAPON_DOUBLEBARREL].iLimit = 1;
 
 		defaultSpawns[ITEM_HEALTHKIT].iLimit = 1;
+		defaultSpawns[ITEM_HEALTHKIT_MEDIUM].iLimit = 1;
+		defaultSpawns[ITEM_HEALTHKIT_SMALL].iLimit = 1;
 		defaultSpawns[ITEM_BATTERY].iLimit = 1;
 		defaultSpawns[ITEM_SATCHEL].iLimit = 1;
 		defaultSpawns[ITEM_TNT].iLimit = 1;

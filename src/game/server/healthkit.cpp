@@ -23,162 +23,140 @@
 #include "gamerules.h"
 #include "zp/zp_shared.h"
 
-class CHealthKit : public CItem
+class CHealthItemBase : public CItem
 {
-	void Spawn(void);
-	void Precache(void);
-	BOOL MyTouch(CBasePlayer *pPlayer);
-
-	/*
-	virtual int		Save( CSave &save ); 
-	virtual int		Restore( CRestore &restore );
-	
-	static	TYPEDESCRIPTION m_SaveData[];
-*/
+	SET_BASECLASS( CItem );
+public:
+	void Spawn();
+	void Precache();
+	BOOL MyTouch( CBasePlayer *pPlayer );
+	enum HealthItemType
+	{
+		HEALTHKIT_LARGE,
+		HEALTHKIT_MEDIUM,
+		HEALTHKIT_SMALL,
+		BANDAGE,
+		PAINKILLER
+	};
+	virtual HealthItemType GetHealthItemType() const { return HEALTHKIT_LARGE; }
+	bool OnHealthKitUsed( CBasePlayer *pPlayer );
 };
 
-LINK_ENTITY_TO_CLASS(item_healthkit, CHealthKit);
-
-/*
-TYPEDESCRIPTION	CHealthKit::m_SaveData[] = 
-{
-
-};
-
-
-IMPLEMENT_SAVERESTORE( CHealthKit, CItem);
-*/
-
-void CHealthKit ::Spawn(void)
+void CHealthItemBase::Spawn()
 {
 	Precache();
-	SET_MODEL(ENT(pev), "models/w_medkit.mdl");
-
-	CItem::Spawn();
-}
-
-void CHealthKit::Precache(void)
-{
-	PRECACHE_MODEL("models/w_medkit.mdl");
-	PRECACHE_SOUND("items/medkit_use.wav");
-}
-
-BOOL CHealthKit::MyTouch(CBasePlayer *pPlayer)
-{
-	if (pPlayer->pev->deadflag != DEAD_NO)
+	switch ( GetHealthItemType() )
 	{
-		return FALSE;
+		case HEALTHKIT_LARGE: SET_MODEL( ENT( pev ), "models/w_medkit.mdl" ); break;
+		case HEALTHKIT_MEDIUM: SET_MODEL( ENT( pev ), "models/w_medkit_medium.mdl" ); break;
+		case HEALTHKIT_SMALL: SET_MODEL( ENT( pev ), "models/w_medkit_small.mdl" ); break;
+		case BANDAGE: SET_MODEL( ENT( pev ), "models/w_bandage.mdl" ); break;
+	    case PAINKILLER: SET_MODEL( ENT( pev ), "models/w_painkiller.mdl" ); break;
+		default: SET_MODEL( ENT( pev ), "models/w_medkit.mdl" ); break;
+	}
+	BaseClass::Spawn();
+}
+
+void CHealthItemBase::Precache()
+{
+	// Precache all the models
+	PRECACHE_MODEL( "models/w_medkit.mdl" );
+	PRECACHE_MODEL( "models/w_medkit_medium.mdl" );
+	PRECACHE_MODEL( "models/w_medkit_small.mdl" );
+	PRECACHE_MODEL( "models/w_bandage.mdl" );
+	PRECACHE_MODEL( "models/w_painkiller.mdl" );
+
+	// Precache all the sounds
+	PRECACHE_SOUND( "items/medkit_use.wav" );
+	PRECACHE_SOUND( "items/bandage_use.wav" );
+	PRECACHE_SOUND( "items/pills_use.wav" );
+}
+
+BOOL CHealthItemBase::MyTouch( CBasePlayer *pPlayer )
+{
+	if ( pPlayer->pev->deadflag != DEAD_NO ) return FALSE;
+	if ( pPlayer->pev->team == ZP::TEAM_ZOMBIE ) return FALSE;
+
+	// Handle based on type
+	switch( GetHealthItemType() )
+	{
+		case HEALTHKIT_LARGE:
+		case HEALTHKIT_MEDIUM:
+		case HEALTHKIT_SMALL:
+		{
+			if ( OnHealthKitUsed( pPlayer ) )
+				return TRUE;
+		}
+		break;
+		case BANDAGE:
+		{
+			if ( pPlayer->GotBandage( true ) )
+			{
+				BaseClass::SendItemPickup( pPlayer );
+				EMIT_SOUND( ENT( pPlayer->pev ), CHAN_ITEM, "items/bandage_use.wav", 1, ATTN_NORM );
+				SoftRemove();
+				return TRUE;
+			}
+		}
+	    break;
+		case PAINKILLER:
+		{
+			if ( pPlayer->GotPainKiller() )
+			{
+				BaseClass::SendItemPickup( pPlayer );
+				EMIT_SOUND( ENT( pPlayer->pev ), CHAN_ITEM, "items/pills_use.wav", 1, ATTN_NORM );
+				SoftRemove();
+				return TRUE;
+			}
+	    }
+	    break;
 	}
 
-	if ( pPlayer->pev->team == ZP::TEAM_ZOMBIE )
+	return FALSE;
+}
+
+bool CHealthItemBase::OnHealthKitUsed( CBasePlayer *pPlayer )
+{
+	// Health to give
+	int healthToGive = 0;
+	switch ( GetHealthItemType() )
+	{
+		case HEALTHKIT_LARGE: healthToGive = gSkillData.healthkitCapacity; break;
+		case HEALTHKIT_MEDIUM: healthToGive = gSkillData.healthkitMediumCapacity; break;
+		case HEALTHKIT_SMALL: healthToGive = gSkillData.healthkitSmallCapacity; break;
+	}
+	if ( healthToGive <= 0 )
 		return false;
 
-	if (pPlayer->TakeHealth(gSkillData.healthkitCapacity, DMG_GENERIC))
+	if ( pPlayer->TakeHealth( healthToGive, DMG_GENERIC ) )
 	{
-		CItem::SendItemPickup(pPlayer);
-
-		EMIT_SOUND(ENT(pPlayer->pev), CHAN_ITEM, "items/medkit_use.wav", 1, ATTN_NORM);
-
+		BaseClass::SendItemPickup( pPlayer );
+		EMIT_SOUND( ENT( pPlayer->pev ), CHAN_ITEM, "items/medkit_use.wav", 1, ATTN_NORM );
 		pPlayer->GotBandage( false );
-
 		SoftRemove();
-
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
-//-------------------------------------------------------------
-// Bandage
-//-------------------------------------------------------------
+#define CREATE_HEALTHKIT_CLASS( className, entityName, healthItemType ) \
+class className : public CHealthItemBase \
+{ \
+public: \
+	HealthItemType GetHealthItemType() const override { return healthItemType; } \
+}; \
+LINK_ENTITY_TO_CLASS( entityName, className ); \
+PRECACHE_REGISTER( entityName )
 
-class CBandageItem : public CItem
-{
-	void Spawn(void);
-	void Precache(void);
-	BOOL MyTouch(CBasePlayer *pPlayer);
-};
-LINK_ENTITY_TO_CLASS( item_bandage, CBandageItem );
-PRECACHE_REGISTER( item_bandage );
+CREATE_HEALTHKIT_CLASS( CHealthKitLarge, item_healthkit, CHealthItemBase::HEALTHKIT_LARGE )
+CREATE_HEALTHKIT_CLASS( CHealthKitMedium, item_healthkit_medium, CHealthItemBase::HEALTHKIT_MEDIUM )
+CREATE_HEALTHKIT_CLASS( CHealthKitSmall, item_healthkit_small, CHealthItemBase::HEALTHKIT_SMALL )
+CREATE_HEALTHKIT_CLASS( CBandageItem, item_bandage, CHealthItemBase::BANDAGE )
+CREATE_HEALTHKIT_CLASS( CPainKiller, item_painkiller, CHealthItemBase::PAINKILLER )
 
-void CBandageItem::Spawn()
-{
-	Precache();
-	SET_MODEL(ENT(pev), "models/w_bandage.mdl");
-	CItem::Spawn();
-}
-
-void CBandageItem::Precache(void)
-{
-	PRECACHE_MODEL("models/w_bandage.mdl");
-	PRECACHE_SOUND("items/bandage_use.wav");
-}
-
-BOOL CBandageItem::MyTouch(CBasePlayer *pPlayer)
-{
-	if (pPlayer->pev->deadflag != DEAD_NO)
-		return FALSE;
-
-	if ( pPlayer->pev->team == ZP::TEAM_ZOMBIE )
-		return FALSE;
-
-	if (pPlayer->GotBandage(true))
-	{
-		CItem::SendItemPickup(pPlayer);
-		EMIT_SOUND(ENT(pPlayer->pev), CHAN_ITEM, "items/bandage_use.wav", 1, ATTN_NORM);
-		SoftRemove();
-		return TRUE;
-	}
-
-	return FALSE;
-}
-
-//-------------------------------------------------------------
-// Painkiller
-//-------------------------------------------------------------
-
-class CPainKiller : public CItem
-{
-	void Spawn(void);
-	void Precache(void);
-	BOOL MyTouch(CBasePlayer *pPlayer);
-};
-LINK_ENTITY_TO_CLASS( item_painkiller, CPainKiller );
-PRECACHE_REGISTER( item_painkiller );
-
-void CPainKiller::Spawn()
-{
-	Precache();
-	SET_MODEL(ENT(pev), "models/w_painkiller.mdl");
-	CItem::Spawn();
-}
-
-void CPainKiller::Precache(void)
-{
-	PRECACHE_MODEL("models/w_painkiller.mdl");
-	PRECACHE_SOUND("items/pills_use.wav");
-}
-
-BOOL CPainKiller::MyTouch(CBasePlayer *pPlayer)
-{
-	if (pPlayer->pev->deadflag != DEAD_NO)
-		return FALSE;
-
-	if ( pPlayer->pev->team == ZP::TEAM_ZOMBIE )
-		return FALSE;
-
-	if (pPlayer->GotPainKiller())
-	{
-		CItem::SendItemPickup(pPlayer);
-		EMIT_SOUND(ENT(pPlayer->pev), CHAN_ITEM, "items/pills_use.wav", 1, ATTN_NORM);
-		SoftRemove();
-		return TRUE;
-	}
-
-	return FALSE;
-}
-
+// Not used in ZP
+#if 0
 //-------------------------------------------------------------
 // Wall mounted health kit
 //-------------------------------------------------------------
@@ -353,3 +331,4 @@ void CWallHealth::Off(void)
 	else
 		SetThink(&CWallHealth::SUB_DoNothing);
 }
+#endif

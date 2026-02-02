@@ -209,6 +209,8 @@ void CHalfLifeMultiplay::RefreshSkillData(void)
 
 	gSkillData.batteryCapacity = mp_item_armor.value;
 	gSkillData.healthkitCapacity = mp_item_medkit.value;
+	gSkillData.healthkitMediumCapacity = mp_item_medkit_medium.value;
+	gSkillData.healthkitSmallCapacity = mp_item_medkit_small.value;
 }
 
 //=========================================================

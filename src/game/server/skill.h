@@ -125,6 +125,8 @@ struct skilldata_t
 	float batteryCapacity;
 	float healthchargerCapacity;
 	float healthkitCapacity;
+	float healthkitMediumCapacity;
+	float healthkitSmallCapacity;
 	float scientistHeal;
 
 	// monster damage adj

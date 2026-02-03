@@ -593,11 +593,17 @@ void CBasePlayer::DoHeadshotChunk( const Vector &vecPos, short modelIndex, int i
 
 void CBasePlayer::GiveCurrentAmmo()
 {
-	if ( !m_pActiveItem ) return;
-	int nPrimaryAmmo = m_pActiveItem->PrimaryAmmoIndex();
+	CWeaponBase *pBaseWeapon = dynamic_cast<CWeaponBase *>( m_pActiveItem );
+	if ( !pBaseWeapon ) return;
+	int nPrimaryAmmo = pBaseWeapon->PrimaryAmmoIndex();
 	if ( nPrimaryAmmo == -1 ) return;
 	AmmoData data = GetAmmoByAmmoID( nPrimaryAmmo );
-	PickupAmmo( data.MaxCarry, data );
+	if ( data.AmmoType == ZPAmmoTypes::AMMO_NONE ) return;
+	if ( data.MaxCarry <= 0 && !data.DrawClip ) return;
+	if ( data.MaxCarry > 0 )
+		PickupAmmo( data.MaxCarry, data );
+	else
+		pBaseWeapon->m_iClip += 1;
 	EMIT_SOUND( ENT(pev), CHAN_ITEM, "items/ammo_pickup.wav", 1, ATTN_NORM );
 }
 

@@ -13,7 +13,8 @@ enum ItemType
 	TypeNone = 0,
 	TypeItem,
 	TypeAmmo,
-	TypeWeapon
+	TypeWeapon,
+	TypeMelee
 };
 
 struct SpawnList
@@ -55,6 +56,7 @@ namespace ZP
 	void CheckHowManySpawnedItems( CBasePlayer *pPlayer );
 	void SpawnItems();
     void SetupDefaultSpawnList();
+    void SetupDefaultMeleeSpawnList();
 	void IO_CalculatePlayerAmount( KeyValues *pData );
 }
 

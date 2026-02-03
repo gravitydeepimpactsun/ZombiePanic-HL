@@ -126,6 +126,14 @@ void ZP::CheckHowManySpawnedItems( CBasePlayer *pPlayer )
 		m_Classnames.push_back( repEnt );
 	}
 
+	// Before we print, sort the list alphabetically
+	qsort( m_Classnames.data(), m_Classnames.size(), sizeof( ReportEntities ), []( const void *a, const void *b ) -> int
+	{
+		ReportEntities *entA = (ReportEntities *)a;
+		ReportEntities *entB = (ReportEntities *)b;
+		return strcmp( STRING( entA->classname ), STRING( entB->classname ) );
+	});
+
 	for ( size_t i = 0; i < m_Classnames.size(); i++ )
 	{
 		ReportEntities repEnt = m_Classnames[i];
@@ -165,6 +173,14 @@ void ZP::SpawnItems()
 		pFind = (CRandomItemBase *)UTIL_FindEntityByClassname( pFind, "info_random_item" );
 	}
 
+	// Now go trough our melee.
+	pFind = (CRandomItemBase *)UTIL_FindEntityByClassname( nullptr, "info_random_melee" );
+	while ( pFind )
+	{
+		AddSpawnItem( ItemType::TypeMelee, pFind );
+		pFind = (CRandomItemBase *)UTIL_FindEntityByClassname( pFind, "info_random_melee" );
+	}
+
 	std::random_device rd;
 	std::mt19937 g( rd() );
 	std::shuffle( s_RandomSpawnLocations.begin(), s_RandomSpawnLocations.end(), g );
@@ -172,6 +188,7 @@ void ZP::SpawnItems()
 	SpawnItems( ItemType::TypeWeapon );
 	SpawnItems( ItemType::TypeItem );
 	SpawnItems( ItemType::TypeAmmo );
+	SpawnItems( ItemType::TypeMelee );
 
 	// Reset after use
 	for ( size_t i = 0; i < s_SpawnList.size(); i++ )
@@ -185,6 +202,24 @@ void ZP::SpawnItems()
 void AddDefaultAmmoSpawn( const char *szClassname, int iLimit, ItemType nType )
 {
 	s_SpawnList.push_back( new SpawnList( szClassname, iLimit, nType ) );
+}
+
+void ZP::SetupDefaultMeleeSpawnList()
+{
+	for ( size_t i = 0; i < ZPWeaponID::LAST_WEAPON_ID; i++ )
+	{
+		GetWeaponInfo( (ZPWeaponID)i, [&]( const WeaponInfo &info )
+		{
+			// Add melee weapons
+			if ( info.Melee )
+			{
+				char szClassname[32];
+				UTIL_strcpy( szClassname, "weapon_" );
+				strcat_s( szClassname, info.szWeapon );
+				AddDefaultAmmoSpawn( szClassname, 3, ItemType::TypeMelee );
+			}
+		});
+	}
 }
 
 void ZP::SetupDefaultSpawnList()
@@ -440,6 +475,8 @@ void ZP::SetupDefaultSpawnList()
 	// In hardcore, add a few backpacks
 	if ( pGameMode && pGameMode->GetGameModeType() == ZP::GameModeType_e::GAMEMODE_HARDCORE )
 		AddDefaultAmmoSpawn( "item_backpack", 3, ItemType::TypeItem );
+
+	SetupDefaultMeleeSpawnList();
 }
 
 void CRandomItemBase::SpawnItem(void)
@@ -537,6 +574,8 @@ void ZP::IO_CalculatePlayerAmount( KeyValues *pData )
 			nType = ItemType::TypeItem;
 		else if ( FStrEq( szType, "Weapons" ) )
 			nType = ItemType::TypeWeapon;
+		else if ( FStrEq( szType, "Melee" ) )
+			nType = ItemType::TypeMelee;
 		const char *szClassname = pSub->GetString( "Classname" );
 		int nAmount = pSub->GetInt( "Amount", 0 );
 		if ( szClassname && szClassname[0] && nAmount > 0 && nType != ItemType::TypeNone )

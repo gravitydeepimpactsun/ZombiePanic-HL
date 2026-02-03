@@ -74,6 +74,8 @@ public:
 	int MsgFunc_ItemPickup(const char *pszName, int iSize, void *pbuf);
 	int MsgFunc_HideWeapon(const char *pszName, int iSize, void *pbuf);
 
+	bool CanDrawAmmo( int iAmmoType, bool &bDrawClip );
+
 	bool IsIconValid(CHud::RegisteredIcon icon);
 
 	int GetMaxSlot() { return m_iMaxSlot; }

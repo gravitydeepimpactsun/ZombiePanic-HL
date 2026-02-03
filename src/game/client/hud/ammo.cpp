@@ -33,6 +33,7 @@
 #include "crosshair.h"
 #include "menu.h"
 #include "vgui/client_viewport.h"
+#include "zp/zp_shared.h"
 
 ConVar hud_fastswitch("hud_fastswitch", "0", FCVAR_ARCHIVE, "Controls whether or not weapons can be selected in one keypress");
 ConVar hud_weaponslot_corner_hug("hud_weaponslot_corner_hug", "0", FCVAR_BHL_ARCHIVE, "Hug the weapon slots to the left of the screen");
@@ -375,6 +376,21 @@ int CHudAmmo::MsgFunc_HideWeapon(const char *pszName, int iSize, void *pbuf)
 	return 1;
 }
 
+bool CHudAmmo::CanDrawAmmo( int iAmmoType, bool &bDrawClip )
+{
+	bDrawClip = false;
+	if ( iAmmoType < 0 ) return false;
+	AmmoData data = GetAmmoByAmmoID( iAmmoType );
+	if ( data.AmmoType == AMMO_NONE ) return false;
+	if ( data.MaxCarry <= 0 )
+	{
+		if ( data.DrawClip )
+			bDrawClip = true;
+		return bDrawClip;
+	}
+	return true;
+}
+
 bool CHudAmmo::IsIconValid(CHud::RegisteredIcon icon)
 {
 	return ( icon.Icon > -1 ) ? true : false;
@@ -710,11 +726,22 @@ void CHudAmmo::Draw(float flTime)
 	y += (int)(gHUD.m_iFontHeight * 0.2f);
 
 	// Does weapon have any ammo at all?
-	if (m_pWeapon->iAmmoType > 0)
+	bool bDrawClip;
+	if ( CanDrawAmmo( m_pWeapon->iAmmoType, bDrawClip ) )
 	{
 		int iIconWidth = m_pWeapon->hAmmo.Wide;
 
-		if (pw->iClip >= 0)
+		if ( bDrawClip )
+		{
+			a = alphaDim * gHUD.GetHudTransparency();
+			gHUD.GetHudAmmoColor( pw->iClip, pw->iMaxClip, r, g, b );
+			ScaleColors(r, g, b, a);
+
+			// SPR_Draw a bullets only line
+			x = ScreenWidth - 4 * AmmoWidth - iIconWidth;
+			x = gHUD.DrawHudNumber( x, y, iFlags | DHN_3DIGITS, pw->iClip, r, g, b );
+		}
+		else if ( pw->iClip >= 0 )
 		{
 			a = alphaDim * gHUD.GetHudTransparency();
 			gHUD.GetHudAmmoColor(pw->iClip, pw->iMaxClip, r, g, b);
@@ -738,7 +765,6 @@ void CHudAmmo::Draw(float flTime)
 			FillRGBA(x, y, iBarWidth, gHUD.m_iFontHeight, r, g, b, a);
 
 			x += iBarWidth + AmmoWidth / 2;
-			;
 
 			// GL Seems to need this
 			x = gHUD.DrawHudNumber(x, y, iFlags | DHN_3DIGITS, gWR.CountAmmo(pw->iAmmoType), r, g, b);
@@ -765,7 +791,7 @@ void CHudAmmo::Draw(float flTime)
 	}
 
 	// Does weapon have seconday ammo?
-	if (pw->iAmmo2Type > 0)
+	if ( CanDrawAmmo( pw->iAmmo2Type, bDrawClip ) )
 	{
 		int iIconWidth = m_pWeapon->hAmmo2.Wide;
 

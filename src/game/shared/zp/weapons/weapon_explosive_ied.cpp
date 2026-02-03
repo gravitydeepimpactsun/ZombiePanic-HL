@@ -49,6 +49,13 @@ void CWeaponExplosiveIED::Precache(void)
 
 float CWeaponExplosiveIED::Deploy()
 {
+	// Check if we just picked up the satchel package again
+	if ( m_iClip > m_iPrevClip )
+	{
+		m_iIEDState = IED_STATE_NORMAL;
+		m_iPrevClip = m_iClip;
+	}
+
 	DoDeploy(
 		"models/v_satchel.mdl",
 		HasSatchelCharge() ? "models/p_satchel_radio.mdl" : "models/p_satchel.mdl",
@@ -106,6 +113,14 @@ void CWeaponExplosiveIED::PrimaryAttack( void )
 bool CWeaponExplosiveIED::HasSatchelCharge() const
 {
 	return ( m_iIEDState == IED_STATE_HAS_THROWN );
+}
+
+void CWeaponExplosiveIED::OnClipIncrease( int iAmount )
+{
+	BaseClass::OnClipIncrease( iAmount );
+	m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flTimeWeaponIdle = m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + DoHolsterAnimation();
+	m_iPrevClip = m_iClip;
+	m_iIEDState = IED_STATE_TO_NORMAL;
 }
 
 bool CWeaponExplosiveIED::PlantIED( void )
@@ -209,7 +224,7 @@ void CWeaponExplosiveIED::WeaponIdle( void )
 		case IED_STATE_OBTAINED_PACKAGE:
 		{
 			m_iIEDState = IED_STATE_TO_NORMAL;
-			m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flTimeWeaponIdle = m_pPlayer->m_flNextAttack = DoHolsterAnimation();
+		    m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flTimeWeaponIdle = m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + DoHolsterAnimation();
 			return;
 		}
 		break;

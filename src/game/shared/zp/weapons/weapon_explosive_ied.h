@@ -21,6 +21,8 @@ public:
 	void PrimaryAttack( void );
 	bool HasSatchelCharge() const;
 
+	void OnClipIncrease( int iAmount ) override;
+
 	float Deploy();
 
 	float DoHolsterAnimation() override;

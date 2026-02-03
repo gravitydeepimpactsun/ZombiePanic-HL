@@ -258,6 +258,12 @@ public:
 
 	virtual bool IsMeleeWeapon() { return false; }
 
+#ifdef SERVER_DLL
+	virtual void OnClipIncrease(int iAmount);
+#else
+	virtual void OnClipIncrease(int iAmount) {}
+#endif
+
 	virtual int AddWeapon(void)
 	{
 #ifdef SERVER_DLL

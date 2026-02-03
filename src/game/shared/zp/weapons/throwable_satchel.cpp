@@ -136,7 +136,7 @@ void CThrowableSatchelCharge::SatchelUse(CBaseEntity *pActivator, CBaseEntity *p
 				{
 					// If we already have one, stop.
 					if ( pWeapon->m_iClip > 0 ) return;
-					pWeapon->m_iClip = 1;
+					pWeapon->OnClipIncrease( 1 );
 					EMIT_SOUND( ENT(pPlayer->pev), CHAN_ITEM, "items/ammo_pickup.wav", 1, ATTN_NORM );
 				}
 				else

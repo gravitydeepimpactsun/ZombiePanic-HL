@@ -1313,6 +1313,11 @@ int CBasePlayerWeapon::ExtractClipAmmo(CBasePlayerWeapon *pWeapon)
 	return pWeapon->m_pPlayer->GiveAmmo(iAmmo, (char *)GetData().Ammo1); // , &m_iPrimaryAmmoType
 }
 
+void CBasePlayerWeapon::OnClipIncrease(int iAmount)
+{
+	m_iClip += iAmount;
+}
+
 //=========================================================
 // RetireWeapon - no more ammo for this gun, put it away.
 //=========================================================

@@ -108,3 +108,19 @@ float CWeaponMeleeFireaxe::DoWeaponIdleAnimation( int iAnim )
 	}
 	return 1.0f;
 }
+
+float CWeaponMeleeFireaxe::GetAttackAnimationTime( int iAnim )
+{
+	switch ( iAnim )
+	{
+		case ANIM_MELEE_HEAVY_HIT: return GetAnimationTime( 15, 22 );
+		case ANIM_MELEE_HEAVY_MISS: return GetAnimationTime( 15, 22 );
+		case ANIM_MELEE_ATTACK1MISS: return GetAnimationTime( 20, 35 );
+		case ANIM_MELEE_ATTACK2MISS: return GetAnimationTime( 21, 30 );
+		case ANIM_MELEE_ATTACK3MISS: return GetAnimationTime( 21, 33 );
+	    case ANIM_MELEE_ATTACK1HIT: return GetAnimationTime( 20, 35 );
+	    case ANIM_MELEE_ATTACK2HIT: return GetAnimationTime( 21, 35 );
+	    case ANIM_MELEE_ATTACK3HIT: return GetAnimationTime( 21, 38 );
+	}
+	return 1.0f;
+}

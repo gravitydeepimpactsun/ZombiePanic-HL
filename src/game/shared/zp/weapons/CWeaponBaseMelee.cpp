@@ -371,7 +371,7 @@ void CWeaponBaseMelee::DoMeleeAttack()
 	else flDelay /= 2.0f;
 
 	m_flNextPrimaryAttack = m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + flDelay;
-	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + flDelay;
+	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAttackAnimationTime( iAnim );
 
 	n_meleeAttackType = MELEE_ATTACK_NONE;
 }

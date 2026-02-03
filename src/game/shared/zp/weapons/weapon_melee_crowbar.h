@@ -20,6 +20,7 @@ public:
 	float Deploy() override;
 	float DoHolsterAnimation() override;
 	float DoWeaponIdleAnimation( int iAnim ) override;
+	float GetAttackAnimationTime( int iAnim ) override;
 };
 
 #endif

@@ -73,3 +73,17 @@ float CWeaponMeleeCrowbar::DoWeaponIdleAnimation( int iAnim )
 	}
 	return 1.0f;
 }
+
+float CWeaponMeleeCrowbar::GetAttackAnimationTime( int iAnim )
+{
+	switch ( iAnim )
+	{
+		case ANIM_MELEE_ATTACK1MISS: return GetAnimationTime( 16, 30 );
+		case ANIM_MELEE_ATTACK2MISS: return GetAnimationTime( 20, 30 );
+		case ANIM_MELEE_ATTACK3MISS: return GetAnimationTime( 18, 30 );
+	    case ANIM_MELEE_ATTACK1HIT: return GetAnimationTime( 9, 30 );
+	    case ANIM_MELEE_ATTACK2HIT: return GetAnimationTime( 13, 30 );
+	    case ANIM_MELEE_ATTACK3HIT: return GetAnimationTime( 14, 30 );
+	}
+	return 1.0f;
+}

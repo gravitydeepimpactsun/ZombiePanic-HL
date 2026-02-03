@@ -69,6 +69,7 @@ public:
 
 	virtual void DoWeaponSoundFromAttack( MeleeAttackType attackType, bool bHitWorld ) {}
 	virtual void DoWeaponSoundFromMiss( MeleeAttackType attackType ) {}
+	virtual float GetAttackAnimationTime( int iAnim ) { return GetAnimationTime( 24, 30 ); }
 
 protected:
 	MeleeAttackType n_meleeAttackType;

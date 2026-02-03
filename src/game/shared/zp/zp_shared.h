@@ -6,6 +6,7 @@
 
 #include "Color.h"
 #include <vector>
+#include <functional>
 
 // Auto include em.
 #include "zp_achievements.h"
@@ -121,7 +122,8 @@ struct AmmoData
 	int AmmoBoxGive;
 	int MaxCarry;
 	float WeightPerBullet;
-	AmmoData( ZPAmmoTypes nType, const char *szName, int iAmmoBox, int iMaxCarry, float flWeight );
+	bool DrawClip; // Set this to true, if MaxCarry is 0
+	AmmoData( ZPAmmoTypes nType, const char *szName, int iAmmoBox, int iMaxCarry, float flWeight, bool bDrawClip );
 };
 AmmoData GetAmmoByName( const char *szAmmoType );
 AmmoData GetAmmoByTableIndex( int id );
@@ -137,10 +139,24 @@ struct WeaponInfo
 	const char *szWeapon = nullptr;
 	ZPWeaponID WeaponID = WEAPON_NONE;
 	bool Hidden = false;
+	bool Melee = false;
 };
 WeaponInfo GetWeaponInfo( const char *szClassname );
 WeaponInfo GetWeaponInfo( ZPWeaponID id );
 WeaponInfo GetRandomWeaponInfo();
+WeaponInfo GetRandomMeleeWeaponInfo();
+
+/// <summary>
+// Overloaded function to get weapon info with a callback
+// Usage: GetWeaponInfo((ZPWeaponID)i, [&](const WeaponInfo &info){ ... });
+// The callback will be called with the WeaponInfo for the given WeaponID if it is valid.
+/// </summary>
+inline void GetWeaponInfo( ZPWeaponID id, const std::function<void(const WeaponInfo &)> &callback )
+{
+	WeaponInfo info = GetWeaponInfo( id );
+	if ( info.WeaponID != WEAPON_NONE && info.szWeapon != nullptr )
+		callback( info );
+}
 
 enum WeaponDataIcons
 {

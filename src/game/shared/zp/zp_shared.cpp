@@ -173,52 +173,53 @@ static DialogAchievementData g_DAchievements[] =
 // Weapon Script
 // =========================================================
 
-AmmoData::AmmoData( ZPAmmoTypes nType, const char *szName, int iAmmoBox, int iMaxCarry, float flWeight )
+AmmoData::AmmoData( ZPAmmoTypes nType, const char *szName, int iAmmoBox, int iMaxCarry, float flWeight, bool bDrawClip )
 {
 	AmmoType = nType;
 	UTIL_strcpy( AmmoName, szName );
 	AmmoBoxGive = iAmmoBox;
 	MaxCarry = iMaxCarry;
 	WeightPerBullet = flWeight;
+	DrawClip = bDrawClip;
 }
 
 #define WEAPON_SCRIPT_PATH "scripts/"
 #define WEAPON_SCRIPT_FILE ".txt"
 static std::vector<WeaponData> sWeaponDataList;
 static AmmoData sAmmoDataList[] = {
-	AmmoData( AMMO_PISTOL, "9mm", 15, 150, 0.21f ),
-	AmmoData( AMMO_MAGNUM, "357", 6, 30, 0.65f ),
-	AmmoData( AMMO_SHOTGUN, "buckshot", 6, 24, 1.35f ),
-	AmmoData( AMMO_RIFLE, "556ar", 20, 150, 0.35f ),
-	AmmoData( AMMO_LONGRIFLE, "longrifle", 10, 100, 0.48f ),
+	AmmoData( AMMO_PISTOL, "9mm", 15, 150, 0.21f, false ),
+	AmmoData( AMMO_MAGNUM, "357", 6, 30, 0.65f, false ),
+	AmmoData( AMMO_SHOTGUN, "buckshot", 6, 24, 1.35f, false ),
+	AmmoData( AMMO_RIFLE, "556ar", 20, 150, 0.35f, false ),
+	AmmoData( AMMO_LONGRIFLE, "longrifle", 10, 100, 0.48f, false ),
 
-	AmmoData( AMMO_GRENADE, "explosive_tnt", 0, 3, 0.1f ),
-	AmmoData( AMMO_SATCHEL, "explosive_ied", 0, 0, 0.5f ),
+	AmmoData( AMMO_GRENADE, "explosive_tnt", 0, 0, 0.1f, true ),
+	AmmoData( AMMO_SATCHEL, "explosive_ied", 0, 0, 0.5f, false ),
 
-	AmmoData( AMMO_BARRICADE, "barricade", 1, 1, 0.0f ),
+	AmmoData( AMMO_BARRICADE, "barricade", 1, 1, 0.0f, false ),
 
 	// MUST BE LAST, DO NOT CHANGE THIS.
 	// This is used by Crowbar and Swipe (or any other weapon that has no ammo)
-	AmmoData( AMMO_NONE, "", 0, -1, 0.0f )
+	AmmoData( AMMO_NONE, "", 0, -1, 0.0f, false )
 };
 
 static WeaponInfo sWeaponInfoList[] = {
-	// { const char *szWeapon, ZPWeaponID WeaponID, bool Hidden }
-	{ "crowbar", WEAPON_CROWBAR, false },
-	{ "leadpipe", WEAPON_LEADPIPE, false },
-	{ "fireaxe", WEAPON_FIREAXE, false },
-	{ "swipe", WEAPON_SWIPE, true },
-	{ "sig", WEAPON_SIG, false },
-	{ "ppk", WEAPON_PPK, false },
-	{ "357", WEAPON_PYTHON, false },
-	{ "mp5", WEAPON_MP5, false },
-	{ "556ar", WEAPON_556AR, false },
-	{ "shotgun", WEAPON_SHOTGUN, false },
-	{ "doublebarrel", WEAPON_DOUBLEBARREL, false },
-	{ "tnt", WEAPON_TNT, false },
-	{ "molotov", WEAPON_MOLOTOV, false },
-	{ "ied", WEAPON_SATCHEL, false },
-	{ "fafo", WEAPON_FAFO_ERW, false },
+	// { const char *szWeapon, ZPWeaponID WeaponID, bool Hidden, bool Melee }
+	{ "crowbar", WEAPON_CROWBAR, false, true },
+	{ "leadpipe", WEAPON_LEADPIPE, false, true },
+	{ "fireaxe", WEAPON_FIREAXE, false, true },
+	{ "swipe", WEAPON_SWIPE, true, false },
+	{ "sig", WEAPON_SIG, false, false },
+	{ "ppk", WEAPON_PPK, false, false },
+	{ "357", WEAPON_PYTHON, false, false },
+	{ "mp5", WEAPON_MP5, false, false },
+	{ "556ar", WEAPON_556AR, false, false },
+	{ "shotgun", WEAPON_SHOTGUN, false, false },
+	{ "doublebarrel", WEAPON_DOUBLEBARREL, false, false },
+	{ "tnt", WEAPON_TNT, false, false },
+	{ "molotov", WEAPON_MOLOTOV, false, false },
+	{ "ied", WEAPON_SATCHEL, false, false },
+	{ "fafo", WEAPON_FAFO_ERW, false, false },
 };
 
 
@@ -463,6 +464,18 @@ WeaponInfo GetRandomWeaponInfo()
 		weapon = sWeaponInfoList[ RandomInt( 0, ARRAYSIZE( sWeaponInfoList ) - 1 ) ];
 	}
 	while ( !weapon.Hidden );
+	// Grab a random item
+	return weapon;
+}
+
+WeaponInfo GetRandomMeleeWeaponInfo()
+{
+	WeaponInfo weapon = WeaponInfo();
+	do
+	{
+		weapon = sWeaponInfoList[ RandomInt( 0, ARRAYSIZE( sWeaponInfoList ) - 1 ) ];
+	}
+	while ( !weapon.Hidden && weapon.Melee );
 	// Grab a random item
 	return weapon;
 }

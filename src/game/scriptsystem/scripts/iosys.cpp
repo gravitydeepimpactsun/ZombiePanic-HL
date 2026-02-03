@@ -43,6 +43,7 @@ static const char *g_IOCommands[IO_MAX] = {
 	"Participated",
 	"AddToSpawnList",
 	"SpawnItems",
+	"SpawnMeleeWeapons",
 };
 
 static std::vector<ISpawnListData> s_SpawnListData; // Used by IO_SPAWN_ITEMS and IO_ADD_TO_SPAWN_LIST
@@ -973,6 +974,13 @@ void IOScriptFile::RunCommands( int nID )
 				ZP::IO_CalculatePlayerAmount( mySpawnItems );
 				// Clear our list after use.
 				s_SpawnListData.clear();
+			}
+		    break;
+
+			case IO_SPAWN_MELEE_ITEMS:
+			{
+			    // Setup default melee spawn list
+			    ZP::SetupDefaultMeleeSpawnList();
 			}
 		    break;
 

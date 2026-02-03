@@ -535,8 +535,6 @@ int CBaseButton::TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, flo
 {
 	// Ignore damage of any kind
 	if ( pev->takedamage == DAMAGE_NO ) return 0;
-	// If 0, then refuse to take damage
-	if ( pev->health == 0 ) return 0;
 
 	if ( m_iButtonHealth > 0 )
 	{
@@ -554,6 +552,9 @@ int CBaseButton::TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, flo
 			return 0;
 		}
 	}
+
+	// If 0, then refuse to operate
+	if ( pev->health == 0 ) return 0;
 
 	BUTTON_CODE code = ButtonResponseToTouch();
 

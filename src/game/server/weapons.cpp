@@ -1315,7 +1315,11 @@ int CBasePlayerWeapon::ExtractClipAmmo(CBasePlayerWeapon *pWeapon)
 
 void CBasePlayerWeapon::OnClipIncrease(int iAmount)
 {
-	m_iClip += iAmount;
+	int iAmmo = m_iClip;
+	iAmmo += iAmount;
+	if ( iAmmo > iMaxClip() )
+		iAmmo = iMaxClip();
+	m_iClip = iAmmo;
 }
 
 //=========================================================

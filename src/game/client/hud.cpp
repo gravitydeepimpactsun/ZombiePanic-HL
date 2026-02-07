@@ -923,8 +923,7 @@ void CHud::GetFormatedTime( HUDGameTimerType type, HUDGameTimerFormat *frmt )
 		case CHud::RoundTime: value = m_GameTimer.RoundTimer; break;
 		case CHud::GameTime: value = m_GameTimer.GameTime; break;
 	}
-	if ( gpGlobals )
-		value = value - gpGlobals->time;
+	value = value - m_flTime;
 	if ( value < 0 ) value = 0;
 
 	// convert to milliseconds

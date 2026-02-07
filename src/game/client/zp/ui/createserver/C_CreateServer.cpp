@@ -223,6 +223,7 @@ void C_CreateServer::LoadConfigFile()
 	Panel *objParent = m_pOptionsList;
 	CheckButton* pBox = nullptr;
 	TextEntry* pEdit = nullptr;
+	ComboBox *pCombo = nullptr;
 
 	for ( KeyValues *sub = ConfigData->GetFirstSubKey(); sub != NULL ; sub = sub->GetNextKey() )
 	{
@@ -242,6 +243,8 @@ void C_CreateServer::LoadConfigFile()
 			confType = Conf_Bool;
 		else if ( !Q_stricmp( strType, "string" ) )
 			confType = Conf_String;
+		else if ( !Q_stricmp( strType, "combobox" ) )
+			confType = Conf_ComboBox;
 
 		bool bHasData = vgui2::FStrEq( ConfigSavedData->GetString( strConvar, "" ), "" ) == false;
 
@@ -279,6 +282,31 @@ void C_CreateServer::LoadConfigFile()
 				pCtrl->pControl = (Panel*)pBox;
 			}
 			break;
+
+			case Conf_ComboBox:
+			{
+			    pCombo = new ComboBox( pCtrl, "DescComboBox", 5, false );
+			    // Find the options for this combo box
+				KeyValues *pSubCombo = sub->FindKey( "options" );
+			    if ( pSubCombo )
+				{
+					KeyValues *kvComboData = new KeyValues( "ComboData" );
+					KeyValues::AutoDelete autoDelete( kvComboData );
+					for ( KeyValues *subCombo = pSubCombo->GetFirstSubKey(); subCombo != NULL ; subCombo = subCombo->GetNextKey() )
+					{
+						const char *strVal = subCombo->GetString( "string", "" );
+						if ( strVal[0] == 0 ) continue;
+						kvComboData->SetString( strVal, "" );
+						pCombo->AddItem( strVal, kvComboData );
+					}
+			    }
+				if ( bHasData )
+				    pCombo->ActivateItem( ConfigSavedData->GetInt( strConvar, 0 ) );
+			    else
+					pCombo->ActivateItem( sub->GetInt( "default", 0 ) );
+			    pCtrl->pControl = (Panel *)pCombo;
+			}
+		    break;
 		}
 
 		if ( confType != Conf_Bool )

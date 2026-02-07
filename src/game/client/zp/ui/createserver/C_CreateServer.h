@@ -37,6 +37,7 @@ public:
 	vgui2::Panel* pControl;
 	vgui2::Label* pPrompt;
 	bool bIsCheat;
+	bool bIsServer;
 	configType confType;
 
 	CServerConfigData* next;
@@ -63,7 +64,7 @@ class C_CreateServer : public vgui2::Frame
 	void SaveConfigFile();
 	const char *GetConfigFile( const char *strConfig, const char *strArg );
 	void LoadConfigFile();
-	void RunConfigFile();
+	void RunConfigFile( bool bServerOnly );
 
 	void ApplySchemeSettings( vgui2::IScheme *pScheme ) override;
 

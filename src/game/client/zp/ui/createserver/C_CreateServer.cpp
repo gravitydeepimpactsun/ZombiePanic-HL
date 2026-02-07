@@ -256,6 +256,9 @@ void C_CreateServer::LoadConfigFile()
 		// Is this a cheat var?
 		pCtrl->bIsCheat = sub->GetBool( "cheat" );
 
+		// Server var?
+		pCtrl->bIsServer = sub->GetBool( "server" );
+
 		// Set the conf type
 		pCtrl->confType = confType;
 
@@ -361,10 +364,13 @@ void C_CreateServer::LoadConfigFile()
 }
 
 
-void C_CreateServer::RunConfigFile()
+void C_CreateServer::RunConfigFile( bool bServerOnly )
 {
 	for ( CServerConfigData *mp = m_pList; mp != NULL; mp = mp->next )
 	{
+		if ( bServerOnly && !mp->bIsServer ) continue;
+		else if ( !bServerOnly && mp->bIsServer ) continue;
+
 		Panel *control = mp->pControl;
 		if ( control )
 		{
@@ -403,13 +409,23 @@ void C_CreateServer::RunConfigFile()
 			}
 
 			char command[ 1024 ];
-			Q_snprintf(
-				command,
-				sizeof( command ),
-				"%s \"%s\"\n",
-				mp->GetName(),
-				buf
-			);
+			// We need this stupid amount of wait, because server commands needs to be executed when the dll finishes loading...
+			if ( bServerOnly )
+				Q_snprintf(
+					command,
+					sizeof( command ),
+					"wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;%s \"%s\"\n",
+					mp->GetName(),
+					buf
+				);
+			else
+				Q_snprintf(
+					command,
+					sizeof( command ),
+					"%s \"%s\"\n",
+					mp->GetName(),
+					buf
+				);
 			gEngfuncs.pfnClientCmd( command );
 			SaveConfig( mp->GetName(), buf, mp->confType );
 		}
@@ -500,7 +516,7 @@ void C_CreateServer::RunMap( int iMap )
 	RunConfig( "server_maxplayers", "maxplayers", Conf_ComboBox );
 
 	// Load from our json file
-	RunConfigFile();
+	RunConfigFile( false );
 
 	// Grab the map
 	std::string strMap = iMap > 0 ? vMapList[iMap] : vMapList[ RandomInt(1, vMapList.size() - 1) ];
@@ -515,6 +531,9 @@ void C_CreateServer::RunMap( int iMap )
 	);
 
 	gEngfuncs.pfnClientCmd( command );
+
+	// Again, but this time for the server vars only. Since GoldSrc does not start the server binary right away unlike Source.
+	RunConfigFile( true );
 }
 
 
@@ -727,8 +746,9 @@ void C_CreateServer::OnCommand( const char *command )
 		// Save our config
 		SaveConfigFile();
 
-		// Close the dialog
-		Close();
+		// Close the dialog right away.
+		SetFadeEffectDisableOverride( true );
+		OnClose();
 	}
 	else
 		BaseClass::OnCommand( command );

@@ -88,7 +88,7 @@ void CWeaponMeleeLeadPipe::DoWeaponSoundFromMiss( MeleeAttackType attackType )
 float CWeaponMeleeLeadPipe::Deploy()
 {
 	BaseClass::Deploy();
-	return GetAnimationTime( 24, 30 );
+	return GetAnimationTime( 24, 15 );
 }
 
 float CWeaponMeleeLeadPipe::DoHolsterAnimation()

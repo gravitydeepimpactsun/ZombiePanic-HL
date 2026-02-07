@@ -224,6 +224,7 @@ void C_CreateServer::LoadConfigFile()
 	CheckButton* pBox = nullptr;
 	TextEntry* pEdit = nullptr;
 	ComboBox *pCombo = nullptr;
+	Slider *pSlider = nullptr;
 
 	for ( KeyValues *sub = ConfigData->GetFirstSubKey(); sub != NULL ; sub = sub->GetNextKey() )
 	{
@@ -245,6 +246,8 @@ void C_CreateServer::LoadConfigFile()
 			confType = Conf_String;
 		else if ( !Q_stricmp( strType, "combobox" ) )
 			confType = Conf_ComboBox;
+		else if ( !Q_stricmp( strType, "slider" ) )
+			confType = Conf_Slider;
 
 		bool bHasData = vgui2::FStrEq( ConfigSavedData->GetString( strConvar, "" ), "" ) == false;
 
@@ -305,6 +308,19 @@ void C_CreateServer::LoadConfigFile()
 			    else
 					pCombo->ActivateItem( sub->GetInt( "default", 0 ) );
 			    pCtrl->pControl = (Panel *)pCombo;
+			}
+		    break;
+
+			case Conf_Slider:
+			{
+				pSlider = new Slider( pCtrl, "DescSlider" );
+				pSlider->SetRange( sub->GetInt( "min", 0 ), sub->GetInt( "max", 100 ) );
+			    pSlider->SetTickCaptions( sub->GetString( "minstring", "" ), sub->GetString( "maxstring", "" ) );
+				if ( bHasData )
+					pSlider->SetValue( ConfigSavedData->GetInt( strConvar, 0 ) );
+				else
+					pSlider->SetValue( sub->GetInt( "default", 0 ) );
+			    pCtrl->pControl = (Panel *)pSlider;
 			}
 		    break;
 		}
@@ -580,6 +596,24 @@ void C_CreateServer::RunConfig( const char *strConfig, const char *strArg, confi
 			}
 		}
 		break;
+
+		case Conf_Slider:
+		{
+			vgui2::Slider *pValue = (vgui2::Slider *)pPanel;
+			if ( pValue )
+			{
+				char strVal[ 250 ];
+				strVal[0] = 0;
+				Q_snprintf( strVal, sizeof( strVal ), "%i", pValue->GetValue() );
+				if ( bRequireCheats && pValue->GetValue() > 0 )
+				{
+					SaveConfig( "sv_cheats", "1", cType );
+					gEngfuncs.pfnClientCmd( "sv_cheats 1" );
+				}
+				strValue = strVal;
+		    }
+		}
+	    break;
 	}
 
 	// Try the config file
@@ -644,6 +678,13 @@ void C_CreateServer::LoadConfig( const char *strConfig, const char *strArg, conf
 			}
 		}
 		break;
+
+		case Conf_Slider:
+		{
+			vgui2::Slider *pValue = (vgui2::Slider *)pPanel;
+			if ( pValue )
+				pValue->SetValue( ConfigSavedData->GetInt( strArg ) );
+	    }
 	}
 }
 
@@ -663,6 +704,7 @@ void C_CreateServer::SaveConfig( const char *strArg, const char *strValue, confi
 
 		case Conf_Int:
 		case Conf_ComboBox:
+	    case Conf_Slider:
 		    ConfigSavedData->SetInt( strArg, atoi( strValue ) );
 		break;
 	}

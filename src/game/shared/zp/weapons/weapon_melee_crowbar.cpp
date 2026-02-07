@@ -64,9 +64,8 @@ float CWeaponMeleeCrowbar::DoHolsterAnimation()
 
 float CWeaponMeleeCrowbar::DoWeaponIdleAnimation( int iAnim )
 {
-	switch ( RANDOM_LONG(0, 4) )
+	switch ( iAnim )
 	{
-		default:
 		case ANIM_MELEE_IDLE1: return GetAnimationTime( 33, 12 );
 		case ANIM_MELEE_IDLE2: return GetAnimationTime( 30, 12 );
 	    case ANIM_MELEE_IDLE3: return GetAnimationTime( 80, 12 );

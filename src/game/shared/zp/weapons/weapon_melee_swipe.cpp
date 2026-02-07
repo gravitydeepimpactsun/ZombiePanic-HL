@@ -64,9 +64,8 @@ float CWeaponMeleeSwipe::DoHolsterAnimation()
 
 float CWeaponMeleeSwipe::DoWeaponIdleAnimation( int iAnim )
 {
-	switch ( RANDOM_LONG(0, 4) )
+	switch ( iAnim )
 	{
-		default:
 		case ANIM_MELEE_IDLE1: return GetAnimationTime( 30, 10 );
 		case ANIM_MELEE_IDLE2: return GetAnimationTime( 15, 15 );
 	    case ANIM_MELEE_IDLE3: return GetAnimationTime( 16, 15 );

@@ -99,9 +99,8 @@ float CWeaponMeleeFireaxe::DoHolsterAnimation()
 
 float CWeaponMeleeFireaxe::DoWeaponIdleAnimation( int iAnim )
 {
-	switch ( RANDOM_LONG(0, 4) )
+	switch ( iAnim )
 	{
-		default:
 		case ANIM_MELEE_IDLE1: return GetAnimationTime( 26, 30 );
 		case ANIM_MELEE_IDLE2: return GetAnimationTime( 70, 30 );
 	    case ANIM_MELEE_IDLE3: return GetAnimationTime( 70, 15 );

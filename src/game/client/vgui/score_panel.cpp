@@ -604,12 +604,19 @@ void CScorePanel::UpdateClientInfo(int client)
 	if (!pi->IsConnected())
 		return;
 
-	if (GetPlayerTeam(pi) != pd.nTeamID)
+	int nTeamNum = GetPlayerTeam( pi );
+
+	// If the local player is a survivor, we only show survivors and spectators on the scoreboard.
+	// Zombies (and spec) can see both however.
+	if ( GetLocalPlayer()->GetTeamNumber() == ZP::TEAM_SURVIVIOR )
+		nTeamNum = ZP::TEAM_SURVIVIOR;
+
+	if ( nTeamNum != pd.nTeamID )
 	{
 		// Player changed team
 		m_pPlayerList->RemoveItem(pd.nItemID);
 		pd.nItemID = -1;
-		pd.nTeamID = pi->GetTeamNumber();
+		pd.nTeamID = nTeamNum;
 	}
 
 	// Create section for player's team if need to
@@ -645,7 +652,10 @@ void CScorePanel::UpdateClientInfo(int client)
 		}
 
 		// Name
-		if (pi->IsSpectator())
+		bool bIsSpectator = pi->IsSpectator();
+		if ( pi->GetTeamNumber() == ZP::TEAM_OBSERVER || pi->GetTeamNumber() == ZP::TEAM_NONE )
+			bIsSpectator = true;
+		if ( bIsSpectator )
 		{
 			snprintf(buf, sizeof(buf), "%s %s%s",
 			    pi->GetDisplayName(gHUD.GetColorCodeAction() == ColorCodeAction::Strip),
@@ -653,9 +663,7 @@ void CScorePanel::UpdateClientInfo(int client)
 			    m_szSpectatorTag);
 		}
 		else
-		{
 			snprintf(buf, sizeof(buf), "%s", pi->GetDisplayName(gHUD.GetColorCodeAction() == ColorCodeAction::Strip));
-		}
 		playerKv->SetString("name", buf);
 
 		// SteamID
@@ -680,8 +688,11 @@ void CScorePanel::UpdateClientInfo(int client)
 	if (pd.nItemID == -1)
 	{
 		// Create player's row
-		pd.nItemID = m_pPlayerList->AddItem(pd.nTeamID, playerKv);
-		m_pPlayerList->SetItemFgColor(pd.nItemID, gHUD.GetClientColor(client, NoTeamColor::White));
+		pd.nItemID = m_pPlayerList->AddItem( pd.nTeamID, playerKv );
+		if ( GetLocalPlayer()->GetTeamNumber() == ZP::TEAM_SURVIVIOR )
+			m_pPlayerList->SetItemFgColor( pd.nItemID, g_pViewport->GetTeamColor(ZP::TEAM_SURVIVIOR) );
+		else
+			m_pPlayerList->SetItemFgColor( pd.nItemID, gHUD.GetClientColor( client, NoTeamColor::White ) );
 		m_pPlayerList->InvalidateLayout();
 	}
 	else
@@ -786,12 +797,12 @@ void CScorePanel::UpdateScoresAndCounts()
 			localizedName = wbuf2;
 		}
 
-		V_snwprintf(wbuf, 128, L"%s (%d/%d)", localizedName, td.iPlayerCount, iPlayerCount);
+		V_snwprintf(wbuf, 128, L"%s", localizedName);
 		m_pPlayerList->ModifyColumn(nTeamID, "name", wbuf);
 	};
 
 	// Update team score and player count
-	for (int i = 1; i < ZP::MAX_TEAM; i++)
+	for (int i = ZP::TEAM_SURVIVIOR; i < ZP::MAX_TEAM; i++)
 	{
 		TeamData &td = m_TeamData[i];
 

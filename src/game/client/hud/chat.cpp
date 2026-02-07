@@ -841,8 +841,13 @@ Color CHudChat::GetDefaultTextColor(void)
 //-----------------------------------------------------------------------------
 Color CHudChat::GetClientColor(int clientIndex)
 {
-	if (CPlayerInfo *pi = GetPlayerInfoSafe(clientIndex))
-		return g_pViewport->GetTeamColor(pi->Update()->GetTeamNumber());
+	if ( CPlayerInfo *pi = GetPlayerInfoSafe( clientIndex ) )
+	{
+		CPlayerInfo *pLocal = GetPlayerInfo( gEngfuncs.GetLocalPlayer()->index );
+		if ( pLocal->GetTeamNumber() == ZP::TEAM_SURVIVIOR )
+			return g_pViewport->GetTeamColor( ZP::TEAM_SURVIVIOR );
+		return g_pViewport->GetTeamColor( pi->Update()->GetTeamNumber() );
+	}
 
 	return g_pViewport->GetTeamColor(0);
 }

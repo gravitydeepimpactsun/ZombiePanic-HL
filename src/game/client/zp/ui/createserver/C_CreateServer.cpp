@@ -409,23 +409,13 @@ void C_CreateServer::RunConfigFile( bool bServerOnly )
 			}
 
 			char command[ 1024 ];
-			// We need this stupid amount of wait, because server commands needs to be executed when the dll finishes loading...
-			if ( bServerOnly )
-				Q_snprintf(
-					command,
-					sizeof( command ),
-					"wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;%s \"%s\"\n",
-					mp->GetName(),
-					buf
-				);
-			else
-				Q_snprintf(
-					command,
-					sizeof( command ),
-					"%s \"%s\"\n",
-					mp->GetName(),
-					buf
-				);
+			Q_snprintf(
+				command,
+				sizeof( command ),
+				"%s \"%s\"\n",
+				mp->GetName(),
+				buf
+			);
 			gEngfuncs.pfnClientCmd( command );
 			SaveConfig( mp->GetName(), buf, mp->confType );
 		}
@@ -526,10 +516,17 @@ void C_CreateServer::RunMap( int iMap )
 	Q_snprintf(
 		command,
 		sizeof( command ),
-		"wait\nwait\nmap %s\n",
+		"wait;wait;map %s\n",
 		strMap.c_str()
 	);
+	gEngfuncs.pfnClientCmd( command );
 
+	// We need this stupid amount of wait, because server commands needs to be executed when the dll finishes loading...
+	Q_snprintf(
+		command,
+		sizeof( command ),
+		"wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;\n"
+	);
 	gEngfuncs.pfnClientCmd( command );
 
 	// Again, but this time for the server vars only. Since GoldSrc does not start the server binary right away unlike Source.

@@ -24,6 +24,7 @@ CZPProgressBar::CZPProgressBar()
 	m_pBackground->SetImage( "ui/gfx/hud/progress_bar_bg" );
 	m_pProgressBar = new vgui2::ImagePanel( this, "ProgressBar" );
 	m_pProgressBar->SetImage( "ui/gfx/hud/progress_bar" );
+	m_pProgressBar->SetBounds( 0, 0, 0, 0 );
 	m_pText = new vgui2::Label( this, "Text", "" );
 	m_flProgressTime = 0.0f;
 	m_flStartTime = 0.0f;
@@ -107,9 +108,9 @@ void CZPProgressBar::Paint()
 	m_pProgressBar->SetImageSize( wide, tall );
 
 	// Calculate progress bar width.
-	int maxWide = wide;
 	if ( m_flProgressTime > 0 )
 	{
+		int maxWide = wide;
 		float flTimeLeft = m_flProgressTime - gHUD.m_flTime;
 		float flTotalTime = m_flStartTime;
 		float flProgress = 1.0f - ( flTimeLeft / flTotalTime );

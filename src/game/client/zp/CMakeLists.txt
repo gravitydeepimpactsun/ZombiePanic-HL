@@ -18,6 +18,10 @@ add_sources(
 	music/music_manager.cpp
 	ui/playerselection/C_PlayerSelection.cpp
 	ui/playerselection/C_PlayerSelection.h
+	ui/createserver/C_ConfigList.cpp
+	ui/createserver/C_ConfigList.h
+	ui/createserver/C_CreateServer.cpp
+	ui/createserver/C_CreateServer.h
 	ui/credits/C_ZPCredits.cpp
 	ui/credits/C_ZPCredits.h
 	ui/credits/C_ZPCredits_Sub_Contrib.cpp

@@ -11,6 +11,7 @@ class CGameUITestPanel;
 class CAdvOptionsDialog;
 class C_AchievementDialog;
 class C_PlayerSelection;
+class C_CreateServer;
 class C_ZPCredits;
 class CWorkshopDialog;
 class CServerBrowser;
@@ -22,6 +23,7 @@ enum GameUIDialogs
 	UIDialog_Achievements = 0,
 	UIDialog_Options,
 	UIDialog_PlayerSelection,
+	UIDialog_CreateServer,
 	UIDialog_Workshop,
 	UIDialog_Credits,
 	UIDialog_ServerBrowser,
@@ -52,6 +54,7 @@ public:
 	CAdvOptionsDialog *GetOptionsDialog();
 	C_AchievementDialog *GetAchievementDialog();
 	C_PlayerSelection *GetPlayerSelection();
+	C_CreateServer *GetCreateServerDialog();
 	C_ZPCredits *GetCredits();
 	CWorkshopDialog *GetWorkshopDialog();
 	CServerBrowser *GetServerBrowser();
@@ -135,6 +138,7 @@ private:
 	vgui2::DHANDLE<CAdvOptionsDialog> m_hOptionsDialog;
 	vgui2::DHANDLE<C_AchievementDialog> m_hAchDialog;
 	vgui2::DHANDLE<C_PlayerSelection> m_hPlayerSelection;
+	vgui2::DHANDLE<C_CreateServer> m_hCreateServerDialog;
 	vgui2::DHANDLE<C_ZPCredits> m_hCredits;
 	vgui2::DHANDLE<CWorkshopDialog> m_hWorkshopDialog;
 	vgui2::DHANDLE<CCreateWorkshopInfoBox> m_hWorkshopInfoBox;

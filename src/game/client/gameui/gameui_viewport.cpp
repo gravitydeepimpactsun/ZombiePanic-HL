@@ -11,6 +11,7 @@
 #include "options/adv_options_dialog.h"
 #include "zp/ui/achievements/C_AchievementDialog.h"
 #include "zp/ui/playerselection/C_PlayerSelection.h"
+#include "zp/ui/createserver/C_CreateServer.h"
 #include "zp/ui/credits/C_ZPCredits.h"
 #include "zp/ui/workshop/CWorkshopDialog.h"
 #include "steam_achievements.h"
@@ -152,6 +153,11 @@ C_PlayerSelection *CGameUIViewport::GetPlayerSelection()
 	return GetDialog(m_hPlayerSelection);
 }
 
+C_CreateServer *CGameUIViewport::GetCreateServerDialog()
+{
+	return GetDialog(m_hCreateServerDialog);
+}
+
 C_ZPCredits *CGameUIViewport::GetCredits()
 {
 	return GetDialog(m_hCredits);
@@ -179,6 +185,7 @@ vgui2::Panel *CGameUIViewport::GetDialog( GameUIDialogs nDialog )
 		case UIDialog_Achievements: return m_hAchDialog;
 		case UIDialog_Options: return m_hOptionsDialog;
 		case UIDialog_PlayerSelection: return m_hPlayerSelection;
+		case UIDialog_CreateServer: return m_hCreateServerDialog;
 		case UIDialog_Workshop: return m_hWorkshopDialog;
 		case UIDialog_Credits: return m_hCredits;
 		case UIDialog_ServerBrowser: return m_hServerBrowser;

@@ -13,6 +13,7 @@
 #include "gameui/options/adv_options_dialog.h"
 #include "zp/ui/achievements/C_AchievementDialog.h"
 #include "zp/ui/playerselection/C_PlayerSelection.h"
+#include "zp/ui/createserver/C_CreateServer.h"
 #include "zp/ui/credits/C_ZPCredits.h"
 #include "zp/ui/workshop/CWorkshopDialog.h"
 
@@ -166,6 +167,12 @@ void CBaseMenu::OnCommand( const char *pcCommand )
 	{
 		gHUD.CallOnNextFrame([]()
 		    { CGameUIViewport::Get()->GetPlayerSelection()->Activate(); });
+		g_pBaseUI->ActivateGameUI();
+	}
+	else if (!Q_stricmp(pcCommand, "OpenCreateServerDialog"))
+	{
+		gHUD.CallOnNextFrame([]()
+		    { CGameUIViewport::Get()->GetCreateServerDialog()->Activate(); });
 		g_pBaseUI->ActivateGameUI();
 	}
 	else if (!Q_stricmp(pcCommand, "OpenWorkshop"))

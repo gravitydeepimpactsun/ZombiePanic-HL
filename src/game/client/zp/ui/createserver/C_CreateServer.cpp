@@ -3,7 +3,7 @@
 #include "C_CreateServer.h"
 #include "zp/ui/workshop/WorkshopItemList.h"
 #include "client_vgui.h"
-#include "filesystem.h"
+#include "FileSystem.h"
 
 #include <fstream>
 

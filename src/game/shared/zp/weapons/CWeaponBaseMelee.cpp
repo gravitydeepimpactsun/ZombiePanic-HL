@@ -276,6 +276,14 @@ CWeaponBaseMelee::WhatDidWeHit CWeaponBaseMelee::DoAttackTrace( MeleeAttackType 
 	int nMeleeTraceCount = pMelee->iAmount;
 	float flMeleeMaxTraceDist = pMelee->flRange;
 
+	// If the player is moving, we need to increase the melee trace distance, otherwise we might not hit anything even if we should have.
+	if ( m_pPlayer->pev->velocity.Length() > 0 )
+	{
+		// We need to clamp it so that we don't get insane melee ranges when the player is moving really fast.
+		float flVelocityFactor = clamp( m_pPlayer->pev->velocity.Length() * 0.1f, 0.0f, 10.0f );
+		flMeleeMaxTraceDist += flVelocityFactor;
+	}
+
 	float flMeleeDaamge = GetMeleeAttackDamage( attackType );
 	int bitsDamageType = GetMeleeDamageType( attackType );
 

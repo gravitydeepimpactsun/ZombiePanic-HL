@@ -13,8 +13,6 @@
 #include "vgui_controls/ComboBox.h"
 #include "vgui_controls/Slider.h"
 
-#include "nlohmann/json.hpp"
-
 class C_ConfigList;
 
 enum configType

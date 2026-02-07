@@ -2,11 +2,9 @@
 
 #include "C_CreateServer.h"
 #include "zp/ui/workshop/WorkshopItemList.h"
-#include "ienginevgui.h"
 #include "client_vgui.h"
 #include "filesystem.h"
 
-#include "nlohmann/json.hpp"
 #include <fstream>
 
 #include "C_ConfigList.h"

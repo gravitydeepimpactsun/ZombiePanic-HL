@@ -29,6 +29,7 @@
 #include "zp/zp_shared.h"
 
 #include "vgui/client_viewport.h"
+#include "zp/hud/zp_voicewheel.h"
 
 extern int g_iAlive;
 extern bool g_bLocalPlayerIsValid;
@@ -90,12 +91,6 @@ float GetMaxPossibleSpeed( ZPPlayerMovementDirection_t dir )
 	}
 	return flValue;
 }
-
-CON_COMMAND( commandmenu, "Voice command menu for survivors" )
-{
-	if ( g_pViewport )
-		g_pViewport->ShowCommandMenu();
-}
 // ZOMBIE PANIC - END
 
 /*
@@ -146,6 +141,7 @@ kbutton_t in_score;
 kbutton_t in_break;
 kbutton_t in_graph; // Display the netgraph
 kbutton_t in_ducktap;
+kbutton_t in_voicewheel;
 
 typedef struct kblist_s
 {
@@ -516,6 +512,19 @@ void IN_RightDown(void) { KeyDown(&in_right); }
 void IN_RightUp(void) { KeyUp(&in_right); }
 void IN_DucktapUp(void) { KeyUp(&in_ducktap); }
 void IN_DucktapDown(void) { KeyDown(&in_ducktap); }
+
+
+void IN_VoiceWheelUp(void)
+{
+	KeyUp( &in_voicewheel );
+	CHudVoiceWheel::Get()->SetToggleState( false );
+}
+
+void IN_VoiceWheelDown(void)
+{
+	KeyDown( &in_voicewheel );
+	CHudVoiceWheel::Get()->SetToggleState( true );
+}
 
 void IN_ForwardDown(void)
 {
@@ -1229,6 +1238,8 @@ void InitInput(void)
 	gEngfuncs.pfnAddCommand("-break", IN_BreakUp);
 	gEngfuncs.pfnAddCommand("+ducktap", IN_DucktapDown);
 	gEngfuncs.pfnAddCommand("-ducktap", IN_DucktapUp);
+	gEngfuncs.pfnAddCommand("+voicewheel", IN_VoiceWheelDown);
+	gEngfuncs.pfnAddCommand("-voicewheel", IN_VoiceWheelUp);
 
 	lookstrafe = gEngfuncs.pfnRegisterVariable("lookstrafe", "0", FCVAR_ARCHIVE);
 	lookspring = gEngfuncs.pfnRegisterVariable("lookspring", "0", FCVAR_ARCHIVE);

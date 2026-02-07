@@ -93,6 +93,7 @@
 #include "zp/hud/zp_objective.h"
 #include "zp/hud/zp_beacons.h"
 #include "zp/hud/zp_progressbar.h"
+#include "zp/hud/zp_voicewheel.h"
 #include "zp/music/music_ui.h"
 
 // Adrenaline Gamer HUD Elements
@@ -429,6 +430,7 @@ void CHud::Init(void)
 	UpdateHudColors();
 
 	// Create HUD elements
+	RegisterHudElem<CHudVoiceWheel>();
 	RegisterHudElem<CZPProgressBar>();
 	RegisterHudElem<CZPBeacons>();
 	RegisterHudElem<CHudAmmo>();

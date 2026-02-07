@@ -215,7 +215,7 @@ void ZP::SetupDefaultMeleeSpawnList()
 			{
 				char szClassname[32];
 				UTIL_strcpy( szClassname, "weapon_" );
-				strcat_s( szClassname, info.szWeapon );
+				V_strcat_safe( szClassname, info.szWeapon );
 				AddDefaultAmmoSpawn( szClassname, 3, ItemType::TypeMelee );
 			}
 		});

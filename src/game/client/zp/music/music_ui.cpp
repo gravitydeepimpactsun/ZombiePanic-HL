@@ -106,6 +106,14 @@ void CMusicUI::Paint()
 	else
 		a -= 3;
 
+	// Draw a nice rounded box behind the text.
+	DrawBox(
+		0, 0,
+	    GetWide(), GetTall(),
+		Color( 15, 15, 15, clamp( a, 0, 160 ) ),
+		1.0f
+	);
+
 	m_pTextTitle->SetFgColor( Color( 255, 255, 255, clamp( a, 0, 255 ) ) );
 	m_pTextTitleBG1->SetFgColor( Color( 0, 0, 0, clamp( a, 0, 255 ) ) );
 	m_pTextTitleBG2->SetFgColor( Color( 0, 0, 0, clamp( a, 0, 255 ) ) );

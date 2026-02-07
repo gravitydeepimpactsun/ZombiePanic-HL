@@ -246,6 +246,8 @@ void C_CreateServer::LoadConfigFile()
 			confType = Conf_String;
 		else if ( !Q_stricmp( strType, "combobox" ) )
 			confType = Conf_ComboBox;
+		else if ( !Q_stricmp( strType, "cvarbox" ) )
+			confType = Conf_ComboBoxCvar;
 		else if ( !Q_stricmp( strType, "slider" ) )
 			confType = Conf_Slider;
 
@@ -290,6 +292,7 @@ void C_CreateServer::LoadConfigFile()
 			break;
 
 			case Conf_ComboBox:
+		    case Conf_ComboBoxCvar:
 			{
 			    pCombo = new ComboBox( pCtrl, "DescComboBox", 5, false );
 			    // Find the options for this combo box
@@ -302,7 +305,14 @@ void C_CreateServer::LoadConfigFile()
 					{
 						const char *strVal = subCombo->GetString( "string", "" );
 						if ( strVal[0] == 0 ) continue;
-						kvComboData->SetString( strVal, "" );
+					    if ( confType == Conf_ComboBoxCvar )
+						{
+							const char *strCvar = subCombo->GetString( "convar", "" );
+							if ( strCvar[0] == 0 ) continue;
+							kvComboData->SetString( strVal, strCvar );
+						}
+					    else
+							kvComboData->SetString( strVal, "" );
 						pCombo->AddItem( strVal, kvComboData );
 					}
 			    }
@@ -613,6 +623,30 @@ void C_CreateServer::RunConfig( const char *strConfig, const char *strArg, confi
 		}
 		break;
 
+		case Conf_ComboBoxCvar:
+		{
+			vgui2::ComboBox *pValue = (vgui2::ComboBox *)pPanel;
+			if ( pValue )
+			{
+				char strVal[ 250 ];
+				strVal[0] = 0;
+				int iValue = pValue->GetActiveItem();
+				KeyValues *kvData = pValue->GetItemUserData( iValue );
+				char strCvar[ 250 ];
+			    strCvar[0] = 0;
+			    pValue->GetItemText( iValue, strCvar, sizeof( strCvar ) );
+				const char *szCvar = kvData->GetString( strCvar, "" );
+				Q_snprintf( strVal, sizeof( strVal ), "%i", iValue );
+				if ( bRequireCheats && iValue > 0 )
+				{
+					SaveConfig( "sv_cheats", "1", cType );
+					gEngfuncs.pfnClientCmd( "sv_cheats 1" );
+				}
+				strValue = szCvar;
+			}
+	    }
+	    break;
+
 		case Conf_Slider:
 		{
 			vgui2::Slider *pValue = (vgui2::Slider *)pPanel;
@@ -640,13 +674,21 @@ void C_CreateServer::RunConfig( const char *strConfig, const char *strArg, confi
 	if ( FStrEq( strValue.c_str(), "" ) ) return;
 
 	char command[ 1024 ];
-	Q_snprintf(
-		command,
-		sizeof( command ),
-		"%s %s\n",
-		strArg,
-		strValue.c_str()
-	);
+	if ( cType == Conf_ComboBoxCvar )
+		Q_snprintf(
+			command,
+			sizeof( command ),
+			"%s\n",
+			strValue.c_str()
+		);
+	else
+		Q_snprintf(
+			command,
+			sizeof( command ),
+			"%s %s\n",
+			strArg,
+			strValue.c_str()
+		);
 	gEngfuncs.pfnClientCmd( command );
 	SaveConfig( strArg, strValue.c_str(), cType );
 }
@@ -683,6 +725,7 @@ void C_CreateServer::LoadConfig( const char *strConfig, const char *strArg, conf
 		break;
 
 		case Conf_ComboBox:
+	    case Conf_ComboBoxCvar:
 		{
 			vgui2::ComboBox *pValue = (vgui2::ComboBox *)pPanel;
 			if ( pValue )
@@ -720,6 +763,7 @@ void C_CreateServer::SaveConfig( const char *strArg, const char *strValue, confi
 
 		case Conf_Int:
 		case Conf_ComboBox:
+	    case Conf_ComboBoxCvar:
 	    case Conf_Slider:
 		    ConfigSavedData->SetInt( strArg, atoi( strValue ) );
 		break;

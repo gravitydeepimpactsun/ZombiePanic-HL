@@ -19,6 +19,7 @@ enum configType
 {
 	Conf_Int,
 	Conf_ComboBox,
+	Conf_ComboBoxCvar,
 	Conf_String,
 	Conf_Slider,
 	Conf_Bool

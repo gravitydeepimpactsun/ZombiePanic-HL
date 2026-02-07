@@ -46,13 +46,12 @@ ZP::RoundState ZP::GetCurrentRoundState()
 //------------------------------------------------------------------------------------
 
 extern cvar_t roundtime;
-extern cvar_t testmode;
 extern cvar_t startdelay;
 extern int gmsgTeamInfo;
 
 bool CBaseGameMode::IsTestModeActive() const
 {
-	return (testmode.value >= 1) ? true : false;
+	return sv_testmode.GetBool();
 }
 
 void CBaseGameMode::OnHUDInit(CBasePlayer *pPlayer)

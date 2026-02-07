@@ -11,6 +11,13 @@
 // Auto include em.
 #include "zp_achievements.h"
 
+// For convars
+#include <convar.h>
+
+#if !defined( CLIENT_DLL )
+extern ConVar sv_testmode;
+#endif
+
 class CBaseEntity;
 
 /// <summary>

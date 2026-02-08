@@ -95,6 +95,8 @@ protected:
 	void LoadWorkshop();
 	void CheckWorkshopSubscriptions();
 	void RemoveWorkshopItem( const int &nID );
+	void AddDownloadedFromServer( PublishedFileId_t nWorkshopID );
+	bool HasDownloadedFromServer( PublishedFileId_t nWorkshopID );
 	bool HasSubscribedToItem( PublishedFileId_t nWorkshopID );
 	bool HasLoadedItem( PublishedFileId_t nWorkshopID );
 	void LoadWorkshopItems( bool bWorkshopFolder );
@@ -104,6 +106,9 @@ protected:
 
 	// Our subscribed items. If we subscribe to a new item, we want to mount it right away!
 	std::vector<PublishedFileId_t> m_SubscribedItems;
+
+	// list of items we have loaded from the server, so we don't accidentally remove them when we check for unsubscribed items.
+	std::vector<PublishedFileId_t> m_ServerDownloadedItems;
 
 	// list of our sources
 	std::vector<vgui2::WorkshopItem> m_Items;

@@ -25,6 +25,8 @@
 #include "rp_manager.h"
 #include "zp/zp_apicallback.h"
 
+static ConVar cl_workshop_nocheck( "cl_workshop_nocheck", "0", 0, "Disables subscription checks for workshop items." );
+
 ClientAPIData_t g_ClientAPIData = {};
 
 bool g_bIsConnected = false;
@@ -63,7 +65,9 @@ CGameUIViewport::CGameUIViewport()
 	m_bNeedToReconnectAfterDownload = false;
 	m_bPrepareForQueryDownload = false;
 	m_hWorkshopInfoBox = nullptr;
-	SetQueryWait( 1.0f );
+
+	// Wait 3 seconds before we query for workshop items.
+	SetQueryWait( 3.0f );
 
 	LoadWorkshopItems( false );
 	LoadWorkshop();
@@ -259,7 +263,6 @@ void CGameUIViewport::OnThink()
 				SetQueryWait( 0.35f );
 				ShowWorkshopInfoBox( m_CurrentQueryItem.Title, WorkshopInfoBoxState::State_Done );
 				bool bHasAddon = HasAlreadyDownloadedAddon( m_CurrentQueryItem.WorkshopID );
-				m_CurrentQueryItem.WorkshopID = 0;
 
 				// If already subscribed, ignore.
 				//if ( ( eState & k_EItemStateSubscribed ) )
@@ -271,9 +274,12 @@ void CGameUIViewport::OnThink()
 
 				if ( m_CurrentQueryItem.Reconnect && !bHasAddon )
 				{
+					AddDownloadedFromServer( m_CurrentQueryItem.WorkshopID );
 					SetWorkshopInfoBoxProgress( 1.0f );
 					m_bNeedToReconnectAfterDownload = true;
 				}
+
+				m_CurrentQueryItem.WorkshopID = 0;
 			}
 			return;
 		}
@@ -410,6 +416,7 @@ void CGameUIViewport::LoadWorkshop()
 
 void CGameUIViewport::CheckWorkshopSubscriptions()
 {
+	if ( cl_workshop_nocheck.GetBool() ) return;
 	if ( !GetSteamAPI() ) return;
 	if ( !GetSteamAPI()->SteamUGC() ) return;
 	if ( m_flQueryWait > 0.0f )
@@ -447,6 +454,8 @@ void CGameUIViewport::CheckWorkshopSubscriptions()
 	for ( int iID = 0; iID < m_Items.size(); iID++ )
 	{
 		vgui2::WorkshopItem &WorkshopAddon = m_Items[iID];
+		// We downloaded this from the server, so we don't want to remove it!
+		if ( HasDownloadedFromServer( WorkshopAddon.uWorkshopID ) ) continue;
 		bool bHasSubscribed = false;
 		for ( size_t i = 0; i < m_SubCheckList.size(); i++ )
 		{
@@ -476,6 +485,23 @@ void CGameUIViewport::RemoveWorkshopItem( const int &nID )
 	m_Items.erase( m_Items.begin() + nID );
 	// Remove the item from the addonlist.txt
 	RebuiltAddonList();
+}
+
+void CGameUIViewport::AddDownloadedFromServer( PublishedFileId_t nWorkshopID )
+{
+	// If we already have this, ignore.
+	if ( HasDownloadedFromServer( nWorkshopID ) ) return;
+	m_ServerDownloadedItems.push_back( nWorkshopID );
+}
+
+bool CGameUIViewport::HasDownloadedFromServer( PublishedFileId_t nWorkshopID )
+{
+	for ( size_t i = 0; i < m_ServerDownloadedItems.size(); i++ )
+	{
+		if ( m_ServerDownloadedItems[i] == nWorkshopID )
+			return true;
+	}
+	return false;
 }
 
 bool CGameUIViewport::HasSubscribedToItem( PublishedFileId_t nWorkshopID )

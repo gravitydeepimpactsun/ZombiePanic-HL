@@ -730,11 +730,12 @@ bool CompareFiles( const std::string &p1, const std::string &p2 )
 
 unsigned CopyFilesToNewDestination( void *Data )
 {
-	bool bNoChange = CompareFiles( ((CopyPath *)Data)->from, ((CopyPath *)Data)->to );
-	if ( std::filesystem::exists( ((CopyPath *)Data)->to ) )
-		CGameUIViewport::Get()->SetConflictingFiles(((CopyPath *)Data)->item, !bNoChange);
-	std::ifstream src( ((CopyPath *)Data)->from, std::ios::binary );
-	std::ofstream dest( ((CopyPath *)Data)->to, std::ios::binary );
+	CopyPath copyData = *((CopyPath *)Data);
+	bool bNoChange = CompareFiles( copyData.from, copyData.to );
+	if ( std::filesystem::exists( copyData.to ) )
+		CGameUIViewport::Get()->SetConflictingFiles( copyData.item, !bNoChange );
+	std::ifstream src( copyData.from, std::ios::binary );
+	std::ofstream dest( copyData.to, std::ios::binary );
 	dest << src.rdbuf();
 	return 1;
 }
@@ -893,7 +894,7 @@ void CGameUIViewport::MountWorkshopItem( vgui2::WorkshopItem WorkshopFile, const
 			if ( !WorkshopFile.bMounted )
 			{
 				CreateSimpleThread( CopyFilesToNewDestination, data );
-				AddExtraWorkshopInfoBoxTime( 1.0f, 2.0f );
+				AddExtraWorkshopInfoBoxTime( 1.0f, 5.0f );
 			}
 			else
 			{

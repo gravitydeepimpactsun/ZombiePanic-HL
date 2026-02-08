@@ -86,7 +86,7 @@ std::vector<RequiredStepsTable> m_JackOfTradesSteps = {
 	RequiredStepsTable( ZP_KILLS_LEADPIPE, 1 ),
 //	RequiredStepsTable( ZP_KILLS_PLANK, 1 ),
 //	RequiredStepsTable( ZP_KILLS_SLEDGEHAMMER, 1 ),
-//	RequiredStepsTable( ZP_KILLS_AXE, 1 ),
+	RequiredStepsTable( ZP_KILLS_FIREAXE, 1 ),
 //	RequiredStepsTable( ZP_KILLS_MACHETE, 1 ),
 //	RequiredStepsTable( ZP_KILLS_SHOVEL, 1 ),
 //	RequiredStepsTable( ZP_KILLS_GOLFCLUB, 1 ),
@@ -114,6 +114,7 @@ static DialogAchievementData g_DAchievements[] =
 {
 	_ACH_ADD_ID(KILLS_CROWBAR,					CATEGORY_KILLS,			ZP_KILLS_CROWBAR),
 	_ACH_ADD_ID(KILLS_LEADPIPE,					CATEGORY_KILLS,			ZP_KILLS_LEADPIPE),
+	_ACH_ADD_ID(KILLS_FIREAXE,					CATEGORY_KILLS,			ZP_KILLS_FIREAXE),
 	_ACH_ADD_ID(KILLS_PISTOL,					CATEGORY_KILLS,			ZP_KILLS_PISTOL),
 	_ACH_ADD_ID(KILLS_PPK,						CATEGORY_KILLS,			ZP_KILLS_PPK),
 	_ACH_ADD_ID(KILLS_PPK_HEADSHOT,				CATEGORY_KILLS,			ZP_KILLS_PPK_HS),

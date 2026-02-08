@@ -923,6 +923,11 @@ void CHalfLifeMultiplay::DeathNotice(CBasePlayer *pVictim, entvars_t *pKiller, e
 				pAttacker->GiveAchievement( KILLS_LEADPIPE );
 				bWasMeleeKill = true;
 			}
+			else if (!strcmp(killer_weapon_name, "fireaxe"))
+			{
+				pAttacker->GiveAchievement( KILLS_FIREAXE );
+				bWasMeleeKill = true;
+			}
 			else if (!strcmp(killer_weapon_name, "sig")) pAttacker->GiveAchievement( KILLS_PISTOL );
 			else if (!strcmp(killer_weapon_name, "ppk"))
 			{

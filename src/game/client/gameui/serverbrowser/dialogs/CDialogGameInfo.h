@@ -61,6 +61,7 @@ public:
 
 	bool IsAlreadyClosing() const { return m_bClosing; }
 	void Close() override;
+	void FastClose();
 
 protected:
 	// message handlers

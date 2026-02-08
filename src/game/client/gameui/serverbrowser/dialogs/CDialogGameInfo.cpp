@@ -156,10 +156,18 @@ void CDialogGameInfo::RulesRefreshComplete()
 	m_bServerNotResponding = false;
 }
 
+
 void CDialogGameInfo::Close()
 {
 	m_bClosing = true;
 	BaseClass::Close();
+}
+
+
+void CDialogGameInfo::FastClose()
+{
+	SetFadeEffectDisableOverride( true );
+	OnClose();
 }
 
 
@@ -374,7 +382,7 @@ void CDialogGameInfo::OnConnectToGame( int ip, int port )
 	if ( m_Server.m_NetAdr.GetIP() == (uint32)ip && m_Server.m_NetAdr.GetConnectionPort() == (uint16)port )
 	{
 		// close this dialog
-		Close();
+		FastClose();
 	}
 }
 
@@ -516,9 +524,9 @@ void CDialogGameInfo::ApplyConnectCommand( const gameserveritem_t &server )
 	}
 #endif
 	// send engine command to change servers
-	Q_snprintf( command, Q_ARRAYSIZE( command ), "\nwait 25\nconnect %s\n", server.m_NetAdr.GetConnectionAddressString() );
+	Q_snprintf( command, Q_ARRAYSIZE( command ), "wait;wait;wait;wait;connect %s\n", server.m_NetAdr.GetConnectionAddressString() );
 	EngineClientCmd( command );
-	Close();
+	FastClose();
 	CGameUIViewport::Get()->GetServerBrowser()->Close();
 }
 
@@ -533,7 +541,7 @@ void CDialogGameInfo::ConnectToServer()
 		// refuse the user
 		CVACBannedDialog *pDlg = new CVACBannedDialog( CGameUIViewport::Get() );
 		pDlg->DoModal();
-		Close();
+		FastClose();
 		return;
 	}
 

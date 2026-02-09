@@ -65,6 +65,7 @@ void CMusicManager::OnThink()
 void CMusicManager::StopTrack()
 {
 	gEngfuncs.pfnClientCmd( "mp3 stop" );
+	m_bHasStarted = false;
 }
 
 void CMusicManager::PlayTrack()
@@ -74,6 +75,7 @@ void CMusicManager::PlayTrack()
 	gEngfuncs.pfnClientCmd( vgui2::VarArgs( "mp3 play \"media/music/%s\"", GetTrackFile() ) );
 	m_flPlayTime = GetEngineTime() + GetTrackTime() + 4.55f;
 	CMusicUI::Get()->NewTrackPlaying();
+	m_bHasStarted = true;
 }
 
 void CMusicManager::PlayPrevTrack()

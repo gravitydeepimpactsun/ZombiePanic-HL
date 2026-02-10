@@ -18,7 +18,7 @@ public:
 	void VidInit() override;
 	void LoadVoiceOptions();
 
-	virtual bool IsAllowedToDraw();
+	virtual bool IsAllowedToDraw( const bool &bOnToggleCheck );
 	virtual void Paint();
 	virtual void ApplySchemeSettings( vgui2::IScheme *pScheme );
 

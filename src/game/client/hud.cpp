@@ -322,6 +322,8 @@ void CHud::Init(void)
 	RendererInit();
 #endif
 
+	m_RoundState = ZP::RoundState::RoundState_Invalid;
+
 	if ( CRichPresenceManager::GetInstance() )
 		CRichPresenceManager::GetInstance()->Reset();
 

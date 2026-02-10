@@ -41,15 +41,11 @@ CHudVoiceWheel::CHudVoiceWheel()
 
 void CHudVoiceWheel::Init()
 {
-	int cornerWide, cornerTall;
-	GetCornerTextureSize( cornerWide, cornerTall );
 	SetToggleState( false );
 }
 
 void CHudVoiceWheel::VidInit()
 {
-	int cornerWide, cornerTall;
-	GetCornerTextureSize( cornerWide, cornerTall );
 	SetToggleState( false );
 }
 
@@ -112,7 +108,7 @@ void CHudVoiceWheel::ApplySchemeSettings( vgui2::IScheme *pScheme )
 void CHudVoiceWheel::SetToggleState( bool bState )
 {
 	// If not allowed, then don't.
-	if ( !IsAllowedToDraw() )
+	if ( !IsAllowedToDraw( true ) )
 		bState = false;
 
 	m_bActive = bState;
@@ -131,20 +127,22 @@ void CHudVoiceWheel::SetToggleState( bool bState )
 	}
 }
 
-bool CHudVoiceWheel::IsAllowedToDraw()
+bool CHudVoiceWheel::IsAllowedToDraw( const bool &bOnToggleCheck )
 {
+	if ( gHUD.m_RoundState < ZP::RoundState::RoundState_WaitingForPlayers ) return false;
 	if ( g_pViewport->IsVGUIVisible( MENU_TEAM ) ) return false;
 	if ( g_pViewport->IsVGUIVisible( MENU_MOTD ) ) return false;
 	if ( gEngfuncs.GetLocalPlayer()->index <= 0 ) return false;
 	CPlayerInfo *localplayer = GetPlayerInfo( gEngfuncs.GetLocalPlayer()->index );
 	if ( !localplayer->IsConnected() ) return false;
 	if ( localplayer->GetTeamNumber() != ZP::TEAM_SURVIVIOR ) return false;
+	if ( bOnToggleCheck ) return true;
 	return m_bActive;
 }
 
 void CHudVoiceWheel::Paint()
 {
-	if ( !IsAllowedToDraw() )
+	if ( !IsAllowedToDraw( false ) )
 		return;
 
 	int x, y, w, h;

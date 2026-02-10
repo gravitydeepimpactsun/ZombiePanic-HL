@@ -713,6 +713,12 @@ void Input_StopAllMovements( bool bForce )
 	Input_ClearInputState(&in_jump);
 }
 
+void Input_ClearAttackState()
+{
+	Input_ClearInputState(&in_attack);
+	Input_ClearInputState(&in_attack2);
+}
+
 /*
 ===============
 CL_KeyState

@@ -21,6 +21,8 @@ ConVar cl_vwheel_adjust_x( "cl_vwheel_adjust_x", "150", 0, "Adjust the X positio
 ConVar cl_vwheel_adjust_y( "cl_vwheel_adjust_y", "60", 0, "Adjust the Y position of the voice wheel. Use this if the voice wheel is not perfectly centered on your screen." );
 ConVar cl_vwheel_adjust_triangle( "cl_vwheel_adjust_triangle", "5", 0, "Adjust the position of the triangle that points to the current option. Use this if the triangle is not perfectly centered on the options." );
 
+extern void Input_ClearAttackState();
+
 CHudVoiceWheel::CHudVoiceWheel()
     : CHudElemBase()
     , BaseClass( NULL, "HudVoiceWheel" )
@@ -234,6 +236,8 @@ void CHudVoiceWheel::Paint()
 		// If we are hovering and the user clicks, execute the command of this option
 		if ( isHovering && vgui2::input()->IsMouseDown( vgui2::MouseCode::MOUSE_LEFT ) )
 		{
+			// Stop pressing it down, so we don't accidentally shoot our weapon on the next frame...
+			Input_ClearAttackState();
 			std::string szCmd( "vocalize " + std::string( option.command ) );
 			EngineClientCmd( szCmd.c_str() );
 			SetToggleState( false ); // Close the voice wheel after selecting an option

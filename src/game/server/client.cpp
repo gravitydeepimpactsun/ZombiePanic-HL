@@ -671,7 +671,7 @@ void ClientUserInfoChanged(edict_t *pEntity, char *infobuffer)
 		// Set the name
 		g_engfuncs.pfnSetClientKeyValue(ENTINDEX(pEntity), infobuffer, "name", sName);
 
-		_snprintf(text, sizeof(text), "* %s changed name to %s\n", STRING(pEntity->v.netname), g_engfuncs.pfnInfoKeyValue(infobuffer, "name"));
+		_snprintf(text, sizeof(text), "* %s ^0changed name to %s\n", STRING(pEntity->v.netname), g_engfuncs.pfnInfoKeyValue(infobuffer, "name"));
 		UTIL_SayTextAll(text, pPlayer);
 
 		UTIL_LogPrintf("\"%s<%i><%s><%i>\" changed name to \"%s\"\n",

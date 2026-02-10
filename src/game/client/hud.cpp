@@ -597,6 +597,9 @@ void CHud::VidInit(void)
 	m_scrinfo.iSize = sizeof(m_scrinfo);
 	GetScreenInfo(&m_scrinfo);
 
+	// Make sure we reset this so we don't crash (from zp_voicewheel)
+	m_RoundState = ZP::RoundState::RoundState_Invalid;
+
 	// Reset all player info
 	for (int i = 1; i <= MAX_PLAYERS; i++)
 	{

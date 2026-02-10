@@ -270,18 +270,25 @@ void CPropBarricade::StopBuilding()
 
 void CPropBarricade::SetBarricadeMode()
 {
+	int nHealth = 100;
+	switch ( m_Material )
+	{
+		case matGlass: nHealth = 50; break;
+		case matWood: nHealth = 200; break;
+		case matMetal: nHealth = 270; break;
+		case matFlesh: nHealth = 70; break;
+		case matCinderBlock: nHealth = 250; break;
+		case matCeilingTile: nHealth = 30; break;
+		case matComputer: nHealth = 150; break;
+		case matRocks: nHealth = 300; break;
+	}
+
+	// Add extra 50 if large barricade.
 	if ( pev->spawnflags & SF_BARRICADE_LARGE )
-	{
-		// We don't have an animation for large barricades yet, so let's just increase the health instead for now.
-		m_flBuildTime = 1.6f;
-		//m_flBuildTime = 3.2f;
-		pev->health = 350;
-	}
-	else
-	{
-		m_flBuildTime = 1.6f;
-		pev->health = 200;
-	}
+		nHealth += 50;
+
+	pev->health = nHealth;
+	m_flBuildTime = 1.6f;
 }
 
 

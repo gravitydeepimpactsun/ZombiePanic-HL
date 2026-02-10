@@ -111,6 +111,10 @@ void CHudVoiceWheel::ApplySchemeSettings( vgui2::IScheme *pScheme )
 
 void CHudVoiceWheel::SetToggleState( bool bState )
 {
+	// If not allowed, then don't.
+	if ( !IsAllowedToDraw() )
+		bState = false;
+
 	m_bActive = bState;
 	if ( bState )
 		vgui2::SETUP_PANEL( this );
@@ -129,12 +133,12 @@ void CHudVoiceWheel::SetToggleState( bool bState )
 
 bool CHudVoiceWheel::IsAllowedToDraw()
 {
-	if ( gHUD.m_RoundState < ZP::RoundState::RoundState_RoundHasBegunPost ) return false;
 	if ( g_pViewport->IsVGUIVisible( MENU_TEAM ) ) return false;
 	if ( g_pViewport->IsVGUIVisible( MENU_MOTD ) ) return false;
 	if ( gEngfuncs.GetLocalPlayer()->index <= 0 ) return false;
 	CPlayerInfo *localplayer = GetPlayerInfo( gEngfuncs.GetLocalPlayer()->index );
 	if ( !localplayer->IsConnected() ) return false;
+	if ( localplayer->GetTeamNumber() != ZP::TEAM_SURVIVIOR ) return false;
 	return m_bActive;
 }
 

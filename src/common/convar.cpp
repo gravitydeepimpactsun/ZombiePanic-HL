@@ -337,3 +337,28 @@ ConVar *CvarSystem::FindCvar(cvar_t *cvar)
 	else
 		return it->second;
 }
+
+void CvarSystem::CheckForCheatVars()
+{
+#ifdef SERVER_DLL
+	bool bIsCheatsEnabled = CVAR_GET_FLOAT( "sv_cheats" ) >= 1 ? true : false;
+#else
+	cvar_t *sv_cheats = gEngfuncs.pfnGetCvarPointer( "sv_cheats" );
+	float flCheatsValue = sv_cheats ? sv_cheats->value : 0;
+	bool bIsCheatsEnabled = flCheatsValue >= 1 ? true : false;
+#endif
+	// If sv_cheats is not enabled, we need to check all cvars flags with FCVAR_CHEATS and reset them to default value if they are not already.
+	ConItemBase *item = ConItemBase::m_pFirstItem;
+	for ( ; item; item = item->m_pNextItem )
+	{
+		if ( item->GetType() == ConItemType::ConVar )
+		{
+			ConVar *cvar = static_cast<ConVar *>( item );
+			if ( (cvar->GetFlags() & FCVAR_CHEATS) && !bIsCheatsEnabled )
+			{
+				if ( strcmp( cvar->GetString(), cvar->GetDefaultValue() ) != 0 )
+					cvar->SetValue( cvar->GetDefaultValue() );
+			}
+		}
+	}
+}

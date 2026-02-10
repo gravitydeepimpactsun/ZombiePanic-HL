@@ -162,6 +162,7 @@ public:
 	static ConItemBase *FindItem(const char *name);
 	static ConVar *FindCvar(const char *name);
 	static ConVar *FindCvar(cvar_t *cvar);
+	static void CheckForCheatVars();
 };
 
 #endif

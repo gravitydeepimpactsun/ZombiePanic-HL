@@ -1188,6 +1188,8 @@ void CZombiePanicGameRules::CheckCheats()
 {
 	if ( CVAR_GET_FLOAT("sv_cheats") >= 1 )
 		m_bCheatsOnThisSession = true;
+	// Make sure to also check for cheat vars.
+	CvarSystem::CheckForCheatVars();
 }
 
 void CZombiePanicGameRules::SetPlayerModel(CBasePlayer *pPlayer)

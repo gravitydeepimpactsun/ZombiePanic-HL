@@ -1164,6 +1164,8 @@ ClientAPIData_t CZombiePanicGameRules::GetClientAPI( CBasePlayer *pPlayer )
 void CZombiePanicGameRules::ProcessAPICalls()
 {
 	if ( m_vecPendingAPICalls.size() == 0 ) return;
+	// Don't call it right away, we don't want to overload the clients with too many messages at once.
+	if ( m_flNextAPICallTime - gpGlobals->time > 0 ) return;
 	int index = m_vecPendingAPICalls[0];
 	ClientAPIData_t data = m_ClientsData[ index ];
 

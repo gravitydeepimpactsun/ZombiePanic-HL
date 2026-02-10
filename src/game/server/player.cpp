@@ -1251,9 +1251,13 @@ void CBasePlayer::SetAnimation(PLAYER_ANIM playerAnim)
 		break;
 
 	case PLAYER_DIE:
+	{
+		// Reset animation, so it won't break if we were in the middle of a reload or something
+		m_Activity = ACT_RESET;
 		m_IdealActivity = ACT_DIESIMPLE;
 		m_IdealActivity = GetDeathActivity();
-		break;
+	}
+	break;
 
 	case PLAYER_ATTACK1:
 		switch (m_Activity)

@@ -6,6 +6,7 @@
 #include "triggers.h"
 #include "player.h"
 #include "func_break.h"
+#include "zp/weapons/CWeaponBase.h"
 
 extern void SetBodygroup( void *pmodel, entvars_t *pev, int iGroup, int iValue );
 extern int gmsgBarricadeBuildProgress;
@@ -73,6 +74,7 @@ public:
 	static char *m_BarricadeSounds[SND_MAX];
 	BuildingSound m_eBarricadeSnd;
 	void PlayBarricadeSound( BuildingSound snd );
+	int m_nPlayerViewModel;
 };
 LINK_ENTITY_TO_CLASS( prop_barricade, CPropBarricade );
 
@@ -205,27 +207,46 @@ void CPropBarricade::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYP
 		}
 	}
 
+	// Is this a large barricade?
+	bool bIsLarge = ( pev->spawnflags & SF_BARRICADE_LARGE );
+
+	// Save the current viewmodel index
+	m_nPlayerViewModel = pPlayer->pev->viewmodel;
+	float flBuildTime = m_flBuildTime;
 	// TODO: If we have a nailgun, then we can build faster.
+	// ELSE
+	{
+		int iAnim = bIsLarge ? ANIM_BARRICADE_UNARMED2 : ANIM_BARRICADE_UNARMED1;
+
+		pPlayer->pev->viewmodel = MAKE_STRING( "models/v_barricade.mdl" );
+		pPlayer->pev->weaponanim = iAnim;
+		MESSAGE_BEGIN( MSG_ONE, SVC_WEAPONANIM, NULL, pPlayer->pev );
+		WRITE_BYTE( iAnim );
+		WRITE_BYTE( 0 );
+		MESSAGE_END();
+		CWeaponBase *pBaseWeapon = dynamic_cast<CWeaponBase *>( pPlayer->m_pActiveItem );
+		if ( pBaseWeapon )
+		{
+			pBaseWeapon->m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + flBuildTime;
+			pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + flBuildTime;
+		}
+	}
 
 	m_eIsBuilt = BUILDING;
 	m_nBuilder = pPlayer->entindex();
-	m_flBuildStartTime = gpGlobals->time + m_flBuildTime;
+	m_flBuildStartTime = gpGlobals->time + flBuildTime;
 
-	PLAYER_ANIM buildAnim = ( pev->spawnflags & SF_BARRICADE_LARGE ) ? PLAYER_BARRICADE_LONG : PLAYER_BARRICADE;
+	PLAYER_ANIM buildAnim = bIsLarge ? PLAYER_BARRICADE_LONG : PLAYER_BARRICADE;
 	// TODO: Check for the nailgun weapon, and if its active.
 	pPlayer->SetAnimation( buildAnim );
 
 	// Send build progress message to the player.
 	MESSAGE_BEGIN( MSG_ONE, gmsgBarricadeBuildProgress, NULL, pPlayer->pev );
-		WRITE_FLOAT( m_flBuildTime );
+		WRITE_FLOAT( flBuildTime );
 	MESSAGE_END();
 
 	// TODO: If nailgun, use SND_BUILDING_NAILGUN instead
-
-	if ( ( pev->spawnflags & SF_BARRICADE_LARGE ) )
-		m_eBarricadeSnd = SND_BUILDING_LONG;
-	else
-		m_eBarricadeSnd = SND_BUILDING;
+	m_eBarricadeSnd = bIsLarge ? SND_BUILDING_LONG : SND_BUILDING;
 
 	PlayBarricadeSound( m_eBarricadeSnd );
 
@@ -239,8 +260,12 @@ void CPropBarricade::OnBarricadeBuilt()
 	CBasePlayer *pPlayer = static_cast<CBasePlayer *>( UTIL_PlayerByIndex( m_nBuilder ) );
 	if ( pPlayer )
 	{
+		pPlayer->pev->viewmodel = m_nPlayerViewModel;
+		CWeaponBase *pBaseWeapon = dynamic_cast<CWeaponBase *>( pPlayer->m_pActiveItem );
+		if ( pBaseWeapon )
+			pBaseWeapon->DoDeployAnimation();
 		pPlayer->m_Activity = ACT_RESET;
-		pPlayer->SetAnimation( PLAYER_IDLE );
+		pPlayer->SetAnimation( PLAYER_DRAW );
 		pPlayer->m_rgAmmo[ ZPAmmoTypes::AMMO_BARRICADE ] = 0; // Consume the wooden boards.
 	}
 
@@ -292,12 +317,16 @@ void CPropBarricade::StopBuilding()
 	CBasePlayer *pPlayer = static_cast<CBasePlayer *>( UTIL_PlayerByIndex( m_nBuilder ) );
 	if ( pPlayer )
 	{
+		pPlayer->pev->viewmodel = m_nPlayerViewModel;
+		CWeaponBase *pBaseWeapon = dynamic_cast<CWeaponBase *>( pPlayer->m_pActiveItem );
+		if ( pBaseWeapon )
+			pBaseWeapon->DoDeployAnimation();
 		// Reset build progress.
 		MESSAGE_BEGIN( MSG_ONE, gmsgBarricadeBuildProgress, NULL, pPlayer->pev );
 			WRITE_FLOAT( 0.0f );
 		MESSAGE_END();
 		pPlayer->m_Activity = ACT_RESET;
-		pPlayer->SetAnimation( PLAYER_IDLE );
+		pPlayer->SetAnimation( PLAYER_DRAW );
 	}
 
 	// Stop the damn sound

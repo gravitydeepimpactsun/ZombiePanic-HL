@@ -1013,6 +1013,9 @@ void ClientPrecache(void)
 	// Sticky gibs, used by headshots
 	PRECACHE_MODEL("models/stickygib.mdl");
 
+	// Always precache the barricade viewmodel here, as it's a fake weapon.
+	PRECACHE_MODEL("models/v_barricade.mdl");
+
 	// hud sounds
 
 	PRECACHE_SOUND("common/wpn_hudoff.wav");

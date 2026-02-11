@@ -48,6 +48,7 @@ protected:
 	void SetSequenceBox();
 	int ExtractBbox(int sequence, float *mins, float *maxs);
 	void OnBarricadeBuilt();
+	void ResetPlayerInfo( CBasePlayer *pPlayer );
 
 private:
 	enum BuildingState
@@ -75,6 +76,7 @@ public:
 	BuildingSound m_eBarricadeSnd;
 	void PlayBarricadeSound( BuildingSound snd );
 	int m_nPlayerViewModel;
+	int m_nPlayerWorldModel;
 };
 LINK_ENTITY_TO_CLASS( prop_barricade, CPropBarricade );
 
@@ -212,12 +214,19 @@ void CPropBarricade::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYP
 
 	// Save the current viewmodel index
 	m_nPlayerViewModel = pPlayer->pev->viewmodel;
+	m_nPlayerWorldModel = pPlayer->pev->weaponmodel;
 	float flBuildTime = m_flBuildTime;
-	// TODO: If we have a nailgun, then we can build faster.
-	// ELSE
+	bool bUseNailgun = false; // TODO: Check if player has nailgun, and if so, use it to build faster.
+
+	if ( bUseNailgun )
+	{
+		// TODO: Nailgun weapon base crap here
+	}
+	else
 	{
 		int iAnim = bIsLarge ? ANIM_BARRICADE_UNARMED2 : ANIM_BARRICADE_UNARMED1;
 
+		pPlayer->pev->weaponmodel = 0; // Hide world model
 		pPlayer->pev->viewmodel = MAKE_STRING( "models/v_barricade.mdl" );
 		pPlayer->pev->weaponanim = iAnim;
 		MESSAGE_BEGIN( MSG_ONE, SVC_WEAPONANIM, NULL, pPlayer->pev );
@@ -237,7 +246,10 @@ void CPropBarricade::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYP
 	m_flBuildStartTime = gpGlobals->time + flBuildTime;
 
 	PLAYER_ANIM buildAnim = bIsLarge ? PLAYER_BARRICADE_LONG : PLAYER_BARRICADE;
-	// TODO: Check for the nailgun weapon, and if its active.
+	if ( bUseNailgun )
+		buildAnim = PLAYER_BARRICADE_NAILGUN;
+
+	pPlayer->m_Activity = ACT_RESET;
 	pPlayer->SetAnimation( buildAnim );
 
 	// Send build progress message to the player.
@@ -245,8 +257,11 @@ void CPropBarricade::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYP
 		WRITE_FLOAT( flBuildTime );
 	MESSAGE_END();
 
-	// TODO: If nailgun, use SND_BUILDING_NAILGUN instead
-	m_eBarricadeSnd = bIsLarge ? SND_BUILDING_LONG : SND_BUILDING;
+	// Barricade sound
+	if ( bUseNailgun )
+		m_eBarricadeSnd = SND_NAILGUN;
+	else
+		m_eBarricadeSnd = bIsLarge ? SND_BUILDING_LONG : SND_BUILDING;
 
 	PlayBarricadeSound( m_eBarricadeSnd );
 
@@ -260,12 +275,7 @@ void CPropBarricade::OnBarricadeBuilt()
 	CBasePlayer *pPlayer = static_cast<CBasePlayer *>( UTIL_PlayerByIndex( m_nBuilder ) );
 	if ( pPlayer )
 	{
-		pPlayer->pev->viewmodel = m_nPlayerViewModel;
-		CWeaponBase *pBaseWeapon = dynamic_cast<CWeaponBase *>( pPlayer->m_pActiveItem );
-		if ( pBaseWeapon )
-			pBaseWeapon->DoDeployAnimation();
-		pPlayer->m_Activity = ACT_RESET;
-		pPlayer->SetAnimation( PLAYER_DRAW );
+		ResetPlayerInfo( pPlayer );
 		pPlayer->m_rgAmmo[ ZPAmmoTypes::AMMO_BARRICADE ] = 0; // Consume the wooden boards.
 	}
 
@@ -290,6 +300,17 @@ void CPropBarricade::OnBarricadeBuilt()
 	// Let's play a simple button sound to indicate building is done.
 	m_eBarricadeSnd = SND_BUILT;
 	PlayBarricadeSound( m_eBarricadeSnd );
+}
+
+void CPropBarricade::ResetPlayerInfo( CBasePlayer *pPlayer )
+{
+	pPlayer->pev->viewmodel = m_nPlayerViewModel;
+	pPlayer->pev->weaponmodel = m_nPlayerWorldModel;
+	CWeaponBase *pBaseWeapon = dynamic_cast<CWeaponBase *>( pPlayer->m_pActiveItem );
+	if ( pBaseWeapon )
+		pBaseWeapon->DoDeployAnimation();
+	pPlayer->m_Activity = ACT_RESET;
+	pPlayer->SetAnimation( PLAYER_DRAW );
 }
 
 void CPropBarricade::PlayBarricadeSound( BuildingSound snd )
@@ -317,16 +338,11 @@ void CPropBarricade::StopBuilding()
 	CBasePlayer *pPlayer = static_cast<CBasePlayer *>( UTIL_PlayerByIndex( m_nBuilder ) );
 	if ( pPlayer )
 	{
-		pPlayer->pev->viewmodel = m_nPlayerViewModel;
-		CWeaponBase *pBaseWeapon = dynamic_cast<CWeaponBase *>( pPlayer->m_pActiveItem );
-		if ( pBaseWeapon )
-			pBaseWeapon->DoDeployAnimation();
+		ResetPlayerInfo( pPlayer );
 		// Reset build progress.
 		MESSAGE_BEGIN( MSG_ONE, gmsgBarricadeBuildProgress, NULL, pPlayer->pev );
 			WRITE_FLOAT( 0.0f );
 		MESSAGE_END();
-		pPlayer->m_Activity = ACT_RESET;
-		pPlayer->SetAnimation( PLAYER_DRAW );
 	}
 
 	// Stop the damn sound

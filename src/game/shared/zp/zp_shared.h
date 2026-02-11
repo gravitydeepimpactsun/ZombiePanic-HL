@@ -90,6 +90,7 @@ enum ZPWeaponID
 	WEAPON_GLOCK17,
 	WEAPON_FAFO_ERW,
 	WEAPON_MOLOTOV,
+	WEAPON_NAILGUN,
 
 	// Misc stuff, should be last
 	WEAPON_BACKPACK,	// Not really a weapon, but used to give extra slots in Hardcore mode,

@@ -29,6 +29,9 @@
 
 #if !defined( CLIENT_DLL )
 ConVar sv_testmode( "sv_testmode", "0", FCVAR_EXTDLL );
+ConVar zp_debug( "sv_zp_debug", "0", FCVAR_EXTDLL );
+#else
+ConVar zp_debug( "cl_zp_debug", "0", FCVAR_EXTDLL );
 #endif
 
 // =========================================================
@@ -227,6 +230,7 @@ static WeaponInfo sWeaponInfoList[] = {
 	{ "doublebarrel", WEAPON_DOUBLEBARREL, false, false },
 	{ "tnt", WEAPON_TNT, false, false },
 	{ "molotov", WEAPON_MOLOTOV, false, false },
+	{ "nailgun", WEAPON_NAILGUN, false, false },
 	{ "ied", WEAPON_SATCHEL, false, false },
 	{ "fafo", WEAPON_FAFO_ERW, false, false },
 };
@@ -354,11 +358,14 @@ WeaponData CreateWeaponSlotData( const char *szClassname )
 
 	pWeaponScript->deleteThis();
 
+	if ( zp_debug.GetBool() )
+	{
 #if defined( CLIENT_DLL )
-	UTIL_LogPrintf("[CLIENT] Loaded weapon script \"%s\" [%i]\n", szFile.c_str(), slot.WeaponID );
+		Msg( "[CLIENT] Loaded weapon script \"%s\" [%i]\n", szFile.c_str(), slot.WeaponID );
 #else
-	UTIL_LogPrintf("[SERVER] Loaded weapon script \"%s\" [%i]\n", szFile.c_str(), slot.WeaponID );
+		Msg( "[SERVER] Loaded weapon script \"%s\" [%i]\n", szFile.c_str(), slot.WeaponID );
 #endif
+	}
 
 	sWeaponDataList.push_back( slot );
 	return slot;
@@ -366,33 +373,23 @@ WeaponData CreateWeaponSlotData( const char *szClassname )
 
 WeaponData CreateWeaponSlotData( ZPWeaponID WeaponID )
 {
-	const char *szWeaponScriptFile = nullptr;
-	switch ( WeaponID )
+	char szWeaponScriptFile[64];
+	WeaponInfo info = GetWeaponInfo( WeaponID );
+	strcpy( szWeaponScriptFile, "weapon_" );
+	if ( info.szWeapon )
+		strcat( szWeaponScriptFile, info.szWeapon );
+	else
+		strcat( szWeaponScriptFile, "example" );
+
+	if ( zp_debug.GetBool() )
 	{
-		case WEAPON_CROWBAR: szWeaponScriptFile = "weapon_crowbar"; break;
-		case WEAPON_LEADPIPE: szWeaponScriptFile = "weapon_leadpipe"; break;
-		//case WEAPON_MACHETE: szWeaponScriptFile = "weapon_machete"; break;
-		case WEAPON_FIREAXE: szWeaponScriptFile = "weapon_fireaxe"; break;
-		case WEAPON_SWIPE: szWeaponScriptFile = "weapon_swipe"; break;
-		case WEAPON_SIG: szWeaponScriptFile = "weapon_sig"; break;
-		case WEAPON_PYTHON: szWeaponScriptFile = "weapon_357"; break;
-		case WEAPON_MP5: szWeaponScriptFile = "weapon_mp5"; break;
-		case WEAPON_556AR: szWeaponScriptFile = "weapon_556ar"; break;
-		case WEAPON_SHOTGUN: szWeaponScriptFile = "weapon_shotgun"; break;
-		case WEAPON_TNT: szWeaponScriptFile = "weapon_tnt"; break;
-		case WEAPON_MOLOTOV: szWeaponScriptFile = "weapon_molotov"; break;
-		case WEAPON_SATCHEL: szWeaponScriptFile = "weapon_ied"; break;
-		case WEAPON_DOUBLEBARREL: szWeaponScriptFile = "weapon_doublebarrel"; break;
-		case WEAPON_PPK: szWeaponScriptFile = "weapon_ppk"; break;
-		case WEAPON_GLOCK17: szWeaponScriptFile = "weapon_glock17"; break;
-		case WEAPON_FAFO_ERW: szWeaponScriptFile = "weapon_fafo"; break;
-		default: szWeaponScriptFile = "weapon_example"; break;
-	}
 #if defined( CLIENT_DLL )
-	UTIL_LogPrintf("[CLIENT] Loading weapon script \"%s\" [i]\n", szWeaponScriptFile, WeaponID );
+		Msg( "[CLIENT] Loading weapon script \"%s\" [%i]\n", szWeaponScriptFile, WeaponID );
 #else
-	UTIL_LogPrintf("[SERVER] Loading weapon script \"%s\" [i]\n", szWeaponScriptFile, WeaponID );
+		Msg( "[SERVER] Loading weapon script \"%s\" [%i]\n", szWeaponScriptFile, WeaponID );
 #endif
+	}
+
 	return CreateWeaponSlotData( szWeaponScriptFile );
 }
 

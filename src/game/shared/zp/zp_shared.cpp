@@ -4,10 +4,11 @@
 #include "util.h"
 #include "cbase.h"
 
-#if defined(CLIENT_DLL)
+#if defined( CLIENT_DLL )
 #include "hud.h"
 #include "strtools.h"
 #include "steam_achievements.h"
+#include "console.h"
 #else
 #include "decals.h"
 #include "func_break.h"
@@ -29,9 +30,8 @@
 
 #if !defined( CLIENT_DLL )
 ConVar sv_testmode( "sv_testmode", "0", FCVAR_EXTDLL );
-ConVar zp_debug( "sv_zp_debug", "0", FCVAR_EXTDLL );
 #else
-ConVar zp_debug( "cl_zp_debug", "0", FCVAR_EXTDLL );
+ConVar zp_debug( "zp_debug", "0", FCVAR_EXTDLL );
 #endif
 
 // =========================================================
@@ -250,6 +250,10 @@ WeaponData CreateWeaponSlotData( const char *szClassname )
 	KeyValues *pWeaponScript = new KeyValues( "WeaponInfo" );
 	if ( !pWeaponScript->LoadFromFile( g_pFullFileSystem, szFile.c_str() ) )
 	{
+#if defined( CLIENT_DLL )
+		if ( zp_debug.GetBool() )
+			ConPrintf( Color( 255, 51, 51, 255 ), "[WeaponInfo] Failed to load weapon script \"%s\"\n", szFile.c_str() );
+#endif
 		pWeaponScript->deleteThis();
 		return WeaponData();
 	}
@@ -357,15 +361,11 @@ WeaponData CreateWeaponSlotData( const char *szClassname )
 	}
 
 	pWeaponScript->deleteThis();
-
-	if ( zp_debug.GetBool() )
-	{
+	
 #if defined( CLIENT_DLL )
-		Msg( "[CLIENT] Loaded weapon script \"%s\" [%i]\n", szFile.c_str(), slot.WeaponID );
-#else
-		Msg( "[SERVER] Loaded weapon script \"%s\" [%i]\n", szFile.c_str(), slot.WeaponID );
+	if ( zp_debug.GetBool() )
+		ConPrintf( Color( 153, 255, 51, 255 ), "[WeaponInfo] Loaded weapon script \"%s\" [%i]\n", szFile.c_str(), slot.WeaponID );
 #endif
-	}
 
 	sWeaponDataList.push_back( slot );
 	return slot;
@@ -380,15 +380,11 @@ WeaponData CreateWeaponSlotData( ZPWeaponID WeaponID )
 		strcat( szWeaponScriptFile, info.szWeapon );
 	else
 		strcat( szWeaponScriptFile, "example" );
-
-	if ( zp_debug.GetBool() )
-	{
+	
 #if defined( CLIENT_DLL )
-		Msg( "[CLIENT] Loading weapon script \"%s\" [%i]\n", szWeaponScriptFile, WeaponID );
-#else
-		Msg( "[SERVER] Loading weapon script \"%s\" [%i]\n", szWeaponScriptFile, WeaponID );
+	if ( zp_debug.GetBool() )
+		Msg( "[WeaponInfo] Loading weapon script \"%s\" [%i]\n", szWeaponScriptFile, WeaponID );
 #endif
-	}
 
 	return CreateWeaponSlotData( szWeaponScriptFile );
 }

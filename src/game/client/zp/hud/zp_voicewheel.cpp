@@ -12,6 +12,11 @@
 #include "zp_voicewheel.h"
 #include "vgui/client_viewport.h"
 
+#ifndef _WIN32
+// Linux doesn't have this function, and wcsncmp is close enough for our purposes
+#define wcsnicmp wcsncmp
+#endif
+
 DEFINE_HUD_ELEM( CHudVoiceWheel );
 
 #define COLOR_WHITE Color( 255, 255, 255, 255 )

@@ -1,4 +1,8 @@
 add_sources(
+	projectiles/CProjectileBase.cpp
+	projectiles/CProjectileBase.h
+	projectiles/CProjectileNail.cpp
+	projectiles/CProjectileNail.h
 	CMakeLists.txt
 	CWeaponBase.cpp
 	CWeaponBase.h
@@ -16,6 +20,8 @@ add_sources(
 	weapon_rifle_m16.h
 	weapon_smg_mp5.cpp
 	weapon_smg_mp5.h
+	weapon_misc_nailgun.cpp
+	weapon_misc_nailgun.h
 	weapon_sidearm_ppk.cpp
 	weapon_sidearm_ppk.h
 	weapon_sidearm_glock17.cpp

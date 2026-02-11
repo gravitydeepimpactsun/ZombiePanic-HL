@@ -49,6 +49,7 @@ protected:
 	int ExtractBbox(int sequence, float *mins, float *maxs);
 	void OnBarricadeBuilt();
 	void ResetPlayerInfo( CBasePlayer *pPlayer );
+	bool IsPlayerUsingNailgun( CBasePlayer *pPlayer );
 
 private:
 	enum BuildingState
@@ -216,11 +217,11 @@ void CPropBarricade::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYP
 	m_nPlayerViewModel = pPlayer->pev->viewmodel;
 	m_nPlayerWorldModel = pPlayer->pev->weaponmodel;
 	float flBuildTime = m_flBuildTime;
-	bool bUseNailgun = false; // TODO: Check if player has nailgun, and if so, use it to build faster.
+	bool bUseNailgun = IsPlayerUsingNailgun( pPlayer );
 
 	if ( bUseNailgun )
 	{
-		// TODO: Nailgun weapon base crap here
+		flBuildTime = 1.0f; // Nailgun builds faster!
 	}
 	else
 	{
@@ -304,6 +305,7 @@ void CPropBarricade::OnBarricadeBuilt()
 
 void CPropBarricade::ResetPlayerInfo( CBasePlayer *pPlayer )
 {
+	if ( IsPlayerUsingNailgun( pPlayer ) ) return;
 	pPlayer->pev->viewmodel = m_nPlayerViewModel;
 	pPlayer->pev->weaponmodel = m_nPlayerWorldModel;
 	CWeaponBase *pBaseWeapon = dynamic_cast<CWeaponBase *>( pPlayer->m_pActiveItem );
@@ -311,6 +313,13 @@ void CPropBarricade::ResetPlayerInfo( CBasePlayer *pPlayer )
 		pBaseWeapon->DoDeployAnimation();
 	pPlayer->m_Activity = ACT_RESET;
 	pPlayer->SetAnimation( PLAYER_DRAW );
+}
+
+bool CPropBarricade::IsPlayerUsingNailgun( CBasePlayer *pPlayer )
+{
+	CWeaponBase *pBaseWeapon = dynamic_cast<CWeaponBase *>( pPlayer->m_pActiveItem );
+	if ( pBaseWeapon && pBaseWeapon->GetWeaponID() == WEAPON_NAILGUN ) return true;
+	return false;
 }
 
 void CPropBarricade::PlayBarricadeSound( BuildingSound snd )

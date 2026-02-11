@@ -1,0 +1,157 @@
+// ============== Copyright (c) 2026 Monochrome Games ============== \\
+
+#include "weapon_misc_nailgun.h"
+#include "projectiles/CProjectileNail.h"
+
+#define BOLT_AIR_VELOCITY   2000
+#define BOLT_WATER_VELOCITY 1000
+
+LINK_ENTITY_TO_CLASS( weapon_nailgun, CWeaponNailGun );
+PRECACHE_WEAPON_REGISTER( weapon_nailgun );
+
+float CWeaponNailGun::DoHolsterAnimation()
+{
+	SendWeaponAnim( ANIM_BARRICADE_NAILGUN_HOLSTER );
+	return GetAnimationTime( 11, 30 );
+}
+
+void CWeaponNailGun::Spawn()
+{
+	Precache();
+	SET_MODEL(ENT(pev), "models/w_barricade_nailgun.mdl");
+	DefaultSpawn();
+}
+
+void CWeaponNailGun::Precache(void)
+{
+	PRECACHE_MODEL("models/v_barricade.mdl");
+	PRECACHE_MODEL("models/w_barricade.mdl");
+	PRECACHE_MODEL("models/w_barricade_nailgun.mdl");
+	PRECACHE_MODEL("models/p_barricade.mdl");
+
+	PRECACHE_MODEL("models/proj_nail.mdl");
+
+	PRECACHE_SOUND("items/ammo_pickup.wav");
+
+	PRECACHE_SOUND("weapons/nailgun/dryfire.wav");
+	PRECACHE_SOUND("weapons/nailgun/fire.wav");
+	PRECACHE_SOUND("weapons/nailgun/hitbod.wav");
+	PRECACHE_SOUND("weapons/nailgun/hit.wav");
+}
+
+int CWeaponNailGun::AddToPlayer( CBasePlayer *pPlayer )
+{
+	if ( BaseClass::AddToPlayer( pPlayer ) )
+	{
+		BaseClass::SendWeaponPickup( pPlayer );
+		return TRUE;
+	}
+	return FALSE;
+}
+
+float CWeaponNailGun::Deploy()
+{
+	DoDeploy( "models/v_barricade.mdl", "models/p_barricade.mdl", ANIM_BARRICADE_NAILGUN_DRAW, "onehanded" );
+	return GetAnimationTime( 21, 30 );
+}
+
+void CWeaponNailGun::PrimaryAttack()
+{
+	// don't fire underwater
+	if (m_pPlayer->pev->waterlevel == 3)
+	{
+		PlayEmptySound();
+		m_flNextPrimaryAttack = 0.15;
+		return;
+	}
+
+	if ( m_iClip <= 0 )
+	{
+		PlayEmptySound();
+		m_flNextPrimaryAttack = 0.15;
+		return;
+	}
+
+	m_pPlayer->m_iWeaponVolume = NORMAL_GUN_VOLUME;
+	m_pPlayer->m_iWeaponFlash = NORMAL_GUN_FLASH;
+
+	m_iClip--;
+
+	m_pPlayer->pev->effects = (int)(m_pPlayer->pev->effects) | EF_MUZZLEFLASH;
+
+	// player "shoot" animation
+	m_pPlayer->SetAnimation( PLAYER_ATTACK1 );
+	SendWeaponAnim( ANIM_BARRICADE_NAILGUN_FIRE );
+
+	EMIT_SOUND( ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/nailgun/fire.wav", 1.0, ATTN_NORM );
+
+#if !defined( CLIENT_DLL )
+	Vector anglesAim = m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle;
+	UTIL_MakeVectors( anglesAim );
+
+	anglesAim.x = -anglesAim.x;
+	Vector vecSrc = m_pPlayer->GetGunPosition() - gpGlobals->v_up * 2;
+	Vector vecDir = gpGlobals->v_forward;
+
+	CProjectileNail *pBolt = CreateNailProjectile();
+	pBolt->pev->origin = vecSrc;
+	pBolt->pev->angles = anglesAim;
+	pBolt->pev->owner = m_pPlayer->edict();
+
+	float flBoltVelocity = ( m_pPlayer->pev->waterlevel == 3 ) ? BOLT_WATER_VELOCITY : BOLT_AIR_VELOCITY;
+	pBolt->pev->velocity = vecDir * flBoltVelocity;
+	pBolt->pev->speed = flBoltVelocity;
+	pBolt->pev->avelocity.z = 10;
+#endif
+
+	if (!m_iClip && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
+		// HEV suit - indicate out of ammo condition
+		m_pPlayer->SetSuitUpdate("!HEV_AMO0", FALSE, 0);
+
+	m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + PrimaryFireRate();
+
+	if (m_flNextPrimaryAttack < UTIL_WeaponTimeBase())
+		m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + PrimaryFireRate();
+
+	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime( 13, 30 );
+}
+
+
+void CWeaponNailGun::SecondaryAttack()
+{
+	// TODO: Find prop_barricade infront of us, and "use" it. (the same as IN_USE)
+	// NOTE: Do we really need this? IN_USE already does everything :V
+}
+
+
+void CWeaponNailGun::WeaponIdle( void )
+{
+	ResetEmptySound();
+	m_pPlayer->GetAutoaimVector( AUTOAIM_5DEGREES );
+	if ( m_flTimeWeaponIdle > UTIL_WeaponTimeBase() )
+		return;
+
+	float flTime;
+	int iAnim;
+	switch (RANDOM_LONG(0, 2))
+	{
+	case 0:
+		iAnim = ANIM_BARRICADE_NAILGUN_IDLE1;
+		flTime = GetAnimationTime( 41, 10 );
+		break;
+
+	default:
+	case 1:
+		iAnim = ANIM_BARRICADE_NAILGUN_IDLE2;
+		flTime = GetAnimationTime( 41, 10 );
+		break;
+
+	case 2:
+		iAnim = ANIM_BARRICADE_NAILGUN_IDLE3;
+		flTime = GetAnimationTime( 41, 10 );
+		break;
+	}
+
+	SendWeaponAnim( iAnim );
+	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + flTime;
+}

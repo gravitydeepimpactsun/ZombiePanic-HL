@@ -2,6 +2,7 @@
 
 #include "CProjectileBase.h"
 #include "weapons.h"
+#include "zp/zp_shared_weapons.h"
 
 void CProjectileBase::OnProjectileSpawn()
 {
@@ -31,7 +32,7 @@ const char *CProjectileBase::GetHitSound( const bool &bHitBody ) const
 void CProjectileBase::Spawn()
 {
 	Precache();
-	pev->movetype = MOVETYPE_FLY;
+	pev->movetype = MOVETYPE_TOSS;
 	pev->solid = SOLID_BBOX;
 	pev->gravity = 0.5;
 
@@ -74,7 +75,25 @@ void CProjectileBase::OnProjectileTouch( CBaseEntity *pOther )
 		entvars_t *pevOwner = VARS( pev->owner );
 
 		ClearMultiDamage();
-		pOther->TraceAttack( pevOwner, GetDamage(), pev->velocity.Normalized(), &tr, DMG_NEVERGIB );
+		float flDamage = GetDamage();
+
+		// Calculate the damage based on distance traveled.
+		// Example, the the ent is 512 units away, it will do 50% damage. 1024 units away, 25% damage, etc.
+		float flDistance = ( pev->origin - pevOwner->origin ).Length();
+		float flDamageScale = 1.0f - ( flDistance / 1024.0f );
+		if ( flDamageScale < 0.1f )
+			flDamageScale = 0.1f;
+		flDamage *= flDamageScale;
+
+		pOther->TraceAttack( pevOwner, flDamage, pev->velocity.Normalized(), &tr, DMG_NEVERGIB );
+
+		int iBulletType = BULLET_PROJECTILE;
+		Vector vecSrc = pev->origin - pev->velocity * 0.1f;
+		Vector vecDir = pev->velocity.Normalized();
+		Vector vecEnd = vecSrc + vecDir * 32;
+		TEXTURETYPE_PlaySound( &tr, vecSrc, vecEnd, iBulletType );
+		DecalGunshot( &tr, vecDir, iBulletType );
+
 		ApplyMultiDamage(pev, pevOwner);
 
 		// play body "thwack" sound
@@ -88,10 +107,11 @@ void CProjectileBase::OnProjectileTouch( CBaseEntity *pOther )
 		{
 			// if what we hit is static architecture, can stay around for a while.
 			Vector vecDir = pev->velocity.Normalized();
-			UTIL_SetOrigin(pev, pev->origin - vecDir * 12);
-			pev->angles = UTIL_VecToAngles(vecDir);
+			UTIL_SetOrigin( pev, pev->origin - vecDir * 12 );
+			pev->movetype = MOVETYPE_FLY;
+			pev->angles = UTIL_VecToAngles( vecDir );
 			pev->avelocity.z = 0;
-			pev->angles.z = RANDOM_LONG(0, 360);
+			pev->angles.z = RANDOM_LONG( 0, 360 );
 			pev->nextthink = gpGlobals->time + 10.0;
 		}
 

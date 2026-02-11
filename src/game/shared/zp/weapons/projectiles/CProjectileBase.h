@@ -24,6 +24,7 @@ public:
 	void OnProjectileHit( const bool &bHitBody );
 	void Spawn( void );
 	void Precache( void );
+	virtual int ObjectCaps( void ) { return CBaseEntity::ObjectCaps() | FCAP_MUST_RELEASE; }
 	void EXPORT OnBubbleThink( void );
 	void EXPORT OnProjectileTouch( CBaseEntity *pOther );
 	void EXPORT OnExplodeThink( void );

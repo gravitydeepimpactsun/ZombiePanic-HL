@@ -23,5 +23,5 @@ const char *CProjectileNail::GetHitSound( const bool &bHitBody ) const
 
 float CProjectileNail::GetDamage() const
 {
-	return 15.0f;
+	return 25.0f;
 }

@@ -165,15 +165,15 @@ ConVar cl_enable_html_motd("cl_enable_html_motd", "1", FCVAR_BHL_ARCHIVE, "Enabl
 ConVar zoom_sensitivity_ratio("zoom_sensitivity_ratio", "1.2", FCVAR_ARCHIVE | FCVAR_BHL_ARCHIVE);
 
 static Color s_DefaultColorCodeColors[10] = {
-	Color(0xFF, 0xAA, 0x00, 0xFF), // ^0 orange/reset
-	Color(0xFF, 0x00, 0x00, 0xFF), // ^1 red
-	Color(0x00, 0xFF, 0x00, 0xFF), // ^2 green
-	Color(0xFF, 0xFF, 0x00, 0xFF), // ^3 yellow
-	Color(0x00, 0x00, 0xFF, 0xFF), // ^4 blue
-	Color(0x00, 0xFF, 0xFF, 0xFF), // ^5 cyan
-	Color(0xFF, 0x00, 0xFF, 0xFF), // ^6 magenta
-	Color(0x88, 0x88, 0x88, 0xFF), // ^7 grey
-	Color(0xFF, 0xFF, 0xFF, 0xFF), // ^8 white
+	Color(255, 170, 0, 255), // ^0 orange/reset
+	Color(255, 0, 0, 255), // ^1 red
+	Color(0, 255, 0, 255), // ^2 green
+	Color(255, 255, 0, 255), // ^3 yellow
+	Color(0, 128, 255, 255), // ^4 blue
+	Color(0, 255, 255, 255), // ^5 cyan
+	Color(255, 0, 255, 255), // ^6 magenta
+	Color(136, 136, 136, 255), // ^7 grey
+	Color(255, 255, 255, 255), // ^8 white
 	Color(153, 204, 255, 255), // ^9 survivor team
 };
 

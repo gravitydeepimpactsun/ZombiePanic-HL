@@ -207,6 +207,7 @@ static AmmoData sAmmoDataList[] = {
 
 	AmmoData( AMMO_GRENADE, "explosive_tnt", 0, 0, 0.1f, true ),
 	AmmoData( AMMO_SATCHEL, "explosive_ied", 0, 0, 0.5f, false ),
+	AmmoData( AMMO_NAILS, "misc_nails", 0, 0, 0.1f, true ),
 
 	AmmoData( AMMO_BARRICADE, "barricade", 1, 1, 0.0f, false ),
 

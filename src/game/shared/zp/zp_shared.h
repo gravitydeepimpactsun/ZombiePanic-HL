@@ -116,6 +116,7 @@ enum ZPAmmoTypes
 	AMMO_BARRICADE, // Used for barricade
 	AMMO_GRENADE, // Everything after this, we don't allow for dropping ammo
 	AMMO_SATCHEL,
+	AMMO_NAILS,
 
 	AMMO_MAX
 };

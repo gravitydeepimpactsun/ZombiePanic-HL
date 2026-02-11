@@ -603,7 +603,7 @@ void CBasePlayer::GiveCurrentAmmo()
 	if ( data.MaxCarry > 0 )
 		PickupAmmo( data.MaxCarry, data );
 	else
-		pBaseWeapon->OnClipIncrease( 1 );
+		pBaseWeapon->OnClipIncrease( pBaseWeapon->iMaxClip() );
 	EMIT_SOUND( ENT(pev), CHAN_ITEM, "items/ammo_pickup.wav", 1, ATTN_NORM );
 }
 

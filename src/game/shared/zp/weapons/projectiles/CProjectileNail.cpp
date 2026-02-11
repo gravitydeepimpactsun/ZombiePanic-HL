@@ -3,7 +3,7 @@
 #include "CProjectileNail.h"
 
 LINK_ENTITY_TO_CLASS( proj_nail, CProjectileNail );
-DECLARE_PROJECTILE_FUNCATION( CProjectileNail*, CreateNailProjectile );
+DECLARE_PROJECTILE_FUNCTION( CProjectileNail*, CreateNailProjectile );
 
 void CProjectileNail::OnProjectileSpawn()
 {

@@ -31,7 +31,7 @@ public:
 
 // Create our projectile, using the given class as it's template.
 #define CREATE_PROJECTILE_CLASS( projectileClass, projFuncName ) projectileClass projFuncName()
-#define DECLARE_PROJECTILE_FUNCATION( projectileClass, projFuncName ) projectileClass projFuncName()		\
+#define DECLARE_PROJECTILE_FUNCTION( projectileClass, projFuncName ) projectileClass projFuncName()		\
 {																								\
 	projectileClass pBolt = GetClassPtr( (projectileClass)NULL );								\
 	if ( !pBolt ) return nullptr;																\

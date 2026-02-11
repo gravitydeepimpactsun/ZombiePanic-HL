@@ -62,8 +62,11 @@ void CProjectileBase::OnBubbleThink( void )
 void CProjectileBase::OnProjectileTouch( CBaseEntity *pOther )
 {
 #if !defined( CLIENT_DLL )
-	SetTouch(NULL);
-	SetThink(NULL);
+	SetTouch( NULL );
+	SetThink( NULL );
+
+	SetThink( &CProjectileBase::SUB_Remove );
+	pev->nextthink = gpGlobals->time;
 
 	if ( pOther->pev->takedamage )
 	{
@@ -80,9 +83,6 @@ void CProjectileBase::OnProjectileTouch( CBaseEntity *pOther )
 	else
 	{
 		OnProjectileHit( false );
-
-		SetThink( &CProjectileBase::SUB_Remove );
-		pev->nextthink = gpGlobals->time; // this will get changed below if the bolt is allowed to stick in what it hit.
 
 		if ( FClassnameIs( pOther->pev, "worldspawn" ) )
 		{

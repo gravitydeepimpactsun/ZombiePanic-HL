@@ -43,6 +43,7 @@ public:
 	EXPORT void OnBarricading();
 	void StopBuilding();
 	void SetBarricadeMode();
+	bool CanBuildBarricade();
 
 protected:
 	void SetSequenceBox();
@@ -192,23 +193,7 @@ void CPropBarricade::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYP
 	if ( pPlayer->AmmoInventory( ZPAmmoTypes::AMMO_BARRICADE ) <= 0 )
 		return;
 
-	// Let's use UTIL_EntitiesInBox to check for entities in our bbox, since GoldSrc UTIL_TraceHull
-	// does not have custom min/max size support...
-	Vector mins = pev->mins;
-	Vector maxs = pev->maxs;
-	CBaseEntity *pList[32];
-	int nCount = UTIL_EntitiesInBox( pList, 32, pev->origin + mins, pev->origin + maxs, 0 );
-	for ( int i = 0; i < nCount; i++ )
-	{
-		// Ignore ourselves.
-		if ( pList[i] == this ) continue;
-		// Go through block classes.
-		for ( int j = 0; s_blockClasses[j][0] != '\0'; j++ )
-		{
-			if ( FClassnameIs( pList[i]->pev, s_blockClasses[j] ) )
-				return;
-		}
-	}
+	if ( !CanBuildBarricade() ) return;
 
 	// Is this a large barricade?
 	bool bIsLarge = ( pev->spawnflags & SF_BARRICADE_LARGE );
@@ -390,6 +375,28 @@ void CPropBarricade::SetBarricadeMode()
 	m_flBuildTime = flBuildTime;
 }
 
+bool CPropBarricade::CanBuildBarricade()
+{
+	// Let's use UTIL_EntitiesInBox to check for entities in our bbox, since GoldSrc UTIL_TraceHull
+	// does not have custom min/max size support...
+	Vector mins = pev->mins;
+	Vector maxs = pev->maxs;
+	CBaseEntity *pList[32];
+	int nCount = UTIL_EntitiesInBox( pList, 32, pev->origin + mins, pev->origin + maxs, 0 );
+	for ( int i = 0; i < nCount; i++ )
+	{
+		// Ignore ourselves.
+		if ( pList[i] == this ) continue;
+		// Go through block classes.
+		for ( int j = 0; s_blockClasses[j][0] != '\0'; j++ )
+		{
+			if ( FClassnameIs( pList[i]->pev, s_blockClasses[j] ) )
+				return false;
+		}
+	}
+	return true;
+}
+
 
 void CPropBarricade::OnBarricading()
 {
@@ -407,6 +414,8 @@ void CPropBarricade::OnBarricading()
 			bStopThinking = true;
 		// Out of ammo for some reason?
 		else if ( pPlayer->AmmoInventory( ZPAmmoTypes::AMMO_BARRICADE ) <= 0 )
+			bStopThinking = true;
+		else if ( !CanBuildBarricade() )
 			bStopThinking = true;
 	}
 

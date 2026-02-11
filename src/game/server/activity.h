@@ -106,6 +106,8 @@ typedef enum
 	ACT_PUMP,
 
 	ACT_BARRICADE,
+	ACT_BARRICADE_LONG,
+	ACT_BARRICADE_NAILGUN,
 } Activity;
 
 typedef struct

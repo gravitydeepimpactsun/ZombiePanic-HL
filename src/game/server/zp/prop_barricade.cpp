@@ -59,18 +59,37 @@ private:
 	int m_nBuilder;
 	float m_flBuildTime;
 	float m_flBuildStartTime;
+
+public:
+	enum BuildingSound
+	{
+		SND_NONE = -1,
+		SND_BUILDING = 0,
+		SND_BUILDING_LONG,
+		SND_NAILGUN,
+		SND_BUILT,
+		SND_MAX
+	};
+	static char *m_BarricadeSounds[SND_MAX];
+	BuildingSound m_eBarricadeSnd;
+	void PlayBarricadeSound( BuildingSound snd );
 };
 LINK_ENTITY_TO_CLASS( prop_barricade, CPropBarricade );
 
+char *CPropBarricade::m_BarricadeSounds[SND_MAX] = {
+	"barricade/building.wav",
+	"barricade/building_long.wav",
+	"barricade/building_nailgun.wav",
+	"barricade/built.wav"
+};
 
 void CPropBarricade::Precache()
 {
-	PRECACHE_SOUND( "barricade/built.wav" );
-	PRECACHE_SOUND( "barricade/building.wav" );
-
 	PRECACHE_MODEL( (char *)STRING(pev->model) );
 	for (int i = 0; i < 3; i++)
 		PRECACHE_SOUND( CPushable::m_soundNames[i] );
+	for (int i = 0; i < SND_MAX; i++)
+		PRECACHE_SOUND( CPropBarricade::m_BarricadeSounds[i] );
 	BaseClass::Precache();
 }
 
@@ -186,17 +205,29 @@ void CPropBarricade::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYP
 		}
 	}
 
+	// TODO: If we have a nailgun, then we can build faster.
+
 	m_eIsBuilt = BUILDING;
 	m_nBuilder = pPlayer->entindex();
 	m_flBuildStartTime = gpGlobals->time + m_flBuildTime;
-	pPlayer->SetAnimation( PLAYER_BARRICADE );
+
+	PLAYER_ANIM buildAnim = ( pev->spawnflags & SF_BARRICADE_LARGE ) ? PLAYER_BARRICADE_LONG : PLAYER_BARRICADE;
+	// TODO: Check for the nailgun weapon, and if its active.
+	pPlayer->SetAnimation( buildAnim );
 
 	// Send build progress message to the player.
 	MESSAGE_BEGIN( MSG_ONE, gmsgBarricadeBuildProgress, NULL, pPlayer->pev );
 		WRITE_FLOAT( m_flBuildTime );
 	MESSAGE_END();
 
-	EMIT_SOUND( ENT( pev ), CHAN_VOICE, "barricade/building.wav", 1.0, ATTN_NORM );
+	// TODO: If nailgun, use SND_BUILDING_NAILGUN instead
+
+	if ( ( pev->spawnflags & SF_BARRICADE_LARGE ) )
+		m_eBarricadeSnd = SND_BUILDING_LONG;
+	else
+		m_eBarricadeSnd = SND_BUILDING;
+
+	PlayBarricadeSound( m_eBarricadeSnd );
 
 	SetThink( &CPropBarricade::OnBarricading );
 	pev->nextthink = gpGlobals->time + 0.1f;
@@ -232,7 +263,16 @@ void CPropBarricade::OnBarricadeBuilt()
 	SetSequenceBox(); // Copied from CBaseAnimating
 
 	// Let's play a simple button sound to indicate building is done.
-	EMIT_SOUND( ENT( pev ), CHAN_VOICE, "barricade/built.wav", 1.0, ATTN_NORM );
+	m_eBarricadeSnd = SND_BUILT;
+	PlayBarricadeSound( m_eBarricadeSnd );
+}
+
+void CPropBarricade::PlayBarricadeSound( BuildingSound snd )
+{
+	if ( snd == SND_NONE )
+		EMIT_SOUND_DYN( ENT( pev ), CHAN_VOICE, "common/null.wav", 0, ATTN_NORM, 0, 100 );
+	else
+		EMIT_SOUND( ENT( pev ), CHAN_VOICE, m_BarricadeSounds[snd], 1.0, ATTN_NORM );
 }
 
 
@@ -261,7 +301,7 @@ void CPropBarricade::StopBuilding()
 	}
 
 	// Stop the damn sound
-	EMIT_SOUND_DYN( ENT(pev), CHAN_VOICE, "common/null.wav", 0, ATTN_NORM, 0, 100 );
+	PlayBarricadeSound( SND_NONE );
 
 	m_eIsBuilt = NOT_BUILT;
 	m_nBuilder = 0;
@@ -283,12 +323,17 @@ void CPropBarricade::SetBarricadeMode()
 		case matRocks: nHealth = 300; break;
 	}
 
+	float flBuildTime = 1.9f;
+
 	// Add extra 50 if large barricade.
 	if ( pev->spawnflags & SF_BARRICADE_LARGE )
+	{
 		nHealth += 50;
+		flBuildTime = 2.45f;
+	}
 
 	pev->health = nHealth;
-	m_flBuildTime = 1.6f;
+	m_flBuildTime = flBuildTime;
 }
 
 

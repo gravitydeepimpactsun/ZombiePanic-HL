@@ -1250,6 +1250,14 @@ void CBasePlayer::SetAnimation(PLAYER_ANIM playerAnim)
 		m_IdealActivity = ACT_BARRICADE;
 		break;
 
+	case PLAYER_BARRICADE_LONG:
+		m_IdealActivity = ACT_BARRICADE_LONG;
+		break;
+
+	case PLAYER_BARRICADE_NAILGUN:
+		m_IdealActivity = ACT_BARRICADE_NAILGUN;
+		break;
+
 	case PLAYER_DIE:
 	{
 		// Reset animation, so it won't break if we were in the middle of a reload or something
@@ -1373,6 +1381,8 @@ void CBasePlayer::SetAnimation(PLAYER_ANIM playerAnim)
 	case ACT_ARM: animDesired = SetNewActivity( "_draw", true ); break;
 	case ACT_DISARM: animDesired = SetNewActivity( "_holster", true ); break;
 	case ACT_BARRICADE: animDesired = SetNewActivity( "barricade", false ); break;
+	case ACT_BARRICADE_LONG: animDesired = SetNewActivity( "barricade_long", false ); break;
+	case ACT_BARRICADE_NAILGUN: animDesired = SetNewActivity( "barricade_nailgun", false ); break;
 
 	case ACT_RANGE_ATTACK1:
 		// If m_szAnimExtention is empty, then we change it to use "empty"

@@ -2398,6 +2398,8 @@ bool CBasePlayer::CanActiveInteruptAnimation()
 		case ACT_RANGE_ATTACK1:
 		case ACT_RANGE_ATTACK2:
 	    case ACT_BARRICADE:
+	    case ACT_BARRICADE_LONG:
+	    case ACT_BARRICADE_NAILGUN:
 		case ACT_MELEE_HEAVY_ATTACK_PRE:
 		case ACT_MELEE_HEAVY_ATTACK_LOOP:
 		case ACT_MELEE_HEAVY_ATTACK_POST:

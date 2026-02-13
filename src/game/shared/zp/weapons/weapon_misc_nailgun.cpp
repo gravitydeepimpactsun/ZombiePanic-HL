@@ -12,7 +12,7 @@ PRECACHE_WEAPON_REGISTER( weapon_nailgun );
 float CWeaponNailGun::DoHolsterAnimation()
 {
 	SendWeaponAnim( ANIM_BARRICADE_NAILGUN_HOLSTER );
-	return GetAnimationTime( 11, 30 );
+	return GetAnimationTime( 14, 30 );
 }
 
 void CWeaponNailGun::Spawn()
@@ -33,10 +33,13 @@ void CWeaponNailGun::Precache(void)
 
 	PRECACHE_SOUND("items/ammo_pickup.wav");
 
-	PRECACHE_SOUND("weapons/nailgun/dryfire.wav");
-	PRECACHE_SOUND("weapons/nailgun/fire.wav");
-	PRECACHE_SOUND("weapons/nailgun/hitbod.wav");
-	PRECACHE_SOUND("weapons/nailgun/hit.wav");
+	PRECACHE_SOUND("weapons/nailgun/nailgun_dryfire.wav");
+	PRECACHE_SOUND("weapons/nailgun/nailgun_fire.wav");
+	PRECACHE_SOUND("weapons/nailgun/nailgun_use1.wav");
+	PRECACHE_SOUND("weapons/nailgun/nailgun_use2.wav");
+	PRECACHE_SOUND("weapons/nailgun/nailgun_use3.wav");
+	PRECACHE_SOUND("weapons/nailgun/proj_hitbody.wav");
+	PRECACHE_SOUND("weapons/nailgun/proj_hit.wav");
 }
 
 int CWeaponNailGun::AddToPlayer( CBasePlayer *pPlayer )
@@ -52,7 +55,7 @@ int CWeaponNailGun::AddToPlayer( CBasePlayer *pPlayer )
 float CWeaponNailGun::Deploy()
 {
 	DoDeploy( "models/v_barricade.mdl", "models/p_barricade.mdl", ANIM_BARRICADE_NAILGUN_DRAW, "onehanded" );
-	return GetAnimationTime( 21, 30 );
+	return GetAnimationTime( 31, 30 );
 }
 
 void CWeaponNailGun::PrimaryAttack()
@@ -83,7 +86,7 @@ void CWeaponNailGun::PrimaryAttack()
 	m_pPlayer->SetAnimation( PLAYER_ATTACK1 );
 	SendWeaponAnim( ANIM_BARRICADE_NAILGUN_FIRE );
 
-	EMIT_SOUND( ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/nailgun/fire.wav", 1.0, ATTN_NORM );
+	EMIT_SOUND( ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/nailgun/nailgun_fire.wav", 1.0, ATTN_NORM );
 
 #if !defined( CLIENT_DLL )
 	Vector anglesAim = m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle;
@@ -119,8 +122,7 @@ void CWeaponNailGun::PrimaryAttack()
 
 void CWeaponNailGun::SecondaryAttack()
 {
-	// TODO: Find prop_barricade infront of us, and "use" it. (the same as IN_USE)
-	// NOTE: Do we really need this? IN_USE already does everything :V
+	// Secondary does nothing
 }
 
 
@@ -137,18 +139,18 @@ void CWeaponNailGun::WeaponIdle( void )
 	{
 	case 0:
 		iAnim = ANIM_BARRICADE_NAILGUN_IDLE1;
-		flTime = GetAnimationTime( 41, 10 );
+		flTime = GetAnimationTime( 36, 30 );
 		break;
 
 	default:
 	case 1:
 		iAnim = ANIM_BARRICADE_NAILGUN_IDLE2;
-		flTime = GetAnimationTime( 41, 10 );
+		flTime = GetAnimationTime( 50, 30 );
 		break;
 
 	case 2:
 		iAnim = ANIM_BARRICADE_NAILGUN_IDLE3;
-		flTime = GetAnimationTime( 41, 10 );
+		flTime = GetAnimationTime( 40, 30 );
 		break;
 	}
 

@@ -17,8 +17,8 @@ void CProjectileNail::Precache( void )
 
 const char *CProjectileNail::GetHitSound( const bool &bHitBody ) const
 {
-	if ( bHitBody ) return "weapons/nailgun/hitbod.wav";
-	return "weapons/nailgun/hit.wav";
+	if ( bHitBody ) return "weapons/nailgun/proj_hitbody.wav";
+	return "weapons/nailgun/proj_hit.wav";
 }
 
 float CProjectileNail::GetDamage() const

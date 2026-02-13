@@ -7,6 +7,7 @@
 #include "player.h"
 #include "func_break.h"
 #include "zp/weapons/CWeaponBase.h"
+#include "zp/weapons/weapon_misc_nailgun.h"
 
 extern void SetBodygroup( void *pmodel, entvars_t *pev, int iGroup, int iValue );
 extern int gmsgBarricadeBuildProgress;
@@ -70,7 +71,6 @@ public:
 		SND_NONE = -1,
 		SND_BUILDING = 0,
 		SND_BUILDING_LONG,
-		SND_NAILGUN,
 		SND_BUILT,
 		SND_MAX
 	};
@@ -85,7 +85,6 @@ LINK_ENTITY_TO_CLASS( prop_barricade, CPropBarricade );
 char *CPropBarricade::m_BarricadeSounds[SND_MAX] = {
 	"barricade/building.wav",
 	"barricade/building_long.wav",
-	"barricade/building_nailgun.wav",
 	"barricade/built.wav"
 };
 
@@ -204,26 +203,36 @@ void CPropBarricade::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYP
 	float flBuildTime = m_flBuildTime;
 	bool bUseNailgun = IsPlayerUsingNailgun( pPlayer );
 
+	int iAnim = bIsLarge ? ANIM_BARRICADE_UNARMED2 : ANIM_BARRICADE_UNARMED1;
 	if ( bUseNailgun )
 	{
-		flBuildTime = 1.0f; // Nailgun builds faster!
+		flBuildTime = 1.33f;
+		iAnim = ANIM_BARRICADE_NAILGUN_BARRICADE;
 	}
 	else
 	{
-		int iAnim = bIsLarge ? ANIM_BARRICADE_UNARMED2 : ANIM_BARRICADE_UNARMED1;
-
 		pPlayer->pev->weaponmodel = 0; // Hide world model
 		pPlayer->pev->viewmodel = MAKE_STRING( "models/v_barricade.mdl" );
-		pPlayer->pev->weaponanim = iAnim;
-		MESSAGE_BEGIN( MSG_ONE, SVC_WEAPONANIM, NULL, pPlayer->pev );
-		WRITE_BYTE( iAnim );
-		WRITE_BYTE( 0 );
-		MESSAGE_END();
-		CWeaponBase *pBaseWeapon = dynamic_cast<CWeaponBase *>( pPlayer->m_pActiveItem );
-		if ( pBaseWeapon )
+	}
+
+	// Set the weapon animation
+	pPlayer->pev->weaponanim = iAnim;
+	MESSAGE_BEGIN( MSG_ONE, SVC_WEAPONANIM, NULL, pPlayer->pev );
+	WRITE_BYTE( iAnim );
+	WRITE_BYTE( 0 );
+	MESSAGE_END();
+
+	// Make sure it play properly
+	CWeaponBase *pBaseWeapon = dynamic_cast<CWeaponBase *>( pPlayer->m_pActiveItem );
+	if ( pBaseWeapon )
+	{
+		pBaseWeapon->m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + flBuildTime;
+		pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + flBuildTime;
+		if ( bUseNailgun )
 		{
-			pBaseWeapon->m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + flBuildTime;
-			pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + flBuildTime;
+			pBaseWeapon->AddWeaponSound( "weapons/nailgun/nailgun_use1.wav", 1, ATTN_NORM, pBaseWeapon->GetAnimationTime( 12, 30 ) );
+			pBaseWeapon->AddWeaponSound( "weapons/nailgun/nailgun_use2.wav", 1, ATTN_NORM, pBaseWeapon->GetAnimationTime( 19, 30 ) );
+			pBaseWeapon->AddWeaponSound( "weapons/nailgun/nailgun_use3.wav", 1, ATTN_NORM, pBaseWeapon->GetAnimationTime( 29, 30 ) );
 		}
 	}
 
@@ -245,7 +254,7 @@ void CPropBarricade::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYP
 
 	// Barricade sound
 	if ( bUseNailgun )
-		m_eBarricadeSnd = SND_NAILGUN;
+		m_eBarricadeSnd = SND_NONE;
 	else
 		m_eBarricadeSnd = bIsLarge ? SND_BUILDING_LONG : SND_BUILDING;
 
@@ -290,12 +299,20 @@ void CPropBarricade::OnBarricadeBuilt()
 
 void CPropBarricade::ResetPlayerInfo( CBasePlayer *pPlayer )
 {
-	if ( IsPlayerUsingNailgun( pPlayer ) ) return;
 	pPlayer->pev->viewmodel = m_nPlayerViewModel;
 	pPlayer->pev->weaponmodel = m_nPlayerWorldModel;
 	CWeaponBase *pBaseWeapon = dynamic_cast<CWeaponBase *>( pPlayer->m_pActiveItem );
 	if ( pBaseWeapon )
-		pBaseWeapon->DoDeployAnimation();
+	{
+		pBaseWeapon->ClearWeaponSounds();
+		if ( !IsPlayerUsingNailgun( pPlayer ) )
+			pBaseWeapon->DoDeployAnimation();
+		else
+		{
+			pBaseWeapon->m_flTimeWeaponIdle = UTIL_WeaponTimeBase();
+			pPlayer->m_flNextAttack = UTIL_WeaponTimeBase();
+		}
+	}
 	pPlayer->m_Activity = ACT_RESET;
 	pPlayer->SetAnimation( PLAYER_DRAW );
 }
@@ -416,6 +433,16 @@ void CPropBarricade::OnBarricading()
 		else if ( pPlayer->AmmoInventory( ZPAmmoTypes::AMMO_BARRICADE ) <= 0 )
 			bStopThinking = true;
 		else if ( !CanBuildBarricade() )
+			bStopThinking = true;
+
+		// If the player isn't looking at this barricade anymore, stop building.
+		Vector vecPlayerForward;
+		UTIL_MakeVectors( pPlayer->pev->angles );
+		vecPlayerForward = gpGlobals->v_forward;
+		Vector vecToBarricade = pev->origin - pPlayer->pev->origin;
+		VectorNormalize( vecToBarricade );
+		float flDot = DotProduct( vecPlayerForward, vecToBarricade );
+		if ( flDot < 0.5f ) // Arbitrary dot product threshold,
 			bStopThinking = true;
 	}
 

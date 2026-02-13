@@ -34,7 +34,7 @@ void CProjectileBase::Spawn()
 	Precache();
 	pev->movetype = MOVETYPE_TOSS;
 	pev->solid = SOLID_BBOX;
-	pev->gravity = 0.5;
+	pev->gravity = 0.7;
 
 	OnProjectileSpawn();
 
@@ -69,7 +69,7 @@ void CProjectileBase::OnProjectileTouch( CBaseEntity *pOther )
 	SetThink( &CProjectileBase::SUB_Remove );
 	pev->nextthink = gpGlobals->time;
 
-	if ( pOther->pev->takedamage )
+	if ( pOther->pev->takedamage > DAMAGE_NO )
 	{
 		TraceResult tr = UTIL_GetGlobalTrace();
 		entvars_t *pevOwner = VARS( pev->owner );
@@ -94,10 +94,13 @@ void CProjectileBase::OnProjectileTouch( CBaseEntity *pOther )
 		TEXTURETYPE_PlaySound( &tr, vecSrc, vecEnd, iBulletType );
 		DecalGunshot( &tr, vecDir, iBulletType );
 
-		ApplyMultiDamage(pev, pevOwner);
+		ApplyMultiDamage( pev, pevOwner );
 
 		// play body "thwack" sound
-		OnProjectileHit( true );
+		if ( pOther->Classify() != CLASS_NONE && pOther->Classify() != CLASS_MACHINE )
+			OnProjectileHit( true );
+		else
+			OnProjectileHit( false );
 	}
 	else
 	{

@@ -11,7 +11,7 @@ class CWeaponNailGun : public CWeaponBase
 
 public:
 	ZPWeaponID GetWeaponID() override { return WEAPON_NAILGUN; }
-	const char *GetEmptySound() const override { return "weapons/nailgun/dryfire.wav"; }
+	const char *GetEmptySound() const override { return "weapons/nailgun/nailgun_dryfire.wav"; }
 	float DoHolsterAnimation() override;
 	void Spawn( void );
 	void Precache( void );
@@ -20,6 +20,8 @@ public:
 	void PrimaryAttack( void );
 	void SecondaryAttack( void );
 	void WeaponIdle( void );
+
+private:
 };
 
 #endif

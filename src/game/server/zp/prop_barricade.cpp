@@ -194,6 +194,9 @@ void CPropBarricade::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYP
 
 	if ( !CanBuildBarricade() ) return;
 
+	// Make sure we are on the floor, we don't want players to be able to build barricades in mid-air :V
+	if ( !(pPlayer->pev->flags & FL_ONGROUND) || !pPlayer->pev->groundentity ) return;
+
 	// Is this a large barricade?
 	bool bIsLarge = ( pev->spawnflags & SF_BARRICADE_LARGE );
 
@@ -433,6 +436,8 @@ void CPropBarricade::OnBarricading()
 		else if ( pPlayer->AmmoInventory( ZPAmmoTypes::AMMO_BARRICADE ) <= 0 )
 			bStopThinking = true;
 		else if ( !CanBuildBarricade() )
+			bStopThinking = true;
+		else if ( !(pPlayer->pev->flags & FL_ONGROUND) || !pPlayer->pev->groundentity )
 			bStopThinking = true;
 
 		// If the player isn't looking at this barricade anymore, stop building.

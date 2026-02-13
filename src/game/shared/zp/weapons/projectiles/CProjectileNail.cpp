@@ -18,6 +18,12 @@ void CProjectileNail::Precache( void )
 const char *CProjectileNail::GetHitSound( const bool &bHitBody ) const
 {
 	if ( bHitBody ) return "weapons/nailgun/proj_hitbody.wav";
+	switch ( RANDOM_LONG( 0, 2 ) )
+	{
+		case 0: return "weapons/nailgun/proj_hit.wav";
+		case 1: return "weapons/nailgun/proj_hit2.wav";
+		case 2: return "weapons/nailgun/proj_hit3.wav";
+	}
 	return "weapons/nailgun/proj_hit.wav";
 }
 

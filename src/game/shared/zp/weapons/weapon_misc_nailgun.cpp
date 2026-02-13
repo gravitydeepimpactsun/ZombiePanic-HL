@@ -40,6 +40,8 @@ void CWeaponNailGun::Precache(void)
 	PRECACHE_SOUND("weapons/nailgun/nailgun_use3.wav");
 	PRECACHE_SOUND("weapons/nailgun/proj_hitbody.wav");
 	PRECACHE_SOUND("weapons/nailgun/proj_hit.wav");
+	PRECACHE_SOUND("weapons/nailgun/proj_hit2.wav");
+	PRECACHE_SOUND("weapons/nailgun/proj_hit3.wav");
 }
 
 int CWeaponNailGun::AddToPlayer( CBasePlayer *pPlayer )

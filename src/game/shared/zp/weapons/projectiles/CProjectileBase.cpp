@@ -65,9 +65,7 @@ void CProjectileBase::OnProjectileTouch( CBaseEntity *pOther )
 #if !defined( CLIENT_DLL )
 	SetTouch( NULL );
 	SetThink( NULL );
-
-	SetThink( &CProjectileBase::SUB_Remove );
-	pev->nextthink = gpGlobals->time;
+	float flTime = 0.1f;
 
 	if ( pOther->pev->takedamage > DAMAGE_NO )
 	{
@@ -115,7 +113,7 @@ void CProjectileBase::OnProjectileTouch( CBaseEntity *pOther )
 			pev->angles = UTIL_VecToAngles( vecDir );
 			pev->avelocity.z = 0;
 			pev->angles.z = RANDOM_LONG( 0, 360 );
-			pev->nextthink = gpGlobals->time + 10.0;
+			flTime = 10.0;
 		}
 
 		if ( UTIL_PointContents(pev->origin) != CONTENTS_WATER )
@@ -126,10 +124,11 @@ void CProjectileBase::OnProjectileTouch( CBaseEntity *pOther )
 	pev->velocity = Vector( 0, 0, 0 );
 
 	if ( ExplodeOnImpact() )
-	{
 		SetThink( &CProjectileBase::OnExplodeThink );
-		pev->nextthink = gpGlobals->time + 0.1;
-	}
+	else
+		SetThink( &CProjectileBase::SUB_Remove );
+
+	pev->nextthink = gpGlobals->time + flTime;
 #endif
 }
 

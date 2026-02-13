@@ -305,10 +305,11 @@ void CPropBarricade::ResetPlayerInfo( CBasePlayer *pPlayer )
 	pPlayer->pev->viewmodel = m_nPlayerViewModel;
 	pPlayer->pev->weaponmodel = m_nPlayerWorldModel;
 	CWeaponBase *pBaseWeapon = dynamic_cast<CWeaponBase *>( pPlayer->m_pActiveItem );
+	bool bUseNailgun = IsPlayerUsingNailgun( pPlayer );
 	if ( pBaseWeapon )
 	{
 		pBaseWeapon->ClearWeaponSounds();
-		if ( !IsPlayerUsingNailgun( pPlayer ) )
+		if ( !bUseNailgun )
 			pBaseWeapon->DoDeployAnimation();
 		else
 		{
@@ -317,7 +318,7 @@ void CPropBarricade::ResetPlayerInfo( CBasePlayer *pPlayer )
 		}
 	}
 	pPlayer->m_Activity = ACT_RESET;
-	pPlayer->SetAnimation( PLAYER_DRAW );
+	pPlayer->SetAnimation( bUseNailgun ? PLAYER_IDLE : PLAYER_DRAW );
 }
 
 bool CPropBarricade::IsPlayerUsingNailgun( CBasePlayer *pPlayer )

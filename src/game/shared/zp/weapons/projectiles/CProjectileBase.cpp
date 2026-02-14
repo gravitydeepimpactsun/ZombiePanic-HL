@@ -108,7 +108,7 @@ void CProjectileBase::OnProjectileTouch( CBaseEntity *pOther )
 		{
 			// if what we hit is static architecture, can stay around for a while.
 			Vector vecDir = pev->velocity.Normalized();
-			UTIL_SetOrigin( pev, pev->origin - vecDir * 12 );
+			UTIL_SetOrigin( pev, pev->origin - vecDir * 5 );
 			pev->movetype = MOVETYPE_FLY;
 			pev->angles = UTIL_VecToAngles( vecDir );
 			pev->avelocity.z = 0;

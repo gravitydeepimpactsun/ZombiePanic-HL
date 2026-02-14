@@ -8,6 +8,8 @@ DECLARE_PROJECTILE_FUNCTION( CProjectileNail*, CreateNailProjectile );
 void CProjectileNail::OnProjectileSpawn()
 {
 	SET_MODEL( ENT(pev), "models/proj_nail.mdl" );
+	// Make sure the base class gets called (we don't want an empty string on the kill feed)
+	pev->classname = MAKE_STRING( "proj_nail" );
 }
 
 void CProjectileNail::Precache( void )

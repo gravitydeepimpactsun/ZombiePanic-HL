@@ -48,6 +48,7 @@ public:
 
 protected:
 	void SetSequenceBox();
+	void GetSequenceBox( Vector &vMin, Vector &vMax );
 	int ExtractBbox(int sequence, float *mins, float *maxs);
 	void OnBarricadeBuilt();
 	void ResetPlayerInfo( CBasePlayer *pPlayer );
@@ -400,8 +401,8 @@ bool CPropBarricade::CanBuildBarricade()
 {
 	// Let's use UTIL_EntitiesInBox to check for entities in our bbox, since GoldSrc UTIL_TraceHull
 	// does not have custom min/max size support...
-	Vector mins = pev->mins;
-	Vector maxs = pev->maxs;
+	Vector mins, maxs;
+	GetSequenceBox( mins, maxs );
 	CBaseEntity *pList[32];
 	int nCount = UTIL_EntitiesInBox( pList, 32, pev->origin + mins, pev->origin + maxs, 0 );
 	for ( int i = 0; i < nCount; i++ )
@@ -441,10 +442,14 @@ void CPropBarricade::OnBarricading()
 		else if ( !(pPlayer->pev->flags & FL_ONGROUND) || !pPlayer->pev->groundentity )
 			bStopThinking = true;
 
-		// If the player isn't looking at this barricade anymore, stop building.
+		// If the player isn't looking at this barricade anymore, stop building. (but ignore our Z angle, that must always be ZERO. We really don't care if we are looking up or down.)
 		Vector vecPlayerForward;
 		UTIL_MakeVectors( pPlayer->pev->angles );
 		vecPlayerForward = gpGlobals->v_forward;
+		Vector vecPlayerOrigin = pPlayer->pev->origin;
+		Vector vecOrigin = pev->origin;
+		// Look only at the X and Y axis, ignore Z.
+		vecPlayerForward.z = vecOrigin.z = 0;
 		Vector vecToBarricade = pev->origin - pPlayer->pev->origin;
 		VectorNormalize( vecToBarricade );
 		float flDot = DotProduct( vecPlayerForward, vecToBarricade );
@@ -481,6 +486,14 @@ int CPropBarricade::ExtractBbox( int sequence, float *mins, float *maxs )
 }
 
 void CPropBarricade::SetSequenceBox()
+{
+	Vector mins, maxs;
+	GetSequenceBox( mins, maxs );
+	if ( mins == g_vecZero && maxs == g_vecZero ) return;
+	UTIL_SetSize( pev, mins, maxs );
+}
+
+void CPropBarricade::GetSequenceBox( Vector &vMin, Vector &vMax )
 {
 	Vector mins, maxs;
 
@@ -535,6 +548,9 @@ void CPropBarricade::SetSequenceBox()
 				}
 			}
 		}
-		UTIL_SetSize(pev, rmin, rmax);
+		vMin = rmin;
+		vMax = rmax;
 	}
+	else
+		vMin = vMax = g_vecZero;
 }

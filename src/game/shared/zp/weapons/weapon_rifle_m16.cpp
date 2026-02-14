@@ -36,7 +36,7 @@ void CWeaponRifleM16::Precache(void)
 	PRECACHE_MODEL("models/w_556AR.mdl");
 	PRECACHE_MODEL("models/p_556AR.mdl");
 
-	PRECACHE_MODEL("models/shell.mdl"); // brass shellTE_MODEL
+	PRECACHE_MODEL("models/shell_rifle.mdl"); // brass shellTE_MODEL
 
 	PRECACHE_MODEL("models/grenade.mdl"); // grenade
 

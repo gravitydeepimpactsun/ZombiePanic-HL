@@ -79,6 +79,7 @@ void CWeaponSideArmRevolver::Precache(void)
 	PRECACHE_MODEL("models/v_357.mdl");
 	PRECACHE_MODEL("models/w_357.mdl");
 	PRECACHE_MODEL("models/p_357.mdl");
+	PRECACHE_MODEL("models/shell_357.mdl");
 
 	PRECACHE_SOUND("items/ammo_pickup.wav");
 

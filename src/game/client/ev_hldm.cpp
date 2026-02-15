@@ -1023,7 +1023,7 @@ void EV_PythonShells( event_args_t *args )
 
 	Vector ShellVelocity;
 	Vector ShellOrigin;
-	int shell = gEngfuncs.pEventAPI->EV_FindModelIndex("models/shell.mdl"); // brass shell
+	int shell = gEngfuncs.pEventAPI->EV_FindModelIndex("models/shell_357.mdl"); // brass shell
 
 	Vector shellOffset;
 	ParseVector( cl_shellejects_357shell.GetString(), shellOffset );

@@ -510,7 +510,7 @@ add_one_more_zombie:
 void CZombiePanicGameRules::PlayerSpawn(CBasePlayer *pPlayer)
 {
 	// Start welcome cam for new players
-	if (!pPlayer->m_bPutInServer && mp_welcomecam.GetBool() != 0)
+	if ( !pPlayer->m_bPutInServer )
 	{
 		// don't let him spawn as soon as he enters the server
 		// give enough time to plugins to send the player to spectator mode

@@ -611,6 +611,10 @@ void CScorePanel::UpdateClientInfo(int client)
 	if ( GetLocalPlayer()->GetTeamNumber() == ZP::TEAM_SURVIVIOR )
 		nTeamNum = ZP::TEAM_SURVIVIOR;
 
+	// If less than observer, always become observer.
+	if ( nTeamNum < ZP::TEAM_OBSERVER )
+		nTeamNum = ZP::TEAM_OBSERVER;
+
 	if ( nTeamNum != pd.nTeamID )
 	{
 		// Player changed team
@@ -653,7 +657,7 @@ void CScorePanel::UpdateClientInfo(int client)
 
 		// Name
 		bool bIsSpectator = pi->IsSpectator();
-		if ( pi->GetTeamNumber() == ZP::TEAM_OBSERVER || pi->GetTeamNumber() == ZP::TEAM_NONE )
+		if ( pi->GetTeamNumber() <= ZP::TEAM_OBSERVER )
 			bIsSpectator = true;
 		if ( bIsSpectator )
 		{

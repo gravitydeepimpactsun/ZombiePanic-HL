@@ -2027,6 +2027,15 @@ void CBasePlayer::StartWelcomeCam(void)
 	pev->health = 1; // Let player stay vertically, not lie on a side
 	pev->deadflag = DEAD_RESPAWNABLE;
 	pev->effects = EF_NODRAW; // Hide model. This is used instead of pev->modelindex = 0
+	pev->team = ZP::TEAM_OBSERVER;
+
+	// notify everyone's HUD of the team change
+	MESSAGE_BEGIN(MSG_ALL, gmsgTeamInfo);
+	WRITE_BYTE( entindex() );
+	WRITE_STRING( pev->iuser1 ? "" : TeamID() );
+	MESSAGE_END();
+
+	SendScoreInfo();
 
 	// Reset on new round and/or new map.
 	ResetParticipation();

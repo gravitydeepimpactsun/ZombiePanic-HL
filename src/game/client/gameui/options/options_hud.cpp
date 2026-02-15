@@ -26,7 +26,6 @@ CHudSubOptions::CHudSubOptions(vgui2::Panel *parent)
 	m_pRenderCheckbox = new CCvarCheckButton(this, "RenderCheckbox", "#ZP_AdvOptions_HUD_Render", "hud_client_renderer");
 	m_pDimCheckbox = new CCvarCheckButton(this, "DimCheckbox", "#ZP_AdvOptions_HUD_Dim", "hud_dim");
 	m_pMenuFKeys = new CCvarCheckButton(this, "MenuFKeys", "#ZP_AdvOptions_HUD_MenuFKeys", "hud_menu_fkeys");
-	m_pCenterIdCvar = new CCvarCheckButton(this, "CenterIdCvar", "#ZP_AdvOptions_HUD_CenterId", "hud_centerid");
 	m_pRainbowCvar = new CCvarCheckButton(this, "RainbowCvar", "#ZP_AdvOptions_HUD_Rainbow", "hud_rainbow");
 	m_pAmmoBankUseKGCvar = new CCvarCheckButton(this, "AmmoBankUseKGCvar", "#ZP_AdvOptions_HUD_AmmoBankUseKG", "cl_ammobank_usekilograms");
 	m_pHideEmptyAmmo = new CCvarCheckButton(this, "HideEmptyAmmoCvar", "#ZP_AdvOptions_HUD_HideEmptyAmmo", "cl_hideemptyammo");
@@ -66,7 +65,6 @@ void CHudSubOptions::OnResetData()
 	m_pOpacityValue->ResetData();
 	m_pDimCheckbox->ResetData();
 	m_pMenuFKeys->ResetData();
-	m_pCenterIdCvar->ResetData();
 	m_pRainbowCvar->ResetData();
 	m_pAmmoBankUseKGCvar->ResetData();
 	m_pHideEmptyAmmo->ResetData();
@@ -81,7 +79,6 @@ void CHudSubOptions::OnApplyChanges()
 	m_pOpacityValue->ApplyChanges();
 	m_pDimCheckbox->ApplyChanges();
 	m_pMenuFKeys->ApplyChanges();
-	m_pCenterIdCvar->ApplyChanges();
 	m_pRainbowCvar->ApplyChanges();
 	m_pAmmoBankUseKGCvar->ApplyChanges();
 	m_pHideEmptyAmmo->ApplyChanges();

@@ -34,8 +34,6 @@
 #define STATUSBAR_ID_LINE 1
 #endif
 
-ConVar hud_centerid("hud_centerid", "0", FCVAR_ARCHIVE, "Show other players' names in the middle of the screen");
-
 DEFINE_HUD_ELEM(CHudStatusBar);
 
 void CHudStatusBar::ResetLineColor(int line)
@@ -211,10 +209,10 @@ void CHudStatusBar::Draw(float fTime)
 		int y = Y_START - (4 + TextHeight * i); // draw along bottom of screen
 
 		// let user set status ID bar centering
-		if ((i == STATUSBAR_ID_LINE) && hud_centerid.GetBool())
+		if ( (i == STATUSBAR_ID_LINE) )
 		{
 			x = max(0, max(2, (ScreenWidth - TextWidth)) / 2);
-			y = (ScreenHeight / 2) + (TextHeight * hud_centerid.GetFloat());
+			y = (ScreenHeight / 2) + (TextHeight * 1.0f);
 		}
 
 		DrawConsoleString(x, y, m_szStatusBar[i], m_pflNameColors[i]);

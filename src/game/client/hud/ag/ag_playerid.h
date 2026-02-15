@@ -22,6 +22,10 @@ public:
 	void Draw(float flTime) override;
 	void Reset() override;
 
+	void DrawSurvivorID( CPlayerInfo *pInfo );
+	void DrawZombieID( CPlayerInfo *pInfo );
+	void DrawText( const char *pszText, const int &ypos, const Color &rgb );
+
 	int MsgFunc_PlayerId(const char *pszName, int iSize, void *pbuf);
 
 private:

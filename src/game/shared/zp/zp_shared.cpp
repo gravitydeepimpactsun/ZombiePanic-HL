@@ -158,6 +158,9 @@ static DialogAchievementData g_DAchievements[] =
 	_ACH_ADD_ID(KILLS_TNT,						CATEGORY_KILLS,			ZP_KILLS_TNT),
 	_ACH_ADD_ID(KILLS_MOLOTOV,					CATEGORY_KILLS,			ZP_KILLS_MOLOTOV),
 	_ACH_ADD_ID(KILLS_ZOMBIE,					CATEGORY_KILLS,			ZP_KILLS_ZOMBIE),
+	_ACH_ADD_ID(LAST_BULLET,					CATEGORY_KILLS,			INVALID_STAT),
+	_ACH_ADD_ID(DBARREL_2KILL,					CATEGORY_KILLS,			INVALID_STAT),
+	_ACH_ADD_ID(HC_HEADSHOTFEST,				CATEGORY_KILLS,			INVALID_STAT),
 	_ACH_ADD_ID(YOU_WILL_DIE_WITH_ME,			CATEGORY_KILLS,			INVALID_STAT),
 	_ACH_ADD_ID(UNSAFE_HANDLING,				CATEGORY_KILLS,			INVALID_STAT),
 	_ACH_ADD_ID_LIST(JACKOFTRADES,				CATEGORY_KILLS,			INVALID_STAT, m_JackOfTradesSteps),
@@ -207,6 +210,43 @@ static DialogAchievementData g_DAchievements[] =
 	_ACH_ADD_ID(ILIVEAGAIN,						CATEGORY_GENERAL,		ZP_ILIVEAGAIN),
 	_ACH_ADD_ID(HOUSEOFHORRORS,					CATEGORY_GENERAL,		INVALID_STAT),
 	_ACH_ADD_ID(KILLYOSELF,						CATEGORY_GENERAL,		ZP_KILLYOSELF),
+};
+
+#define _ACH_KILL_ID( id, name, headshot, melee ) { id, name, headshot, melee }
+#define _ACH_KILL_ID_MELEE( id, name ) _ACH_KILL_ID( id, name, false, true )
+#define _ACH_KILL_ID_HEADSHOT( id, name ) _ACH_KILL_ID( id, name, true, false )
+#define _ACH_KILL_ID_DEFAULT( id, name ) _ACH_KILL_ID( id, name, false, false )
+KillAchievementData_t g_KillAchievements[] = {
+	// { EAchievements ID, const char *Name, bool NeedHeadshot, bool NeedMelee }
+
+	// Melee kills
+	_ACH_KILL_ID_MELEE( KILLS_CROWBAR, "crowbar" ),
+	_ACH_KILL_ID_MELEE( KILLS_LEADPIPE, "leadpipe" ),
+	_ACH_KILL_ID_MELEE( KILLS_FIREAXE, "fireaxe" ),
+
+	// Default kills
+	_ACH_KILL_ID_DEFAULT( KILLS_PISTOL, "sig" ),
+	_ACH_KILL_ID_DEFAULT( KILLS_PPK, "ppk" ),
+	_ACH_KILL_ID_DEFAULT( KILLS_REVOLVER, "357" ),
+	_ACH_KILL_ID_DEFAULT( KILLS_RIFLE, "556ar" ),
+	_ACH_KILL_ID_DEFAULT( KILLS_MP5, "mp5" ),
+	_ACH_KILL_ID_DEFAULT( KILLS_DBARREL, "doublebarrel" ),
+	_ACH_KILL_ID_DEFAULT( DBARREL_2KILL, "doublebarrel" ),
+	_ACH_KILL_ID_DEFAULT( KILLS_SHOTGUN, "shotgun" ),
+	_ACH_KILL_ID_DEFAULT( CUTYOUDOWN, "shotgun" ),
+	_ACH_KILL_ID_DEFAULT( KILLS_SATCHEL, "satchel" ),
+	_ACH_KILL_ID_DEFAULT( KILLS_TNT, "grenade" ),
+	_ACH_KILL_ID_DEFAULT( KILLS_MOLOTOV, "flame_large" ),
+	_ACH_KILL_ID_DEFAULT( KILLS_MOLOTOV, "flame_medium" ),
+	_ACH_KILL_ID_DEFAULT( KILLS_ZOMBIE, "swipe" ),
+	_ACH_KILL_ID_DEFAULT( FLEEESH, "swipe" ),
+	_ACH_KILL_ID_DEFAULT( RABBITBEAST, "swipe" ),
+	_ACH_KILL_ID_DEFAULT( HC_SNACKTIME, "swipe" ),
+
+	// Headshot kills
+	_ACH_KILL_ID_HEADSHOT( KILLS_PPK_HEADSHOT, "ppk" ),
+	_ACH_KILL_ID_HEADSHOT( INLINEP2, "357" ),
+	_ACH_KILL_ID_HEADSHOT( EFFED_FACE, "swipe" ),
 };
 
 // =========================================================
@@ -897,6 +937,32 @@ void CBasePlayer::UpdatePlayerMaxSpeed()
 #endif
 
 	pev->maxspeed = flNewSpeed;
+}
+
+// =========================================================
+// Achievements Kill Data Struct
+// =========================================================
+
+KillAchievementData_t GetKillAchievementByID( int eAchievement )
+{
+	for ( int i = 0; i < ARRAYSIZE( g_KillAchievements ); i++ )
+	{
+		KillAchievementData_t item = g_KillAchievements[ i ];
+		if ( item.ID == eAchievement )
+			return item;
+	}
+	return g_KillAchievements[0];
+}
+
+void GetKillAchievementsByWeapon( const char *szWeapon, bool bIsHeadshot, std::vector<KillAchievementData_t> &vOut )
+{
+	for ( int i = 0; i < ARRAYSIZE( g_KillAchievements ); i++ )
+	{
+		KillAchievementData_t item = g_KillAchievements[ i ];
+		if ( item.NeedHeadshot && !bIsHeadshot ) continue;
+		if ( FStrEq( item.Name, szWeapon ) )
+			vOut.push_back( item );
+	}
 }
 
 // =========================================================

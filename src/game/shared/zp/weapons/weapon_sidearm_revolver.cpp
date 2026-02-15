@@ -59,9 +59,6 @@ void CWeaponSideArmRevolver::DoAudioFrame( void )
 
 float CWeaponSideArmRevolver::DoHolsterAnimation()
 {
-#if defined( SERVER_DLL )
-	m_pPlayer->m_iWeaponKillCount = 0;
-#endif
 	SendWeaponAnim( HasBeenUnloaded() ? ANIM_357_UNLOADED_HOLSTER : ANIM_357_HOLSTER );
 	return GetAnimationTime( 15, 30 );
 }
@@ -97,10 +94,6 @@ void CWeaponSideArmRevolver::Precache(void)
 
 float CWeaponSideArmRevolver::Deploy()
 {
-#if defined( SERVER_DLL )
-	if ( m_pPlayer )
-		m_pPlayer->m_iWeaponKillCount = 0;
-#endif
 	DoDeploy( "models/v_357.mdl", "models/p_357.mdl", HasBeenUnloaded() ? ANIM_357_UNLOADED_DRAW : ANIM_357_DRAW, "python" );
 	return GetAnimationTime( 21, 16 );
 }

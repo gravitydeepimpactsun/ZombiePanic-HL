@@ -528,6 +528,7 @@ public:
 	// Give achivement
 	void GiveAchievement( EAchievements eAchivement );
 	void NotifyOfEarnedAchivement( int eAchivement );
+	void GiveAchievementsFromKill( CBasePlayer *pKiller, const char *szWeapon );
 
 	// Punish the late joiner.
 	bool m_bPunishLateJoiner = false;
@@ -540,6 +541,9 @@ public:
 	PlayerCharacter GetCharacter( const char *szType );
 	PlayerCharacterType GetPlayerCharacterType();
 
+	// 0 - Normal kills
+	// 1 - headshots
+	int m_iKillsThisLife[2] = { 0, 0 };
 	int m_iWeaponKillCount = 0;
 	PlayerCharacter m_iCharacter = PlayerCharacter::ANY;
 

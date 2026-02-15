@@ -2767,7 +2767,14 @@ void CBasePlayer::GiveAchievement( EAchievements eAchivement )
 	// Only if we're connected
 	if ( !IsConnected() ) return;
 	if ( !ZPGameRules() ) return;
+	if ( ZPGameRules()->IsTestModeActive() )
+	{
+		DialogAchievementData data = GetAchievementByID( eAchivement );
+		Msg( "[DEBUG] GiveAchievement: %i [%s]\n", data.GetAchievementID(), data.GetAchievementName() );
+	}
+#ifndef _DEBUG
 	if ( ZPGameRules()->WasCheatsOnThisSession() ) return;
+#endif
 	MESSAGE_BEGIN( MSG_ONE, gmsgAchievement, NULL, pev );
 	WRITE_SHORT( eAchivement );
 	MESSAGE_END();
@@ -2781,6 +2788,107 @@ void CBasePlayer::NotifyOfEarnedAchivement( int eAchivement )
 	WRITE_SHORT( entindex() );
 	WRITE_SHORT( eAchivement );
 	MESSAGE_END();
+}
+
+void CBasePlayer::GiveAchievementsFromKill( CBasePlayer *pKiller, const char *szWeapon )
+{
+	if ( !pKiller || !szWeapon ) return;
+
+	// Make sure we have a valid gamemode, since some achievements require certain gamemodes.
+	IGameModeBase *pGameMode = ZP::GetCurrentGameMode();
+	if ( !pGameMode ) return;
+
+	// If szWeapon is "swipe", make sure the victim was a survivor while the killer is a zombie.
+	if ( !strcmp( szWeapon, "swipe" ) )
+	{
+		if ( pev->team != ZP::TEAM_SURVIVIOR && pKiller->pev->team != ZP::TEAM_ZOMBIE )
+			return;
+	}
+
+	// Increase by one for each kill
+	pKiller->m_iWeaponKillCount++;
+	pKiller->m_iKillsThisLife[0]++;
+
+	bool bNeedHeadshot = ( ( m_iDeathFlags & PLR_DEATH_FLAG_HEADSHOT ) != 0 );
+	std::vector<KillAchievementData_t> vList;
+	GetKillAchievementsByWeapon( szWeapon, bNeedHeadshot, vList );
+
+	if ( bNeedHeadshot )
+		pKiller->m_iKillsThisLife[1]++;
+
+	if ( bNeedHeadshot
+		&& pGameMode->GetGameModeType() == ZP::GAMEMODE_HARDCORE
+		&& m_iKillsThisLife[1] == 6 )
+		pKiller->GiveAchievement( HC_HEADSHOTFEST );
+
+	for ( size_t i = 0; i < vList.size(); i++ )
+	{
+		KillAchievementData_t &data = vList[ i ];
+
+		// If special conditions are required, check those.
+		bool bConditionsMet = true;
+		if ( data.ID == INLINEP2 && pKiller->m_iWeaponKillCount <= 5 )
+			bConditionsMet = false;
+		else if ( data.ID == RABBITBEAST && pKiller->m_iWeaponKillCount <= 2 )
+			bConditionsMet = false;
+		else if ( data.ID == DBARREL_2KILL && pKiller->m_iWeaponKillCount <= 1 )
+			bConditionsMet = false;
+		else if ( data.ID == CUTYOUDOWN && pKiller->m_iWeaponKillCount <= 3 )
+			bConditionsMet = false;
+		else if ( data.ID == HC_SNACKTIME && pGameMode->GetGameModeType() != ZP::GAMEMODE_HARDCORE )
+			bConditionsMet = false;
+
+		// If we don't meet the conditions, skip this achievement.
+		if ( !bConditionsMet ) continue;
+
+		// Give the achievement for this kill, if we meet the requirements.
+		pKiller->GiveAchievement( data.ID );
+
+		// A special case for the "You will die with me" achievement, which can be given if we manage to get an explosive kill while being killed ourselves within a short time after.
+		if ( ( data.ID == KILLS_SATCHEL || data.ID == KILLS_TNT ) )
+		{
+			if ( pKiller->m_bJustKilledWithExplosive )
+				pKiller->GiveAchievement( YOU_WILL_DIE_WITH_ME );
+			else
+			{
+				pKiller->m_bJustKilledWithExplosive = true;
+				pKiller->m_flResetExplosiveKillNotice = gpGlobals->time + 3.0f;
+			}
+		}
+
+		// If hardcore mode, and we managed to get a melee kill while having a backpack.
+		if ( pGameMode
+			&& pGameMode->GetGameModeType() == ZP::GAMEMODE_HARDCORE
+			&& pKiller->HasBackpack()
+			&& data.NeedMelee )
+			pKiller->GiveAchievement( HC_OVERWEIGHTKILLER );
+
+		// Another special case for non-melee kills. If we have 0 bullets left in our clip after getting this kill, give the "Last Bullet" achievement.
+		if ( data.NeedMelee ) continue;
+		CBasePlayerWeapon *pWeapon = dynamic_cast<CBasePlayerWeapon *>( pKiller->m_pActiveItem );
+		const char *pWeaponName = pWeapon ? pWeapon->pszName() : nullptr;
+		if ( pWeaponName && strncmp( pWeaponName, "weapon_", 7 ) == 0 )
+			pWeaponName += 7;
+		if ( pWeapon
+		    && pWeaponName
+			&& FStrEq( pWeaponName, szWeapon )
+			&& pWeapon->m_iClip == 0
+			&& pWeapon->iMaxClip() > 0 )
+			pKiller->GiveAchievement( LAST_BULLET );
+	}
+
+	// Check for the "Jack of all trades" achievement, which is given for getting a kill with every weapon. We check this after giving the kill achievements, since some of those achievements require a certain number of kills with a weapon, and we want to make sure we give those first before checking for Jack of all trades.
+	pKiller->GiveAchievement( JACKOFTRADES );
+
+	// If the victim was in panic, give the "Scream for me" achievement to the killer. If the killer was in panic and the victim was a zombie, give the "Panic rush" achievement to the killer.
+	if ( IsInPanic() )
+		pKiller->GiveAchievement( SCREAM4ME );
+	else if ( pKiller->IsInPanic() && pev->team == ZP::TEAM_ZOMBIE )
+		pKiller->GiveAchievement( PANICRUSH );
+
+	// We just gibbed, give the "It's a massacre" achievement.
+	if ( ( m_iDeathFlags & PLR_DEATH_FLAG_GIBBED ) != 0 )
+		pKiller->GiveAchievement( ITS_A_MASSACRE );
 }
 
 void CBasePlayer::SetTheCorrectPlayerModel()
@@ -4759,8 +4867,9 @@ void CBasePlayer::Spawn(void)
 	m_bInZombieVision = apiData.KeepZVision;
 	m_bBuddhaMode = false;
 
-	if ( pev->team == ZP::TEAM_SURVIVIOR )
-		m_iWeaponKillCount = 0;
+	m_iWeaponKillCount = 0;
+	m_iKillsThisLife[0] = 0;
+	m_iKillsThisLife[1] = 0;
 
 	// We just spawned, allow auto weapon switch
 	m_bJustSpawned = true;

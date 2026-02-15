@@ -160,9 +160,23 @@ enum EAchievements
 	HC_BLOODHARVEST,
 	EFFED_FACE,
 	KILLS_FIREAXE,
+	LAST_BULLET,
+	DBARREL_2KILL,
+	HC_HEADSHOTFEST,
 
 	ACHV_MAX
 };
+
+// ===================================
+// Achievement kill structure (how we give achievements from kills)
+struct KillAchievementData_t
+{
+	EAchievements ID;
+	const char *Name;
+	bool NeedHeadshot;
+	bool NeedMelee;
+};
+void GetKillAchievementsByWeapon( const char *szWeapon, bool bIsHeadshot, std::vector<KillAchievementData_t> &vOut );
 
 // ===================================
 // Stats data structure

@@ -975,6 +975,17 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 			}
 			return TRUE;
 		}
+		else if (FStrEq(pcmd, "dev_killach"))
+		{
+			const char *arg1 = CMD_ARGV(1);
+			const char *arg2 = CMD_ARGV(2);
+			if ( FStrEq( arg2, "1" ) )
+				pPlayer->m_iDeathFlags |= PLR_DEATH_FLAG_HEADSHOT;
+			else
+				pPlayer->m_iDeathFlags &= ~PLR_DEATH_FLAG_HEADSHOT;
+			pPlayer->GiveAchievementsFromKill( pPlayer, arg1 );
+			return TRUE;
+		}
 	}
 	else
 	{
@@ -1070,6 +1081,11 @@ void CZombiePanicGameRules::ClientDisconnected(edict_t *pClient)
 	}
 
 	BaseClass::ClientDisconnected( pClient );
+}
+
+bool CZombiePanicGameRules::IsTestModeActive() const
+{
+	return m_pGameMode->IsTestModeActive();
 }
 
 bool CZombiePanicGameRules::WasCheatsOnThisSession() const

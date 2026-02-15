@@ -7,9 +7,6 @@ PRECACHE_WEAPON_REGISTER( weapon_shotgun );
 
 float CWeaponShotgunRemington::DoHolsterAnimation()
 {
-#if defined( SERVER_DLL )
-	m_pPlayer->m_iWeaponKillCount = 0;
-#endif
 	SendWeaponAnim( ANIM_SHOTGUN_HOLSTER );
 	return GetAnimationTime( 16, 35 );
 }
@@ -58,10 +55,6 @@ int CWeaponShotgunRemington::AddToPlayer( CBasePlayer *pPlayer )
 
 float CWeaponShotgunRemington::Deploy()
 {
-#if defined( SERVER_DLL )
-	if ( m_pPlayer )
-		m_pPlayer->m_iWeaponKillCount = 0;
-#endif
 	DoDeploy( "models/v_shotgun.mdl", "models/p_shotgun.mdl", ANIM_SHOTGUN_DRAW, "shotgun" );
 	return GetAnimationTime( 16, 25 );
 }

@@ -28,6 +28,7 @@ bool CWeaponBase::DoDeploy( const char *szViewModel, const char *szWeaponModel, 
 	m_pPlayer->pev->viewmodel = MAKE_STRING( szViewModel );
 	m_pPlayer->pev->weaponmodel = MAKE_STRING( szWeaponModel );
 	UTIL_strcpy( m_pPlayer->m_szAnimExtention, szAnimExt );
+	m_pPlayer->m_iWeaponKillCount = 0;
 #endif
 	SendWeaponAnim( iAnim, skiplocal, body );
 
@@ -134,6 +135,7 @@ void CWeaponBase::FinishHolster()
 	if ( !m_pNewWeapon ) return;
 #if !defined( CLIENT_DLL )
 	m_pPlayer->SelectNewActiveWeapon( m_pNewWeapon );
+	m_pPlayer->m_iWeaponKillCount = 0;
 #endif
 	m_pNewWeapon = nullptr;
 }

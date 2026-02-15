@@ -62,6 +62,7 @@ public:
 
 	BOOL FAllowMonsters( void ) override { return FALSE; }
 
+	bool IsTestModeActive() const;
 	bool WasCheatsOnThisSession() const;
 	inline void SetCheatsOnThisSession( bool bCheats ) { m_bCheatsOnThisSession = bCheats; }
 	void EndMultiplayerGame( void ) override;

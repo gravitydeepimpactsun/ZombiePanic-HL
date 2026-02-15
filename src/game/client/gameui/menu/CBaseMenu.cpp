@@ -440,6 +440,18 @@ void CBaseMenu::InternalMousePressed(int code)
 	DoDialogHackFix();
 }
 
+static void MoveVPanelPopupsToFront( vgui2::VPANEL panel )
+{
+	int count = g_pVGuiPanel->GetChildCount( panel );
+	for ( int i = 0; i < count; i++ )
+	{
+		vgui2::VPANEL vChild = g_pVGuiPanel->GetChild( panel, i );
+		if ( g_pVGuiPanel->IsPopup( vChild ) )
+			g_pVGuiPanel->MoveToFront( vChild );
+		MoveVPanelPopupsToFront( vChild );
+	}
+}
+
 void CBaseMenu::DoDialogHackFix()
 {
 	// Make sure we move this to the front!
@@ -477,4 +489,7 @@ void CBaseMenu::DoDialogHackFix()
 	// Let's move our server browser dialogs to front as well.
 	if ( CGameUIViewport::Get()->GetServerBrowser() )
 		CGameUIViewport::Get()->GetServerBrowser()->MoveAllDialogsToFront();
+
+	// Let's move all popups to the front as well.
+	MoveVPanelPopupsToFront( g_pEngineVGui->GetPanel( PANEL_GAMEUIDLL ) );
 }

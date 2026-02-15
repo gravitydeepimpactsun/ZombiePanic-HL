@@ -136,7 +136,7 @@ void AgHudPlayerId::DrawText(const char *pszText, const int &ypos, const Color &
 	int TextHeight, TextWidth;
 	GetConsoleStringSize( szText, &TextWidth, &TextHeight );
 
-	int x = max(0, max(2, (ScreenWidth - TextWidth)) / 2);
+	int x = ScreenWidth / 2;
 	int y = (ScreenHeight / 2) + (TextHeight * ypos);
 	AgDrawHudStringCentered( x, y, ScreenWidth, szText, r, g, b );
 }

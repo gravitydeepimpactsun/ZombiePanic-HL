@@ -23,6 +23,12 @@
 DLL_GLOBAL float g_flBotCommandInterval		= 1.0 / 30.0;	// 30 times per second, just like human clients
 DLL_GLOBAL float g_flBotFullThinkInterval	= 1.0 / 10.0;	// full AI only 10 times per second
 
+// Bot difficulty names
+char *BotDifficultyName[] = 
+{
+	"EASY", "NORMAL", "HARD", "EXPERT", NULL
+};
+
 
 //--------------------------------------------------------------------------------------------------------------
 CBot::CBot( void )

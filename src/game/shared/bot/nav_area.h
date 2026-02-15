@@ -9,7 +9,6 @@
 #undef max
 #include <list>
 #include "nav.h"
-#include "steam_util.h"
 
 class CNavArea;
 
@@ -335,7 +334,7 @@ private:
 	friend void DestroyHidingSpots( void );
 	friend void StripNavigationAreas( void );
 	friend class CNavAreaGrid;
-	friend class CCSBotManager;
+	friend class CZPBotManager;
 
 	void Initialize( void );								///< to keep constructors consistent
 	static bool m_isReset;									///< if true, don't bother cleaning up in destructor since everything is going away

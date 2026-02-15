@@ -11,8 +11,7 @@
 
 #include "eiface.h"
 #include "player.h"
-#include "shared_util.h"
-#include "GameEvent.h"
+#include "zp/zp_shared.h"
 
 //--------------------------------------------------------------------------------------------------------------
 enum PriorityType
@@ -97,7 +96,7 @@ extern void		UTIL_DrawBeamPoints( Vector vecStart, Vector vecEnd, int iLifetime,
 extern CBasePlayer *UTIL_GetClosestPlayer( const Vector *pos, float *distance = NULL );
 extern CBasePlayer *UTIL_GetClosestPlayer( const Vector *pos, int team, float *distance = NULL );
 extern CBasePlayer *UTIL_GetLocalPlayer( void );
-extern bool UTIL_KickBotFromTeam( TeamName kickTeam ); ///< kick a bot from the given team. If no bot exists on the team, return false.
+extern bool UTIL_KickBotFromTeam( ZP::Teams_e kickTeam ); ///< kick a bot from the given team. If no bot exists on the team, return false.
 
 extern bool UTIL_IsVisibleToTeam( const Vector &spot, int team, float maxRange = -1.0f ); ///< return true if anyone on the given team can see the given spot
 
@@ -116,7 +115,7 @@ extern float BotCOS( float angle );
 extern float BotSIN( float angle );
 
 /// determine if this event is audible, and if so, return its audible range and priority
-bool IsGameEventAudible( GameEventType event, CBaseEntity *entity, CBaseEntity *other, float *range, PriorityType *priority, bool *isHostile );
+bool IsGameEventAudible( ZP::BotGameEventTypes_e event, CBaseEntity *entity, CBaseEntity *other, float *range, PriorityType *priority, bool *isHostile );
 
 extern void HintMessageToAllPlayers( const char *message );
 

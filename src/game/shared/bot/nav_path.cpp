@@ -10,7 +10,6 @@
 #include "gamerules.h"
 #include "player.h"
 #include "client.h"
-#include "cmd.h"
 
 #include "nav.h"
 #include "nav_path.h"
@@ -285,7 +284,7 @@ bool CNavPath::FindClosestPointOnPath( const Vector *worldPos, int startIndex, i
 		else
 			pos = *from + closeLength * along;
 
-		distSq = (pos - *worldPos).LengthSquared();
+		distSq = (pos - *worldPos).LengthSqr();
 
 		// keep the closest point so far
 		if (distSq < closeDistSq)
@@ -718,7 +717,7 @@ int CNavPathFollower::FindOurPositionOnPath( Vector *close, bool local ) const
 		else
 			pos = *from + closeLength * along;
 
-		distSq = (pos - feet).LengthSquared();
+		distSq = (pos - feet).LengthSqr();
 
 		// keep the closest point so far
 		if (distSq < closeDistSq)
@@ -854,7 +853,7 @@ int CNavPathFollower::FindPathPoint( float aheadRange, Vector *point, int *prevI
 	{
 		Vector pos = (*m_path)[i]->pos;
 		Vector to = pos - (*m_path)[i-1]->pos;
-		Vector dir = to.Normalize();
+		Vector dir = to.Normalized();
 
 		// don't allow path to double-back from our starting direction (going upstairs, down curved passages, etc)
 		if (DotProduct( dir, initDir ) < 0.0f) // -0.25f

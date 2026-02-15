@@ -35,6 +35,34 @@ ConVar zp_debug( "zp_debug", "0", FCVAR_EXTDLL );
 #endif
 
 // =========================================================
+// Bot Game Event Types
+// =========================================================
+
+char *BotGameEventName[ZP::BOT_EVENT_MAX] = {
+	"None",
+	"WeaponFired",
+	"WeaponUnloaded",
+	"WeaponReloaded",
+	"WeaponDropped",
+	"Explosion",
+	"ThrowableThrown",
+	"ThrowableBounced",
+	"EntityBroken",
+	"DoorOpened",
+	"PlayerKilled",
+	"PlayerJoined",
+	"PlayerLeft",
+	"PlayerEscaped",
+	"PlayerFootstep",
+	"PlayerLandedFromHeight",
+	"ObjectiveCompleted",
+	"ObjectiveFailed",
+	"CanEscape",
+	"RoundStarted",
+	"RoundEnded"
+};
+
+// =========================================================
 // Achievements Data Class
 // =========================================================
 

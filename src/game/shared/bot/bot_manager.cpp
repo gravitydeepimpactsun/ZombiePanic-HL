@@ -53,16 +53,16 @@ const float smokeRadius = 115.0f;		///< for smoke grenades
 
 
 /**
- * Convert name to GameEventType
+ * Convert name to ZP::BotGameEventTypes_e
  * @todo Find more appropriate place for this function
  */
-GameEventType NameToGameEvent( const char *name )
+ZP::BotGameEventTypes_e NameToGameEvent( const char *name )
 {
-	for( int i=0; GameEventName[i]; ++i )
-		if (!stricmp( GameEventName[i], name ))
-			return static_cast<GameEventType>( i );
+	for (int i = 0; ZP::BotGameEventName[i]; ++i)
+		if (!stricmp( ZP::BotGameEventName[i], name ))
+			return static_cast<ZP::BotGameEventTypes_e>( i );
 
-	return EVENT_INVALID;
+	return ZP::BOT_EVENT_NONE;
 }
 
 
@@ -217,7 +217,7 @@ const char *CBotManager::GetNavMapFilename( void ) const
  *
  * @todo This has become the game-wide event dispatcher. We should restructure this.
  */
-void CBotManager::OnEvent( GameEventType event, CBaseEntity *entity, CBaseEntity *other )
+void CBotManager::OnEvent( ZP::BotGameEventTypes_e event, CBaseEntity *entity, CBaseEntity *other )
 {
 	// propogate event to all bots
 	for ( int i=1; i <= gpGlobals->maxClients; ++i )

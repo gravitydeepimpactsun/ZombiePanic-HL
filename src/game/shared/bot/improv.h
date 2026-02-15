@@ -110,7 +110,7 @@ public:
 	virtual void OnUpdate( float deltaT ) = 0;							///< a less frequent, full update 'tick'
 	virtual void OnUpkeep( float deltaT ) = 0;							///< a frequent, lightweight update 'tick'
 	virtual void OnReset( void ) = 0;									///< reset improv to initial state
-	virtual void OnGameEvent( GameEventType event, CBaseEntity *entity, CBaseEntity *other ) = 0;	///< invoked when an event occurs in the game
+	virtual void OnGameEvent( ZP::BotGameEventTypes_e event, CBaseEntity *entity, CBaseEntity *other ) = 0;	///< invoked when an event occurs in the game
 	virtual void OnTouch( CBaseEntity *other ) = 0;						///< "other" has touched us
 };
 

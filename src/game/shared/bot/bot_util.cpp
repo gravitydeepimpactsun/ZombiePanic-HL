@@ -6,11 +6,13 @@
 //=============================================================================
 
 // Author: Michael S. Booth (mike@turtlerockstudios.com), 2003
+// Modified for Zombie Panic!: Johan Ehrendahl, 2026
 
 #include "extdll.h"
 #include "util.h"
 #include "cbase.h"
 #include "player.h"
+#include "zp/weapons/CWeaponBase.h"
 
 #include "bot.h"
 #include "bot_util.h"
@@ -110,10 +112,7 @@ int UTIL_ActivePlayersInGame( void )
 		CBasePlayer *player = static_cast<CBasePlayer *>( entity );
 
 		// ignore spectators
-		if (player->m_iTeam != TERRORIST && player->m_iTeam != CT)
-			continue;
-
-		if (player->m_iJoiningState != JOINED)
+		if (player->pev->team != ZP::TEAM_ZOMBIE && player->pev->team != ZP::TEAM_SURVIVIOR)
 			continue;
 
 		iCount++;
@@ -147,10 +146,7 @@ int UTIL_HumansInGame( bool ignoreSpectators )
 		if (player->IsBot())
 			continue;
 
-		if (ignoreSpectators && player->m_iTeam != TERRORIST && player->m_iTeam != CT)
-			continue;
-
-		if (ignoreSpectators && player->m_iJoiningState != JOINED)
+		if (ignoreSpectators && player->pev->team != ZP::TEAM_ZOMBIE && player->pev->team != ZP::TEAM_SURVIVIOR)
 			continue;
 
 		iCount++;
@@ -193,7 +189,7 @@ int UTIL_HumansOnTeam( int teamID, bool isAlive )
 		if (player->IsBot())
 			continue;
 
-		if (player->m_iTeam != teamID)
+		if (player->pev->team != teamID)
 			continue;
 
 		if (isAlive && !player->IsAlive())
@@ -237,7 +233,7 @@ int UTIL_BotsInGame( void )
 /**
  * Kick a bot from the given team. If no bot exists on the team, return false.
  */
-bool UTIL_KickBotFromTeam( TeamName kickTeam )
+bool UTIL_KickBotFromTeam( ZP::Teams_e kickTeam )
 {
 	int i;
 
@@ -259,7 +255,7 @@ bool UTIL_KickBotFromTeam( TeamName kickTeam )
 		if (!player->IsBot())
 			continue;	
 
-		if (!player->IsAlive() && player->m_iTeam == kickTeam)
+		if (!player->IsAlive() && player->pev->team == kickTeam)
 		{
 			// its a bot on the right team - kick it
 			SERVER_COMMAND( UTIL_VarArgs( "kick \"%s\"\n", STRING( player->pev->netname ) ) );
@@ -286,7 +282,7 @@ bool UTIL_KickBotFromTeam( TeamName kickTeam )
 		if (!player->IsBot())
 			continue;	
 
-		if (player->m_iTeam == kickTeam)
+		if (player->pev->team == kickTeam)
 		{
 			// its a bot on the right team - kick it
 			SERVER_COMMAND( UTIL_VarArgs( "kick \"%s\"\n", STRING( player->pev->netname ) ) );
@@ -314,7 +310,7 @@ bool UTIL_IsTeamAllBots( int team )
 			continue;
 
 		// skip players on other teams
-		if (player->m_iTeam != team)
+		if (player->pev->team != team)
 			continue;
 
 		if (FNullEnt( player->pev ))
@@ -355,7 +351,7 @@ extern CBasePlayer *UTIL_GetClosestPlayer( const Vector *pos, float *distance )
 		if (!player->IsAlive())
 			continue;
 
-		float distSq = (player->pev->origin - *pos).LengthSquared();
+		float distSq = (player->pev->origin - *pos).LengthSqr();
 		if (distSq < closeDistSq)
 		{
 			closeDistSq = distSq;
@@ -389,10 +385,10 @@ extern CBasePlayer *UTIL_GetClosestPlayer( const Vector *pos, int team, float *d
 		if (!player->IsAlive())
 			continue;
 
-		if (player->m_iTeam != team)
+		if (player->pev->team != team)
 			continue;
 
-		float distSq = (player->pev->origin - *pos).LengthSquared();
+		float distSq = (player->pev->origin - *pos).LengthSqr();
 		if (distSq < closeDistSq)
 		{
 			closeDistSq = distSq;
@@ -455,7 +451,7 @@ bool UTIL_IsVisibleToTeam( const Vector &spot, int team, float maxRange )
 		if (!player->IsAlive())
 			continue;
 
-		if (player->m_iTeam != team)
+		if (player->pev->team != team)
 			continue;
 
 		if (maxRange > 0.0f && (spot - player->Center()).IsLengthGreaterThan( maxRange ))
@@ -691,7 +687,7 @@ float BotSIN( float angle )
 /**
  * Determine if this event is audible, and if so, return its audible range and priority
  */
-bool IsGameEventAudible( GameEventType event, CBaseEntity *entity, CBaseEntity *other, float *range, PriorityType *priority, bool *isHostile )
+bool IsGameEventAudible( ZP::BotGameEventTypes_e event, CBaseEntity *entity, CBaseEntity *other, float *range, PriorityType *priority, bool *isHostile )
 {
 	CBasePlayer *player = static_cast<CBasePlayer *>( entity );
 	if (entity == NULL || !player->IsPlayer())
@@ -703,65 +699,40 @@ bool IsGameEventAudible( GameEventType event, CBaseEntity *entity, CBaseEntity *
 	{
 		/// @todo Check weapon type (knives are pretty quiet)
 		/// @todo Use actual volume, account for silencers, etc.
-		case EVENT_WEAPON_FIRED:
+		case ZP::BOT_EVENT_WEAPON_FIRED:
 		{
-			if (player->m_pActiveItem == NULL)
+			if ( player->m_pActiveItem == NULL )
 				return false;
 
-			switch( player->m_pActiveItem->m_iId )
+			switch( player->m_pActiveItem->GetWeaponID() )
 			{
 				// silent "firing"
-				case WEAPON_HEGRENADE:
-				case WEAPON_SMOKEGRENADE:
-				case WEAPON_FLASHBANG:
-				case WEAPON_SHIELDGUN:
-				case WEAPON_C4:
+				default:
 					return false;
 
 				// quiet
-				case WEAPON_KNIFE:
-				case WEAPON_TMP:
+				case WEAPON_CROWBAR:
+				case WEAPON_FIREAXE:
+				case WEAPON_LEADPIPE:
+		        case WEAPON_MACHETE:
+				case WEAPON_NAILGUN:
 					*range = ShortRange;
 					break;
 
-				// M4A1 - check for silencer
-				case WEAPON_M4A1:
-					{
-						CBasePlayerWeapon *pWeapon = static_cast<CBasePlayerWeapon *>(player->m_pActiveItem);
-						if ( pWeapon->m_iWeaponState & WPNSTATE_M4A1_SILENCER_ON )
-						{
-							*range = ShortRange;
-						}
-						else
-						{
-							*range = NormalRange;
-						}
-					}
-					break;
-
-				// USP - check for silencer
-				case WEAPON_USP:
-					{
-						CBasePlayerWeapon *pWeapon = static_cast<CBasePlayerWeapon *>(player->m_pActiveItem);
-						if ( pWeapon->m_iWeaponState & WPNSTATE_USP_SILENCER_ON )
-						{
-							*range = ShortRange;
-						}
-						else
-						{
-							*range = NormalRange;
-						}
-					}
+				// normal range
+				case WEAPON_556AR:
+		        case WEAPON_SHOTGUN:
+		        case WEAPON_MP5:
+		        case WEAPON_DOUBLEBARREL:
+		        case WEAPON_PPK:
+		        case WEAPON_GLOCK17:
+			        *range = NormalRange;
 					break;
 
 				// loud
-				case WEAPON_AWP:
+				case WEAPON_PYTHON:
+				case WEAPON_FAFO_ERW:
 					*range = 99999.0f;
-					break;
-
-				// normal
-				default:
-					*range = NormalRange;
 					break;
 			}
 
@@ -770,60 +741,36 @@ bool IsGameEventAudible( GameEventType event, CBaseEntity *entity, CBaseEntity *
 			return true;
 		}
 
-		case EVENT_HE_GRENADE_EXPLODED:
+		case ZP::BOT_EVENT_EXPLOSION:
 			*range = 99999.0f;
 			*priority = PRIORITY_HIGH;
 			*isHostile = true;
 			return true;
 
-		case EVENT_FLASHBANG_GRENADE_EXPLODED:
-			*range = 1000.0f;
-			*priority = PRIORITY_LOW;
-			*isHostile = true;
-			return true;
-
-		case EVENT_SMOKE_GRENADE_EXPLODED:
-			*range = 1000.0f;
-			*priority = PRIORITY_LOW;
-			*isHostile = true;
-			return true;
-
-		case EVENT_GRENADE_BOUNCED:
+		case ZP::BOT_EVENT_THROWABLE_BOUNCED:
 			*range = 500.0f;
 			*priority = PRIORITY_LOW;
 			*isHostile = true;
 			return true;
 
-		case EVENT_BREAK_GLASS:
-		case EVENT_BREAK_WOOD:
-		case EVENT_BREAK_METAL:
-		case EVENT_BREAK_FLESH:
-		case EVENT_BREAK_CONCRETE:
+	    case ZP::BOT_EVENT_ENTITY_BROKEN:
 			*range = 1100.0f;
 			*priority = PRIORITY_MEDIUM;
 			*isHostile = true;
 			return true;
 
-		case EVENT_DOOR:
+		case ZP::BOT_EVENT_DOOR_OPENED:
 			*range = 1100.0f;
 			*priority = PRIORITY_MEDIUM;
 			*isHostile = false;
 			return true;
 
-		case EVENT_WEAPON_FIRED_ON_EMPTY:
-		case EVENT_PLAYER_FOOTSTEP:
-		case EVENT_WEAPON_RELOADED:
-		case EVENT_WEAPON_ZOOMED:
-		case EVENT_PLAYER_LANDED_FROM_HEIGHT:
+	    case ZP::BOT_EVENT_PLAYER_FOOTSTEP:
+	    case ZP::BOT_EVENT_WEAPON_RELOADED:
+	    case ZP::BOT_EVENT_WEAPON_UNLOADED:
+	    case ZP::BOT_EVENT_PLAYER_LANDED_FROM_HEIGHT:
 			*range = 1100.0f;
 			*priority = PRIORITY_LOW;
-			*isHostile = false;
-			return true;
-
-		case EVENT_HOSTAGE_USED:
-		case EVENT_HOSTAGE_CALLED_FOR_HELP:
-			*range = 1200.0f;
-			*priority = PRIORITY_MEDIUM;
 			*isHostile = false;
 			return true;
 	}

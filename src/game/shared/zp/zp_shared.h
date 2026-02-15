@@ -332,6 +332,34 @@ namespace ZP
 	};
 	GameModeType_e IsValidGameModeMap(const char *szLevel);
 
+	enum BotGameEventTypes_e
+	{
+		BOT_EVENT_NONE = 0,
+		BOT_EVENT_WEAPON_FIRED,			// A weapon was fired
+		BOT_EVENT_WEAPON_UNLOADED,		// A weapon was unloaded
+		BOT_EVENT_WEAPON_RELOADED,		// A weapon was reloaded
+		BOT_EVENT_WEAPON_DROPPED,		// A weapon was dropped
+		BOT_EVENT_EXPLOSION,			// An explosion occurred
+		BOT_EVENT_THROWABLE,			// A throwable was thrown
+		BOT_EVENT_THROWABLE_BOUNCED,	// A throwable bounced
+		BOT_EVENT_ENTITY_BROKEN,		// An entity was broken
+		BOT_EVENT_DOOR_OPENED,			// A door was opened
+		BOT_EVENT_PLAYER_KILLED,		// Player was killed, either by another player or by the world.
+		BOT_EVENT_PLAYER_JOINED,		// Player joined the game
+		BOT_EVENT_PLAYER_LEFT,			// Player left the game
+		BOT_EVENT_PLAYER_ESCAPED,		// Player escaped
+		BOT_EVENT_PLAYER_FOOTSTEP,		// Player made a loud footstep
+	    BOT_EVENT_PLAYER_LANDED_FROM_HEIGHT, // Player landed from a height, causing a loud noise
+		BOT_EVENT_OBJECTIVE_COMPLETED,	// An objective was completed
+		BOT_EVENT_OBJECTIVE_FAILED,		// An objective was failed
+		BOT_EVENT_CAN_ESCAPE,			// The survivors can escape, so the bots should try to get to the escape zone
+		BOT_EVENT_ROUND_STARTED,		// A new round has started
+		BOT_EVENT_ROUND_ENDED,			// A round has ended
+
+		BOT_EVENT_MAX
+    };
+    extern char *BotGameEventName[BOT_EVENT_MAX];
+
 	namespace ColorGradient
 	{
 		class ColorBase

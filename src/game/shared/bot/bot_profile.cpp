@@ -11,8 +11,7 @@
 
 #define DEFINE_DIFFICULTY_NAMES
 #include "bot_profile.h"
-#include "shared_util.h"
-#include "simple_checksum.h"
+#include "zp/zp_shared.h"
 
 BotProfileManager *TheBotProfiles = NULL;
 
@@ -39,7 +38,6 @@ BotProfileManager *TheBotProfiles = NULL;
 	#include "gamerules.h"
 	#include "player.h"
 	#include "client.h"
-	#include "cmd.h"
 	#include "pm_shared.h"
 	#include "bot.h"
 	#include "bot_util.h"
@@ -140,14 +138,8 @@ void BotProfileManager::Init( const char *filename, unsigned int *checksum )
 	char *dataPointer = (char *)LOAD_FILE_FOR_ME( const_cast<char *>( filename ), &dataLength );
 	const char *dataFile = dataPointer;
 
-	if (dataFile == NULL)
-	{
-		if ( UTIL_IsGame( "czero" ) )
-		{
-			CONSOLE_ECHO( "WARNING: Cannot access bot profile database '%s'\n", filename );
-		}
+	if ( !dataFile )
 		return;
-	}
 
 	// compute simple checksum
 	if (checksum)

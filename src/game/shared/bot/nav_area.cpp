@@ -2232,7 +2232,7 @@ float CNavArea::GetDistanceSquaredToPoint( const Vector *pos ) const
 		if (pos->y < extent->lo.y)
 		{
 			// position is north-west of area
-			return (extent->lo - *pos).LengthSquared();
+			return (extent->lo - *pos).LengthSqr();
 		}
 		else if (pos->y > extent->hi.y)
 		{
@@ -2241,7 +2241,7 @@ float CNavArea::GetDistanceSquaredToPoint( const Vector *pos ) const
 			d.x = extent->lo.x - pos->x;
 			d.y = extent->hi.y - pos->y;
 			d.z = m_swZ - pos->z;
-			return d.LengthSquared();
+			return d.LengthSqr();
 		}
 		else
 		{
@@ -2259,12 +2259,12 @@ float CNavArea::GetDistanceSquaredToPoint( const Vector *pos ) const
 			d.x = extent->hi.x - pos->x;
 			d.y = extent->lo.y - pos->y;
 			d.z = m_neZ - pos->z;
-			return d.LengthSquared();
+			return d.LengthSqr();
 		}
 		else if (pos->y > extent->hi.y)
 		{
 			// position is south-east of area
-			return (extent->hi - *pos).LengthSquared();
+			return (extent->hi - *pos).LengthSqr();
 		}
 		else
 		{
@@ -2994,7 +2994,7 @@ void ClassifySniperSpot( HidingSpot *spot )
 					// can see this spot
 
 					// keep track of how far we can see
-					float rangeSq = (eye - walkable).LengthSquared();
+					float rangeSq = (eye - walkable).LengthSqr();
 					if (rangeSq > farthestRangeSq)
 					{
 						farthestRangeSq = rangeSq;
@@ -3369,6 +3369,7 @@ bool IsSpotOccupied( CBaseEntity *me, const Vector *pos )
 			return true;
 	}
 
+#ifdef CSTRIKE_DLL
 	// is there is a hostage in this spot
 	if (g_pHostages)
 	{
@@ -3376,6 +3377,7 @@ bool IsSpotOccupied( CBaseEntity *me, const Vector *pos )
 		if (hostage && hostage != me && range < closeRange)
 			return true;
 	}
+#endif
 
 	return false;
 }
@@ -3522,7 +3524,7 @@ const Vector *FindNearbyHidingSpot( CBaseEntity *me, const Vector *pos, CNavArea
 		float closeRangeSq = 9999999999.9f;
 		for( int i=0; i<collector.m_count; ++i )
 		{
-			float rangeSq = (*collector.m_hidingSpot[i] - *pos).LengthSquared();
+			float rangeSq = (*collector.m_hidingSpot[i] - *pos).LengthSqr();
 			if (rangeSq < closeRangeSq)
 			{
 				closeRangeSq = rangeSq;
@@ -3605,7 +3607,7 @@ bool IsCrossingLineOfFire( const Vector &start, const Vector &finish, CBaseEntit
 		if (!player->IsAlive())
 			continue;
 
-		if (ignoreTeam && player->m_iTeam == ignoreTeam)
+		if (ignoreTeam && player->pev->team == ignoreTeam)
 			continue;
 
 		// compute player's unit aiming vector 
@@ -3726,7 +3728,7 @@ int CNavArea::GetPlayerCount( int teamID, CBasePlayer *ignore ) const
 		if (!player->IsAlive())
 			continue;
 
-		if (teamID == 0 || player->m_iTeam == teamID)
+		if (teamID == 0 || player->pev->team == teamID)
 			if (Contains( &player->pev->origin ))
 				++count;
 	}
@@ -3807,7 +3809,7 @@ void CNavArea::DrawConnectedAreas( void )
 	if (player == NULL)
 		return;
 
-	CCSBotManager *ctrl = static_cast<CCSBotManager *>( TheBots );
+	CZPBotManager *ctrl = static_cast<CZPBotManager *>( TheBots );
 	const float maxRange = 500.0f;
 
 	// draw self
@@ -4440,7 +4442,7 @@ void EditNavAreas( NavEditCmdType cmd )
 						if (markedArea)
 						{
 							CBasePlayer *pLocalPlayer = UTIL_GetLocalPlayer();
-							if ( pLocalPlayer && pLocalPlayer->m_iTeam == SPECTATOR && pLocalPlayer->pev->iuser1 == OBS_ROAMING )
+							if ( pLocalPlayer && pLocalPlayer->pev->team == SPECTATOR && pLocalPlayer->pev->iuser1 == OBS_ROAMING )
 							{
 								Vector origin = *markedArea->GetCenter() + Vector( 0, 0, 0.75f * HumanHeight );
 								UTIL_SetOrigin( pLocalPlayer->pev, origin );
@@ -5164,7 +5166,7 @@ CNavArea *CNavAreaGrid::GetNearestNavArea( const Vector *pos, bool anyZ ) const
 		Vector areaPos;
 		area->GetClosestPointOnArea( &source, &areaPos );
 
-		float distSq = (areaPos - source).LengthSquared();
+		float distSq = (areaPos - source).LengthSqr();
 
 		// keep the closest area
 		if (distSq < closeDistSq)

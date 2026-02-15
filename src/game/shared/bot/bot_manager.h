@@ -17,7 +17,7 @@
 #undef min
 #undef max
 #include <list>
-#include "GameEvent.h" // Game event enum used by career mode, tutor system, and bots
+#include "zp/zp_shared.h"
 
 #include "minmax.h"
 
@@ -81,7 +81,7 @@ public:
 	 * Invoked when event occurs in the game (some events have NULL entity).
 	 * Events are propogated to all bots.
 	 */
-	virtual void OnEvent( GameEventType event, CBaseEntity *entity = NULL, CBaseEntity *other = NULL );
+	virtual void OnEvent( ZP::BotGameEventTypes_e event, CBaseEntity *entity = NULL, CBaseEntity *other = NULL );
 
 	virtual unsigned int GetPlayerPriority( CBasePlayer *player ) const = 0;	///< return priority of player (0 = max pri)
 	

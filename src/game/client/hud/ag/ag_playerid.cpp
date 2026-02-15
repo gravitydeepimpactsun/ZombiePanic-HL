@@ -105,20 +105,18 @@ void AgHudPlayerId::DrawZombieID( CPlayerInfo *pInfo )
 
 	int nHealth = max( 0, m_iHealth );
 	Color clr;
-	if ( nHealth > 160 )
+	if ( nHealth > 75 )
 		clr = COLOR_GREEN;
-	else if ( nHealth > 120 )
+	else if ( nHealth > 50 )
 		clr = COLOR_YELLOW;
-	else if ( nHealth > 80 )
+	else if ( nHealth > 35 )
 		clr = COLOR_ORANGE;
 	else
 		clr = COLOR_RED;
 	ypos += 1.5f;
 
 	char szText[MAX_ID_STRING];
-	const int iMaxHealth = ZP::MaxHealth[ 1 ]; // Grab the max health for the zombie
-	const float flHealthPercentage = static_cast<float>( nHealth ) / static_cast<float>( iMaxHealth ) * 100.0f;
-	sprintf( szText, "%d / %d (%.0f %%)", nHealth, iMaxHealth, flHealthPercentage );
+	sprintf( szText, "%d%%", nHealth );
 	DrawText( szText, ypos, clr );
 }
 

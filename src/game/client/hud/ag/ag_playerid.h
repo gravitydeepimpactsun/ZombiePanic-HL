@@ -8,12 +8,9 @@ class AgHudPlayerId : public CHudElemBase<AgHudPlayerId>
 {
 public:
 	AgHudPlayerId()
-	    : m_flTurnoff(0)
-	    , m_iPlayer(0)
-	    , m_bTeam(false)
+	    : m_iPlayer(0)
 	    , m_iHealth(0)
 	    , m_iArmour(0)
-	    , m_pCvarHudPlayerId(NULL)
 	{
 	}
 
@@ -25,17 +22,12 @@ public:
 	void DrawSurvivorID( CPlayerInfo *pInfo );
 	void DrawZombieID( CPlayerInfo *pInfo );
 	void DrawText( const char *pszText, const int &ypos, const Color &rgb );
-
-	int MsgFunc_PlayerId(const char *pszName, int iSize, void *pbuf);
+	void SetPlayerID( int iPlayerID, int iHealth, int iArmor );
 
 private:
-	float m_flTurnoff;
 	int m_iPlayer;
-	bool m_bTeam;
 	int m_iHealth;
 	int m_iArmour;
-
-	cvar_t *m_pCvarHudPlayerId;
 };
 
 #endif

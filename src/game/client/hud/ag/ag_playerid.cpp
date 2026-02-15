@@ -17,16 +17,10 @@ DEFINE_HUD_ELEM(AgHudPlayerId);
 
 void AgHudPlayerId::Init()
 {
-	HookMessage<&AgHudPlayerId::MsgFunc_PlayerId>("PlayerId");
-
 	m_iFlags = 0;
-	m_flTurnoff = 0.0;
 	m_iPlayer = 0;
-	m_bTeam = false;
 	m_iHealth = 0;
 	m_iArmour = 0;
-
-	m_pCvarHudPlayerId = gEngfuncs.pfnRegisterVariable("hud_playerid", "1", FCVAR_BHL_ARCHIVE);
 }
 
 void AgHudPlayerId::VidInit()
@@ -52,12 +46,13 @@ void AgHudPlayerId::DrawSurvivorID( CPlayerInfo *pInfo )
 		clr = COLOR_ORANGE;
 	else
 		clr = COLOR_RED;
-	int ypos = ScreenHeight - ScreenHeight / 4 + 25;
+	int ypos = 1.0f;
 
 	// Draw the name of the player (the color being the health)
 	DrawText( pInfo->GetDisplayName(), ypos, clr );
 
 	char szText[MAX_ID_STRING];
+#if 0
 	szText[0] = '\0';
 
 	// Draw the inventory
@@ -65,6 +60,7 @@ void AgHudPlayerId::DrawSurvivorID( CPlayerInfo *pInfo )
 	for ( int i = 1; i < MAX_WEAPON_SLOTS; i++ )
 	{
 		WEAPON *pWeapon = gWR.GetWeaponBySlot( i );
+		if ( !pWeapon ) continue;
 		if ( !pWeapon->bHasWeapon ) continue;
 		if ( !bHasWeapons )
 		{
@@ -77,16 +73,17 @@ void AgHudPlayerId::DrawSurvivorID( CPlayerInfo *pInfo )
 
 	if ( bHasWeapons && gHUD.m_GameMode != ZP::GAMEMODE_HARDCORE )
 	{
-		ypos += 30;
+		ypos += 1.0f;
 		int r, g, b;
 		UnpackRGB( r, g, b, RGB_GREENISH );
 		DrawText( szText, ypos, Color( r, g, b ) );
 	}
+#endif
 
 	// Draw the armor
 	if ( nArmour <= 0 ) return;
 	szText[0] = '\0';
-	ypos += 30;
+	ypos += 1.5f;
 	sprintf( szText, "Armor: %d%%", nArmour );
 	if ( nArmour > 75 )
 		clr = COLOR_GREEN;
@@ -103,7 +100,7 @@ void AgHudPlayerId::DrawZombieID( CPlayerInfo *pInfo )
 {
 	int r, g, b;
 	UnpackRGB( r, g, b, RGB_GREENISH );
-	int ypos = ScreenHeight - ScreenHeight / 4;
+	int ypos = 1.0f;
 	DrawText( pInfo->GetDisplayName(), ypos, Color( r, g, b ) );
 
 	int nHealth = max( 0, m_iHealth );
@@ -116,7 +113,7 @@ void AgHudPlayerId::DrawZombieID( CPlayerInfo *pInfo )
 		clr = COLOR_ORANGE;
 	else
 		clr = COLOR_RED;
-	ypos += 30;
+	ypos += 1.5f;
 
 	char szText[MAX_ID_STRING];
 	const int iMaxHealth = ZP::MaxHealth[ 1 ]; // Grab the max health for the zombie
@@ -135,25 +132,26 @@ void AgHudPlayerId::DrawText(const char *pszText, const int &ypos, const Color &
 	ScaleColors( r, g, b, a );
 	char szText[MAX_ID_STRING];
 	sprintf( szText, "%s", pszText );
-	AgDrawHudStringCentered( ScreenWidth / 2, ypos, ScreenWidth, szText, r, g, b );
+
+	int TextHeight, TextWidth;
+	GetConsoleStringSize( szText, &TextWidth, &TextHeight );
+
+	int x = max(0, max(2, (ScreenWidth - TextWidth)) / 2);
+	int y = (ScreenHeight / 2) + (TextHeight * ypos);
+	AgDrawHudStringCentered( x, y, ScreenWidth, szText, r, g, b );
 }
 
 void AgHudPlayerId::Draw(float fTime)
 {
-	if (m_iPlayer <= 0 || m_pCvarHudPlayerId->value == 0)
-		return;
-
-	if ( gHUD.m_flTime > m_flTurnoff )
+	if ( m_iPlayer <= 0 )
 	{
 		Reset();
 		return;
 	}
 
-	// Not on the same team, ignore the player.
-	if ( !m_bTeam ) return;
-
 	CPlayerInfo *pi = GetPlayerInfo( m_iPlayer )->Update();
-	if ( pi->IsConnected() )
+	CPlayerInfo *localPlayer = GetPlayerInfo( gEngfuncs.GetLocalPlayer()->index );
+	if ( pi->IsConnected() && localPlayer->GetTeamNumber() == pi->GetTeamNumber() )
 	{
 		if ( pi->GetTeamNumber() == ZP::TEAM_ZOMBIE )
 			DrawZombieID( pi );
@@ -162,21 +160,13 @@ void AgHudPlayerId::Draw(float fTime)
 	}
 }
 
-int AgHudPlayerId::MsgFunc_PlayerId(const char *pszName, int iSize, void *pbuf)
+void AgHudPlayerId::SetPlayerID( int iPlayerID, int iHealth, int iArmor )
 {
-	BEGIN_READ(pbuf, iSize);
-
-	m_iPlayer = READ_BYTE();
-	m_bTeam = READ_BYTE() == 1;
-	m_iHealth = READ_SHORT();
-	m_iArmour = READ_SHORT();
-
-	if (m_pCvarHudPlayerId->value == 0)
+	m_iPlayer = iPlayerID;
+	m_iHealth = iHealth;
+	m_iArmour = iArmor;
+	if ( iPlayerID == 0 )
 		m_iFlags &= ~HUD_ACTIVE;
 	else
 		m_iFlags |= HUD_ACTIVE;
-
-	m_flTurnoff = gHUD.m_flTime + 2; // Hold for 2 seconds.
-
-	return 1;
 }

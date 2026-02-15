@@ -27,6 +27,7 @@
 #include "parsemsg.h"
 #include "statusbar.h"
 #include "text_message.h"
+#include "ag/ag_playerid.h"
 
 #ifdef _TFC
 #define STATUSBAR_ID_LINE 2
@@ -178,6 +179,7 @@ void CHudStatusBar::ParseStatusString(int line_num)
 
 void CHudStatusBar::Draw(float fTime)
 {
+#if 0
 	if (m_bReparseString)
 	{
 		for (int i = 0; i < MAX_STATUSBAR_LINES; i++)
@@ -187,7 +189,6 @@ void CHudStatusBar::Draw(float fTime)
 		}
 		m_bReparseString = FALSE;
 	}
-
 	int yText = 52;
 	switch ( gHUD.m_iRes )
 	{
@@ -217,6 +218,7 @@ void CHudStatusBar::Draw(float fTime)
 
 		DrawConsoleString(x, y, m_szStatusBar[i], m_pflNameColors[i]);
 	}
+#endif
 }
 
 // Message handler for StatusText message
@@ -262,6 +264,11 @@ int CHudStatusBar::MsgFunc_StatusValue(const char *pszName, int iSize, void *pbu
 		return 1; // index out of range
 
 	m_iStatusValues[index] = READ_SHORT();
+
+	int slot = m_iStatusValues[1]; // Player slot
+	int health = m_iStatusValues[2]; // Player health
+	int armor = m_iStatusValues[3]; // Player armor
+	AgHudPlayerId::Get()->SetPlayerID( slot, health, armor );
 
 	m_bReparseString = TRUE;
 

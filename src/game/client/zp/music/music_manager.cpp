@@ -40,6 +40,8 @@ void CMusicManager::OnMapShutdown()
 	m_ItemIndex = 0;
 	StopTrack();
 	m_bHasStarted = false;
+	// Play the menu music again, since we are going back to the menu.
+	gEngfuncs.pfnClientCmd( vgui2::VarArgs( "mp3 loop \"media/gamestartup\"" ) );
 }
 
 void CMusicManager::OnMapStart()

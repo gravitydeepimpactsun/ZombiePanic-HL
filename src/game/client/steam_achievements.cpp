@@ -146,6 +146,14 @@ void STAT_ResetAllStats()
 #endif
 }
 
+// Only used by RELEASE build.
+void STAT_StoreResetAllValue()
+{
+	StatData_t statReset = GrabStat( ZP_RESET_ALL );
+	GetSteamAPI()->SteamUserStats()->SetStat( statReset.Name, 0 );
+	GetSteamAPI()->SteamUserStats()->StoreStats();
+}
+
 void STAT_OnUserStatsReceived( UserStatsReceived_t *pCallback )
 {
 	if ( k_EResultOK != pCallback->m_eResult ) return;

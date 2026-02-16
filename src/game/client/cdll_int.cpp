@@ -430,6 +430,9 @@ Called by engine every frame that client .dll is loaded
 
 static float s_flSteamStatResetDelay = -1.0f;
 extern void STAT_ResetAllStats();
+#if !defined( _DEBUG )
+extern void STAT_StoreResetAllValue();
+#endif
 
 void DoSteamStatReset()
 {
@@ -442,6 +445,9 @@ void DoSteamStatReset()
 	// Reset all our achievements.
 	for ( int i = 0; i < ACHV_MAX; i++ )
 		SetAchievementCompletedByID( GetAchievementByID( i ), false );
+#if !defined( _DEBUG )
+	STAT_StoreResetAllValue();
+#endif
 }
 
 void CallSteamStatReset( float flDelay )

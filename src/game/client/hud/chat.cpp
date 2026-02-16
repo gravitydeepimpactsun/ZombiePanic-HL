@@ -477,6 +477,8 @@ CHudChat::CHudChat()
 	CreateChatLines();
 	CreateChatInputLine();
 	GetChatFilterPanel();
+
+	m_iFilterFlags = cl_chatfilters.GetInt();
 }
 
 DEFINE_HUD_ELEM(CHudChat);

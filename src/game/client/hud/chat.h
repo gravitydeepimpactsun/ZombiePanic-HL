@@ -20,10 +20,11 @@
 
 class CHudChatInputLine;
 class CHudChatEntry;
+class CHudChatFilterPanel;
 
 namespace vgui2
 {
-class IScheme;
+	class IScheme;
 };
 
 #define CHATLINE_NUM_FLASHES 8.0f
@@ -176,6 +177,28 @@ public:
 	virtual void OnKeyCodeTyped(vgui2::KeyCode code) override;
 };
 
+class CHudChatFilterButton : public vgui2::Button
+{
+	DECLARE_CLASS_SIMPLE( CHudChatFilterButton, vgui2::Button );
+
+public:
+	CHudChatFilterButton( vgui2::Panel *pParent, const char *pName, const char *pText );
+	virtual void DoClick( void );
+};
+
+class CHudChatFilterCheckButton : public vgui2::CheckButton
+{
+	DECLARE_CLASS_SIMPLE( CHudChatFilterCheckButton, vgui2::CheckButton );
+
+public:
+	CHudChatFilterCheckButton( vgui2::Panel *pParent, const char *pName, const char *pText, int iFlag );
+	int		GetFilterFlag( void ) { return m_iFlag; }
+
+private:
+	int m_iFlag;
+};
+
+
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
@@ -201,7 +224,7 @@ public:
 	void LevelShutdown(void);
 
 	virtual void Printf(const char *fmt, ...);
-	virtual void ChatPrintf(int iPlayerIndex, const char *fmt, ...);
+	virtual void ChatPrintf(int iPlayerIndex, int iFilter, const char *fmt, ...);
 
 	virtual void StartMessageMode(int iMessageModeType);
 	virtual void StopMessageMode(void);
@@ -229,7 +252,11 @@ public:
 	float m_flHistoryFadeTime;
 	float m_flHistoryIdleTime;
 
-	CHudChatInputLine *GetChatInput(void) { return m_pChatInput; }
+	CHudChatInputLine		*GetChatInput(void) { return m_pChatInput; }
+	CHudChatFilterPanel		*GetChatFilterPanel( void );
+
+	virtual int				GetFilterFlags( void ) { return m_iFilterFlags; }
+	void					SetFilterFlag( int iFilter );
 
 	//-----------------------------------------------------------------------------
 	virtual Color GetDefaultTextColor(void);
@@ -250,6 +277,9 @@ protected:
 
 	CHudChatHistory *m_pChatHistory = nullptr;
 
+	CHudChatFilterButton *m_pFiltersButton;
+	CHudChatFilterPanel *m_pFilterPanel;
+
 	Color m_ColorCustom;
 
 	int MsgFunc_SayText(const char *pszName, int iSize, void *pbuf);
@@ -264,6 +294,7 @@ private:
 	int m_nMessageMode;
 
 	int m_nVisibleHeight;
+	int m_iFilterFlags;
 
 	vgui2::HFont m_hChatFont;
 	Color m_DefTextColor;
@@ -348,6 +379,18 @@ public:
 protected:
 	vgui2::Label *m_pPrompt = nullptr;
 	CHudChatEntry *m_pInput = nullptr;
+};
+
+class CHudChatFilterPanel : public vgui2::EditablePanel
+{
+	DECLARE_CLASS_SIMPLE( CHudChatFilterPanel, vgui2::EditablePanel );
+
+public:
+	CHudChatFilterPanel( vgui2::Panel *pParent, const char *pName );
+	virtual void ApplySchemeSettings( vgui2::IScheme *pScheme );
+	MESSAGE_FUNC_PTR( OnFilterButtonChecked, "CheckButtonChecked", panel );
+	CHudChat *GetChatParent( void ) { return dynamic_cast < CHudChat * > ( GetParent() ); }
+	virtual void SetVisible( bool state );
 };
 
 #endif // HUD_BASECHAT_H

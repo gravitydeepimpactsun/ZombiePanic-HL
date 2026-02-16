@@ -144,7 +144,7 @@ void CMusicManager::BuildList()
 				KeyValuesAD pKV( "MusicData" );
 				if ( pKV->LoadFromFile( g_pFullFileSystem, file.c_str(), "GAME" ) )
 				{
-					const char *szName = pKV->GetString( vgui2::VarArgs( "Name_%s", strLocalizationString ), nullptr );
+					const char *szName = pKV->GetString( vgui2::VarArgs( "Name_%s", strLocalizationString.c_str() ), nullptr );
 					// Fallback to english
 					if ( !szName ) szName = pKV->GetString( vgui2::VarArgs( "Name_english" ), nullptr );
 					// Nothing found, use default text.

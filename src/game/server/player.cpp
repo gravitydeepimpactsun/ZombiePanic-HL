@@ -3119,7 +3119,7 @@ bool CBasePlayer::CanSelectNewWeapon( bool bPrintMsg )
 {
 	bool bCanSwitch = (m_flNextWeaponSwitch - gpGlobals->time <= 0) ? true : false;
 	if ( !bCanSwitch && bPrintMsg )
-		UTIL_SayText( "#ZP_Deny_Switching", this );
+		UTIL_SayText( CHAT_FILTER_SERVERMSG, "#ZP_Deny_Switching", this );
 	return bCanSwitch;
 }
 
@@ -3127,7 +3127,7 @@ bool CBasePlayer::CanDropWeapon( bool bPrintMsg )
 {
 	bool bCanSwitch = (m_flLastWeaponDrop - gpGlobals->time <= 0) ? true : false;
 	if ( !bCanSwitch && bPrintMsg )
-		UTIL_SayText( "#ZP_DenyDrop_Sorting", this );
+		UTIL_SayText( CHAT_FILTER_SERVERMSG, "#ZP_DenyDrop_Sorting", this );
 	return bCanSwitch;
 }
 
@@ -7224,13 +7224,13 @@ void CBasePlayer::DoPanic()
 	if ( IsInPanic() ) return;
 	if ( !CanSelectNewWeapon( false ) )
 	{
-		UTIL_SayText( "#ZP_Deny_Panic_WeaponSwitch", this );
+		UTIL_SayText( CHAT_FILTER_SERVERMSG, "#ZP_Deny_Panic_WeaponSwitch", this );
 		return;
 	}
 	if ( !CanDropWeapon( true ) ) return;
 	if ( !CanPanicSinceLastTime() )
 	{
-		UTIL_SayText( "#ZP_Deny_Panic", this );
+		UTIL_SayText( CHAT_FILTER_SERVERMSG, "#ZP_Deny_Panic", this );
 		return;
 	}
 

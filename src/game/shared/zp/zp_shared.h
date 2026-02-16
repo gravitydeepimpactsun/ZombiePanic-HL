@@ -245,6 +245,16 @@ enum PlayerGaitState
 	GAIT_STATE_PANIC,
 };
 
+enum ChatFilters
+{
+	CHAT_FILTER_NONE		= 0,
+	CHAT_FILTER_JOINLEAVE	= (1<<0),
+	CHAT_FILTER_NAMECHANGE	= (1<<1),
+	CHAT_FILTER_PUBLICCHAT	= (1<<2),
+	CHAT_FILTER_SERVERMSG	= (1<<3),
+    CHAT_FILTER_ACHIEVEMENT	= (1<<4),
+};
+
 namespace ZP
 {
 #ifdef SERVER_DLL

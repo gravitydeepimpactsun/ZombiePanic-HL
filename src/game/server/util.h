@@ -27,6 +27,8 @@
 #include "enginecallback.h"
 #endif
 
+#include "zp/zp_shared.h"
+
 inline void MESSAGE_BEGIN(int msg_dest, int msg_type, const float *pOrigin, entvars_t *ent); // implementation later in this file
 
 extern globalvars_t *gpGlobals;
@@ -374,8 +376,8 @@ extern BOOL UTIL_GetNextBestWeapon(CBasePlayer *pPlayer, CBasePlayerItem *pCurre
 extern void ClientPrint(entvars_t *client, int msg_dest, const char *msg_name, const char *param1 = NULL, const char *param2 = NULL, const char *param3 = NULL, const char *param4 = NULL);
 
 // prints a message to the HUD say (chat)
-extern void UTIL_SayText(const char *pText, CBaseEntity *pEntity);
-extern void UTIL_SayTextAll(const char *pText, CBaseEntity *pEntity);
+extern void UTIL_SayText(ChatFilters nFilter, const char *pText, CBaseEntity *pEntity);
+extern void UTIL_SayTextAll(ChatFilters nFilter, const char *pText, CBaseEntity *pEntity);
 
 // Print to the client console
 extern void UTIL_PrintConsole(const char *pText, CBaseEntity *pEntity);

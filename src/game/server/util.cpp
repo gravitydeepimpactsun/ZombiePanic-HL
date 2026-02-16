@@ -937,21 +937,23 @@ void UTIL_PrintConsole(const char *pText, CBaseEntity *pEntity)
 	MESSAGE_END();
 }
 
-void UTIL_SayText(const char *pText, CBaseEntity *pEntity)
+void UTIL_SayText(ChatFilters nFilter, const char *pText, CBaseEntity *pEntity)
 {
 	if (!pEntity->IsNetClient())
 		return;
 
 	MESSAGE_BEGIN(MSG_ONE, gmsgSayText, NULL, pEntity->edict());
 	WRITE_BYTE(pEntity->entindex());
+	WRITE_SHORT(nFilter);
 	WRITE_STRING(pText);
 	MESSAGE_END();
 }
 
-void UTIL_SayTextAll(const char *pText, CBaseEntity *pEntity)
+void UTIL_SayTextAll(ChatFilters nFilter, const char *pText, CBaseEntity *pEntity)
 {
 	MESSAGE_BEGIN(MSG_ALL, gmsgSayText, NULL);
 	WRITE_BYTE(pEntity->entindex());
+	WRITE_SHORT(nFilter);
 	WRITE_STRING(pText);
 	MESSAGE_END();
 }

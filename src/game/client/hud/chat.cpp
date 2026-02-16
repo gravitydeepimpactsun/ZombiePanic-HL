@@ -31,6 +31,7 @@ ConVar hud_saytext("hud_saytext", "1", FCVAR_BHL_ARCHIVE, "Enable/disable displa
 ConVar hud_saytext_time("hud_saytext_time", "12", FCVAR_BHL_ARCHIVE, "How long for new messages should stay on the screen");
 ConVar hud_saytext_sound("hud_saytext_sound", "1", FCVAR_BHL_ARCHIVE, "Play sound on new chat message");
 ConVar cl_mute_all_comms("cl_mute_all_comms", "1", FCVAR_BHL_ARCHIVE, "If 1, then all communications from a player will be blocked when that player is muted, including chat messages.");
+ConVar cl_chatfilters( "cl_chatfilters", "31", FCVAR_BHL_ARCHIVE, "Stores the chat filter settings " );
 
 constexpr const char CHAT_SOUND_FILE[] = "misc/talk.wav";
 constexpr const char CHAT_SOUND_FALLBACK[] = "misc/talk_bhl_fallback.wav";
@@ -301,6 +302,109 @@ vgui2::Panel *CHudChatInputLine::GetInputPanel(void)
 	return m_pInput;
 }
 
+CHudChatFilterButton::CHudChatFilterButton( vgui2::Panel *pParent, const char *pName, const char *pText ) : 
+	BaseClass( pParent, pName, pText )
+{
+}
+
+CHudChatFilterCheckButton::CHudChatFilterCheckButton( vgui2::Panel *pParent, const char *pName, const char *pText, int iFlag ) : 
+	BaseClass( pParent, pName, pText )
+{
+	m_iFlag = iFlag;
+}
+
+CHudChatFilterPanel::CHudChatFilterPanel( vgui2::Panel *pParent, const char *pName ) : BaseClass ( pParent, pName )
+{
+	pParent->SetSize( 10, 10 ); // Quiet "parent not sized yet" spew
+	SetParent( pParent );
+
+	new CHudChatFilterCheckButton( this, "joinleave_button", "Sky is blue?", CHAT_FILTER_JOINLEAVE );
+	new CHudChatFilterCheckButton( this, "namechange_button", "Sky is blue?", CHAT_FILTER_NAMECHANGE );
+	new CHudChatFilterCheckButton( this, "publicchat_button", "Sky is blue?", CHAT_FILTER_PUBLICCHAT );
+	new CHudChatFilterCheckButton( this, "servermsg_button", "Sky is blue?", CHAT_FILTER_SERVERMSG );
+    new CHudChatFilterCheckButton( this, "achivement_button", "Sky is blue?", CHAT_FILTER_ACHIEVEMENT);
+}
+
+void CHudChatFilterPanel::ApplySchemeSettings( vgui2::IScheme *pScheme )
+{
+	LoadControlSettings(VGUI2_ROOT_DIR "resource/ChatFilters.res");
+
+	BaseClass::ApplySchemeSettings( pScheme );
+
+	Color cColor = pScheme->GetColor( "ChatBgColor", GetBgColor() );
+	SetBgColor( Color ( cColor.r(), cColor.g(), cColor.b(), CHAT_HISTORY_ALPHA ) );
+
+	SetFgColor( pScheme->GetColor( "Blank", GetFgColor() ) );
+}
+
+void CHudChatFilterPanel::OnFilterButtonChecked( vgui2::Panel *panel )
+{
+	CHudChatFilterCheckButton *pButton = dynamic_cast < CHudChatFilterCheckButton * > ( panel );
+
+	if ( pButton && GetChatParent() && IsVisible() )
+	{
+		if ( pButton->IsSelected() )
+		{
+			GetChatParent()->SetFilterFlag( GetChatParent()->GetFilterFlags() | pButton->GetFilterFlag() );
+		}
+		else
+		{
+			GetChatParent()->SetFilterFlag( GetChatParent()->GetFilterFlags() & ~ pButton->GetFilterFlag() );
+		}
+	}
+}
+
+void CHudChatFilterPanel::SetVisible(bool state)
+{
+	if ( state == true )
+	{
+		for (int i = 0; i < GetChildCount(); i++)
+		{
+			CHudChatFilterCheckButton *pButton = dynamic_cast < CHudChatFilterCheckButton * > ( GetChild(i) );
+
+			if ( pButton )
+			{
+				if ( cl_chatfilters.GetInt() & pButton->GetFilterFlag() )
+				{
+					pButton->SetSelected( true );
+				}
+				else
+				{
+					pButton->SetSelected( false );
+				}
+			}
+		}
+	}
+
+	BaseClass::SetVisible( state );
+}
+
+void CHudChatFilterButton::DoClick( void )
+{
+	BaseClass::DoClick();
+
+	CHudChat *pChat = dynamic_cast<CHudChat *>( GetParent() );
+
+	if ( pChat )
+	{
+		pChat->GetChatInput()->RequestFocus();
+
+		if ( pChat->GetChatFilterPanel() )
+		{
+			if ( pChat->GetChatFilterPanel()->IsVisible() )
+			{
+				pChat->GetChatFilterPanel()->SetVisible( false );
+			}
+			else
+			{
+				pChat->GetChatFilterPanel()->SetVisible( true );
+				pChat->GetChatFilterPanel()->MakePopup();
+				pChat->GetChatFilterPanel()->SetMouseInputEnabled( true );
+			}
+		}
+	}
+}
+
 CHudChatHistory::CHudChatHistory(vgui2::Panel *pParent, const char *panelName)
     : BaseClass(pParent, "HudChatHistory")
 {
@@ -357,10 +461,22 @@ CHudChat::CHudChat()
 	MakePopup();
 	SetZPos(-30);
 
+	m_pFiltersButton = new CHudChatFilterButton( this, "ChatFiltersButton", "Filters" );
+
+	if ( m_pFiltersButton )
+	{
+		m_pFiltersButton->SetScheme( scheme );
+		m_pFiltersButton->SetVisible( true );
+		m_pFiltersButton->SetEnabled( true );
+		m_pFiltersButton->SetMouseInputEnabled( true );
+		m_pFiltersButton->SetKeyBoardInputEnabled( false );
+	}
+
 	m_pChatHistory = new CHudChatHistory(this, "HudChatHistory");
 
 	CreateChatLines();
 	CreateChatInputLine();
+	GetChatFilterPanel();
 }
 
 DEFINE_HUD_ELEM(CHudChat);
@@ -381,6 +497,27 @@ void CHudChat::CreateChatLines(void)
 {
 	m_ChatLine = new CHudChatLine(this, "ChatLine1");
 	m_ChatLine->SetVisible(false);
+}
+
+CHudChatFilterPanel *CHudChat::GetChatFilterPanel( void )
+{
+	if ( m_pFilterPanel == NULL )
+	{
+		m_pFilterPanel = new CHudChatFilterPanel( this, "HudChatFilterPanel"  );
+
+		if ( m_pFilterPanel )
+		{
+			vgui2::HScheme scheme = vgui2::scheme()->LoadSchemeFromFile(VGUI2_ROOT_DIR "resource/ChatScheme.res", "ChatScheme");
+			m_pFilterPanel->SetScheme( scheme );
+			m_pFilterPanel->InvalidateLayout( true, true );
+			m_pFilterPanel->SetMouseInputEnabled( true );
+			m_pFilterPanel->SetPaintBackgroundType( 2 );
+			m_pFilterPanel->SetPaintBorderEnabled( true );
+			m_pFilterPanel->SetVisible( false );
+		}
+	}
+
+	return m_pFilterPanel;
 }
 
 void CHudChat::ApplySchemeSettings(vgui2::IScheme *pScheme)
@@ -562,15 +699,6 @@ void CHudChat::OnTick(void)
 		GetBounds(iChatX, iChatY, iChatW, iChatH);
 
 		m_pChatInput->SetBounds(iInputX, iChatH - (m_iFontHeight * 1.75), iInputW, m_iFontHeight);
-
-		//Resize the History Panel so it fits more lines depending on the screen resolution.
-		int iChatHistoryX, iChatHistoryY, iChatHistoryW, iChatHistoryH;
-
-		GetChatHistory()->GetBounds(iChatHistoryX, iChatHistoryY, iChatHistoryW, iChatHistoryH);
-
-		iChatHistoryH = (iChatH - (m_iFontHeight * 2.25)) - iChatHistoryY;
-
-		GetChatHistory()->SetBounds(iChatHistoryX, iChatHistoryY, iChatHistoryW, iChatHistoryH);
 	}
 
 	FadeChatHistory();
@@ -642,7 +770,7 @@ void CHudChat::Printf(const char *fmt, ...)
 	Q_vsnprintf(msg, sizeof(msg), fmt, marker);
 	va_end(marker);
 
-	ChatPrintf(0, "%s", msg);
+	ChatPrintf(0, CHAT_FILTER_NONE, "%s", msg);
 }
 
 //-----------------------------------------------------------------------------
@@ -681,6 +809,8 @@ void CHudChat::StartMessageMode(int iMessageModeType)
 		GetChatHistory()->SetVisible(true);
 	}
 
+	m_pFiltersButton->SetVisible( true );
+
 	vgui2::SETUP_PANEL(this);
 	SetKeyBoardInputEnabled(true);
 	SetMouseInputEnabled(true);
@@ -700,6 +830,8 @@ void CHudChat::StartMessageMode(int iMessageModeType)
 	MoveToFront();
 
 	m_flHistoryFadeTime = gEngfuncs.GetAbsoluteTime() + CHAT_HISTORY_FADE_TIME;
+
+	m_pFilterPanel->SetVisible( false );
 
 	CGameUIViewport::Get()->PreventEscapeToShow(true);
 }
@@ -724,6 +856,8 @@ void CHudChat::StopMessageMode(void)
 		GetChatHistory()->SelectNoText();
 	}
 
+	m_pFiltersButton->SetVisible( false );
+
 	//Clear the entry since we wont need it anymore.
 	m_pChatInput->ClearEntry();
 	m_pChatInput->SetVisible(false);
@@ -735,6 +869,8 @@ void CHudChat::StopMessageMode(void)
 		g_pViewport->GetScoreBoard()->MoveToFront();
 
 	m_flHistoryFadeTime = gEngfuncs.GetAbsoluteTime() + CHAT_HISTORY_FADE_TIME;
+
+	m_pFilterPanel->SetVisible( false );
 
 	m_nMessageMode = MM_NONE;
 }
@@ -775,6 +911,7 @@ void CHudChat::FadeChatHistory(void)
 				SetBgColor(Color(GetBgColor().r(), GetBgColor().g(), GetBgColor().b(), CHAT_HISTORY_ALPHA - alpha));
 				SetPaintBackgroundEnabled(true);
 				SetPaintBackgroundType(2);
+				m_pFiltersButton->SetAlpha( (CHAT_HISTORY_ALPHA*2) - alpha );
 			}
 			else
 			{
@@ -783,9 +920,16 @@ void CHudChat::FadeChatHistory(void)
 
 				m_pChatInput->GetPrompt()->SetAlpha(alpha);
 				m_pChatInput->GetInputPanel()->SetAlpha(alpha);
+				m_pFiltersButton->SetAlpha( alpha );
 			}
 		}
 	}
+}
+
+void CHudChat::SetFilterFlag( int iFilter )
+{
+	m_iFilterFlags = iFilter;
+	cl_chatfilters.SetValue( m_iFilterFlags );
 }
 
 //-----------------------------------------------------------------------------
@@ -1184,6 +1328,7 @@ int CHudChat::MsgFunc_SayText(const char *pszName, int iSize, void *pbuf)
 	BEGIN_READ(pbuf, iSize);
 
 	int client = READ_BYTE(); // the client who spoke the message
+	int filter = READ_SHORT(); // the filter for this message
 	const char *szString = READ_STRING();
 
 	// Check if the szString starts with #
@@ -1194,13 +1339,13 @@ int CHudChat::MsgFunc_SayText(const char *pszName, int iSize, void *pbuf)
 		{
 			char ansi[128];
 			g_pVGuiLocalize->ConvertUnicodeToANSI( pTranslation, ansi, sizeof( ansi ) );
-			ChatPrintf( client, "%s", ansi );
+			ChatPrintf( client, filter, "%s", ansi );
 			return 1;
 		}
 	}
 
 	// print raw chat text
-	ChatPrintf( client, "%s", szString );
+	ChatPrintf( client, filter, "%s", szString );
 
 	return 1;
 }
@@ -1249,7 +1394,7 @@ int CHudChat::MsgFunc_AchEarn(const char *pszName, int iSize, void *pbuf)
 	g_pVGuiLocalize->ConvertUnicodeToANSI( output, outout_string, sizeof(outout_string) );
 
 	// print raw chat text
-	ChatPrintf( -1, "%s", outout_string );
+	ChatPrintf( -1, CHAT_FILTER_ACHIEVEMENT, "%s", outout_string );
 
 	return 1;
 }
@@ -1283,7 +1428,7 @@ void CHudChat::LevelShutdown(void)
 // Input  : *fmt -
 //			... -
 //-----------------------------------------------------------------------------
-void CHudChat::ChatPrintf(int iPlayerIndex, const char *fmt, ...)
+void CHudChat::ChatPrintf(int iPlayerIndex, int iFilter, const char *fmt, ...)
 {
 	va_list marker;
 	char msg[4096];
@@ -1372,6 +1517,12 @@ void CHudChat::ChatPrintf(int iPlayerIndex, const char *fmt, ...)
 	if (!line)
 	{
 		return;
+	}
+
+	if ( iFilter != CHAT_FILTER_NONE )
+	{
+		if ( !(iFilter & GetFilterFlags() ) )
+			return;
 	}
 
 	// If a player is muted for voice, also mute them for text because jerks gonna jerk.

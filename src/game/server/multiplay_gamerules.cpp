@@ -416,7 +416,7 @@ void CHalfLifeMultiplay ::InitHUD(CBasePlayer *pl)
 		const char *name = pl->pev->netname ? STRING(pl->pev->netname) : "";
 		if (name[0] == 0)
 			name = "unconnected";
-		UTIL_ClientPrintAll(HUD_PRINTTALK, UTIL_VarArgs("+ %s ^0has joined the game\n", name));
+		UTIL_SayTextAll(CHAT_FILTER_JOINLEAVE, UTIL_VarArgs("+ %s ^0has joined the game\n", name), pl);
 	}
 
 	// team match?
@@ -521,7 +521,7 @@ void CHalfLifeMultiplay ::ClientDisconnected(edict_t *pClient)
 		const char *name = pPlayer->pev->netname ? STRING(pPlayer->pev->netname) : "";
 		if (name[0] == 0)
 			name = "unconnected";
-		UTIL_ClientPrintAll(HUD_PRINTTALK, UTIL_VarArgs("- %s ^0has left the game\n", name));
+		UTIL_SayTextAll(CHAT_FILTER_JOINLEAVE, UTIL_VarArgs("- %s ^0has left the game\n", name), pPlayer);
 	}
 
 	FireTargets("game_playerleave", pPlayer, pPlayer, USE_TOGGLE, 0);

@@ -168,7 +168,7 @@ void CheckPlayerModel(CBasePlayer *pPlayer, char *infobuffer)
 
 			// Inform player
 			sprintf(text, "* Model should be non-empty, less then %d characters and can't contain special characters like: <>:\"/\\|?*\n* Your current model remains: \"%s\"\n", MAX_TEAM_NAME - 1, prevModel);
-			UTIL_SayText(text, pPlayer);
+			UTIL_SayText(CHAT_FILTER_SERVERMSG, text, pPlayer);
 
 			pPlayer->SetTheCorrectPlayerModel();
 			return;
@@ -456,17 +456,11 @@ void Host_Say(edict_t *pEntity, int teamonly)
 		if (teamonly && g_pGameRules->PlayerRelationship(client, CBaseEntity::Instance(pEntity)) != GR_TEAMMATE)
 			continue;
 
-		MESSAGE_BEGIN(MSG_ONE, gmsgSayText, NULL, client->pev);
-		WRITE_BYTE(ENTINDEX(pEntity));
-		WRITE_STRING(text);
-		MESSAGE_END();
+		UTIL_SayText( CHAT_FILTER_NONE, text, client );
 	}
 
 	// print to the sending client
-	MESSAGE_BEGIN(MSG_ONE, gmsgSayText, NULL, &pEntity->v);
-	WRITE_BYTE(ENTINDEX(pEntity));
-	WRITE_STRING(text);
-	MESSAGE_END();
+	UTIL_SayText( teamonly ? CHAT_FILTER_NONE : CHAT_FILTER_PUBLICCHAT, text, player );
 
 	// echo to server console
 	g_engfuncs.pfnServerPrint(text);
@@ -672,7 +666,7 @@ void ClientUserInfoChanged(edict_t *pEntity, char *infobuffer)
 		g_engfuncs.pfnSetClientKeyValue(ENTINDEX(pEntity), infobuffer, "name", sName);
 
 		_snprintf(text, sizeof(text), "* %s ^0changed name to %s\n", STRING(pEntity->v.netname), g_engfuncs.pfnInfoKeyValue(infobuffer, "name"));
-		UTIL_SayTextAll(text, pPlayer);
+		UTIL_SayTextAll(CHAT_FILTER_NAMECHANGE, text, pPlayer);
 
 		UTIL_LogPrintf("\"%s<%i><%s><%i>\" changed name to \"%s\"\n",
 			STRING(pEntity->v.netname),

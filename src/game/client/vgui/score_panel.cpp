@@ -999,7 +999,7 @@ void CScorePanel::OnPlayerMenuCommand(MenuAction command)
 
 			char string1[1024];
 			snprintf(string1, sizeof(string1), CHudTextMessage::BufferedLocaliseTextString("#Unmuted"), pi->GetDisplayName(true));
-			CHudChat::Get()->ChatPrintf(0, "** %s", string1);
+			CHudChat::Get()->ChatPrintf(0, CHAT_FILTER_NONE, "** %s", string1);
 		}
 		else if (!pi->IsThisPlayer())
 		{
@@ -1010,8 +1010,8 @@ void CScorePanel::OnPlayerMenuCommand(MenuAction command)
 			char string2[1024];
 			snprintf(string1, sizeof(string1), CHudTextMessage::BufferedLocaliseTextString("#Muted"), pi->GetDisplayName(true));
 			snprintf(string2, sizeof(string2), "%s", CHudTextMessage::BufferedLocaliseTextString("#No_longer_hear_that_player"));
-			CHudChat::Get()->ChatPrintf(0, "** %s", string1);
-			CHudChat::Get()->ChatPrintf(0, "** %s", string2);
+			CHudChat::Get()->ChatPrintf(0, CHAT_FILTER_NONE, "** %s", string1);
+			CHudChat::Get()->ChatPrintf(0, CHAT_FILTER_NONE, "** %s", string2);
 		}
 
 		// Muting one player may mute others (if they have identical Unique IDs)

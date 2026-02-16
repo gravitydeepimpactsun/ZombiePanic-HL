@@ -950,7 +950,7 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 			{
 				AmmoData ammo = GetAmmoByAmmoID( i );
 				if ( !ammo.AmmoName ) continue;
-				UTIL_SayText(UTIL_VarArgs( "%s ID: [%i]", ammo.AmmoName, ammo.AmmoType ), pPlayer);
+				UTIL_SayText(CHAT_FILTER_SERVERMSG, UTIL_VarArgs("%s ID: [%i]", ammo.AmmoName, ammo.AmmoType), pPlayer);
 			}
 			return TRUE;
 		}

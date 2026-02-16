@@ -387,7 +387,7 @@ int CHud::MsgFunc_Voice(const char *pszName, int iSize, void *pbuf)
 	char szOut[512];
 	g_pVGuiLocalize->ConvertUnicodeToANSI( wcOutput, szOut, sizeof(szOut) );
 
-	CHudChat::Get()->ChatPrintf( -1, "%s", szOut );
+	CHudChat::Get()->ChatPrintf( -1, CHAT_FILTER_NONE, "%s", szOut );
 	return 1;
 }
 

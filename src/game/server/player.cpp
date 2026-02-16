@@ -2068,6 +2068,10 @@ void CBasePlayer::StopWelcomeCam(void)
 	// Save the private key.
 	UTIL_strcpy( m_szAPIRetrieveKey, szPrivateKey );
 	CLIENT_COMMAND( ENT(pev), "api_retrieve %s\n", szPrivateKey );
+
+	// We are about to spawn the player, let's fix any weird mouse input issues.
+	MESSAGE_BEGIN(MSG_ONE, gmsgMouseFix, NULL, pev);
+	MESSAGE_END();
 }
 
 void CBasePlayer::SendScoreInfo()
@@ -5032,11 +5036,6 @@ void CBasePlayer::Spawn(void)
 
 	// Clear it
 	ShouldClearSpawnChecks( this, nullptr );
-
-	// Fix the mouse bugging out
-	// Probably from the chat and/or the scoreboard?
-	MESSAGE_BEGIN(MSG_ONE, gmsgMouseFix, NULL, pev);
-	MESSAGE_END();
 
 	// Stop current voiceline
 	EMIT_SOUND_DYN( ENT(pev), CHAN_VOICE, "common/null.wav", 0, ATTN_NORM, 0, 100 );

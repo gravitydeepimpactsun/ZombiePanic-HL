@@ -13,6 +13,7 @@
 #include "hud.h"
 #include "hud/text_message.h"
 #include "hud/spectator.h"
+#include "hud/chat.h"
 #include "cl_util.h"
 #include "zp/zp_shared.h"
 #include "steam_achievements.h"
@@ -525,11 +526,15 @@ void CClientViewport::MsgFunc_ValClass(const char *pszName, int iSize, void *pbu
 
 void CClientViewport::MsgFunc_MouseFix(const char *pszName, int iSize, void *pbuf)
 {
-	// Fix the mouse!
-	// Quickly draw the scoreboard for one single frame, and then hide it, if we don't already have it open.
-	if ( IsScoreBoardVisible() ) return;
+	// We don't really do anything fancy here, just some very simple "SetMouseInputEnabled( false )" from a few VGUI elements.
+	// The mouse can somehow get stuck if you somehow chat and the round ends at the same time. (or by simply having the scoreboard open)
+
+	// Let's quickly show and hide the scoreboard to reset mouse input
 	ShowScoreBoard();
 	HideScoreBoard();
+
+	// It may also be the chat, so make sure we set it to not visible as well.
+	CHudChat::Get()->StopMessageMode();
 }
 
 void CClientViewport::MsgFunc_TeamNames(const char *pszName, int iSize, void *pbuf)

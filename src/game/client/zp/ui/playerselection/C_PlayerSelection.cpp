@@ -60,21 +60,9 @@ C_PlayerSelection::C_PlayerSelection(vgui2::Panel *pParent)
 	iHasDescription = 0;
 
 	// Get our current language
-	strLocalizationString = g_pVGuiLocalize->GetLocalizationFileName(0);
-	// Take our filename, and remove everything from start to _
-	// and then we remove the .txt at the end, then we get our localization name.
-	// We are kinda limited on what to do without engine access,
-	// so this is the best hack possibly at this very moment.
-	size_t nLocalizationPos = strLocalizationString.find( '_' );
-	if ( nLocalizationPos > 0 )
-	{
-		strLocalizationString = strLocalizationString.substr( nLocalizationPos + 1, strLocalizationString.size() );
-		nLocalizationPos = strLocalizationString.find( "." );
-		if ( nLocalizationPos > 0 )
-			strLocalizationString = strLocalizationString.substr( 0, nLocalizationPos );
-	}
+	strLocalizationString = GetCurrentLanguage();
 
-	SetTitle( "#ZP_UI_PlayerSelection", true);
+	SetTitle( "#ZP_UI_PlayerSelection", true );
 
 	vgui2::Label *pInfo = GetChildPanel( "Info", vgui2::Label );
 	if ( pInfo )

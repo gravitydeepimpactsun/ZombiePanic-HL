@@ -200,17 +200,23 @@ CON_COMMAND(vgui_dumptree, "Dumps VGUI2 panel tree for debugging.")
 	DumpPanel(g_pEngineVGui->GetPanel(PANEL_ROOT), 0, true, bDumpAll);
 }
 
-void LoadLocalizationFile( const char *szFileName )
+char *GetCurrentLanguage()
 {
 	const char *szCurrentLanguage = GetSteamAPI()->SteamApps()->GetCurrentGameLanguage();
 	// If we have the launch param "-lang", we should use that instead of the Steam language, since that's what the game will be using.
 	char *szLanguageFromLaunchParam;
 	if ( gEngfuncs.CheckParm( "-lang", &szLanguageFromLaunchParam ) )
 		szCurrentLanguage = szLanguageFromLaunchParam;
+	static char szOut[64];
+	Q_snprintf( szOut, sizeof( szOut ), "%s", szCurrentLanguage );
+	return szOut;
+}
 
+void LoadLocalizationFile(const char *szFileName)
+{
 	char szLocalizationFilePath[MAX_PATH];
 	szLocalizationFilePath[0] = '\0';
-	Q_snprintf( szLocalizationFilePath, sizeof( szLocalizationFilePath ), "%s_%s.txt", szFileName, szCurrentLanguage );
+	Q_snprintf( szLocalizationFilePath, sizeof( szLocalizationFilePath ), "%s_%s.txt", szFileName, GetCurrentLanguage() );
 
 	bool bLanguageFileRead = g_pVGuiLocalize->AddFile( g_pFullFileSystem, szLocalizationFilePath );
 	if ( !bLanguageFileRead )
@@ -222,6 +228,6 @@ void LoadLocalizationFile( const char *szFileName )
 		if ( !bLanguageFileRead )
 			ConPrintf( Color( 255, 0, 0, 255 ), "Failed to load localization file: %s\n", szFileName );
 		else
-			ConPrintf( Color( 255, 255, 0, 255 ), "Failed to load localization file: %s [%s], loaded english file instead.\n", szFileName, szCurrentLanguage );
+			ConPrintf( Color( 255, 255, 0, 255 ), "Failed to load localization file: %s [%s], loaded english file instead.\n", szFileName, GetCurrentLanguage() );
 	}
 }

@@ -26,6 +26,7 @@ private:
 	static void GetProportionalBase(int &wide, int &tall);
 };
 
+extern char *GetCurrentLanguage();
 extern void LoadLocalizationFile( const char *szFileName );
 
 #endif

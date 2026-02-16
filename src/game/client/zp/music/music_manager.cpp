@@ -4,6 +4,7 @@
 #include "util.h"
 #include "cbase.h"
 
+#include "client_vgui.h"
 #include "music_ui.h"
 #include "music_manager.h"
 #include "tier1/KeyValues.h"
@@ -117,21 +118,6 @@ void CMusicManager::BuildList()
 	char const *fn = g_pFullFileSystem->FindFirst( "media/music/*.txt", &fh, "GAME" );
 	if ( fn )
 	{
-		// Get our current language
-		std::string strLocalizationString = g_pVGuiLocalize->GetLocalizationFileName( 0 );
-		// Take our filename, and remove everything from start to _
-		// and then we remove the .txt at the end, then we get our localization name.
-		// We are kinda limited on what to do without engine access,
-		// so this is the best hack possibly at this very moment.
-		size_t nLocalizationPos = strLocalizationString.find( '_' );
-		if ( nLocalizationPos > 0 )
-		{
-			strLocalizationString = strLocalizationString.substr( nLocalizationPos + 1, strLocalizationString.size() );
-			nLocalizationPos = strLocalizationString.find( "." );
-			if ( nLocalizationPos > 0 )
-				strLocalizationString = strLocalizationString.substr( 0, nLocalizationPos );
-		}
-
 		do
 		{
 			std::string szMP3File = fn;
@@ -146,7 +132,7 @@ void CMusicManager::BuildList()
 				KeyValuesAD pKV( "MusicData" );
 				if ( pKV->LoadFromFile( g_pFullFileSystem, file.c_str(), "GAME" ) )
 				{
-					const char *szName = pKV->GetString( vgui2::VarArgs( "Name_%s", strLocalizationString.c_str() ), nullptr );
+					const char *szName = pKV->GetString( vgui2::VarArgs( "Name_%s", GetCurrentLanguage() ), nullptr );
 					// Fallback to english
 					if ( !szName ) szName = pKV->GetString( vgui2::VarArgs( "Name_english" ), nullptr );
 					// Nothing found, use default text.

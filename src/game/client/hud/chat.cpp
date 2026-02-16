@@ -451,7 +451,7 @@ CHudChat::CHudChat()
 	SetScheme(scheme);
 	SetPaintBackgroundEnabled(true);
 
-	g_pVGuiLocalize->AddFile(g_pFullFileSystem, VGUI2_ROOT_DIR "resource/language/chat_%language%.txt");
+	LoadLocalizationFile( "ui/resource/language/chat" );
 
 	m_nMessageMode = 0;
 

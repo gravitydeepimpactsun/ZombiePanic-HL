@@ -21,12 +21,10 @@ EXPOSE_SINGLE_INTERFACE(CClientVGUI, IClientVGUI, ICLIENTVGUI_NAME);
 
 namespace vgui2
 {
-
-HScheme VGui_GetDefaultScheme()
-{
-	return 0;
-}
-
+	HScheme VGui_GetDefaultScheme()
+	{
+		return 0;
+	}
 }
 
 void CClientVGUI::Initialize(CreateInterfaceFn *pFactories, int iNumFactories)
@@ -58,9 +56,13 @@ void CClientVGUI::Initialize(CreateInterfaceFn *pFactories, int iNumFactories)
 	// This causes all old UI to be down-scaled.
 	vgui2::VGui_SetProportionalBaseCallback(&GetProportionalBase);
 
-	// Add language files
-	g_pVGuiLocalize->AddFile(g_pFullFileSystem, VGUI2_ROOT_DIR "resource/language/zp_%language%.txt");
-	g_pVGuiLocalize->AddFile(g_pFullFileSystem, VGUI2_ROOT_DIR "resource/language/achievements_%language%.txt");
+	// Redo the localization files, since we do NOT want to load english ones right away, if we are on a different language.
+	g_pVGuiLocalize->RemoveAll();
+
+	LoadLocalizationFile( "resource/valve" );
+	LoadLocalizationFile( "ui/resource/language/gameui" );
+	LoadLocalizationFile( "ui/resource/language/zp" );
+	LoadLocalizationFile( "ui/resource/language/achievements" );
 
 	new CClientViewport();
 	new CGameUIViewport();
@@ -196,4 +198,30 @@ CON_COMMAND(vgui_dumptree, "Dumps VGUI2 panel tree for debugging.")
 
 	bool bDumpAll = ConCommand::ArgC() > 1 && !strcmp(ConCommand::ArgV(1), "all");
 	DumpPanel(g_pEngineVGui->GetPanel(PANEL_ROOT), 0, true, bDumpAll);
+}
+
+void LoadLocalizationFile( const char *szFileName )
+{
+	const char *szCurrentLanguage = GetSteamAPI()->SteamApps()->GetCurrentGameLanguage();
+	// If we have the launch param "-lang", we should use that instead of the Steam language, since that's what the game will be using.
+	char *szLanguageFromLaunchParam;
+	if ( gEngfuncs.CheckParm( "-lang", &szLanguageFromLaunchParam ) )
+		szCurrentLanguage = szLanguageFromLaunchParam;
+
+	char szLocalizationFilePath[MAX_PATH];
+	szLocalizationFilePath[0] = '\0';
+	Q_snprintf( szLocalizationFilePath, sizeof( szLocalizationFilePath ), "%s_%s.txt", szFileName, szCurrentLanguage );
+
+	bool bLanguageFileRead = g_pVGuiLocalize->AddFile( g_pFullFileSystem, szLocalizationFilePath );
+	if ( !bLanguageFileRead )
+	{
+		szLocalizationFilePath[0] = '\0';
+		Q_snprintf( szLocalizationFilePath, sizeof( szLocalizationFilePath ), "%s_english.txt", szFileName );
+		// Try to load the english file, if the current language file is not found.
+		bLanguageFileRead = g_pVGuiLocalize->AddFile( g_pFullFileSystem, szLocalizationFilePath );
+		if ( !bLanguageFileRead )
+			ConPrintf( Color( 255, 0, 0, 255 ), "Failed to load localization file: %s\n", szFileName );
+		else
+			ConPrintf( Color( 255, 255, 0, 255 ), "Failed to load localization file: %s [%s], loaded english file instead.\n", szFileName, szCurrentLanguage );
+	}
 }

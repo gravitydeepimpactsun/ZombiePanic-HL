@@ -26,4 +26,6 @@ private:
 	static void GetProportionalBase(int &wide, int &tall);
 };
 
+extern void LoadLocalizationFile( const char *szFileName );
+
 #endif

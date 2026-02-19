@@ -635,7 +635,9 @@ class CTriggerHurt : public CBaseTrigger
 public:
 	void Spawn(void);
 	void Restart(void);
+#if 0
 	void EXPORT RadiationThink(void);
+#endif
 };
 
 LINK_ENTITY_TO_CLASS(trigger_hurt, CTriggerHurt);
@@ -1001,13 +1003,13 @@ void CTriggerHurt ::Spawn(void)
 	{
 		SetUse(NULL);
 	}
-
+#if 0
 	if (m_bitsDamageInflict & DMG_RADIATION)
 	{
 		SetThink(&CTriggerHurt::RadiationThink);
 		pev->nextthink = gpGlobals->time + RANDOM_FLOAT(0.0, 0.5);
 	}
-
+#endif
 	if (FBitSet(pev->spawnflags, SF_TRIGGER_HURT_START_OFF)) // if flagged to Start Turned Off, make trigger nonsolid.
 		pev->solid = SOLID_NOT;
 
@@ -1022,17 +1024,17 @@ void CTriggerHurt::Restart()
 		SetUse(&CTriggerHurt::ToggleUse);
 	else
 		SetUse(NULL);
-
+#if 0
 	if (m_bitsDamageInflict & DMG_RADIATION)
 	{
 		SetThink(&CTriggerHurt::RadiationThink);
 		pev->nextthink = gpGlobals->time + RANDOM_FLOAT(0.0, 0.5);
 	}
-
+#endif
 	if (FBitSet(pev->spawnflags, SF_TRIGGER_HURT_START_OFF)) // if flagged to Start Turned Off, make trigger nonsolid.
 		pev->solid = SOLID_NOT;
 }
-
+#if 0
 // trigger hurt that causes radiation will do a radius
 // check and set the player's geiger counter level
 // according to distance from center of trigger
@@ -1092,7 +1094,7 @@ void CTriggerHurt ::RadiationThink(void)
 
 	pev->nextthink = gpGlobals->time + 0.25;
 }
-
+#endif
 //
 // ToggleUse - If this is the USE function for a trigger, its state will toggle every time it's fired
 //

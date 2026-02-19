@@ -1017,7 +1017,7 @@ void ClientPrecache(void)
 	PRECACHE_SOUND("common/wpn_moveselect.wav");
 	PRECACHE_SOUND("common/wpn_select.wav");
 	PRECACHE_SOUND("common/wpn_denyselect.wav");
-
+#if 0
 	// geiger sounds
 
 	PRECACHE_SOUND("player/geiger6.wav");
@@ -1026,7 +1026,7 @@ void ClientPrecache(void)
 	PRECACHE_SOUND("player/geiger3.wav");
 	PRECACHE_SOUND("player/geiger2.wav");
 	PRECACHE_SOUND("player/geiger1.wav");
-
+#endif
 	// Round End sounds
 	PRECACHE_SOUND("modes/win_draw.wav");
 	PRECACHE_SOUND("modes/win_zombie.wav");

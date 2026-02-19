@@ -263,7 +263,9 @@ int gmsgSayConsole = 0;
 int gmsgTextMsg = 0;
 int gmsgSetFOV = 0;
 int gmsgShowMenu = 0;
+#if 0
 int gmsgGeigerRange = 0;
+#endif
 int gmsgTeamNames = 0;
 
 int gmsgStatusText = 0;
@@ -314,7 +316,9 @@ void LinkUserMessages(void)
 
 	gmsgSelAmmo = REG_USER_MSG("SelAmmo", sizeof(SelAmmo));
 	gmsgCurWeapon = REG_USER_MSG("CurWeapon", 4);
+#if 0
 	gmsgGeigerRange = REG_USER_MSG("Geiger", 1);
+#endif
 	gmsgFlashlight = REG_USER_MSG("Flashlight", 3);
 	gmsgFlashBattery = REG_USER_MSG("FlashBat", 1);
 	gmsgHealth = REG_USER_MSG("Health", 1);
@@ -3758,7 +3762,7 @@ Things powered by the battery
 		Augments armor. Reduces Armor drain by one half
  
 */
-
+#if 0
 // if in range of radiation source, ping geiger counter
 
 #define GEIGERDELAY 0.25
@@ -3790,7 +3794,7 @@ void CBasePlayer ::UpdateGeigerCounter(void)
 	if (!RANDOM_LONG(0, 3))
 		m_flgeigerRange = 1000;
 }
-
+#endif
 /*
 ================
 CheckSuitUpdate
@@ -3811,10 +3815,10 @@ void CBasePlayer::CheckSuitUpdate()
 	// Ignore suit updates if no suit
 	if (!GetWeaponOwn( WEAPON_SUIT ))
 		return;
-
+#if 0
 	// if in range of radiation source, ping geiger counter
 	UpdateGeigerCounter();
-
+#endif
 	if (g_pGameRules->IsMultiplayer())
 	{
 		// don't bother updating HEV voice in multiplayer.
@@ -4924,10 +4928,10 @@ void CBasePlayer::Spawn(void)
 	m_iClientFOV = -1; // make sure fov reset is sent
 
 	m_flNextDecalTime = 0; // let this player decal as soon as he spawns.
-
+#if 0
 	m_flgeigerDelay = gpGlobals->time + 2.0; // wait a few seconds until user-defined message registrations
 	    // are recieved by all clients
-
+#endif
 	m_flTimeStepSound = 0;
 	m_iStepLeft = 0;
 	m_flFieldOfView = 0.5; // some monsters use this to determine whether or not the player is looking at them.
@@ -5064,10 +5068,10 @@ void CBasePlayer ::Precache(void)
 
 	// init geiger counter vars during spawn and each time
 	// we cross a level transition
-
+#if 0
 	m_flgeigerRange = 1000;
 	m_igeigerRangePrev = 1000;
-
+#endif
 	m_bitsDamageType = 0;
 	m_bitsHUDDamage = -1;
 

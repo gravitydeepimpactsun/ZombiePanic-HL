@@ -191,10 +191,11 @@ public:
 	float m_rgflSuitNoRepeatTime[CSUITNOREPEAT]; // how long to wait before allowing repeat
 	int m_lastDamageAmount; // Last damage taken
 	float m_tbdPrev; // Time-based damage timer
-
+#if 0
 	float m_flgeigerRange; // range to nearest radiation source
 	float m_flgeigerDelay; // delay per update of range msg to client
 	int m_igeigerRangePrev;
+#endif
 	int m_iStepLeft; // alternate left/right foot stepping sound
 	char m_szTextureName[CBTEXTURENAMEMAX]; // current texture name we're standing on
 	char m_chTextureType; // current texture type
@@ -363,7 +364,9 @@ public:
 
 	void CheckSuitUpdate();
 	void SetSuitUpdate(char *name, int fgroup, int iNoRepeat);
+#if 0
 	void UpdateGeigerCounter(void);
+#endif
 	void CheckTimeBasedDamage(void);
 
 	BOOL FBecomeProne(void);

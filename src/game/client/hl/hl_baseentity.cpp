@@ -343,12 +343,10 @@ void CBasePlayerAmmo::Spawn(void) { }
 CBaseEntity *CBasePlayerAmmo::Respawn(void) { return this; }
 void CBasePlayerAmmo::Materialize(void) { }
 void CBasePlayerAmmo::DefaultTouch(CBaseEntity *pOther) { }
-bool CBasePlayerAmmo::GiveAmmoToPlayer(CBaseEntity *pOther)
-{
-	return false;
-}
+bool CBasePlayerAmmo::GiveAmmoToPlayer(CBaseEntity *pOther) { return false; }
 int CBasePlayerWeapon::ExtractAmmo(CBasePlayerWeapon *pWeapon) { return 0; }
 int CBasePlayerWeapon::ExtractClipAmmo(CBasePlayerWeapon *pWeapon) { return 0; }
 void CBasePlayerWeapon::RetireWeapon(void) { }
 void CSoundEnt::InsertSound(int iType, const Vector &vecOrigin, int iVolume, float flDuration) { }
 void RadiusDamage(Vector vecSrc, entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, float flRadius, int iClassIgnore, int bitsDamageType) { }
+void CBasePlayerAmmo::BounceSound() { }

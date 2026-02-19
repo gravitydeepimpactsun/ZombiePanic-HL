@@ -136,7 +136,7 @@ int HistoryResource::DrawAmmoHistory(float flTime)
 			}
 			else if (rgAmmoHistory[i].type == HISTSLOT_WEAP)
 			{
-				WeaponInfo wepinf = GetWeaponInfo( rgAmmoHistory[i].iId.Name.c_str() );
+				WeaponInfo wepinf = GetWeaponInfo( rgAmmoHistory[i].iId.Name );
 				WEAPON *weap = gWR.GetWeapon( wepinf.WeaponID );
 
 				if (!weap)

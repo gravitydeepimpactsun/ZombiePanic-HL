@@ -309,8 +309,8 @@ public:
 	struct RegisteredIcon
 	{
 		HSPRITE Icon = -1;
-		std::string Name = "";
-		std::string Texture = "";
+		char Name[64] = {'\0'};
+		char Texture[64] = {'\0'};
 		int Wide = 0;
 		int Tall = 0;
 	};

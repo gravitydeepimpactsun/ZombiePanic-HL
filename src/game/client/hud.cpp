@@ -525,7 +525,7 @@ CHud::RegisteredIcon CHud::GetRegisteredIcon( const char *szIcon )
 	for ( size_t i = 0; i < m_RegisteredIcons.size(); i++ )
 	{
 		RegisteredIcon icon = m_RegisteredIcons[i];
-		if ( !Q_strcmp( icon.Name.c_str(), szIcon ) )
+		if ( !Q_strcmp( icon.Name, szIcon ) )
 			return icon;
 	}
 	return RegisteredIcon();
@@ -536,7 +536,7 @@ CHud::RegisteredIcon CHud::GetRegisteredTexture(const char *szIcon)
 	for ( size_t i = 0; i < m_RegisteredIcons.size(); i++ )
 	{
 		RegisteredIcon icon = m_RegisteredIcons[i];
-		if ( !Q_strcmp( icon.Texture.c_str(), szIcon ) )
+		if ( !Q_strcmp( icon.Texture, szIcon ) )
 			return icon;
 	}
 	return RegisteredIcon();
@@ -578,8 +578,8 @@ void CHud::RegisterHudTextureFile( const char *szFile )
 			int texture_id = vgui2::surface()->CreateNewTextureID( true );
 			vgui2::surface()->DrawSetTextureFile( texture_id, pIconRes->GetString( "Image" ), true, false );
 			data.Icon = texture_id;
-			data.Name = sub->GetName();
-			data.Texture = pIconRes->GetString( "Image" );
+			strncpy(data.Name, sub->GetName(), 64);
+			strncpy(data.Texture, pIconRes->GetString( "Image" ), 64);
 			data.Wide = pIconRes->GetInt( "Wide" );
 			data.Tall = pIconRes->GetInt( "Tall" );
 			m_RegisteredIcons.push_back( data );

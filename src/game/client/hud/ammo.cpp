@@ -985,7 +985,7 @@ void CHudAmmo::DrawWeaponSlot( WEAPON *pWeapon, int slot, int x, int y, int wide
 	DrawBackgroundSlot( ItemBG, x, y, wide, tall );
 
 	// Draw the weapon icon
-	if ( pWeapon && pWeapon->bHasWeapon && !pWeapon->hActive.Texture.empty() )
+	if ( pWeapon && pWeapon->bHasWeapon && pWeapon->hActive.Texture[0] != '\0' )
 	{
 		r = g = b = 255 * gHUD.GetHudTransparency();
 		ItemBG.SetColor( r, g, b, 255 );

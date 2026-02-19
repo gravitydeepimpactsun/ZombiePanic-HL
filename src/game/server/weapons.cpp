@@ -301,9 +301,13 @@ void EXPORT W_Precache(void)
 	UTIL_PrecacheOther("item_suit");
 	UTIL_PrecacheOther("item_healthkit");
 	UTIL_PrecacheOther("item_battery");
+#if 0
 	UTIL_PrecacheOther("item_antidote");
+#endif
 	UTIL_PrecacheOther("item_security");
+#if 0
 	UTIL_PrecacheOther("item_longjump");
+#endif
 
 	// Precache our crap
 	CPrecacheRegisterSystem::GetInstance()->PrecacheEntities();

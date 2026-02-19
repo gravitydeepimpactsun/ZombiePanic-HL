@@ -152,7 +152,7 @@ void CGameRules::RefreshSkillData(void)
 	gSkillData.iSkillLevel = iSkill;
 
 	ALERT(at_console, "\nGAME SKILL LEVEL:%d\n", iSkill);
-
+#if 0
 	//Agrunt
 	gSkillData.agruntHealth = GetSkillCvar("sk_agrunt_health");
 	gSkillData.agruntDmgPunch = GetSkillCvar("sk_agrunt_dmg_punch");
@@ -315,7 +315,7 @@ void CGameRules::RefreshSkillData(void)
 	gSkillData.healthchargerCapacity = GetSkillCvar("sk_healthcharger");
 	gSkillData.healthkitCapacity = GetSkillCvar("sk_healthkit");
 	gSkillData.scientistHeal = GetSkillCvar("sk_scientist_heal");
-
+#endif
 	// monster damage adj
 	gSkillData.monHead = GetSkillCvar("sk_monster_head");
 	gSkillData.monChest = GetSkillCvar("sk_monster_chest");

@@ -3,20 +3,22 @@ name: CI/CD
 on: [push, pull_request]
 
 jobs:
-  linux-steam-runtime:
-    name: Linux-x86 (Steam Runtime)
+  linux-steamrt_scout:
+    name: Linux i386 - Steam Runtime v1 (scout)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
+
       - name: Build
         uses: docker://registry.gitlab.steamos.cloud/steamrt/scout/sdk/i386:latest
         with:
           args: ./github_actions_steam_runtime_build.sh
+
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
-          name: Linux-x86-Steam-Runtime
+          name: Linux-i386-Steam-Runtime-v1-scout
           path: |
             build/client.so
             build/hl.so

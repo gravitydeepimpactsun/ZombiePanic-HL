@@ -443,10 +443,10 @@ bool CEnginePatchesWindows::GetEngineModule()
 	}
 
 	// Try Encrypted engine
-	if (m_EngineModule.ReadModule("hl.exe"))
+	if (m_EngineModule.ReadModule("zp.exe"))
 		return true;
 
-	// Get process base module name in case it differs from hl.exe
+	// Get process base module name in case it differs from zp.exe
 	char moduleName[256];
 
 	if (!GetModuleFileName(nullptr, moduleName, ARRAYSIZE(moduleName)))

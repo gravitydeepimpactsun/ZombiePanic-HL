@@ -21,4 +21,4 @@ jobs:
           name: Linux-i386-Steam-Runtime-v1-scout
           path: |
             build/client.so
-            build/hl.so
+            build/zp.so

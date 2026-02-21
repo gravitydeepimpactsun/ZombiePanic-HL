@@ -117,7 +117,7 @@ add_sources(
 
 if( PLATFORM_WINDOWS )
 	add_sources(
-		hl.def
+		zp.def
 		resource.h
 	)
 endif()

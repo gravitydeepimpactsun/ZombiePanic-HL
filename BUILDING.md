@@ -28,4 +28,4 @@ In the source code's root folder, write the following in your terminal:
 Once it's done generating, run the following:  
 `cmake --build build`
 
-Once the build is complete, you will find `client.so` and `hl.se` within the `/build` folder.
+Once the build is complete, you will find `client.so` and `zp.so` within the `/build` folder.

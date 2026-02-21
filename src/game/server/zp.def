@@ -1,4 +1,4 @@
-LIBRARY hl
+LIBRARY zp
 EXPORTS
 	GiveFnptrsToDll			@1
 SECTIONS

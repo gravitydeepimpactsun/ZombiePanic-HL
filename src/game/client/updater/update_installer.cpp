@@ -776,7 +776,7 @@ void CUpdateInstaller::ExtractZipFile()
 					throw std::runtime_error(m_UpdateDir.u8string() + " is empty");
 
 				fs::directory_iterator contents(m_UpdateDir);
-				m_UpdateDir = contents->path() / "valve_addon";
+				m_UpdateDir = contents->path() / "zp_addon";
 
 				if (!fs::is_directory(m_UpdateDir))
 					throw std::runtime_error(m_UpdateDir.u8string() + " is not a directory");

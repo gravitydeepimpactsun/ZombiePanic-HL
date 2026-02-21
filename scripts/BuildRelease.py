@@ -111,7 +111,7 @@ class FileToCopy:
 
 
 COMMON_FILES_TO_COPY = [
-    FileToCopy('README.md', 'valve_addon/README_BugfixedHL.md')
+    FileToCopy('README.md', 'zp_addon/README_BugfixedHL.md')
 ]
 
 
@@ -127,16 +127,16 @@ class TargetClient:
     def get_file_list(self):
         files = COMMON_FILES_TO_COPY
         files.append(FileToCopy(self.script.paths.out_bin + 'client' + self.script.platform.get_dll_ext(),
-                                'valve_addon/cl_dlls/client' + self.script.platform.get_dll_ext()))
-        files.append(FileToCopy('gamedir/resource', 'valve_addon/resource'))
-        files.append(FileToCopy('gamedir/sound', 'valve_addon/sound'))
-        files.append(FileToCopy('gamedir/sprites', 'valve_addon/sprites'))
-        files.append(FileToCopy('gamedir/ui', 'valve_addon/ui'))
-        files.append(FileToCopy('gamedir/commandmenu_default.txt', 'valve_addon/commandmenu_default.txt'))
+                                'zp_addon/cl_dlls/client' + self.script.platform.get_dll_ext()))
+        files.append(FileToCopy('gamedir/resource', 'zp_addon/resource'))
+        files.append(FileToCopy('gamedir/sound', 'zp_addon/sound'))
+        files.append(FileToCopy('gamedir/sprites', 'zp_addon/sprites'))
+        files.append(FileToCopy('gamedir/ui', 'zp_addon/ui'))
+        files.append(FileToCopy('gamedir/commandmenu_default.txt', 'zp_addon/commandmenu_default.txt'))
 
         if get_platform_type() == 'windows':
             files.append(FileToCopy(self.script.paths.out_bin + 'client.pdb',
-                                    'valve_addon/cl_dlls/client.pdb'))
+                                    'zp_addon/cl_dlls/client.pdb'))
 
         return files
 
@@ -148,25 +148,25 @@ class TargetServer:
         self.script = scr
 
     def get_build_target_names(self):
-        return ['hl', 'test_server', 'bugfixedapi_amxx']
+        return ['zp', 'test_server', 'bugfixedapi_amxx']
 
     def get_file_list(self):
         files = COMMON_FILES_TO_COPY
-        files.append(FileToCopy('gamedir/addons', 'valve_addon/addons'))
-        files.append(FileToCopy('gamedir/delta.lst', 'valve_addon/delta.lst'))
-        files.append(FileToCopy(self.script.paths.out_bin + 'hl' + self.script.platform.get_dll_ext(),
-                                'valve_addon/dlls/hl' + self.script.platform.get_dll_ext()))
+        files.append(FileToCopy('gamedir/addons', 'zp_addon/addons'))
+        files.append(FileToCopy('gamedir/delta.lst', 'zp_addon/delta.lst'))
+        files.append(FileToCopy(self.script.paths.out_bin + 'zp' + self.script.platform.get_dll_ext(),
+                                'zp_addon/dlls/zp' + self.script.platform.get_dll_ext()))
 
         if get_platform_type() == 'windows':
-            files.append(FileToCopy(self.script.paths.out_bin + 'hl.pdb',
-                                    'valve_addon/dlls/hl.pdb'))
+            files.append(FileToCopy(self.script.paths.out_bin + 'zp.pdb',
+                                    'zp_addon/dlls/zp.pdb'))
             files.append(FileToCopy(self.script.paths.out_bin + 'bugfixedapi_amxx.dll',
-                                    'valve_addon/addons/amxmodx/modules/bugfixedapi_amxx.dll'))
+                                    'zp_addon/addons/amxmodx/modules/bugfixedapi_amxx.dll'))
             files.append(FileToCopy(self.script.paths.out_bin + 'bugfixedapi_amxx.pdb',
-                                    'valve_addon/addons/amxmodx/modules/bugfixedapi_amxx.pdb'))
+                                    'zp_addon/addons/amxmodx/modules/bugfixedapi_amxx.pdb'))
         elif get_platform_type() == 'linux':
             files.append(FileToCopy(self.script.paths.out_bin + 'bugfixedapi_amxx_i386.so',
-                                    'valve_addon/addons/amxmodx/modules/bugfixedapi_amxx_i386.so'))
+                                    'zp_addon/addons/amxmodx/modules/bugfixedapi_amxx_i386.so'))
 
         return files
 
@@ -471,7 +471,7 @@ class BuildScript:
     def create_install_metadata(self):
         print("---------------- Creating metadata")
         try:
-            create_metadata(self.release_version, self.paths.archive_files + 'valve_addon')
+            create_metadata(self.release_version, self.paths.archive_files + 'zp_addon')
         except Exception as e:
             print('Failed to create metadata file: {}.'.format(str(e)))
             exit(1)

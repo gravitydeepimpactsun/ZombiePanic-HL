@@ -625,18 +625,18 @@ add_subdirectory( src/game/server )
 add_subdirectory( src/game/scriptsystem )
 
 preprocess_sources()
-add_library( hl SHARED ${PREP_SRCS} )
-check_winxp_support( hl )
-add_auto_deploy( hl PublishPathServer.txt )
-bhl_version_info( hl "hl.dll" "ZombiePanic-HL Server" )
+add_library( zp SHARED ${PREP_SRCS} )
+check_winxp_support( zp )
+add_auto_deploy( zp PublishPathServer.txt )
+bhl_version_info( zp "zp.dll" "ZombiePanic-HL Server" )
 
-target_include_directories( hl PRIVATE
+target_include_directories( zp PRIVATE
 	#${CMAKE_CURRENT_SOURCE_DIR}/src/game/server	# Already in GAME_COMMON_INCLUDE_PATHS
 	${GAME_COMMON_INCLUDE_PATHS}
 	${SOURCE_SDK_INCLUDE_PATHS} # For mathlib
 )
 
-target_compile_definitions( hl PRIVATE
+target_compile_definitions( zp PRIVATE
 	${GAME_COMMON_DEFINES}
 	${SOURCE_SDK_DEFINES}
 	SERVER_DLL
@@ -646,7 +646,7 @@ target_compile_definitions( hl PRIVATE
 	VERSION_SAFE_STEAM_API_INTERFACES
 )
 
-target_precompile_headers( hl PRIVATE src/game/server/pch.h )
+target_precompile_headers( zp PRIVATE src/game/server/pch.h )
 
 # Dependencies
 if( WIN32 )
@@ -658,7 +658,7 @@ else()
 endif()
 
 # Link with dependencies
-target_link_libraries( hl 
+target_link_libraries( zp 
 	${SERVER_PLAT_LIBS}
 	${SOURCE_SDK_SERVER_LIBS} # Special version for server binaries
 	semver
@@ -669,13 +669,13 @@ target_link_libraries( hl
 set( SERVER_LINK_FLAGS "")
 set( SERVER_COMPILE_FLAGS "")
 
-set_target_properties( hl PROPERTIES
+set_target_properties( zp PROPERTIES
 	COMPILE_FLAGS "${SERVER_COMPILE_FLAGS}" 
 	LINK_FLAGS "${SHARED_GAME_LINKER_FLAGS} ${SERVER_LINK_FLAGS}"
 )
 
 # Remove "lib" prefix
-set_target_properties( hl PROPERTIES PREFIX "" )
+set_target_properties( zp PROPERTIES PREFIX "" )
 
 create_source_groups( "${CMAKE_SOURCE_DIR}" )
 clear_sources()

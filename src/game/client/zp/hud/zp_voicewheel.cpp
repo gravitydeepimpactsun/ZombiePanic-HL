@@ -137,7 +137,7 @@ bool CHudVoiceWheel::IsAllowedToDraw( const bool &bOnToggleCheck )
 	if ( gHUD.m_RoundState < ZP::RoundState::RoundState_WaitingForPlayers ) return false;
 	if ( g_pViewport->IsVGUIVisible( MENU_TEAM ) ) return false;
 	if ( g_pViewport->IsVGUIVisible( MENU_MOTD ) ) return false;
-	if ( gEngfuncs.GetLocalPlayer()->index <= 0 ) return false;
+	if ( !gEngfuncs.GetLocalPlayer() || gEngfuncs.GetLocalPlayer()->index <= 0 ) return false;
 	CPlayerInfo *localplayer = GetPlayerInfo( gEngfuncs.GetLocalPlayer()->index );
 	if ( !localplayer->IsConnected() ) return false;
 	if ( localplayer->GetTeamNumber() != ZP::TEAM_SURVIVIOR ) return false;

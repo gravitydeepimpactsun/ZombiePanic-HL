@@ -6538,7 +6538,7 @@ int CBasePlayer::PickupAmmo( int iAmount, AmmoData data )
 	int iMaxCarry = data.MaxCarry;
 	bool bIsInHardcore = ( ZP::GetCurrentGameMode()->GetGameModeType() == ZP::GameModeType_e::GAMEMODE_HARDCORE );
 	// If in hardcore mode and don't have a backpack, halve the max carry.
-	if ( bIsInHardcore && !HasBackpack() )
+	if ( bIsInHardcore && !HasBackpack() && iMaxCarry > 1 )
 		iMaxCarry = (int)( (float)iMaxCarry * 0.5f );
 
 	if (!g_pGameRules->CanHaveAmmo( this, data.AmmoName, iMaxCarry ) )

@@ -58,6 +58,10 @@ int CWeaponBase::DefaultReload(int iAnim, float fDelay, int body)
 
 	m_fInReload = TRUE;
 
+#ifndef CLIENT_DLL
+	m_pPlayer->m_iWeaponKillCount = 0;
+#endif
+
 	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + fDelay + 0.1;
 	return TRUE;
 }

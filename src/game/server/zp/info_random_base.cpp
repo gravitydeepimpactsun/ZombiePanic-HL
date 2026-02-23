@@ -473,8 +473,18 @@ void ZP::SetupDefaultSpawnList()
 	IGameModeBase *pGameMode = ZP::GetCurrentGameMode();
 
 	// In hardcore, add a few backpacks
-	if ( pGameMode && pGameMode->GetGameModeType() == ZP::GameModeType_e::GAMEMODE_HARDCORE )
-		AddDefaultAmmoSpawn( "item_backpack", 3, ItemType::TypeItem );
+	if ( pGameMode )
+	{
+		switch ( pGameMode->GetGameModeType() )
+		{
+			case ZP::GameModeType_e::GAMEMODE_HARDCORE:
+				AddDefaultAmmoSpawn( "item_backpack", 3, ItemType::TypeItem );
+			break;
+			case ZP::GameModeType_e::GAMEMODE_SURVIVAL:
+				AddDefaultAmmoSpawn( "weapon_nailgun", 4, ItemType::TypeItem );
+			break;
+		}
+	}
 
 	SetupDefaultMeleeSpawnList();
 }

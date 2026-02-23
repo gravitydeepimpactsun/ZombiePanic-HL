@@ -479,6 +479,7 @@ void ZP::SetupDefaultSpawnList()
 		{
 			case ZP::GameModeType_e::GAMEMODE_HARDCORE:
 				AddDefaultAmmoSpawn( "item_backpack", 3, ItemType::TypeItem );
+				AddDefaultAmmoSpawn( "weapon_nailgun", 4, ItemType::TypeItem );
 			break;
 			case ZP::GameModeType_e::GAMEMODE_SURVIVAL:
 				AddDefaultAmmoSpawn( "weapon_nailgun", 4, ItemType::TypeItem );

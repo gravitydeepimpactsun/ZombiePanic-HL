@@ -2705,13 +2705,14 @@ void CBasePlayer::DoScreenTint( bool bDamage )
 
 bool CBasePlayer::GotBandage( bool bGiveHealth )
 {
+	int iHealthGive = bGiveHealth ? TakeHealth( 10, DMG_GENERIC ) : 0;
 	bool bIsInHardcore = ( ZP::GetCurrentGameMode()->GetGameModeType() == ZP::GameModeType_e::GAMEMODE_HARDCORE );
-	if ( bIsInHardcore )
+	if ( bIsInHardcore && iHealthGive > 0 )
 		GiveAchievement( HC_STOP_THE_BLEEDIN );
 
 	m_bIsBleeding = false;
 	m_bGotBandage = true;
-	return bGiveHealth ? TakeHealth( 10, DMG_GENERIC ) : true;
+	return bGiveHealth ? iHealthGive : true;
 }
 
 bool CBasePlayer::GotPainKiller()

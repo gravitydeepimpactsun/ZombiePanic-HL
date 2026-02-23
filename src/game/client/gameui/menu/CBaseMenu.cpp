@@ -492,4 +492,8 @@ void CBaseMenu::DoDialogHackFix()
 
 	// Let's move all popups to the front as well.
 	MoveVPanelPopupsToFront( g_pEngineVGui->GetPanel( PANEL_GAMEUIDLL ) );
+
+	// This has higher priorty than the popups, so move it to the front after them.
+	if ( m_hMessageBox && m_hMessageBox->IsVisible() )
+		m_hMessageBox->MoveToFront();
 }

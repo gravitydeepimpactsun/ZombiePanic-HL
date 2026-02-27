@@ -616,12 +616,10 @@ public:
 	inline void SetWeaponOwn( ZPWeaponID nID, const bool &state )
 	{
 		m_bOwnWeaponID[ nID ] = state;
-		if ( state )
-			pev->weapons |= (1 << nID);
-		else
-			pev->weapons &= ~(1 << nID);
+		SendWeaponOwnUpdate( nID, state );
 	}
 	inline bool GetWeaponOwn( ZPWeaponID nID ) const { return m_bOwnWeaponID[ nID ]; }
+	void SendWeaponOwnUpdate( ZPWeaponID nID, const bool &state );
 
 #endif
 

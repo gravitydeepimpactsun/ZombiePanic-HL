@@ -291,6 +291,10 @@ int gmsgMouseFix = 0;
 
 int gmsgZPAPICall = 0;
 
+// When a weapon is given/removed.
+// We need to send a message to the client to update the weapon selection menu.
+int gmsgWeaponGiven = 0;
+
 int gmsgBarricadeBuildProgress = 0;
 
 // Debugging
@@ -395,6 +399,7 @@ void LinkUserMessages(void)
 	gmsgMouseFix = REG_USER_MSG("MouseFix", -1);
 
 	gmsgZPAPICall = REG_USER_MSG("APICheck", -1);
+	gmsgWeaponGiven = REG_USER_MSG("WeapGiven", -1);
 
 	gmsgBarricadeBuildProgress = REG_USER_MSG("Barricade", sizeof(float));
 }
@@ -1957,6 +1962,25 @@ void CBasePlayer::StartDeathCam(void)
 	pev->health = 1; // Let player stay vertically, not lie on a side
 	pev->effects = EF_NODRAW; // Hide model. This is used instead of pev->modelindex = 0
 	//pev->modelindex = 0;				// Commented to let view point be moved
+}
+
+void CBasePlayer::SendWeaponOwnUpdate( ZPWeaponID nID, const bool &state )
+{
+#if 1
+	// NOTICE: We only use pev->weapons bitfield for now, as it will be removed
+	// after the Steam release. The bitfield is limited to 32 weapons, since we only have a few weapons in the game currently,
+	// it's not a problem. Once the rest of the melee weapons are added, we will use the MSG system instead.
+	if ( state )
+		pev->weapons |= (1 << nID);
+	else
+		pev->weapons &= ~(1 << nID);
+#else
+	MESSAGE_BEGIN( MSG_ALL, gmsgWeaponGiven );
+	WRITE_BYTE( ENTINDEX(edict()) );
+	WRITE_BYTE( nID );
+	WRITE_BYTE( state );
+	MESSAGE_END();
+#endif
 }
 
 void CBasePlayer::StartWelcomeCam(void)

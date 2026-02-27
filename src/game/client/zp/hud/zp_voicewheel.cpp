@@ -26,6 +26,7 @@ ConVar cl_vwheel_adjust_x( "cl_vwheel_adjust_x", "150", 0, "Adjust the X positio
 ConVar cl_vwheel_adjust_y( "cl_vwheel_adjust_y", "60", 0, "Adjust the Y position of the voice wheel. Use this if the voice wheel is not perfectly centered on your screen." );
 ConVar cl_vwheel_adjust_triangle( "cl_vwheel_adjust_triangle", "5", 0, "Adjust the position of the triangle that points to the current option. Use this if the triangle is not perfectly centered on the options." );
 
+extern bool CL_UTIL_IsConnected();
 extern void Input_ClearAttackState();
 
 CHudVoiceWheel::CHudVoiceWheel()
@@ -134,6 +135,7 @@ void CHudVoiceWheel::SetToggleState( bool bState )
 
 bool CHudVoiceWheel::IsAllowedToDraw( const bool &bOnToggleCheck )
 {
+	if ( !CL_UTIL_IsConnected() ) return false;
 	if ( gHUD.m_RoundState < ZP::RoundState::RoundState_WaitingForPlayers ) return false;
 	if ( g_pViewport->IsVGUIVisible( MENU_TEAM ) ) return false;
 	if ( g_pViewport->IsVGUIVisible( MENU_MOTD ) ) return false;

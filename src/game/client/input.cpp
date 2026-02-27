@@ -467,7 +467,7 @@ int CL_DLLEXPORT HUD_Key_Event(int down, int keynum, const char *pszCurrentBindi
 
 // GetLocalPlayer will cause a crash if not connected to a server
 // So we use this function to check if we are connected.
-static bool IsConnected()
+bool CL_UTIL_IsConnected()
 {
 	char buf[64];
 	buf[0] = 0;
@@ -478,7 +478,7 @@ static bool IsConnected()
 
 bool HasRoundBegun()
 {
-	if ( !IsConnected() ) return false;
+	if ( !CL_UTIL_IsConnected() ) return false;
 	// If we are an observer, allow free movement
 	if ( g_iUser1 ) return true;
 	// Do not move before the round starts

@@ -1456,7 +1456,12 @@ void CHudChat::ChatPrintf(int iPlayerIndex, int iFilter, const char *fmt, ...)
 	if (pi && pi->HasRealName())
 	{
 		const char *realname = pi->GetDisplayName();
-		int realnamelen = strlen(realname);
+
+		// Let's add ^0 at the end of their name, so we reset the color (if they use custom colors in their name)
+		char realname_with_color[MAX_PLAYER_NAME + 3];
+		Q_snprintf( realname_with_color, sizeof(realname_with_color), "%s^0", realname );
+
+		int realnamelen = strlen(realname_with_color);
 
 		// Find player name
 		const char *nameinmsg = strstr(msg, pi->GetName());
@@ -1485,8 +1490,8 @@ void CHudChat::ChatPrintf(int iPlayerIndex, int iFilter, const char *fmt, ...)
 			// Move part after the name to where it will be after replace
 			memmove(msg + realnameend, msg + nameend, std::min(sizeof(msg) - nameend + 1, sizeof(msg) - realnameend - 1));
 
-			// Replace name with realname
-			memcpy(msg + namestart, realname, realnamelen);
+			// Replace name with realname_with_color
+			memcpy(msg + namestart, realname_with_color, realnamelen );
 		}
 	}
 

@@ -242,8 +242,8 @@ CColorPicker::CColorPicker(vgui2::Panel *parent, const char *panelName, const ch
 	m_pRgbTextPanel = new vgui2::TextEntry(this, "RgbText");
 	m_pRgbTextPanel->AddActionSignalTarget(this);
 
-	m_pOkButton = new vgui2::Button(this, "OkBtn", "#VGUI_Ok", this, "OkClicked");
-	m_pCancelButton = new vgui2::Button(this, "CancelBtn", "#VGUI_Cancel", this, "CancelClicked");
+	m_pOkButton = new vgui2::Button(this, "OkBtn", "#PropertyDialog_OK", this, "OkClicked");
+	m_pCancelButton = new vgui2::Button(this, "CancelBtn", "#PropertyDialog_Close", this, "CancelClicked");
 
 	LoadControlSettings(VGUI2_ROOT_DIR "resource/options/ColorPicker.res");
 	InvalidateLayout();

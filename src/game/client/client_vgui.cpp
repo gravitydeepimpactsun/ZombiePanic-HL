@@ -63,6 +63,7 @@ void CClientVGUI::Initialize(CreateInterfaceFn *pFactories, int iNumFactories)
 	LoadLocalizationFile( "ui/resource/language/gameui" );
 	LoadLocalizationFile( "ui/resource/language/zp" );
 	LoadLocalizationFile( "ui/resource/language/achievements" );
+	LoadLocalizationFile( "ui/resource/language/serverbrowser" );
 
 	new CClientViewport();
 	new CGameUIViewport();

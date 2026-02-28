@@ -36,6 +36,10 @@ void CCvarColor::ApplySchemeSettings(vgui2::IScheme *pScheme)
 	m_pPreview->SetBorder(pScheme->GetBorder("DepressedBorder"));
 	m_pBtn->SetPos( GetScaledValue( 52 ), GetScaledValue( 0 ) );
 	m_pBtn->SetSize( GetScaledValue( 52 ), TALL );
+
+	vgui2::HFont hFont = pScheme->GetFont( "DefaultVerySmall", IsProportional() );
+	if ( hFont != vgui2::INVALID_FONT )
+		m_pBtn->SetFont( hFont );
 }
 
 void CCvarColor::OnCommand(const char *pCmd)

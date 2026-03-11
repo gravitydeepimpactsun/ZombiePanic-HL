@@ -107,7 +107,6 @@ int HistoryResource::DrawAmmoHistory(float flTime)
 			}
 			else if (rgAmmoHistory[i].type == HISTSLOT_AMMO)
 			{
-				wrect_t rcPic;
 				CHud::RegisteredIcon spr = gWR.GetAmmoPicFromWeapon(rgAmmoHistory[i].iAmmoType);
 
 				int r, g, b;
@@ -131,7 +130,7 @@ int HistoryResource::DrawAmmoHistory(float flTime)
 				}
 
 				// Draw the number
-				int yposText = ypos + rcPic.GetHeight() / 2 - gHUD.GetHudFontSize() / 2;
+				int yposText = ypos + spr.Tall / 2 - gHUD.GetHudFontSize() / 2;
 				gHUD.DrawHudNumberString(xpos - itemWidth, yposText, xpos - 100, rgAmmoHistory[i].iCount, r, g, b);
 			}
 			else if (rgAmmoHistory[i].type == HISTSLOT_WEAP)

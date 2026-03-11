@@ -1123,11 +1123,13 @@ uint64 UTIL_ParseSteamID( const char *pszAuthID )
 {
 	if ( !pszAuthID ) return 0;
 
-	char steamid[ MAX_STEAMID + 1 ];
+	char steamid[ MAX_STEAMID ];
 	if ( !strncmp( pszAuthID, "STEAM_", 6 ) || !strncmp( pszAuthID, "VALVE_", 6 ) )
-		strncpy( steamid, pszAuthID + 6, MAX_STEAMID); // cutout "STEAM_" or "VALVE_" start of the string
+		strncpy( steamid, pszAuthID + 6, MAX_STEAMID - 1 ); // cutout "STEAM_" or "VALVE_" start of the string
 	else
-		strncpy( steamid, pszAuthID, MAX_STEAMID );
+		strncpy( steamid, pszAuthID, MAX_STEAMID - 1 );
+
+	steamid[ MAX_STEAMID - 1 ] = '\0';
 
 	// Valid SteamID must begin with 0:Y:ZZZZZZZ
 	// "The value of X (Universe) is 0 in VALVe's GoldSrc and Source Orange Box Engine games"

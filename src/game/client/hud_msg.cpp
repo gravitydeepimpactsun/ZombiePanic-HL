@@ -311,12 +311,14 @@ int CHud::MsgFunc_BcnD(const char *pszName, int iSize, void *pbuf)
 	beacon.range = READ_FLOAT();
 
 	static char szText[512];
-	szText[0] = 0;
-	strncpy( szText, READ_STRING(), sizeof( szText ) );
+	strncpy( szText, READ_STRING(), sizeof( szText ) - 1 );
+	szText[sizeof( szText ) - 1] = '\0';
 	beacon.text = szText;
 
-	strncpy( szText, READ_STRING(), sizeof( szText ) );
-	beacon.text_zombie = szText;
+	static char szZombieText[512];
+	strncpy( szZombieText, READ_STRING(), sizeof( szZombieText ) - 1 );
+	szZombieText[sizeof( szZombieText ) - 1] = '\0';
+	beacon.text_zombie = szZombieText;
 
 	// Add the beacon to our list (or update it if it already exists)
 	CZPBeacons::Get()->AddBeacon( beacon );
@@ -399,8 +401,8 @@ int CHud::MsgFunc_APICheck(const char *pszName, int iSize, void *pbuf)
 	int iGame = READ_SHORT();
 	int iTier = READ_SHORT();
 	static char szKey[512];
-	szKey[0] = 0;
-	strncpy( szKey, READ_STRING(), sizeof( szKey ) );
+	strncpy( szKey, READ_STRING(), sizeof( szKey ) - 1 );
+	szKey[sizeof(szKey) - 1] = '\0';
 
 	if ( iPlayer < 0 || iPlayer >= MAX_PLAYERS ) return 1;
 	g_ClientAPIDataArray[ iPlayer ].Game = (eGameAPIVersion)iGame;

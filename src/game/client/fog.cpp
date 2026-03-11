@@ -88,10 +88,13 @@ void CFog::RenderFog( Vector& color )
 		flDensity = cl_fog_density.GetFloat();
 		flStart = cl_fog_start.GetInt();
 		flEnd = cl_fog_end.GetInt();
-		sscanf( cl_fog_color.GetString(), "%f %f %f", &flColor[0], &flColor[1], &flColor[2] );
-		flColor[0] = clamp( flColor[0], 0.0f, 255.0f ) / 255.0f;
-		flColor[1] = clamp( flColor[1], 0.0f, 255.0f ) / 255.0f;
-		flColor[2] = clamp( flColor[2], 0.0f, 255.0f ) / 255.0f;
+
+		if ( sscanf( cl_fog_color.GetString(), "%f %f %f", &flColor[0], &flColor[1], &flColor[2] ) == 3 )
+		{
+			flColor[0] = clamp( flColor[0], 0.0f, 255.0f ) / 255.0f;
+			flColor[1] = clamp( flColor[1], 0.0f, 255.0f ) / 255.0f;
+			flColor[2] = clamp( flColor[2], 0.0f, 255.0f ) / 255.0f;
+		}
 	}
 
 	// If start distance and end distance isn't properly set

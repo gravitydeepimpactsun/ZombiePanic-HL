@@ -1364,8 +1364,11 @@ int CGraph ::LinkVisibleNodes(CLink *pLinkPool, FILE *file, int *piBadNode)
 		}
 	}
 
-	fprintf(file, "\n%4d Total Initial Connections - %4d Maximum connections for a single node.\n", cTotalLinks, cMaxInitialLinks);
-	fprintf(file, "----------------------------------------------------------------------------\n\n\n");
+	if (file)
+	{
+		fprintf(file, "\n%4d Total Initial Connections - %4d Maximum connections for a single node.\n", cTotalLinks, cMaxInitialLinks);
+		fprintf(file, "----------------------------------------------------------------------------\n\n\n");
+	}
 
 	return cTotalLinks;
 }

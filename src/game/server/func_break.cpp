@@ -304,8 +304,7 @@ void CBreakable::MaterialSoundRandom(edict_t *pEdict, Materials soundMaterial, f
 
 void CBreakable::Precache(void)
 {
-	const char *pGibName;
-
+	const char *pGibName = NULL;
 	switch (m_Material)
 	{
 	case matWood:
@@ -361,10 +360,12 @@ void CBreakable::Precache(void)
 		break;
 	}
 	MaterialSoundPrecache(m_Material);
-	if (m_iszGibModel)
-		pGibName = STRING(m_iszGibModel);
 
-	m_idShard = PRECACHE_MODEL((char *)pGibName);
+	if ( m_iszGibModel )
+		pGibName = STRING( m_iszGibModel );
+
+	if ( pGibName && pGibName[0] != '\0' )
+		m_idShard = PRECACHE_MODEL( (char *)pGibName  );
 
 	// Precache the spawn item's data
 	if (m_iszSpawnObject)
@@ -379,7 +380,7 @@ void CBreakable::DamageSound(void)
 	int pitch;
 	float fvol;
 	char *rgpsz[6];
-	int i;
+	int i = 0;
 	int material = m_Material;
 
 	//	if (RANDOM_LONG(0,1))
@@ -444,7 +445,7 @@ void CBreakable::DamageSound(void)
 		break;
 	}
 
-	if (i)
+	if (i > 0)
 		EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, rgpsz[RANDOM_LONG(0, i - 1)], fvol, ATTN_NORM, 0, pitch);
 }
 

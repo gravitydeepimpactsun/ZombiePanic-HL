@@ -388,8 +388,7 @@ void CBaseButton::Precache(void)
 	}
 
 	// For our breakable code
-	const char *pGibName;
-
+	const char *pGibName = NULL;
 	switch (m_Material)
 	{
 	case matWood:
@@ -445,10 +444,12 @@ void CBaseButton::Precache(void)
 		break;
 	}
 	CBreakable::MaterialSoundPrecache( (Materials)m_Material );
-	if (m_iszGibModel)
-		pGibName = STRING(m_iszGibModel);
 
-	m_idShard = PRECACHE_MODEL((char *)pGibName);
+	if ( m_iszGibModel )
+		pGibName = STRING( m_iszGibModel );
+
+	if ( pGibName && pGibName[0] != '\0' )
+		m_idShard = PRECACHE_MODEL( (char *)pGibName  );
 }
 
 //

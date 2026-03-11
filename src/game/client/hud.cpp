@@ -351,11 +351,11 @@ void CHud::Init(void)
 	HookHudMessage<&CHud::MsgFunc_Logo>("Logo");
 	HookHudMessage<&CHud::MsgFunc_Fog>("Fog");
 	HookHudMessage<&CHud::MsgFunc_Weather>("Weather");
-	HookHudMessage<&CHud::MsgFunc_Timer>("RndTime");
+	HookHudMessage<&CHud::MsgFunc_RndTime>("RndTime");
 
 	// Zombie Panic! specific messages
-	HookHudMessage<&CHud::MsgFunc_BeaconDraw>("BcnD");
-	HookHudMessage<&CHud::MsgFunc_BeaconReset>("BcnR");
+	HookHudMessage<&CHud::MsgFunc_BcnD>("BcnD");
+	HookHudMessage<&CHud::MsgFunc_BcnR>("BcnR");
 	HookHudMessage<&CHud::MsgFunc_Panic>("Panic");
 	HookHudMessage<&CHud::MsgFunc_Voice>("Voice");
 	HookHudMessage<&CHud::MsgFunc_APICheck>("APICheck");

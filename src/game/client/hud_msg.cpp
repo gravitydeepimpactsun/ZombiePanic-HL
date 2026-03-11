@@ -280,7 +280,7 @@ int CHud::MsgFunc_Weather(const char* pszName, int iSize, void* pbuf)
 	return 1;
 }
 
-int CHud::MsgFunc_Timer(const char *pszName, int iSize, void *pbuf)
+int CHud::MsgFunc_RndTime(const char *pszName, int iSize, void *pbuf)
 {
 	BEGIN_READ(pbuf, iSize);
 
@@ -290,7 +290,7 @@ int CHud::MsgFunc_Timer(const char *pszName, int iSize, void *pbuf)
 }
 
 
-int CHud::MsgFunc_BeaconDraw(const char *pszName, int iSize, void *pbuf)
+int CHud::MsgFunc_BcnD(const char *pszName, int iSize, void *pbuf)
 {
 	BEGIN_READ(pbuf, iSize);
 
@@ -324,7 +324,7 @@ int CHud::MsgFunc_BeaconDraw(const char *pszName, int iSize, void *pbuf)
 }
 
 
-int CHud::MsgFunc_BeaconReset(const char *pszName, int iSize, void *pbuf)
+int CHud::MsgFunc_BcnR(const char *pszName, int iSize, void *pbuf)
 {
 	// We don't read anything from the message, just clear the list
 	CZPBeacons::Get()->ResetBeacons();

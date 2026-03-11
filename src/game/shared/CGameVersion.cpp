@@ -210,7 +210,6 @@ bool CGameVersion::IsDirtyBuild() const
 int CGameVersion::Compare(const CGameVersion &rhs) const
 {
 	int c = 0;
-	bool xyzIdentical = false;
 
 	// Compare version as in semver specs
 	{
@@ -224,8 +223,6 @@ int CGameVersion::Compare(const CGameVersion &rhs) const
 				c = binary_comparison(m_SemVer.patch, rhs.m_SemVer.patch);
 				if (c == 0)
 				{
-					xyzIdentical = true;
-
 					if (m_SemVer.prerelease && !rhs.m_SemVer.prerelease)
 					{
 						c = -1;

@@ -1421,8 +1421,8 @@ void SENTENCEG_Stop(edict_t *entity, int isentenceg, int ipick)
 
 void SENTENCEG_Init()
 {
-	char buffer[512];
-	char szgroup[64];
+	char buffer[512] {};
+	char szgroup[64] {};
 	int i, j;
 	int isentencegs;
 
@@ -1433,8 +1433,6 @@ void SENTENCEG_Init()
 	gcallsentences = 0;
 
 	memset(rgsentenceg, 0, CSENTENCEG_MAX * sizeof(SENTENCEG));
-	memset(buffer, 0, 512);
-	memset(szgroup, 0, 64);
 	isentencegs = -1;
 
 	int filePos = 0, fileSize;
@@ -1447,21 +1445,21 @@ void SENTENCEG_Init()
 	{
 		// skip whitespace
 		i = 0;
-		while (buffer[i] && buffer[i] == ' ')
+		while ('\0' != buffer[i] && buffer[i] == ' ')
 			i++;
 
-		if (!buffer[i])
+		if ('\0' == buffer[i])
 			continue;
 
-		if (buffer[i] == '/' || !isalpha(buffer[i]))
+		if (buffer[i] == '/' || 0 == isalpha(buffer[i]))
 			continue;
 
 		// get sentence name
 		j = i;
-		while (buffer[j] && buffer[j] != ' ')
+		while ('\0' != buffer[j] && buffer[j] != ' ')
 			j++;
 
-		if (!buffer[j])
+		if ('\0' == buffer[j])
 			continue;
 
 		if (gcallsentences > CVOXFILESENTENCEMAX)
@@ -1482,11 +1480,11 @@ void SENTENCEG_Init()
 		j--;
 		if (j <= i)
 			continue;
-		if (!isdigit(buffer[j]))
+		if (0 == isdigit(buffer[j]))
 			continue;
 
 		// cut out suffix numbers
-		while (j > i && isdigit(buffer[j]))
+		while (j > i && 0 != isdigit(buffer[j]))
 			j--;
 
 		if (j <= i)
@@ -1497,7 +1495,7 @@ void SENTENCEG_Init()
 		// if new name doesn't match previous group name,
 		// make a new group.
 
-		if (strcmp(szgroup, &(buffer[i])))
+		if (0 != strcmp(szgroup, &(buffer[i])))
 		{
 			// name doesn't match with prev name,
 			// copy name into group, init count to 1
@@ -1531,7 +1529,7 @@ void SENTENCEG_Init()
 
 	i = 0;
 
-	while (rgsentenceg[i].count && i < CSENTENCEG_MAX)
+	while (0 != rgsentenceg[i].count && i < CSENTENCEG_MAX)
 	{
 		USENTENCEG_InitLRU(&(rgsentenceg[i].rgblru[0]), rgsentenceg[i].count);
 		i++;
@@ -2062,7 +2060,6 @@ void CSpeaker ::Precache(void)
 }
 void CSpeaker ::SpeakerThink(void)
 {
-	char *szSoundFile;
 	float flvolume = pev->health * 0.1;
 	float flattenuation = 0.3;
 	int flags = 0;
@@ -2075,51 +2072,27 @@ void CSpeaker ::SpeakerThink(void)
 		return;
 	}
 
-	if (m_preset)
+	const char *const szSoundFile = [this]()
 	{
 		// go lookup preset text, assign szSoundFile
 		switch (m_preset)
 		{
-		case 1:
-			szSoundFile = "C1A0_";
-			break;
-		case 2:
-			szSoundFile = "C1A1_";
-			break;
-		case 3:
-			szSoundFile = "C1A2_";
-			break;
-		case 4:
-			szSoundFile = "C1A3_";
-			break;
-		case 5:
-			szSoundFile = "C1A4_";
-			break;
-		case 6:
-			szSoundFile = "C2A1_";
-			break;
-		case 7:
-			szSoundFile = "C2A2_";
-			break;
-		case 8:
-			szSoundFile = "C2A3_";
-			break;
-		case 9:
-			szSoundFile = "C2A4_";
-			break;
-		case 10:
-			szSoundFile = "C2A5_";
-			break;
-		case 11:
-			szSoundFile = "C3A1_";
-			break;
-		case 12:
-			szSoundFile = "C3A2_";
-			break;
+		case 0: return STRING(pev->message);
+		case 1: return "C1A0_";
+		case 2: return "C1A1_";
+		case 3: return "C1A2_";
+		case 4: return "C1A3_";
+		case 5: return "C1A4_";
+		case 6: return "C2A1_";
+		case 7: return "C2A2_";
+		case 8: return "C2A3_";
+		case 9: return "C2A4_";
+		case 10: return "C2A5_";
+		case 11: return "C3A1_";
+		case 12: return "C3A2_";
+		default: return "";
 		}
-	}
-	else
-		szSoundFile = (char *)STRING(pev->message);
+	}();
 
 	if (szSoundFile[0] == '!')
 	{
@@ -2142,8 +2115,6 @@ void CSpeaker ::SpeakerThink(void)
 
 		CTalkMonster::g_talkWaitTime = gpGlobals->time + 5; // time delay until it's ok to speak: used so that two NPCs don't talk at once
 	}
-
-	return;
 }
 
 //

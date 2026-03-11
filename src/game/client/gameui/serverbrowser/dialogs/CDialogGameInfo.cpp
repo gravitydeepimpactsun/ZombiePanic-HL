@@ -135,7 +135,7 @@ void CDialogGameInfo::RulesResponded( const char* pchRule, const char* pchValue 
 	else if (!Q_stricmp(pchRule, "hostname"))
 		m_Server.SetName( pchValue );
 	else if (!Q_stricmp(pchRule, "map"))
-		Q_snprintf( m_Server.m_szMap, sizeof( m_Server.m_szGameDescription ), "%s", pchValue );
+		Q_snprintf( m_Server.m_szMap, sizeof( m_Server.m_szMap ), "%s", pchValue );
 	else if (!Q_stricmp(pchRule, "gamedesc"))
 		Q_snprintf( m_Server.m_szGameDescription, sizeof( m_Server.m_szGameDescription ), "%s", pchValue );
 

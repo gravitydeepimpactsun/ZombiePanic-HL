@@ -1966,14 +1966,18 @@ unsigned int CSaveRestoreBuffer ::HashString(const char *pszToken)
 
 unsigned short CSaveRestoreBuffer ::TokenHash(const char *pszToken)
 {
-	unsigned short hash = (unsigned short)(HashString(pszToken) % (unsigned)m_pdata->tokenCount);
-
 #if _DEBUG
 	static int tokensparsed = 0;
 	tokensparsed++;
-	if (!m_pdata->tokenCount || !m_pdata->pTokens)
-		ALERT(at_error, "No token table array in TokenHash()!");
 #endif
+	if (0 == m_pdata->tokenCount || nullptr == m_pdata->pTokens)
+	{
+		//if we're here it means trigger_changelevel is trying to actually save something when it's not supposed to.
+		ALERT(at_error, "No token table array in TokenHash()!");
+		return 0;
+	}
+
+	unsigned short hash = (unsigned short)(HashString(pszToken) % (unsigned)m_pdata->tokenCount);
 
 	for (int i = 0; i < m_pdata->tokenCount; i++)
 	{

@@ -7228,7 +7228,7 @@ void CBasePlayer::DropUnuseableAmmo()
 			CBasePlayerItem *pWeapon = GetWeaponFromSlot( i );
 			if ( !pWeapon ) continue;
 			ZPAmmoTypes iAmmoIndex = GetAmmoByName( pWeapon->GetData().Ammo1 ).AmmoType;
-			if ( iAmmoIndex > ZPAmmoTypes::AMMO_NONE )
+			if ( iAmmoIndex > ZPAmmoTypes::AMMO_NONE && iAmmoIndex < ZPAmmoTypes::AMMO_MAX )
 				bAmmoThatShouldBeDropped[ iAmmoIndex ] = false;
 		}
 	}

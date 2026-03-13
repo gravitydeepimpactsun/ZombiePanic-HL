@@ -91,6 +91,8 @@ public:
 	void DownloadWorkshopAddon( PublishedFileId_t nWorkshopID, const bool &bReconnect );
 
 protected:
+	virtual void ApplySchemeSettings( vgui2::IScheme *pScheme );
+
 	void UpdateWorkshopMapsFile( const bool &bWorkshopFolder );
 	void LoadWorkshop();
 	void CheckWorkshopSubscriptions();

@@ -88,12 +88,7 @@ CGameUIViewport::CGameUIViewport()
 		m_callHTTPResult.Set( pCall, this, &CGameUIViewport::UpdateHTTPCallback );
 	}
 
-	int w, t;
-	vgui2::surface()->GetScreenSize( w, t );
 	m_hMenu = new CBaseMenu( this );
-	m_hMenu->MakePopup( false, false );
-	m_hMenu->SetMenuBounds( 0, 0, w, t );
-	m_hMenu->LoadPage( MenuPagesTable_t::PAGE_MAIN );
 
 	// Don't start with maxplayers set to 1.
 	// Default should be 16.
@@ -109,6 +104,17 @@ CGameUIViewport::~CGameUIViewport()
 {
 	Assert(m_sInstance);
 	m_sInstance = nullptr;
+}
+
+void CGameUIViewport::ApplySchemeSettings( vgui2::IScheme *pScheme )
+{
+	BaseClass::ApplySchemeSettings( pScheme );
+
+	int w, t;
+	vgui2::surface()->GetScreenSize( w, t );
+	m_hMenu->SetMenuBounds( 0, 0, w, t );
+	m_hMenu->LoadPage( MenuPagesTable_t::PAGE_MAIN );
+	m_hMenu->ToggleBackground( true );
 }
 
 void CGameUIViewport::OnUserStatsReceived( UserStatsReceived_t *pCallback )

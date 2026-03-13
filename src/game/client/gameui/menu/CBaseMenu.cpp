@@ -298,6 +298,8 @@ CMenuPage *CBaseMenu::TryCreatePage( MenuPagesTable_t nPage )
 	}
 	if ( !szTitle ) return nullptr;
 	pPage[m_Page] = new CMenuPage( this, m_Page, szTitle );
+	pPage[m_Page]->MakePopup( false, false );
+	pPage[m_Page]->SetZPos( 0 );
 	return pPage[m_Page];
 }
 
@@ -420,12 +422,14 @@ void CBaseMenu::ReadBackgroundFolder()
 void CBaseMenu::CreateBackgroundBase(int iTopIndex, int iImages)
 {
 	m_pBackgroundImage[iTopIndex][iImages] = new vgui2::ImagePanel( this, vgui2::VarArgs( "bg%i_%i", iTopIndex, iImages ) );
+	m_pBackgroundImage[iTopIndex][iImages]->MakePopup( false, false );
 	m_pBackgroundImage[iTopIndex][iImages]->SetFillColor( Color( 0, 0, 0, 255 ) );
 	m_pBackgroundImage[iTopIndex][iImages]->SetSize( GetWide(), GetTall() );
 	m_pBackgroundImage[iTopIndex][iImages]->SetPos( 0, 0 );
 	m_pBackgroundImage[iTopIndex][iImages]->SetShouldScaleImage( true );
 	m_pBackgroundImage[iTopIndex][iImages]->SetMouseInputEnabled( false );
 	m_pBackgroundImage[iTopIndex][iImages]->SetKeyBoardInputEnabled( false );
+	m_pBackgroundImage[iTopIndex][iImages]->SetZPos( -500 );
 }
 
 void CBaseMenu::SetupBackgroundBaseBounds( int iTopIndex, int iImages )
@@ -440,58 +444,53 @@ void CBaseMenu::InternalMousePressed(int code)
 	DoDialogHackFix();
 }
 
-static void MoveVPanelPopupsToFront( vgui2::VPANEL panel )
+struct VPanelMoveData_t
 {
-	int count = g_pVGuiPanel->GetChildCount( panel );
-	for ( int i = 0; i < count; i++ )
-	{
-		vgui2::VPANEL vChild = g_pVGuiPanel->GetChild( panel, i );
-		if ( g_pVGuiPanel->IsPopup( vChild ) )
-			g_pVGuiPanel->MoveToFront( vChild );
-		MoveVPanelPopupsToFront( vChild );
-	}
-}
+	vgui2::VPANEL panel;
+	int zOrder;
+};
 
 void CBaseMenu::DoDialogHackFix()
 {
-	// Make sure we move this to the front!
-	if ( m_hDiscordButton && HasFocus() )
-		m_hDiscordButton->MoveToFront();
+	// The moment we press on the menu, the items will be in front of the windows, due to it being MakePopup function.
+	// To fix this, let's simply move all the windows to the front (excluding CMenuPage). But still containing the same order.
+	std::vector< VPanelMoveData_t > m_List;
 
-	// If any of these are valid, and visible, move them to front.
+	vgui2::VPANEL vCreateServer, vOptionsDialog, vCreateServerMenuItem, vCreateOptionsDialogMenuItem;
+	GetGameMenuVPanelItems( vCreateServer, vOptionsDialog, vCreateServerMenuItem, vCreateOptionsDialogMenuItem );
+	if ( vCreateServer != 0 )
+		m_List.push_back( { vCreateServer, g_pVGuiPanel->GetZPos( vCreateServer ) } );
+	if ( vOptionsDialog != 0 )
+		m_List.push_back( { vOptionsDialog, g_pVGuiPanel->GetZPos( vOptionsDialog ) } );
+
+	// If any of these are valid, and visible, add them to the list as well.
 	for ( int i = 0; i < GameUIDialogs::UIDialog_MAX; i++ )
 	{
 		if ( CGameUIViewport::Get()->GetDialog( (GameUIDialogs)i ) && CGameUIViewport::Get()->GetDialog( (GameUIDialogs)i )->IsVisible() )
-			CGameUIViewport::Get()->GetDialog( (GameUIDialogs)i )->MoveToFront();
+			m_List.push_back( { CGameUIViewport::Get()->GetDialog( (GameUIDialogs)i )->GetVPanel(), g_pVGuiPanel->GetZPos( CGameUIViewport::Get()->GetDialog( (GameUIDialogs)i )->GetVPanel() ) } );
 	}
+
+	// Now, let's sort the list by the z order. From the lowest to highest.
+	std::sort( m_List.begin(), m_List.end(), []( const VPanelMoveData_t &a, const VPanelMoveData_t &b )
+	{
+		return a.zOrder < b.zOrder; 
+	});
+
+	// Make sure we move this to the front!
+	if ( m_hDiscordButton && HasFocus() )
+		m_hDiscordButton->MoveToFront();
 
 	// If our console is valid, and visible, then do it.
 	if ( g_pGameConsole && g_pGameConsole->IsConsoleVisible() )
 		g_pGameConsole->Activate();
 
-	// Let's do the same for our Create Server Dialog and Options Dialog.
-	vgui2::VPANEL vCreateServer, vOptionsDialog, vCreateServerMenuItem, vCreateOptionsDialogMenuItem;
-	GetGameMenuVPanelItems( vCreateServer, vOptionsDialog, vCreateServerMenuItem, vCreateOptionsDialogMenuItem );
-	if ( vCreateServer != 0 )
-		g_pVGuiPanel->MoveToFront( vCreateServer );
-	if ( vOptionsDialog != 0 )
-		g_pVGuiPanel->MoveToFront( vOptionsDialog );
-
-	// Move all message boxes to front, always!
-	for (int i = 0; i < GetChildCount(); i++)
-	{
-		Panel *pChild = GetChild(i);
-		if ( !pChild ) continue;
-		if ( !V_stricmp( pChild->GetClassName(), "MessageBox" ) )
-			pChild->MoveToFront();
-	}
+	// Now, let's move the items to the front, in the same order as they were before.
+	for ( const auto &data : m_List )
+		g_pVGuiPanel->MoveToFront( data.panel );
 
 	// Let's move our server browser dialogs to front as well.
 	if ( CGameUIViewport::Get()->GetServerBrowser() )
 		CGameUIViewport::Get()->GetServerBrowser()->MoveAllDialogsToFront();
-
-	// Let's move all popups to the front as well.
-	MoveVPanelPopupsToFront( g_pEngineVGui->GetPanel( PANEL_GAMEUIDLL ) );
 
 	// This has higher priorty than the popups, so move it to the front after them.
 	if ( m_hMessageBox && m_hMessageBox->IsVisible() )

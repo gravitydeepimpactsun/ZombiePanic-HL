@@ -63,4 +63,6 @@ extern int AllowLagCompensation(void);
 
 extern void CvarValue2(const edict_t *pEnt, int requestID, const char *cvarName, const char *value);
 
+extern int ShouldCollide( edict_t *pEntity, edict_t *pOther );
+
 #endif // CLIENT_H

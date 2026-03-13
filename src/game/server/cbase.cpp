@@ -109,7 +109,7 @@ static DLL_FUNCTIONS gFunctionTable = {
 NEW_DLL_FUNCTIONS gNewDLLFunctions = {
 	nullptr,
 	nullptr,
-	nullptr,
+	ShouldCollide,
 	nullptr,
 	CvarValue2
 };

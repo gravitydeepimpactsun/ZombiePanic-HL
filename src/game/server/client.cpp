@@ -2102,3 +2102,18 @@ void CvarValue2(const edict_t *pEnt, int requestID, const char *cvarName, const 
 {
 	serverapi()->CvarValueCallback(pEnt, requestID, cvarName, value);
 }
+
+int ShouldCollide( edict_t *pEntity, edict_t *pOther )
+{
+	if ( !pEntity || !pOther ) return 0;
+
+	// Don't collide if we are on the same team.
+	if ( (pEntity->v.team != 0) && (pEntity->v.team == pOther->v.team) )
+		return 0;
+
+	// Don't collide if either entity is a spectator.
+	if ( (pEntity->v.flags & FL_SPECTATOR) || (pOther->v.flags & FL_SPECTATOR) )
+		return 0;
+
+	return 1;
+}

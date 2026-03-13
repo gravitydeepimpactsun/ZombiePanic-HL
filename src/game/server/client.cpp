@@ -2108,8 +2108,8 @@ int ShouldCollide( edict_t *pEntity, edict_t *pOther )
 	if ( !pEntity || !pOther ) return 0;
 
 	// Don't collide if we are on the same team.
-	if ( (pEntity->v.team != 0) && (pEntity->v.team == pOther->v.team) )
-		return 0;
+//	if ( (pEntity->v.team != 0) && (pEntity->v.team == pOther->v.team) )
+//		return 0;
 
 	// Don't collide if either entity is a spectator.
 	if ( (pEntity->v.flags & FL_SPECTATOR) || (pOther->v.flags & FL_SPECTATOR) )

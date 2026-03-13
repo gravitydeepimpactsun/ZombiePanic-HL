@@ -102,6 +102,14 @@ private:
 	bool m_bCheatsOnThisSession;
 	bool m_bHostHasJoined; // Peer-2-Peer only
 
+	struct AchievementAnnounce_t
+	{
+		int m_iAchievementID;
+		int m_iPlayerIndex;
+		float m_flDelay;
+	};
+	std::vector<AchievementAnnounce_t> m_vecAchievementAnnounces;
+
 	ClientAPIData_t m_ClientsData[ MAX_PLAYERS ] = {};
 };
 CZombiePanicGameRules *ZPGameRules();

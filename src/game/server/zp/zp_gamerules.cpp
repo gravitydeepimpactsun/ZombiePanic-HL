@@ -107,6 +107,7 @@ CZombiePanicGameRules::CZombiePanicGameRules()
 
 CZombiePanicGameRules::~CZombiePanicGameRules()
 {
+	m_vecAchievementAnnounces.clear();
 	ZP::SetCurrentGameMode( nullptr );
 }
 
@@ -126,6 +127,21 @@ void CZombiePanicGameRules ::Think(void)
 #endif
 
 	g_VoiceGameMgr.Update(gpGlobals->frametime);
+
+	for ( size_t i = 0; i < m_vecAchievementAnnounces.size(); i++ )
+	{
+		AchievementAnnounce_t &announce = m_vecAchievementAnnounces[ i ];
+		if ( announce.m_flDelay - gpGlobals->time <= 0 )
+		{
+			// Time to announce the achievement
+			CBasePlayer *pPlayer = (CBasePlayer *)UTIL_PlayerByIndex( announce.m_iPlayerIndex );
+			if ( pPlayer )
+				pPlayer->NotifyOfEarnedAchivement( announce.m_iAchievementID );
+			m_vecAchievementAnnounces.erase( m_vecAchievementAnnounces.begin() + i );
+			// Only one announcement per frame. We do NOT want an overflow.
+			break;
+		}
+	}
 
 	if ( g_fGameOver ) // someone else quit the game already
 	{
@@ -699,11 +715,19 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 			pPlayer->DoPanic();
 		return TRUE;
 	}
+	// Optimzized this for dedicated servers. It caused an overflow if we have 16 players, but worked fine for Peer-2-Peer.
+	// So we simply add these to a simple queue and process them in Think, to avoid the overflow.
 	else if (FStrEq(pcmd, "achearn"))
 	{
 		const char *pAchivement = CMD_ARGV(1);
 		if ( pAchivement && pAchivement[0] )
-			pPlayer->NotifyOfEarnedAchivement( atoi( pAchivement ) );
+		{
+			AchievementAnnounce_t announce;
+			announce.m_iPlayerIndex = pPlayer->entindex();
+			announce.m_iAchievementID = atoi( pAchivement );
+			announce.m_flDelay = gpGlobals->time + 0.5f + m_vecAchievementAnnounces.size();
+			m_vecAchievementAnnounces.push_back( announce );
+		}
 		return TRUE;
 	}
 	else if (FStrEq(pcmd, "giveammo"))

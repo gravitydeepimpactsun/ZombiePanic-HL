@@ -1,15 +1,7 @@
 #include "hud.h"
 #include "mathlib/vector.h"
 #include "fog.h"
-#ifdef WIN32
-	#include "winsani_in.h"
-	#define WIN32_LEAN_AND_MEAN
-	#define WIN32_EXTRA_LEAN
-	#include <windows.h>
-	#include "winsani_out.h"
-
-	#include "gl/gl.h"
-#endif
+#include "opengl.h"
 #include "triangleapi.h"
 
 CFog gFog;
@@ -104,25 +96,25 @@ void CFog::RenderFog( Vector& color )
 	// If FOG is disabled.
 	if ( !bFog )
 	{
-#if WIN32
-		glDisable( GL_FOG );
-#else
-		gEngfuncs.pTriAPI->Fog( Vector(0, 0, 0), 0, 0, FALSE );
-#endif
+		if ( CClientOpenGL::Get().IsAvailable() )
+			glDisable( GL_FOG );
+		else
+			gEngfuncs.pTriAPI->Fog( Vector(0, 0, 0), 0, 0, FALSE );
 		return;
 	}
 
-#if WIN32
-	glEnable( GL_FOG );
-	glFogi( GL_FOG_MODE, GL_LINEAR );
-	glFogf( GL_FOG_DENSITY, flDensity );
+	if ( CClientOpenGL::Get().IsAvailable() )
+	{
+		glEnable( GL_FOG );
+		glFogi( GL_FOG_MODE, GL_LINEAR );
+		glFogf( GL_FOG_DENSITY, flDensity );
 
-	glFogfv( GL_FOG_COLOR, flColor );
-	glFogf( GL_FOG_START, flStart );
-	glFogf( GL_FOG_END, flEnd );
-#else
-	gEngfuncs.pTriAPI->FogParams( flDensity, m_FogParams.fogSkybox );
-#endif
+		glFogfv( GL_FOG_COLOR, flColor );
+		glFogf( GL_FOG_START, flStart );
+		glFogf( GL_FOG_END, flEnd );
+	}
+	else
+		gEngfuncs.pTriAPI->FogParams( flDensity, m_FogParams.fogSkybox );
 
 	// Finally, set the fog.
 	gEngfuncs.pTriAPI->Fog( flColor, flStart, flEnd, bFog );

@@ -163,6 +163,9 @@ void ZPGameMode_HardCore::GiveWeapons(CBasePlayer *pPlayer)
 					break;
 				}
 			}
+
+			// Now, let's give the player 35 armor.
+			pPlayer->pev->armorvalue = 35;
 		}
 		else
 			pPlayer->GiveNamedItem( "weapon_crowbar" );

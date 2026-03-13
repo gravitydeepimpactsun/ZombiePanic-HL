@@ -9,7 +9,7 @@ PRECACHE_WEAPON_REGISTER( weapon_ppk );
 float CWeaponSideArmPPK::DoHolsterAnimation()
 {
 	SendWeaponAnim( IsEmpty() ? ANIM_PISTOL_HOLSTER_EMPTY : ANIM_PISTOL_HOLSTER );
-	return 0.33;
+	return GetAnimationTime( IsEmpty() ? 24 : 18, 35 );
 }
 
 float CWeaponSideArmPPK::DoWeaponUnload()
@@ -61,7 +61,7 @@ int CWeaponSideArmPPK::AddToPlayer(CBasePlayer *pPlayer)
 float CWeaponSideArmPPK::Deploy()
 {
 	DoDeploy( "models/v_ppk.mdl", "models/p_ppk.mdl", IsEmpty() ? ANIM_PISTOL_DRAW_EMPTY : ANIM_PISTOL_DRAW, "onehanded" );
-	return GetAnimationTime( 26, 30 );
+	return GetAnimationTime( 26, 60 );
 }
 
 void CWeaponSideArmPPK::PrimaryAttack(void)

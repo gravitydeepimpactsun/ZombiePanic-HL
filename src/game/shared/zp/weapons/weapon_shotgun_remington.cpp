@@ -8,7 +8,7 @@ PRECACHE_WEAPON_REGISTER( weapon_shotgun );
 float CWeaponShotgunRemington::DoHolsterAnimation()
 {
 	SendWeaponAnim( ANIM_SHOTGUN_HOLSTER );
-	return GetAnimationTime( 16, 35 );
+	return GetAnimationTime( 16, 40 );
 }
 
 void CWeaponShotgunRemington::Spawn(void)
@@ -56,7 +56,7 @@ int CWeaponShotgunRemington::AddToPlayer( CBasePlayer *pPlayer )
 float CWeaponShotgunRemington::Deploy()
 {
 	DoDeploy( "models/v_shotgun.mdl", "models/p_shotgun.mdl", ANIM_SHOTGUN_DRAW, "shotgun" );
-	return GetAnimationTime( 16, 25 );
+	return GetAnimationTime( 16, 30 );
 }
 
 float CWeaponShotgunRemington::DoWeaponUnload()

@@ -11,7 +11,7 @@ PRECACHE_WEAPON_REGISTER( weapon_556ar );
 float CWeaponRifleM16::DoHolsterAnimation()
 {
 	SendWeaponAnim( ANIM_AR556_HOLSTER );
-	return 0.55;
+	return GetAnimationTime( 10, 35 );
 }
 
 float CWeaponRifleM16::DoWeaponUnload()
@@ -67,7 +67,7 @@ int CWeaponRifleM16::AddToPlayer(CBasePlayer *pPlayer)
 float CWeaponRifleM16::Deploy()
 {
 	DoDeploy( "models/v_556AR.mdl", "models/p_556AR.mdl", ANIM_AR556_DEPLOY, "556ar" );
-	return GetAnimationTime( 21, 30 );
+	return GetAnimationTime( 22, 35 );
 }
 
 void CWeaponRifleM16::PrimaryAttack()

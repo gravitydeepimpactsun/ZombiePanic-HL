@@ -60,7 +60,7 @@ void CWeaponSideArmRevolver::DoAudioFrame( void )
 float CWeaponSideArmRevolver::DoHolsterAnimation()
 {
 	SendWeaponAnim( HasBeenUnloaded() ? ANIM_357_UNLOADED_HOLSTER : ANIM_357_HOLSTER );
-	return GetAnimationTime( 15, 30 );
+	return GetAnimationTime( 15, 35 );
 }
 
 void CWeaponSideArmRevolver::Spawn()
@@ -95,7 +95,7 @@ void CWeaponSideArmRevolver::Precache(void)
 float CWeaponSideArmRevolver::Deploy()
 {
 	DoDeploy( "models/v_357.mdl", "models/p_357.mdl", HasBeenUnloaded() ? ANIM_357_UNLOADED_DRAW : ANIM_357_DRAW, "python" );
-	return GetAnimationTime( 21, 16 );
+	return GetAnimationTime( 21, 35 );
 }
 
 float CWeaponSideArmRevolver::DoWeaponUnload()

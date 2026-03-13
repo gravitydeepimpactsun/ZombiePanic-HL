@@ -10,7 +10,7 @@ PRECACHE_WEAPON_REGISTER( weapon_sig );
 float CWeaponSideArmSig::DoHolsterAnimation()
 {
 	SendWeaponAnim( IsEmpty() ? ANIM_PISTOL_HOLSTER_EMPTY : ANIM_PISTOL_HOLSTER );
-	return GetAnimationTime( 24, 50 );
+	return GetAnimationTime( 24, 60 );
 }
 
 float CWeaponSideArmSig::DoWeaponUnload()
@@ -64,7 +64,7 @@ int CWeaponSideArmSig::AddToPlayer(CBasePlayer *pPlayer)
 float CWeaponSideArmSig::Deploy()
 {
 	DoDeploy( "models/v_9mmhandgun.mdl", "models/p_9mmhandgun.mdl", IsEmpty() ? ANIM_PISTOL_DRAW_EMPTY : ANIM_PISTOL_DRAW, "onehanded" );
-	return GetAnimationTime( 26, 30 );
+	return GetAnimationTime( 26, 40 );
 }
 
 void CWeaponSideArmSig::PrimaryAttack(void)

@@ -8,7 +8,7 @@ PRECACHE_WEAPON_REGISTER( weapon_mp5 );
 float CWeaponSMGMP5::DoHolsterAnimation()
 {
 	SendWeaponAnim( ANIM_MP5_HOLSTER );
-	return GetAnimationTime( 11, 30 );
+	return GetAnimationTime( 11, 35 );
 }
 
 float CWeaponSMGMP5::DoWeaponUnload()
@@ -60,7 +60,7 @@ int CWeaponSMGMP5::AddToPlayer(CBasePlayer *pPlayer)
 float CWeaponSMGMP5::Deploy()
 {
 	DoDeploy( "models/v_mp5.mdl", "models/p_mp5.mdl", ANIM_MP5_DEPLOY, "mp5" );
-	return GetAnimationTime( 21, 30 );
+	return GetAnimationTime( 21, 60 );
 }
 
 void CWeaponSMGMP5::PrimaryAttack()

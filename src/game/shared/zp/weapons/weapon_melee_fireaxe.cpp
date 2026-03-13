@@ -88,13 +88,13 @@ void CWeaponMeleeFireaxe::DoWeaponSoundFromMiss( MeleeAttackType attackType )
 float CWeaponMeleeFireaxe::Deploy()
 {
 	BaseClass::Deploy();
-	return GetAnimationTime( 25, 20 );
+	return GetAnimationTime( 25, 30 );
 }
 
 float CWeaponMeleeFireaxe::DoHolsterAnimation()
 {
 	BaseClass::DoHolsterAnimation();
-	return GetAnimationTime( 17, 35 );
+	return GetAnimationTime( 17, 40 );
 }
 
 float CWeaponMeleeFireaxe::DoWeaponIdleAnimation( int iAnim )

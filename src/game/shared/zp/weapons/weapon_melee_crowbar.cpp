@@ -53,13 +53,13 @@ void CWeaponMeleeCrowbar::DoWeaponSoundFromMiss( MeleeAttackType attackType )
 float CWeaponMeleeCrowbar::Deploy()
 {
 	BaseClass::Deploy();
-	return GetAnimationTime( 24, 30 );
+	return GetAnimationTime( 24, 50 );
 }
 
 float CWeaponMeleeCrowbar::DoHolsterAnimation()
 {
 	BaseClass::DoHolsterAnimation();
-	return GetAnimationTime( 15, 30 );
+	return GetAnimationTime( 15, 50 );
 }
 
 float CWeaponMeleeCrowbar::DoWeaponIdleAnimation( int iAnim )

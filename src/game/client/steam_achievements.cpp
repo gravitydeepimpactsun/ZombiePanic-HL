@@ -175,6 +175,7 @@ void STAT_OnUserStatsReceived( UserStatsReceived_t *pCallback )
 		SetAchievementCompletedByID( ach, bIsAchieved );
 	}
 
+#if 0
 	// Don't reset stats in debug mode, only in release.
 #if !defined( _DEBUG )
 	// Check if our stat ZP_RESET_ALL is 1. If it is, reset all stats.
@@ -193,6 +194,7 @@ void STAT_OnUserStatsReceived( UserStatsReceived_t *pCallback )
 		DoSteamStatReset();
 		CallSteamStatReset( 5.0f ); // Delay it a bit to make sure Steam processes it.
 	}
+#endif
 #endif
 }
 

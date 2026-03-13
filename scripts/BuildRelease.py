@@ -13,7 +13,7 @@ from CreateMetadata import create_metadata
 
 
 # Also needs to be changed in CMakeLists.txt
-DEFAULT_VERSION = [1, 1, 0, 'pre-release', '']
+DEFAULT_VERSION = [1, 1, 1, 'release', '']
 
 
 # ---------------------------------------------

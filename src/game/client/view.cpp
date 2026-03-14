@@ -45,6 +45,11 @@ void VectorAngles(const float *forward, float *angles);
 #include "com_model.h"
 #include "kbutton.h"
 
+#define MAX_PITCH_ANGLE 89
+
+extern cvar_t *cl_pitchdown;
+extern cvar_t *cl_pitchup;
+
 extern engine_studio_api_t IEngineStudio;
 
 extern kbutton_t in_mlook;
@@ -694,6 +699,12 @@ void V_CalcNormalRefdef(struct ref_params_s *pparams)
 
 	// set up gun position
 	V_CalcGunAngle(pparams);
+
+	// Cap our max pitch, so we can't fuck up the hitboxes.
+	if ( pparams->viewangles[PITCH] > MAX_PITCH_ANGLE )
+		pparams->viewangles[PITCH] = MAX_PITCH_ANGLE;
+	else if (pparams->viewangles[PITCH] < -MAX_PITCH_ANGLE)
+		pparams->viewangles[PITCH] = -MAX_PITCH_ANGLE;
 
 	// Use predicted origin as view origin.
 	VectorCopy(pparams->simorg, view->origin);

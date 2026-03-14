@@ -49,7 +49,9 @@ void AgHudPlayerId::DrawSurvivorID( CPlayerInfo *pInfo )
 	int ypos = 1.0f;
 
 	// Draw the name of the player (the color being the health)
-	DrawText( pInfo->GetDisplayName(), ypos, clr );
+	char szRemovedColorCodes[MAX_ID_STRING];
+	Q_strcpy( szRemovedColorCodes, RemoveColorCodes( pInfo->GetDisplayName() ) );
+	DrawText( szRemovedColorCodes, ypos, clr );
 
 	char szText[MAX_ID_STRING];
 #if 0

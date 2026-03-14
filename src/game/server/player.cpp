@@ -687,7 +687,8 @@ void CBasePlayer ::TraceAttack(entvars_t *pevAttacker, float flDamage, Vector ve
 		{
 			// In hardcore mode, headshots do double damage (except zombies deal extra 80% more)
 			// everything else is halved by 50% (if human)
-			if ( m_LastHitGroup == HITGROUP_HEAD )
+			// 2026/03/14 - This now only applies if we have no armor.
+			if ( m_LastHitGroup == HITGROUP_HEAD && pev->armorvalue <= 0 )
 				flDamage *= bIsZombie ? 8.0 : 2.0f;
 			else
 			{

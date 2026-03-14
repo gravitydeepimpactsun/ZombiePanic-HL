@@ -30,7 +30,7 @@ public:
 	virtual int IPointsForKill(CBasePlayer *pAttacker, CBasePlayer *pKilled);
 	virtual void InitHUD(CBasePlayer *pl);
 	virtual void DeathNotice(CBasePlayer *pVictim, entvars_t *pKiller, entvars_t *pevInflictor);
-	virtual const char *GetGameDescription(void) { return "Zombie Panic! v1.1"; } // this is the game name that gets seen in the server browser
+	virtual const char *GetGameDescription(void) { return ZP_GAMEDESC_VERSION; } // this is the game name that gets seen in the server browser
 	int WeaponShouldRespawn(CBasePlayerItem *pWeapon) override { return GR_WEAPON_RESPAWN_NO; }
 	int ItemShouldRespawn(CItem *pItem) override { return GR_ITEM_RESPAWN_NO; }
 	int AmmoShouldRespawn(CBasePlayerAmmo *pAmmo) override { return GR_AMMO_RESPAWN_NO; }

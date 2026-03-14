@@ -1056,7 +1056,7 @@ const char *GetGameDescription()
 	if (g_pGameRules) // this function may be called before the world has spawned, and the game rules initialized
 		return g_pGameRules->GetGameDescription();
 	else
-		return "Zombie Panic! v1.1";
+		return ZP_GAMEDESC_VERSION;
 }
 
 /*
@@ -2105,15 +2105,5 @@ void CvarValue2(const edict_t *pEnt, int requestID, const char *cvarName, const 
 
 int ShouldCollide( edict_t *pEntity, edict_t *pOther )
 {
-	if ( !pEntity || !pOther ) return 0;
-
-	// Don't collide if we are on the same team.
-//	if ( (pEntity->v.team != 0) && (pEntity->v.team == pOther->v.team) )
-//		return 0;
-
-	// Don't collide if either entity is a spectator.
-	if ( (pEntity->v.flags & FL_SPECTATOR) || (pOther->v.flags & FL_SPECTATOR) )
-		return 0;
-
 	return 1;
 }

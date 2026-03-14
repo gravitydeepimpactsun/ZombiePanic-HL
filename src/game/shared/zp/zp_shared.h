@@ -18,6 +18,8 @@
 extern ConVar sv_testmode;
 #endif
 
+#define ZP_GAMEDESC_VERSION "Zombie Panic! v1.1a"
+
 class CBaseEntity;
 
 /// <summary>

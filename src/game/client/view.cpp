@@ -47,9 +47,6 @@ void VectorAngles(const float *forward, float *angles);
 
 #define MAX_PITCH_ANGLE 89
 
-extern cvar_t *cl_pitchdown;
-extern cvar_t *cl_pitchup;
-
 extern engine_studio_api_t IEngineStudio;
 
 extern kbutton_t in_mlook;

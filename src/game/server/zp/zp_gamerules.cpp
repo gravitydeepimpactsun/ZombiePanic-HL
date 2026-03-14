@@ -319,7 +319,7 @@ void CZombiePanicGameRules::ResetRound()
 		IGameModeBase::WinState_e winner = m_pGameMode->GetWinState();
 
 		// Fade out to black!
-		UTIL_ScreenFadeAll( Vector( 0, 0, 0 ), 1.0f, 5.0f, 255, FFADE_OUT );
+		//UTIL_ScreenFadeAll( Vector( 0, 0, 0 ), 1.0f, 5.0f, 255, FFADE_OUT );
 		m_flRoundRestartDelay = gpGlobals->time + 5.0f;
 
 		int iPlayers = 0;

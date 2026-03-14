@@ -4,6 +4,7 @@
 #define HUD_ROUNDSTATE_H
 #include <vgui_controls/Panel.h>
 #include <vgui_controls/Label.h>
+#include <vgui_controls/ImagePanel.h>
 #include "../../hud/base.h"
 #include "zp/zp_shared.h"
 
@@ -34,6 +35,7 @@ private:
 	CPanelAnimationStringVar( 32, m_szRoundIsOverFont, "RoundIsOver_Font", "ZPTitle" );
 
 	vgui2::Label *m_pText;
+	vgui2::ImagePanel *m_pBackground;
 };
 
 #endif

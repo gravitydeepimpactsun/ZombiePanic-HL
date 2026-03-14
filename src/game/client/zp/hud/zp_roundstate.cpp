@@ -27,6 +27,9 @@ CHudRoundState::CHudRoundState()
 
 	SetScheme( "ClientScheme" );
 
+	m_pBackground = new vgui2::ImagePanel( this, "Background" );
+	m_pBackground->SetFillColor( Color( 0, 0, 0, 0 ) );
+
 	m_pText = new vgui2::Label( this, "Text", "Apple!" );
 	m_pText->SetVisible( false );
 	m_pText->SetContentAlignment( vgui2::Label::Alignment::a_center );
@@ -58,6 +61,8 @@ void CHudRoundState::Paint()
 	{
 		if ( m_pText->IsVisible() )
 			m_pText->SetVisible( false );
+		if ( m_pBackground->IsVisible() )
+			m_pBackground->SetVisible( false );
 		return;
 	}
 
@@ -84,6 +89,10 @@ void CHudRoundState::Paint()
 			m_pText->SetBounds( 0, m_iRoundIsOverYPos, w, m_iRoundIsOverTall );
 			if ( !m_pText->IsVisible() )
 				m_pText->SetVisible( true );
+			m_pBackground->SetFillColor( Color( 0, 0, 0, (int)clamp( iAlpha, 0, 255 ) ) );
+		    m_pBackground->SetBounds( 0, 0, w, h );
+		    if ( !m_pBackground->IsVisible() )
+				m_pBackground->SetVisible( true );
 			// Make sure every movement input is stopped
 			// when the round is over every frame to prevent
 			// the player from moving around.
@@ -177,6 +186,8 @@ void CHudRoundState::SetRoundState( ZP::RoundState iState, int iWinner )
 			m_pText->SetFgColor( Color( 255, 255, 255, 0 ) );
 			m_pText->SetVisible( true );
 			Input_StopAllMovements( true );
+			m_pBackground->SetVisible( true );
+			m_pBackground->SetFillColor( Color( 0, 0, 0, 0 ) );
 		}
 	    break;
 	    default: m_pText->SetVisible( false ); break;

@@ -1874,6 +1874,8 @@ void CBasePlayer::PlayerDeathThink(void)
 	{
 		// Change team now.
 		g_pGameRules->ChangePlayerTeam( this, ZP::Teams[ m_bNoLives ? ZP::TEAM_OBSERVER : ZP::TEAM_ZOMBIE], FALSE, FALSE );
+		if ( ZPGameRules() )
+			ZPGameRules()->SendPlayerTeamInfo( this );
 		// respawn player
 		if ( m_bNoLives )
 			StartObserver();

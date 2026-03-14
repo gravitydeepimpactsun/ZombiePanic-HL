@@ -45,6 +45,8 @@ public:
 	virtual void ChangePlayerTeam(CBasePlayer *pPlayer, const char *pTeamName, BOOL bKill, BOOL bGib);
 	virtual float FlPlayerFallDamage(CBasePlayer *pPlayer);
 
+	void SendPlayerTeamInfo(CBasePlayer *pPlayer);
+
 	virtual void ResetRound();
 	virtual void CleanUpMap();
 

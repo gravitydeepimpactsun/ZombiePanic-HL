@@ -242,6 +242,7 @@ void CZombiePanicGameRules::InitHUD(CBasePlayer *pPlayer)
 	MESSAGE_END();
 
 	ChangePlayerTeam(pPlayer, ZP::Teams[ZP::TEAM_OBSERVER], FALSE, FALSE);
+	SendPlayerTeamInfo(pPlayer);
 
 	// loop through all active players and send their team info to the new client
 	for (int i = 1; i <= gpGlobals->maxClients; i++)
@@ -278,14 +279,6 @@ void CZombiePanicGameRules::ChangePlayerTeam(CBasePlayer *pPlayer, const char *p
 
 	// Set team to player
 	pPlayer->pev->team = GetTeamIndex( pTeamName );
-
-	// notify everyone's HUD of the team change
-	MESSAGE_BEGIN(MSG_ALL, gmsgTeamInfo);
-	WRITE_BYTE(clientIndex);
-	WRITE_STRING(pPlayer->pev->iuser1 ? "" : pPlayer->TeamID());
-	MESSAGE_END();
-
-	pPlayer->SendScoreInfo();
 }
 
 float CZombiePanicGameRules::FlPlayerFallDamage(CBasePlayer *pPlayer)
@@ -307,6 +300,16 @@ float CZombiePanicGameRules::FlPlayerFallDamage(CBasePlayer *pPlayer)
 		// fixed
 		default: return 10;
 	}
+}
+
+void CZombiePanicGameRules::SendPlayerTeamInfo(CBasePlayer *pPlayer)
+{
+	// notify everyone's HUD of the team change
+	MESSAGE_BEGIN(MSG_ALL, gmsgTeamInfo);
+	WRITE_BYTE(pPlayer->entindex());
+	WRITE_STRING(pPlayer->pev->iuser1 ? "" : pPlayer->TeamID());
+	MESSAGE_END();
+	pPlayer->SendScoreInfo();
 }
 
 void CZombiePanicGameRules::ResetRound()
@@ -495,6 +498,7 @@ add_one_more_zombie:
 	if ( plr )
 	{
 		ChangePlayerTeam( plr, ZP::Teams[ZP::TEAM_ZOMBIE], FALSE, FALSE );
+		SendPlayerTeamInfo(plr);
 		plr->Spawn();
 		m_pGameMode->AddToChoosenList( plr );
 		iMoreRequired--;
@@ -627,6 +631,7 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 			}
 
 			ChangePlayerTeam(pPlayer, ZP::Teams[ bLateJoin ? ZP::TEAM_ZOMBIE : ZP::TEAM_SURVIVIOR], FALSE, FALSE);
+			SendPlayerTeamInfo(pPlayer);
 			pPlayer->RemoveAllItems( TRUE );
 			pPlayer->StopWelcomeCam();
 			if ( pPlayer->m_bPunishLateJoiner )
@@ -930,6 +935,7 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 		{
 			pPlayer->RemoveAllItems( FALSE );
 			ChangePlayerTeam(pPlayer, ZP::Teams[ZP::TEAM_OBSERVER], FALSE, FALSE);
+			SendPlayerTeamInfo(pPlayer);
 			pPlayer->StartObserver();
 			return TRUE;
 		}
@@ -937,6 +943,7 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 		{
 			pPlayer->RemoveAllItems( FALSE );
 			ChangePlayerTeam(pPlayer, ZP::Teams[ZP::TEAM_ZOMBIE], FALSE, FALSE);
+			SendPlayerTeamInfo(pPlayer);
 			if ( pPlayer->IsObserver() )
 				pPlayer->StopObserver();
 			else
@@ -952,6 +959,7 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 		{
 			pPlayer->RemoveAllItems( FALSE );
 			ChangePlayerTeam(pPlayer, ZP::Teams[ZP::TEAM_SURVIVIOR], FALSE, FALSE);
+			SendPlayerTeamInfo(pPlayer);
 			if ( pPlayer->IsObserver() )
 				pPlayer->StopObserver();
 			else

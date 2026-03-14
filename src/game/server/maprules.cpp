@@ -32,6 +32,7 @@
 #ifdef SCRIPT_SYSTEM
 #include "core.h"
 #endif
+#include "zp/zp_gamerules.h"
 
 // for std::vector random_shuffle
 #include <iterator>
@@ -1222,6 +1223,8 @@ void CGamePlayerTeam::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYP
 		{
 			CBasePlayer *pPlayer = (CBasePlayer *)pActivator;
 			g_pGameRules->ChangePlayerTeam(pPlayer, pszTargetTeam, ShouldKillPlayer(), ShouldGibPlayer());
+			if ( ZPGameRules() )
+				ZPGameRules()->SendPlayerTeamInfo( pPlayer );
 		}
 	}
 

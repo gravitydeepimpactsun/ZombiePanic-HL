@@ -650,6 +650,19 @@ void CClientViewport::MsgFunc_RRndPost(const char *pszName, int iSize, void *pbu
 
 	// Reset the beacons
 	CZPBeacons::Get()->ResetBeacons();
+
+	// Reset our score and team crap for every player, since we are restarting the round.
+	for ( int i = 0; i < MAX_PLAYERS; i++ )
+	{
+		// set the players team
+		CPlayerInfo *pi = GetPlayerInfo(i)->Update();
+		strncpy(pi->m_ExtraInfo.teamname, ZP::Teams[ZP::TEAM_OBSERVER], MAX_TEAM_NAME);
+		pi->m_ExtraInfo.frags = 0;
+		pi->m_ExtraInfo.deaths = 0;
+		pi->m_ExtraInfo.playerclass = 0;
+		pi->m_ExtraInfo.teamnumber = ZP::TEAM_OBSERVER;
+		UpdateOnPlayerInfo(i);
+	}
 }
 
 void CClientViewport::MsgFunc_MOTD(const char *pszName, int iSize, void *pbuf)

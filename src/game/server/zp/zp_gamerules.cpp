@@ -27,6 +27,8 @@ extern int gmsgZPAPICall;
 
 extern void CleanupBodyQue();
 
+static ConVar sv_disable_zpoverrides( "sv_disable_zpoverrides", "0", FCVAR_CHEATS, "Disables Zombie Panic! specific rules." );
+
 static const char *s_EntitiesRestarts[] = {
 	"prop_objective",
 	"cycler",
@@ -1238,6 +1240,18 @@ void CZombiePanicGameRules::CheckCheats()
 		m_bCheatsOnThisSession = true;
 	// Make sure to also check for cheat vars.
 	CvarSystem::CheckForCheatVars();
+
+	// Simply check for specific cvars and make sure they are on their correct values for Zombie Panic!
+	if ( !sv_disable_zpoverrides.GetBool() )
+	{
+#define CHECK_CVAR( cvar, def_value ) \
+		float fl##cvar = CVAR_GET_FLOAT( #cvar ); \
+		if ( fl##cvar != def_value ) CVAR_SET_FLOAT( #cvar, def_value )
+
+		CHECK_CVAR( sv_graity, 800 );
+		CHECK_CVAR( sv_airaccelerate, 10 );
+		CHECK_CVAR( pausable, 0 ); // Never let em pause the game.
+	}
 }
 
 void CZombiePanicGameRules::SetPlayerModel(CBasePlayer *pPlayer)

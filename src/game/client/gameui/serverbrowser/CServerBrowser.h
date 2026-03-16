@@ -45,6 +45,7 @@ public:
 
 	// called every frame
 	virtual void OnTick();
+	virtual void PerformLayout();
 
 	// methods
 	void OpenBrowser();

@@ -84,8 +84,8 @@ CBaseTab::CBaseTab( vgui2::Panel *parent, const char *name, EPageType eType, con
 	m_pServerList->AddColumnHeader(0, "Password", "#ServerBrowser_Password", GetScaledValue( 18 ), vgui2::ListPanel::COLUMN_FIXEDSIZE | vgui2::ListPanel::COLUMN_IMAGE);
 	m_pServerList->AddColumnHeader(1, "Bots", "#ServerBrowser_Bots", GetScaledValue( 18 ), vgui2::ListPanel::COLUMN_FIXEDSIZE | vgui2::ListPanel::COLUMN_HIDDEN);
 	m_pServerList->AddColumnHeader(2, "Secure", "#ServerBrowser_Secure", GetScaledValue( 18 ), vgui2::ListPanel::COLUMN_FIXEDSIZE | vgui2::ListPanel::COLUMN_IMAGE);
-	m_pServerList->AddColumnHeader(3, "Name", "#ServerBrowser_Servers", GetScaledValue( 300 ),
-		GetScaledValue( 300 ), // minwidth
+	m_pServerList->AddColumnHeader(3, "Name", "#ServerBrowser_Servers", GetScaledValue( 100 ),
+		GetScaledValue( 100 ), // minwidth
 	    GetScaledValue( 10000 ), // maxwidth
 		vgui2::ListPanel::COLUMN_RESIZEWITHWINDOW | vgui2::ListPanel::COLUMN_UNHIDABLE
 	);
@@ -94,14 +94,22 @@ CBaseTab::CBaseTab( vgui2::Panel *parent, const char *name, EPageType eType, con
 		GetScaledValue( 300 ),	// maxwidth
 		vgui2::ListPanel::COLUMN_HIDDEN		// flags
 	);
-	m_pServerList->AddColumnHeader(5, "GameDesc", "#ServerBrowser_Version", GetScaledValue( 100 ), vgui2::ListPanel::COLUMN_FIXEDSIZE);
-	m_pServerList->AddColumnHeader(6, "Players", "#ServerBrowser_Players", GetScaledValue( 50 ), vgui2::ListPanel::COLUMN_FIXEDSIZE);
+	m_pServerList->AddColumnHeader(5, "GameDesc", "#ServerBrowser_Version", GetScaledValue( 150 ), 0);
+	m_pServerList->AddColumnHeader(6, "Players", "#ServerBrowser_Players", GetScaledValue( 60 ),
+		GetScaledValue( 60 ), // minwidth
+		GetScaledValue( 300 ), // maxwidth
+		0		// flags
+	);
 	m_pServerList->AddColumnHeader(7, "Map", "#ServerBrowser_Map", GetScaledValue( 100 ), 
 		GetScaledValue( 100 ), // minwidth
 	    GetScaledValue( 300 ), // maxwidth
 		0		// flags
 	);
-	m_pServerList->AddColumnHeader(8, "Ping", "#ServerBrowser_Latency", GetScaledValue( 90 ), GetScaledValue( 90 ), GetScaledValue( 10000 ), vgui2::ListPanel::COLUMN_FIXEDSIZE);
+	m_pServerList->AddColumnHeader(8, "Ping", "#ServerBrowser_Latency", GetScaledValue( 60 ), 
+		GetScaledValue( 60 ), // minwidth
+		GetScaledValue( 10000 ), // maxwidth
+		0		// flags
+	);
 
 	m_pServerList->SetColumnHeaderTooltip(0, "#ServerBrowser_PasswordColumn_Tooltip");
 	m_pServerList->SetColumnHeaderTooltip(1, "#ServerBrowser_BotColumn_Tooltip");
@@ -261,7 +269,6 @@ void CBaseTab::ApplySchemeSettings(vgui2::IScheme *pScheme)
 	m_pServerList->SetColumnHeaderImageBounds(0, 0, 2, GetScaledValue( 12 ), GetScaledValue( 12 ));
 	m_pServerList->SetColumnHeaderImageBounds(1, 0, 2, GetScaledValue( 12 ), GetScaledValue( 12 ));
 	m_pServerList->SetColumnHeaderImageBounds(2, 0, 2, GetScaledValue( 12 ), GetScaledValue( 12 ));
-	m_pServerList->SetColumnHeaderImageBounds(3, 0, 2, GetScaledValue( 200 ), GetScaledValue( 12 ));
 
 	m_pServerList->SetColumnHeaderImageOffset(0, 0, 3, 3);
 	m_pServerList->SetColumnHeaderImageOffset(1, 0, 3, 3);

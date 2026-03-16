@@ -1692,6 +1692,9 @@ void Frame::ApplySchemeSettings(IScheme *pScheme)
 
 #if !defined( _X360 )
 	HFont marfont = (HFont)0;
+	bool bUseMarlettGlyphs = false;
+
+#if defined( _WIN32 )
 	if ( m_bSmallCaption )
 	{
 		marfont = pScheme->GetFont( "MarlettSmall", IsProportional() );
@@ -1700,11 +1703,30 @@ void Frame::ApplySchemeSettings(IScheme *pScheme)
 	{
 		marfont = pScheme->GetFont( "Marlett", IsProportional() );
 	}
+	bUseMarlettGlyphs = ( marfont != INVALID_FONT );
+#endif
 
-	_minimizeButton->SetFont(marfont);
-	_maximizeButton->SetFont(marfont);
-	_minimizeToSysTrayButton->SetFont(marfont);
-	_closeButton->SetFont(marfont);
+	if ( bUseMarlettGlyphs )
+	{
+		_minimizeButton->SetFont(marfont);
+		_maximizeButton->SetFont(marfont);
+		_minimizeToSysTrayButton->SetFont(marfont);
+		_closeButton->SetFont(marfont);
+	}
+	else
+	{
+		// Marlett is Windows-specific; keep titlebar controls visible on non-Windows with text fallbacks.
+		HFont fallback = pScheme->GetFont( "DefaultSmall", IsProportional() );
+		_minimizeButton->SetFont( fallback );
+		_maximizeButton->SetFont( fallback );
+		_minimizeToSysTrayButton->SetFont( fallback );
+		_closeButton->SetFont( fallback );
+
+		_minimizeButton->SetText( "_" );
+		_maximizeButton->SetText( "[]" );
+		_minimizeToSysTrayButton->SetText( "." );
+		_closeButton->SetText( "X" );
+	}
 #endif
 
 	m_flTransitionEffectTime = atof(pScheme->GetResourceString("Frame.TransitionEffectTime"));

@@ -782,7 +782,6 @@ void CScorePanel::UpdateScoresAndCounts()
 	}
 
 	char buf[128];
-	wchar_t wbuf[128];
 
 	auto fnUpdateTeamHeader = [&](const char *pszTeamName, int nTeamID) {
 		TeamData &td = m_TeamData[nTeamID];
@@ -790,7 +789,7 @@ void CScorePanel::UpdateScoresAndCounts()
 		// Team name and player count
 		wchar_t wbuf2[128];
 		wchar_t *localizedName = nullptr;
-		if (pszTeamName[0] == L'#' && (localizedName = g_pVGuiLocalize->Find(pszTeamName)))
+		if (pszTeamName[0] == '#' && (localizedName = g_pVGuiLocalize->Find(pszTeamName)))
 		{
 			// localizedName set to localized name
 		}
@@ -801,8 +800,7 @@ void CScorePanel::UpdateScoresAndCounts()
 			localizedName = wbuf2;
 		}
 
-		V_snwprintf(wbuf, 128, L"%s", localizedName);
-		m_pPlayerList->ModifyColumn(nTeamID, "name", wbuf);
+		m_pPlayerList->ModifyColumn(nTeamID, "name", localizedName);
 	};
 
 	// Update team score and player count

@@ -363,6 +363,56 @@ void CServerBrowser::OnTick()
 	BaseClass::OnTick();
 }
 
+void CServerBrowser::PerformLayout()
+{
+	BaseClass::PerformLayout();
+
+	if ( !m_pTabPanel )
+		return;
+
+	int clientX = 0, clientY = 0, clientWide = 0, clientTall = 0;
+	GetClientArea( clientX, clientY, clientWide, clientTall );
+
+	const int sidePad = GetScaledValue( 8 );
+	const int topPad = GetScaledValue( 4 );
+	const int bottomPad = GetScaledValue( 8 );
+	const int statusGap = GetScaledValue( 4 );
+
+	int statusTall = 0;
+	if ( m_pStatusLabel )
+	{
+		statusTall = m_pStatusLabel->GetTall();
+		int minStatusTall = GetScaledValue( 16 );
+		if ( statusTall < minStatusTall )
+			statusTall = minStatusTall;
+	}
+
+	int tabX = clientX + sidePad;
+	int tabY = clientY + topPad;
+	int tabWide = clientWide - sidePad * 2;
+	int tabTall = clientTall - topPad - bottomPad - statusTall;
+	if ( statusTall > 0 )
+		tabTall -= statusGap;
+
+	if ( tabWide < 1 )
+		tabWide = 1;
+	if ( tabTall < 1 )
+		tabTall = 1;
+
+	m_pTabPanel->SetBounds( tabX, tabY, tabWide, tabTall );
+
+	if ( m_pStatusLabel )
+	{
+		int statusX = clientX + sidePad;
+		int statusTop = clientY + clientTall - bottomPad - statusTall;
+		int statusWide = clientWide - sidePad * 2;
+		if ( statusWide < 1 )
+			statusWide = 1;
+
+		m_pStatusLabel->SetBounds( statusX, statusTop, statusWide, statusTall );
+	}
+}
+
 void CServerBrowser::LoadUserData()
 {
 	// free any old filters

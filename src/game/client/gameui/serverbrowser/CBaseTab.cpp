@@ -95,13 +95,21 @@ CBaseTab::CBaseTab( vgui2::Panel *parent, const char *name, EPageType eType, con
 		vgui2::ListPanel::COLUMN_HIDDEN		// flags
 	);
 	m_pServerList->AddColumnHeader(5, "GameDesc", "#ServerBrowser_Version", GetScaledValue( 150 ), 0);
-	m_pServerList->AddColumnHeader(6, "Players", "#ServerBrowser_Players", GetScaledValue( 100 ), 0);
+	m_pServerList->AddColumnHeader(6, "Players", "#ServerBrowser_Players", GetScaledValue( 60 ),
+		GetScaledValue( 60 ), // minwidth
+		GetScaledValue( 300 ), // maxwidth
+		0		// flags
+	);
 	m_pServerList->AddColumnHeader(7, "Map", "#ServerBrowser_Map", GetScaledValue( 100 ), 
 		GetScaledValue( 100 ), // minwidth
 	    GetScaledValue( 300 ), // maxwidth
 		0		// flags
 	);
-	m_pServerList->AddColumnHeader(8, "Ping", "#ServerBrowser_Latency", GetScaledValue( 90 ), GetScaledValue( 90 ), GetScaledValue( 10000 ), 0);
+	m_pServerList->AddColumnHeader(8, "Ping", "#ServerBrowser_Latency", GetScaledValue( 60 ), 
+		GetScaledValue( 60 ), // minwidth
+		GetScaledValue( 10000 ), // maxwidth
+		0		// flags
+	);
 
 	m_pServerList->SetColumnHeaderTooltip(0, "#ServerBrowser_PasswordColumn_Tooltip");
 	m_pServerList->SetColumnHeaderTooltip(1, "#ServerBrowser_BotColumn_Tooltip");

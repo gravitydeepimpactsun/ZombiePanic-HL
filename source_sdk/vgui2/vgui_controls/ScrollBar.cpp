@@ -57,7 +57,24 @@ public:
 	{
 		Button::ApplySchemeSettings(pScheme);
 
-		SetFont(pScheme->GetFont("Marlett", IsProportional() ));
+		// On Linux, a Marlett handle can exist while glyphs are missing, rendering blank symbols.
+		#if defined( _WIN32 )
+			HFont marlett = pScheme->GetFont("Marlett", IsProportional() );
+		#else
+			SetFont( pScheme->GetFont("DefaultSmall", IsProportional() ) );
+
+			char text[8] = { 0 };
+			GetText( text, sizeof( text ) );
+			if ( text[0] == 't' )
+				SetText("^");
+			else if ( text[0] == 'u' )
+				SetText("v");
+			else if ( text[0] == 'w' )
+				SetText("<");
+			else if ( text[0] == '4' )
+				SetText(">");
+		#endif
+
 		SetDefaultBorder(pScheme->GetBorder("ScrollBarButtonBorder"));
         SetDepressedBorder(pScheme->GetBorder("ScrollBarButtonDepressedBorder"));
 		

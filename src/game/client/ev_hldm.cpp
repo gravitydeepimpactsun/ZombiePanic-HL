@@ -1440,6 +1440,12 @@ void EV_FireCrossbow2(event_args_t *args)
 	{
 		physent_t *pe = gEngfuncs.pEventAPI->EV_GetPhysent(tr.ent);
 
+		if (!pe)
+		{
+			gEngfuncs.pEventAPI->EV_PopPMStates();
+			return;
+		}
+
 		//Not the world, let's assume we hit something organic ( dog, cat, uncle joe, etc ).
 		if (pe->solid != SOLID_BSP)
 		{

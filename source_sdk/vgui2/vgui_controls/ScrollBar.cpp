@@ -59,7 +59,7 @@ public:
 
 		// On Linux, a Marlett handle can exist while glyphs are missing, rendering blank symbols.
 		#if defined( _WIN32 )
-			HFont marlett = pScheme->GetFont("Marlett", IsProportional() );
+			SetFont(pScheme->GetFont("Marlett", IsProportional() ));
 		#else
 			SetFont( pScheme->GetFont("DefaultSmall", IsProportional() ) );
 

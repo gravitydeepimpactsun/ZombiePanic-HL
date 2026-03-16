@@ -1712,11 +1712,6 @@ void Frame::ApplySchemeSettings(IScheme *pScheme)
 		_maximizeButton->SetFont(marfont);
 		_minimizeToSysTrayButton->SetFont(marfont);
 		_closeButton->SetFont(marfont);
-
-		_minimizeButton->SetText( "0" );
-		_maximizeButton->SetText( "1" );
-		_minimizeToSysTrayButton->SetText( "o" );
-		_closeButton->SetText( "r" );
 	}
 	else
 	{

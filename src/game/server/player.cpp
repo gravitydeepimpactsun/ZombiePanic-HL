@@ -2060,13 +2060,18 @@ void CBasePlayer::StartWelcomeCam(void)
 	pev->effects = EF_NODRAW; // Hide model. This is used instead of pev->modelindex = 0
 	pev->team = ZP::TEAM_OBSERVER;
 
-	// notify everyone's HUD of the team change
-	MESSAGE_BEGIN(MSG_ALL, gmsgTeamInfo);
-	WRITE_BYTE( entindex() );
-	WRITE_STRING( pev->iuser1 ? "" : TeamID() );
-	MESSAGE_END();
+	if ( ZPGameRules() )
+		ZPGameRules()->SendPlayerTeamInfo( this );
+	else
+	{
+		// notify everyone's HUD of the team change
+		MESSAGE_BEGIN(MSG_ALL, gmsgTeamInfo);
+		WRITE_BYTE( entindex() );
+		WRITE_STRING( pev->iuser1 ? "" : TeamID() );
+		MESSAGE_END();
 
-	SendScoreInfo();
+		SendScoreInfo();
+	}
 
 	// Reset on new round and/or new map.
 	ResetParticipation();
@@ -2107,6 +2112,12 @@ void CBasePlayer::StopWelcomeCam(void)
 
 void CBasePlayer::SendScoreInfo()
 {
+	if ( ZPGameRules() && !ZPGameRules()->IsProcessingDeferredBroadcasts() )
+	{
+		ZPGameRules()->SendPlayerScoreInfo( this );
+		return;
+	}
+
 	MESSAGE_BEGIN(MSG_ALL, gmsgScoreInfo);
 	WRITE_BYTE(ENTINDEX(edict())); // Player index
 	WRITE_SHORT(pev->frags); // Score

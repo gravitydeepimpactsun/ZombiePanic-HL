@@ -33,6 +33,7 @@ void ZPGameMode_Survival::OnHUDInit(CBasePlayer *pPlayer)
 	MESSAGE_BEGIN(MSG_ONE, gmsgRoundState, NULL, pPlayer->edict());
 	WRITE_SHORT(GetRoundState());
 	MESSAGE_END();
+	UpdateZombieLifesForClient( pPlayer );
 	BaseClass::OnHUDInit(pPlayer);
 }
 
@@ -78,8 +79,7 @@ void ZPGameMode_Survival::OnPlayerDied( CBasePlayer *pPlayer, entvars_t *pKiller
 
 void ZPGameMode_Survival::OnPlayerSpawned( CBasePlayer *pPlayer )
 {
-	// Always send this to clients!
-	UpdateZombieLifesForClient();
+	UpdateZombieLifesForClient( pPlayer );
 
 	BaseClass::OnPlayerSpawned( pPlayer );
 }
@@ -154,6 +154,16 @@ void ZPGameMode_Survival::UpdateZombieLifesForClient()
 {
 	MESSAGE_BEGIN(MSG_ALL, gmsgZombieLives);
 	WRITE_SHORT(m_iZombieLives);
+	MESSAGE_END();
+}
+
+void ZPGameMode_Survival::UpdateZombieLifesForClient( CBasePlayer *pPlayer )
+{
+	if ( !pPlayer ) return;
+	if ( !pPlayer->IsConnected() ) return;
+
+	MESSAGE_BEGIN( MSG_ONE, gmsgZombieLives, NULL, pPlayer->edict() );
+	WRITE_SHORT( m_iZombieLives );
 	MESSAGE_END();
 }
 

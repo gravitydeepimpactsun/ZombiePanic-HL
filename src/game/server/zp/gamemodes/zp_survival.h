@@ -24,6 +24,7 @@ protected:
 	void OnRoundStateThink( ZP::RoundState state ) override;
 
 	virtual void UpdateZombieLifesForClient();
+	virtual void UpdateZombieLifesForClient( CBasePlayer *pPlayer );
 	virtual void GiveWeaponsOnRoundStart();
 
 	int m_iZombieLives;

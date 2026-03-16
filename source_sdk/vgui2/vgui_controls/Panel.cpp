@@ -1076,7 +1076,8 @@ float vgui2::Panel::GetProportionalScale()
 		int proW,proH;
 		VGui_GetProportionalBase(proW, proH);
 
-		scale =	( (float)( screenH ) / (float)( proH ) );
+		if ( proH > 0 )
+			scale = ( (float)( screenH ) / (float)( proH ) );
 	}
 	return scale;
 }

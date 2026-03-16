@@ -74,7 +74,8 @@ public:
 	virtual int GetProportionalNormalizedValue(int scaledValue)
 	{
 		// Custom implementation to allow custom proportional base.
-		return (int)(scaledValue / GetProportionalScale());
+		const float scale = GetProportionalScale();
+		return ( scale > 0.0f ) ? (int)( scaledValue / scale ) : scaledValue;
 	}
 
 	virtual float GetProportionalScale()
@@ -84,7 +85,7 @@ public:
 		int propWide, propTall;
 		surface()->GetScreenSize(wide, tall);
 		VGui_GetProportionalBase(propWide, propTall);
-		return (float)tall / (double)propTall;
+		return ( propTall > 0 ) ? ( (float)tall / (double)propTall ) : 1.0f;
 	}
 
 	virtual int GetHDProportionalScaledValue(int normalizedValue)

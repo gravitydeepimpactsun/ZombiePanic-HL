@@ -105,6 +105,7 @@ int	WorkshopItemList::ComputeVPixelsNeeded()
 {
 	int iCurrentItem = 0;
 	int iLargestH = 0;
+	const int iNumColumns = ( m_iNumColumns > 0 ) ? m_iNumColumns : 1;
 
 	int pixels = 0;
 	for (int i = 0; i < m_SortedItems.Count(); i++)
@@ -118,7 +119,7 @@ int	WorkshopItemList::ComputeVPixelsNeeded()
 			panel->InvalidateLayout(true);
 		}
 
-		int iCurrentColumn = iCurrentItem % m_iNumColumns;
+		int iCurrentColumn = iCurrentItem % iNumColumns;
 
 		int w, h;
 		panel->GetSize(w, h);
@@ -129,7 +130,7 @@ int	WorkshopItemList::ComputeVPixelsNeeded()
 		if (iCurrentColumn == 0)
 			pixels += m_iPanelBuffer; // add in buffer. between rows.
 
-		if (iCurrentColumn >= m_iNumColumns - 1)
+		if (iCurrentColumn >= iNumColumns - 1)
 		{
 			pixels += iLargestH;
 			iLargestH = 0;
@@ -466,12 +467,13 @@ void WorkshopItemList::PerformLayout()
 	// Now lay out the controls on the embedded panel
 	int y = 0;
 	int h = GetScaledValue( 73 );
+	const int iNumColumns = ( m_iNumColumns > 0 ) ? m_iNumColumns : 1;
 
 	int xpos = m_iFirstColumnWidth + m_iPanelBuffer;
 
 	for (int i = 0; i < m_SortedItems.Count(); i++)
 	{
-		int iCurrentColumn = i % m_iNumColumns;
+		int iCurrentColumn = i % iNumColumns;
 
 		// add in a little buffer between panels
 		if (iCurrentColumn == 0)
@@ -520,7 +522,7 @@ void WorkshopItemList::PerformLayout()
 		if (item.button_edit)
 			item.button_edit->SetBounds( GetScaledValue( 420 ), y + GetScaledValue( 32 ), GetScaledValue( 70 ), GetScaledValue( 18 ) );
 
-		if (iCurrentColumn >= m_iNumColumns - 1)
+		if (iCurrentColumn >= iNumColumns - 1)
 		{
 			y += h;
 			h = 0;
@@ -574,7 +576,7 @@ int WorkshopItemList::GetFirstColumnWidth()
 
 void WorkshopItemList::SetNumColumns(int iNumColumns)
 {
-	m_iNumColumns = iNumColumns;
+	m_iNumColumns = ( iNumColumns > 0 ) ? iNumColumns : 1;
 }
 
 int WorkshopItemList::GetNumColumns(void)

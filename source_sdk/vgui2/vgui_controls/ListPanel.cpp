@@ -1512,6 +1512,12 @@ Panel *ListPanel::GetCellRenderer(int itemID, int col)
 			m_pLabel->SetImageBounds( 0, imgInf.offset, imgInf.width, imgInf.height, true );
 			m_pLabel->SetImageOffset( 0, imgInf.pos_offset_x, imgInf.pos_offset_y );
 		}
+		else
+		{
+			// m_pLabel is reused across cells; clear stale bounds from previous icon columns.
+			m_pLabel->SetImageBounds( 0, -1, -1, 0, false );
+			m_pLabel->SetImageOffset( 0, 0, 0 );
+		}
 
 		// Grab cell text
 		GetCellText( itemID, col, tempText, 256 );

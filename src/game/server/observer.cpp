@@ -23,6 +23,8 @@
 #include "cbase.h"
 #include "player.h"
 #include "weapons.h"
+#include "gamerules.h"
+#include "zp/zp_gamerules.h"
 
 #define NEXT_OBSERVER_INPUT_DELAY 0.02
 
@@ -102,16 +104,24 @@ void CBasePlayer::StartObserver(void)
 
 	// Update Team Status
 	//pev->team = 0;
-	MESSAGE_BEGIN(MSG_ALL, gmsgTeamInfo);
-	WRITE_BYTE(ENTINDEX(edict())); // index number of primary entity
-	WRITE_STRING("");
-	MESSAGE_END();
+	if ( ZPGameRules() )
+	{
+		ZPGameRules()->SendPlayerTeamInfo( this );
+		ZPGameRules()->SendPlayerSpectatorInfo( this, true );
+	}
+	else
+	{
+		MESSAGE_BEGIN(MSG_ALL, gmsgTeamInfo);
+		WRITE_BYTE(ENTINDEX(edict())); // index number of primary entity
+		WRITE_STRING("");
+		MESSAGE_END();
 
-	// Send Spectator message (it is not used in client dll)
-	MESSAGE_BEGIN(MSG_ALL, gmsgSpectator);
-	WRITE_BYTE(ENTINDEX(edict())); // index number of primary entity
-	WRITE_BYTE(1);
-	MESSAGE_END();
+		// Send Spectator message (it is not used in client dll)
+		MESSAGE_BEGIN(MSG_ALL, gmsgSpectator);
+		WRITE_BYTE(ENTINDEX(edict())); // index number of primary entity
+		WRITE_BYTE(1);
+		MESSAGE_END();
+	}
 }
 
 //=========================================================
@@ -126,20 +136,28 @@ void CBasePlayer::StopObserver(void)
 	GetClassPtr((CBasePlayer *)pev)->Spawn();
 	pev->nextthink = -1;
 
-	// Send Spectator message (it is not used in client dll)
-	MESSAGE_BEGIN(MSG_ALL, gmsgSpectator);
-	WRITE_BYTE(ENTINDEX(edict())); // index number of primary entity
-	WRITE_BYTE(0);
-	MESSAGE_END();
-
-	// Update Team Status
-	MESSAGE_BEGIN(MSG_ALL, gmsgTeamInfo);
-	WRITE_BYTE(ENTINDEX(edict())); // index number of primary entity
-	if (g_teamplay || g_amxmodx_version)
-		WRITE_STRING(TeamID());
+	if ( ZPGameRules() )
+	{
+		ZPGameRules()->SendPlayerSpectatorInfo( this, false );
+		ZPGameRules()->SendPlayerTeamInfo( this );
+	}
 	else
-		WRITE_STRING("Players");
-	MESSAGE_END();
+	{
+		// Send Spectator message (it is not used in client dll)
+		MESSAGE_BEGIN(MSG_ALL, gmsgSpectator);
+		WRITE_BYTE(ENTINDEX(edict())); // index number of primary entity
+		WRITE_BYTE(0);
+		MESSAGE_END();
+
+		// Update Team Status
+		MESSAGE_BEGIN(MSG_ALL, gmsgTeamInfo);
+		WRITE_BYTE(ENTINDEX(edict())); // index number of primary entity
+		if (g_teamplay || g_amxmodx_version)
+			WRITE_STRING(TeamID());
+		else
+			WRITE_STRING("Players");
+		MESSAGE_END();
+	}
 }
 
 //=========================================================

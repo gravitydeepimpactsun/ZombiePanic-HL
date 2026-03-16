@@ -46,6 +46,8 @@ public:
 	virtual float FlPlayerFallDamage(CBasePlayer *pPlayer);
 
 	void SendPlayerTeamInfo(CBasePlayer *pPlayer);
+	void SendPlayerScoreInfo(CBasePlayer *pPlayer);
+	void SendPlayerSpectatorInfo(CBasePlayer *pPlayer, bool bIsSpectator);
 
 	virtual void ResetRound();
 	virtual void CleanUpMap();
@@ -66,6 +68,8 @@ public:
 
 	bool IsTestModeActive() const;
 	bool WasCheatsOnThisSession() const;
+	bool IsDeferringRoundResetBroadcasts() const { return m_bDeferringRoundResetBroadcasts; }
+	bool IsProcessingDeferredBroadcasts() const { return m_bProcessingDeferredBroadcasts; }
 	inline void SetCheatsOnThisSession( bool bCheats ) { m_bCheatsOnThisSession = bCheats; }
 	void EndMultiplayerGame( void ) override;
 
@@ -87,8 +91,25 @@ protected:
 	unsigned int m_savedobjtext[2];
 	int m_savedobjstate;
 
-private:
+	private:
+	enum class DeferredBroadcastType
+	{
+		TeamInfo,
+		ScoreInfo,
+		Spectator,
+		RoundResetPost,
+	};
+
+	struct DeferredBroadcast_t
+	{
+		DeferredBroadcastType Type;
+		int PlayerIndex;
+		int Value;
+	};
+
 	void CheckCheats();
+	void QueueDeferredBroadcast( DeferredBroadcastType type, int playerIndex, int value );
+	void ProcessDeferredBroadcasts();
 	void SetPlayerModel(CBasePlayer *pPlayer);
 
 	BOOL m_DisableDeathMessages;
@@ -101,8 +122,11 @@ private:
 	float m_flRoundRestartDelay;
 	float m_flRoundJustBegun;
 	int m_iRounds;
+	bool m_bDeferringRoundResetBroadcasts;
+	bool m_bProcessingDeferredBroadcasts;
 	bool m_bCheatsOnThisSession;
 	bool m_bHostHasJoined; // Peer-2-Peer only
+	std::vector<DeferredBroadcast_t> m_vecDeferredBroadcasts;
 
 	struct AchievementAnnounce_t
 	{

@@ -6,6 +6,7 @@
 #include "player.h"
 #include "weapons.h"
 #include "convar.h"
+#include "gamerules.h"
 
 #ifdef SCRIPT_SYSTEM
 #include "core.h"
@@ -13,6 +14,7 @@
 
 #include "zp/info_beacon.h"
 #include "zp/info_random_base.h"
+#include "zp/zp_gamerules.h"
 #include "zp_gamemodebase.h"
 
 // for std::vector random_shuffle
@@ -257,14 +259,16 @@ void CBaseGameMode::CheckZombieAmount()
 
 		// Change team
 		plr->pev->team = ZP::TEAM_ZOMBIE;
-
-		// notify everyone's HUD of the team change
-		MESSAGE_BEGIN( MSG_ALL, gmsgTeamInfo );
-		WRITE_BYTE( iPlayerIndex );
-		WRITE_STRING( plr->pev->iuser1 ? "" : plr->TeamID() );
-		MESSAGE_END();
-
-		plr->SendScoreInfo();
+		if ( ZPGameRules() )
+			ZPGameRules()->SendPlayerTeamInfo( plr );
+		else
+		{
+			MESSAGE_BEGIN( MSG_ALL, gmsgTeamInfo );
+			WRITE_BYTE( iPlayerIndex );
+			WRITE_STRING( plr->pev->iuser1 ? "" : plr->TeamID() );
+			MESSAGE_END();
+			plr->SendScoreInfo();
+		}
 		plr->SpawnInPlace( true );
 		plr->Spawn();
 		plr->GiveAchievement( ONE_OF_US );
@@ -310,7 +314,7 @@ void CBaseGameMode::GiveWeapons( CBasePlayer *pPlayer )
 void CBaseGameMode::OnPlayerSpawned( CBasePlayer *pPlayer )
 {
 	// Tell the clients that we have a new round timer!
-	UpdateClientTimer();
+	UpdateClientTimer( pPlayer );
 
 #ifdef SCRIPT_SYSTEM
 	ScriptSystem::CallScript(
@@ -331,7 +335,7 @@ void CBaseGameMode::OnPlayerSpawned( CBasePlayer *pPlayer )
 	{
 		// Make sure we only start those with SP_START_ENABLED flag set
 		if ( pBeacon->IsActive() )
-			pBeacon->UpdateMessageState();
+			pBeacon->UpdateMessageStateForEntity( pPlayer );
 		pBeacon = (CInfoBeacon *)UTIL_FindEntityByClassname( pBeacon, "info_beacon" );
 	}
 }
@@ -350,6 +354,19 @@ void CBaseGameMode::UpdateClientTimer()
 	float flTimeLimit = CVAR_GET_FLOAT( "mp_timelimit" ) * 60;
 	int time_remaining = (int)(flTimeLimit ? (flTimeLimit - gpGlobals->time) : 0);
 	MESSAGE_BEGIN( MSG_ALL, gmsgRoundTime );
+	WRITE_FLOAT( m_flRoundTime );
+	WRITE_SHORT( time_remaining );
+	MESSAGE_END();
+}
+
+void CBaseGameMode::UpdateClientTimer( CBasePlayer *pPlayer )
+{
+	if ( !pPlayer ) return;
+	if ( !pPlayer->IsConnected() ) return;
+
+	float flTimeLimit = CVAR_GET_FLOAT( "mp_timelimit" ) * 60;
+	int time_remaining = (int)(flTimeLimit ? (flTimeLimit - gpGlobals->time) : 0);
+	MESSAGE_BEGIN( MSG_ONE, gmsgRoundTime, NULL, pPlayer->edict() );
 	WRITE_FLOAT( m_flRoundTime );
 	WRITE_SHORT( time_remaining );
 	MESSAGE_END();

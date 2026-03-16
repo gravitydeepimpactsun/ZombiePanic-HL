@@ -74,6 +74,7 @@ public:
 	virtual void OnPlayerSpawned( CBasePlayer *pPlayer );
 	virtual void OnPlayerDisconnected( CBasePlayer *pPlayer );
 	void UpdateClientTimer();
+	void UpdateClientTimer( CBasePlayer *pPlayer );
 
 	bool HasLeftMidRound( CBasePlayer *pPlayer ) override;
 	bool HasTimeRanOut() override { return m_bTimeRanOut; }

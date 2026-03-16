@@ -85,6 +85,8 @@ CZombiePanicGameRules::CZombiePanicGameRules()
 	m_bHasPickedVolunteer = false;
 	m_bCheatsOnThisSession = false;
 	m_bHostHasJoined = false;
+	m_bDeferringRoundResetBroadcasts = false;
+	m_bProcessingDeferredBroadcasts = false;
 	m_flRoundRestartDelay = -1;
 	m_flRoundJustBegun = -1;
 	m_Volunteers.clear();
@@ -109,6 +111,7 @@ CZombiePanicGameRules::CZombiePanicGameRules()
 
 CZombiePanicGameRules::~CZombiePanicGameRules()
 {
+	m_vecDeferredBroadcasts.clear();
 	m_vecAchievementAnnounces.clear();
 	ZP::SetCurrentGameMode( nullptr );
 }
@@ -144,6 +147,8 @@ void CZombiePanicGameRules ::Think(void)
 			break;
 		}
 	}
+
+	ProcessDeferredBroadcasts();
 
 	if ( g_fGameOver ) // someone else quit the game already
 	{
@@ -200,10 +205,92 @@ extern int gmsgSayText;
 extern int gmsgTeamInfo;
 extern int gmsgTeamNames;
 extern int gmsgScoreInfo;
+extern int gmsgSpectator;
 extern int gmsgRounds;
 extern int gmsgRoundResetPre;
 extern int gmsgRoundResetPost;
 extern int gmsgObjective;
+
+void CZombiePanicGameRules::QueueDeferredBroadcast( DeferredBroadcastType type, int playerIndex, int value )
+{
+	for ( size_t i = 0; i < m_vecDeferredBroadcasts.size(); i++ )
+	{
+		DeferredBroadcast_t &broadcast = m_vecDeferredBroadcasts[i];
+		if ( broadcast.Type == type && broadcast.PlayerIndex == playerIndex )
+		{
+			broadcast.Value = value;
+			return;
+		}
+	}
+
+	DeferredBroadcast_t broadcast = { type, playerIndex, value };
+	m_vecDeferredBroadcasts.push_back( broadcast );
+}
+
+void CZombiePanicGameRules::ProcessDeferredBroadcasts()
+{
+	if ( m_vecDeferredBroadcasts.empty() )
+		return;
+
+	constexpr size_t MAX_BROADCASTS_PER_FRAME = 4;
+	size_t broadcastCount = 0;
+
+	while ( broadcastCount < MAX_BROADCASTS_PER_FRAME && !m_vecDeferredBroadcasts.empty() )
+	{
+		const DeferredBroadcast_t broadcast = m_vecDeferredBroadcasts.front();
+		m_vecDeferredBroadcasts.erase( m_vecDeferredBroadcasts.begin() );
+		m_bProcessingDeferredBroadcasts = true;
+
+		switch ( broadcast.Type )
+		{
+			case DeferredBroadcastType::TeamInfo:
+			{
+				CBasePlayer *pPlayer = (CBasePlayer *)UTIL_PlayerByIndex( broadcast.PlayerIndex );
+				if ( pPlayer && pPlayer->IsConnected() )
+				{
+					MESSAGE_BEGIN( MSG_ALL, gmsgTeamInfo );
+					WRITE_BYTE( pPlayer->entindex() );
+					WRITE_STRING( pPlayer->pev->iuser1 ? "" : pPlayer->TeamID() );
+					MESSAGE_END();
+				}
+				break;
+			}
+
+			case DeferredBroadcastType::ScoreInfo:
+			{
+				CBasePlayer *pPlayer = (CBasePlayer *)UTIL_PlayerByIndex( broadcast.PlayerIndex );
+				if ( pPlayer && pPlayer->IsConnected() )
+				{
+					MESSAGE_BEGIN( MSG_ALL, gmsgScoreInfo );
+					WRITE_BYTE( pPlayer->entindex() );
+					WRITE_SHORT( pPlayer->pev->frags );
+					WRITE_SHORT( pPlayer->m_iDeaths );
+					WRITE_SHORT( 0 );
+					WRITE_SHORT( g_pGameRules->GetTeamIndex( pPlayer->TeamID() ) );
+					MESSAGE_END();
+				}
+				break;
+			}
+
+			case DeferredBroadcastType::Spectator:
+				MESSAGE_BEGIN( MSG_ALL, gmsgSpectator );
+				WRITE_BYTE( broadcast.PlayerIndex );
+				WRITE_BYTE( broadcast.Value );
+				MESSAGE_END();
+				break;
+
+			case DeferredBroadcastType::RoundResetPost:
+				MESSAGE_BEGIN( MSG_ALL, gmsgRoundResetPost, NULL );
+				WRITE_BYTE( broadcast.Value );
+				MESSAGE_END();
+				break;
+		}
+
+		m_bProcessingDeferredBroadcasts = false;
+
+		broadcastCount++;
+	}
+}
 
 void CZombiePanicGameRules::UpdateGameMode(CBasePlayer *pPlayer)
 {
@@ -306,12 +393,26 @@ float CZombiePanicGameRules::FlPlayerFallDamage(CBasePlayer *pPlayer)
 
 void CZombiePanicGameRules::SendPlayerTeamInfo(CBasePlayer *pPlayer)
 {
-	// notify everyone's HUD of the team change
-	MESSAGE_BEGIN(MSG_ALL, gmsgTeamInfo);
-	WRITE_BYTE(pPlayer->entindex());
-	WRITE_STRING(pPlayer->pev->iuser1 ? "" : pPlayer->TeamID());
-	MESSAGE_END();
-	pPlayer->SendScoreInfo();
+	if ( !pPlayer ) return;
+	if ( m_bDeferringRoundResetBroadcasts ) return;
+
+	QueueDeferredBroadcast( DeferredBroadcastType::TeamInfo, pPlayer->entindex(), 0 );
+	QueueDeferredBroadcast( DeferredBroadcastType::ScoreInfo, pPlayer->entindex(), 0 );
+}
+
+void CZombiePanicGameRules::SendPlayerScoreInfo(CBasePlayer *pPlayer)
+{
+	if ( !pPlayer ) return;
+	if ( m_bDeferringRoundResetBroadcasts ) return;
+
+	QueueDeferredBroadcast( DeferredBroadcastType::ScoreInfo, pPlayer->entindex(), 0 );
+}
+
+void CZombiePanicGameRules::SendPlayerSpectatorInfo(CBasePlayer *pPlayer, bool bIsSpectator)
+{
+	if ( !pPlayer ) return;
+
+	QueueDeferredBroadcast( DeferredBroadcastType::Spectator, pPlayer->entindex(), bIsSpectator ? 1 : 0 );
 }
 
 void CZombiePanicGameRules::ResetRound()
@@ -369,6 +470,7 @@ void CZombiePanicGameRules::ResetRound()
 
 	// Reset all map objects
 	CleanUpMap();
+	m_bDeferringRoundResetBroadcasts = true;
 
 	// Respawn all players
 	for ( int i = 1; i <= gpGlobals->maxClients; i++ )
@@ -400,9 +502,8 @@ void CZombiePanicGameRules::ResetRound()
 
 	// On round reset, we set our round data, similar to gmsgRounds
 	// But we also set the team menu to draw, similar to gmsgVGUIMenu
-	MESSAGE_BEGIN(MSG_ALL, gmsgRoundResetPost, NULL);
-	WRITE_BYTE(m_iRounds);
-	MESSAGE_END();
+	QueueDeferredBroadcast( DeferredBroadcastType::RoundResetPost, 0, m_iRounds );
+	m_bDeferringRoundResetBroadcasts = false;
 }
 
 void CZombiePanicGameRules::CleanUpMap()

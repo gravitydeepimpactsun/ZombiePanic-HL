@@ -66,8 +66,8 @@ void CWeaponBaseMelee::LoadMeleeConfigFile()
 			m_attackTracers[1].flRange = pSecondaryAttack->GetFloat( "Length", 58 );
 			UTIL_StringToVector( m_attackTracers[1].vecStart[0].Base(), pSecondaryAttack->GetString( "Start", "20 -10 8" ) );
 			UTIL_StringToVector( m_attackTracers[1].vecEnd[0].Base(), pSecondaryAttack->GetString( "End", "20 10 -10" ) );
-			UTIL_StringToVector( m_attackTracers[1].vecStart[1].Base(), pPrimaryAttack->GetString( "Start2", "0 0 0" ) );
-			UTIL_StringToVector( m_attackTracers[1].vecEnd[1].Base(), pPrimaryAttack->GetString( "End2", "0 0 0" ) );
+			UTIL_StringToVector( m_attackTracers[1].vecStart[1].Base(), pSecondaryAttack->GetString( "Start2", "0 0 0" ) );
+			UTIL_StringToVector( m_attackTracers[1].vecEnd[1].Base(), pSecondaryAttack->GetString( "End2", "0 0 0" ) );
 		}
 	}
 }
@@ -138,8 +138,10 @@ void CWeaponBaseMelee::SecondaryAttack( void )
 	SendWeaponAnim( ANIM_MELEE_HEAVY_HOLD );
 	m_pPlayer->SetAnimation( PLAYER_ATTACK2_PRE );
 	n_meleeAttackType = MELEE_ATTACK_HEAVY;
-	m_flNextPrimaryAttack = m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + 1.0f;
-	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.0f;
+	float flHoldTime = m_attackTracers[1].flAnimTimeHold;
+	if ( flHoldTime <= 0.0f ) flHoldTime = 0.1f;
+	m_flNextPrimaryAttack = m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + flHoldTime;
+	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + flHoldTime;
 }
 
 float CWeaponBaseMelee::DoWeaponIdleAnimation( int iAnim )
@@ -230,12 +232,16 @@ bool CWeaponBaseMelee::DidMeleeAttackHit( MeleeAttackType attackType )
 	if ( eWhatDidWeHit1 > HIT_NOTHING )
 	{
 		bool bHitWorld = ( eWhatDidWeHit1 == HIT_WORLD );
+		#ifndef CLIENT_DLL
 		DoWeaponSoundFromAttack( attackType, bHitWorld );
 		m_pPlayer->m_iWeaponVolume = bHitWorld ? MELEE_SND_WALLHIT_VOLUME : MELEE_SND_BODYHIT_VOLUME;
+		#endif
 		bHitSomething = true;
 	}
 	else
+	#ifndef CLIENT_DLL
 		DoWeaponSoundFromMiss( attackType );
+	#endif
 
 	// Clear it after our attack
 	m_hitEntities.clear();
@@ -288,7 +294,9 @@ CWeaponBaseMelee::WhatDidWeHit CWeaponBaseMelee::DoAttackTrace( MeleeAttackType 
 	int bitsDamageType = GetMeleeDamageType( attackType );
 
 	// Clear multi damage
+	#ifndef CLIENT_DLL
 	ClearMultiDamage();
+	#endif
 
 	// Calculate the distance to move per trace.
 	float flMeleeTraceDist = vStart.DistTo( vEnd ) / max( nMeleeTraceCount, 1 );
@@ -340,18 +348,24 @@ CWeaponBaseMelee::WhatDidWeHit CWeaponBaseMelee::DoAttackTrace( MeleeAttackType 
 #endif
 					eWhatDidWeHit = HIT_WORLD;
 				}
+				#ifndef CLIENT_DLL
 				pHitEntity->TraceAttack( m_pPlayer->pev, flMeleeDaamge, vTraceTargetDir, &m_trHit, bitsDamageType );
+				#endif
 			}
 			else
 				eWhatDidWeHit = HIT_WORLD;
 
+			#ifndef CLIENT_DLL
 			DecalGunshot( &m_trHit, vForward, GetBulletType() );
+			#endif
 			m_hitEntities.push_back( m_trHit.pHit );
 		}
 	}
 
 	// Apply all the damage we traced this frame
+	#ifndef CLIENT_DLL
 	ApplyMultiDamage( m_pPlayer->pev, m_pPlayer->pev );
+	#endif
 
 	return eWhatDidWeHit;
 }
@@ -362,7 +376,7 @@ void CWeaponBaseMelee::DoMeleeAttack()
 	int iAnim = bHitSomething ? ANIM_MELEE_HEAVY_HIT : ANIM_MELEE_HEAVY_MISS;
 	if ( IsInLightAttack() )
 	{
-		switch ( RANDOM_LONG( 0, 2 ) )
+		switch ( UTIL_SharedRandomLong( m_pPlayer->random_seed + 1, 0, 2 ) )
 		{
 			case 0: iAnim = bHitSomething ? ANIM_MELEE_ATTACK1HIT : ANIM_MELEE_ATTACK1MISS; break;
 			case 1: iAnim = bHitSomething ? ANIM_MELEE_ATTACK2HIT : ANIM_MELEE_ATTACK2MISS; break;

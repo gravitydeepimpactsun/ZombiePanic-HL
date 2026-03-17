@@ -15,6 +15,7 @@ public:
 	bool IsThrowable() override { return true; }
 	void DeactivateThrow() override;
 	ZPWeaponID GetWeaponID() override { return WEAPON_TNT; }
+	BOOL UseDecrement() override { return FALSE; }
 	int AddToPlayer( CBasePlayer *pPlayer );
 	int AddDuplicate( CBasePlayerItem *pOriginal );
 	void Spawn( void );

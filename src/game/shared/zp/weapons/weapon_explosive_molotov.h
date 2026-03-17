@@ -14,6 +14,7 @@ class CWeaponExplosiveMolotov : public CWeaponBase
 public:
 	bool IsThrowable() override { return true; }
 	ZPWeaponID GetWeaponID() override { return WEAPON_MOLOTOV; }
+	BOOL UseDecrement() override { return FALSE; }
 	int AddToPlayer( CBasePlayer *pPlayer );
 	int AddDuplicate( CBasePlayerItem *pOriginal );
 	void Spawn( void );

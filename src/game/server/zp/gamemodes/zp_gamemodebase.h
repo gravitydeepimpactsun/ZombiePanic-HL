@@ -73,6 +73,8 @@ public:
 	virtual void OnPlayerDied( CBasePlayer *pPlayer, entvars_t *pKiller, entvars_t *pInflictor ) {}
 	virtual void OnPlayerSpawned( CBasePlayer *pPlayer );
 	virtual void OnPlayerDisconnected( CBasePlayer *pPlayer );
+	void SendRoundState();
+	void SendRoundState( CBasePlayer *pPlayer );
 	void UpdateClientTimer();
 	void UpdateClientTimer( CBasePlayer *pPlayer );
 

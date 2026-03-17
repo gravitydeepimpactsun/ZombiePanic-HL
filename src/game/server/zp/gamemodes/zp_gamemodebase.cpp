@@ -56,6 +56,29 @@ bool CBaseGameMode::IsTestModeActive() const
 	return sv_testmode.GetBool();
 }
 
+void CBaseGameMode::SendRoundState()
+{
+	const int winner = ( GetRoundState() == ZP::RoundState_RoundIsOver ) ? GetWinState() : IGameModeBase::State_None;
+
+	MESSAGE_BEGIN( MSG_ALL, gmsgRoundState );
+	WRITE_SHORT( GetRoundState() );
+	WRITE_SHORT( winner );
+	MESSAGE_END();
+}
+
+void CBaseGameMode::SendRoundState( CBasePlayer *pPlayer )
+{
+	if ( !pPlayer ) return;
+	if ( !pPlayer->IsConnected() ) return;
+
+	const int winner = ( GetRoundState() == ZP::RoundState_RoundIsOver ) ? GetWinState() : IGameModeBase::State_None;
+
+	MESSAGE_BEGIN( MSG_ONE, gmsgRoundState, NULL, pPlayer->edict() );
+	WRITE_SHORT( GetRoundState() );
+	WRITE_SHORT( winner );
+	MESSAGE_END();
+}
+
 void CBaseGameMode::OnHUDInit(CBasePlayer *pPlayer)
 {
 	if ( !m_bHasPlayersConnected )
@@ -94,9 +117,7 @@ void CBaseGameMode::OnGameModeThink()
 			{
 			    m_flRoundBeginsIn = gpGlobals->time + startdelay.value;
 				SetRoundState( ZP::RoundState_RoundIsStarting );
-				MESSAGE_BEGIN(MSG_ALL, gmsgRoundState);
-				WRITE_SHORT(GetRoundState());
-				MESSAGE_END();
+				SendRoundState();
 			}
 		}
 		break;
@@ -128,9 +149,7 @@ void CBaseGameMode::OnGameModeThink()
 		    m_flRoundTime = roundtime.value > 0 ? gpGlobals->time + roundtime.value * 60 : -1;
 		    m_flLastZombieCheck = gpGlobals->time + 4.5f;
 			SetRoundState( ZP::RoundState_RoundHasBegun );
-		    MESSAGE_BEGIN(MSG_ALL, gmsgRoundState);
-		    WRITE_SHORT(GetRoundState());
-		    MESSAGE_END();
+		    SendRoundState();
 		    GiveWeaponsOnRoundStart();
 		    ZP::OnGameModeRoundStart();
 			// Tell the clients that we have a new round timer!
@@ -212,9 +231,7 @@ void CBaseGameMode::RestartRound()
 	m_bTimeRanOut = false;
 	// New round, clear it.
 	m_LeftMidRoundList.clear();
-	MESSAGE_BEGIN( MSG_ALL, gmsgRoundState );
-	WRITE_SHORT( GetRoundState() );
-	MESSAGE_END();
+	SendRoundState();
 	m_flRoundTime = -1;
 	UpdateClientTimer();
 }

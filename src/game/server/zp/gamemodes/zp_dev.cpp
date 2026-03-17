@@ -22,5 +22,6 @@ void ZPGameMode_Dev::OnHUDInit(CBasePlayer *pPlayer)
 	if ( !pPlayer->IsConnected() ) return;
 	MESSAGE_BEGIN(MSG_ONE, gmsgRoundState, NULL, pPlayer->edict());
 	WRITE_SHORT(GetRoundState());
+	WRITE_SHORT(IGameModeBase::State_None);
 	MESSAGE_END();
 }

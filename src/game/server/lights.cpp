@@ -24,6 +24,16 @@
 #include "util.h"
 #include "cbase.h"
 
+namespace
+{
+constexpr int MAX_LIGHT_STYLE_INDEX = 63;
+
+bool IsValidLightStyleIndex( int style )
+{
+	return style >= 0 && style <= MAX_LIGHT_STYLE_INDEX;
+}
+}
+
 class CLight : public CPointEntity
 {
 public:
@@ -38,6 +48,11 @@ public:
 	static TYPEDESCRIPTION m_SaveData[];
 
 private:
+	bool HasSwitchableStyle() const;
+	bool ValidateLightStyle( const char *context );
+	const char *GetLightName() const;
+	void ApplyLightStyle();
+
 	int m_iStyle;
 	int m_iszPattern;
 	int m_iStartedOff;
@@ -50,6 +65,41 @@ TYPEDESCRIPTION CLight::m_SaveData[] = {
 };
 
 IMPLEMENT_SAVERESTORE(CLight, CPointEntity);
+
+bool CLight::HasSwitchableStyle() const
+{
+	return m_iStyle >= 32 && m_iStyle <= MAX_LIGHT_STYLE_INDEX;
+}
+
+bool CLight::ValidateLightStyle( const char *context )
+{
+	if ( IsValidLightStyleIndex( m_iStyle ) )
+		return true;
+
+	ALERT( at_console, "Ignoring invalid light style %d for %s (%s) during %s\n",
+		m_iStyle,
+		STRING( pev->classname ),
+		GetLightName(),
+		context );
+
+	m_iStyle = 0;
+	return false;
+}
+
+const char *CLight::GetLightName() const
+{
+	return FStringNull( pev->targetname ) ? STRING( pev->classname ) : STRING( pev->targetname );
+}
+
+void CLight::ApplyLightStyle()
+{
+	if ( FBitSet( pev->spawnflags, SF_LIGHT_START_OFF ) )
+		LIGHT_STYLE( m_iStyle, "a" );
+	else if ( m_iszPattern )
+		LIGHT_STYLE( m_iStyle, (char *)STRING( m_iszPattern ) );
+	else
+		LIGHT_STYLE( m_iStyle, "m" );
+}
 
 //
 // Cache user-entity-field values until spawn is called.
@@ -94,59 +144,47 @@ void CLight ::Spawn(void)
 
 	m_iStartedOff = (pev->spawnflags & SF_LIGHT_START_OFF) != 0;
 
-	if (m_iStyle >= 32)
-	{
-		//		CHANGE_METHOD(ENT(pev), em_use, light_use);
-		if (FBitSet(pev->spawnflags, SF_LIGHT_START_OFF))
-			LIGHT_STYLE(m_iStyle, "a");
-		else if (m_iszPattern)
-			LIGHT_STYLE(m_iStyle, (char *)STRING(m_iszPattern));
-		else
-			LIGHT_STYLE(m_iStyle, "m");
-	}
+	if ( !ValidateLightStyle( "spawn" ) || !HasSwitchableStyle() )
+		return;
+
+	//		CHANGE_METHOD(ENT(pev), em_use, light_use);
+	ApplyLightStyle();
 }
 
 void CLight::Restart()
 {
-	if (m_iStyle >= 32)
-	{
-		if (m_iStartedOff)
-		{
-			pev->spawnflags |= SF_LIGHT_START_OFF;
-			LIGHT_STYLE(m_iStyle, "a");
-		}
-		else
-		{
-			pev->spawnflags &= ~SF_LIGHT_START_OFF;
+	if ( !ValidateLightStyle( "restart" ) || !HasSwitchableStyle() )
+		return;
 
-			if (m_iszPattern)
-				LIGHT_STYLE(m_iStyle, (char *)STRING(m_iszPattern));
-			else
-				LIGHT_STYLE(m_iStyle, "m");
-		}
+	if (m_iStartedOff)
+	{
+		pev->spawnflags |= SF_LIGHT_START_OFF;
+		LIGHT_STYLE(m_iStyle, "a");
+	}
+	else
+	{
+		pev->spawnflags &= ~SF_LIGHT_START_OFF;
+		ApplyLightStyle();
 	}
 }
 
 void CLight ::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value)
 {
-	if (m_iStyle >= 32)
-	{
-		if (!ShouldToggle(useType, !FBitSet(pev->spawnflags, SF_LIGHT_START_OFF)))
-			return;
+	if ( !ValidateLightStyle( "use" ) || !HasSwitchableStyle() )
+		return;
 
-		if (FBitSet(pev->spawnflags, SF_LIGHT_START_OFF))
-		{
-			if (m_iszPattern)
-				LIGHT_STYLE(m_iStyle, (char *)STRING(m_iszPattern));
-			else
-				LIGHT_STYLE(m_iStyle, "m");
-			ClearBits(pev->spawnflags, SF_LIGHT_START_OFF);
-		}
-		else
-		{
-			LIGHT_STYLE(m_iStyle, "a");
-			SetBits(pev->spawnflags, SF_LIGHT_START_OFF);
-		}
+	if (!ShouldToggle(useType, !FBitSet(pev->spawnflags, SF_LIGHT_START_OFF)))
+		return;
+
+	if (FBitSet(pev->spawnflags, SF_LIGHT_START_OFF))
+	{
+		ClearBits(pev->spawnflags, SF_LIGHT_START_OFF);
+		ApplyLightStyle();
+	}
+	else
+	{
+		LIGHT_STYLE(m_iStyle, "a");
+		SetBits(pev->spawnflags, SF_LIGHT_START_OFF);
 	}
 }
 

@@ -65,9 +65,9 @@ void CWeaponMeleeFireaxe::DoWeaponSoundFromAttack( MeleeAttackType attackType, b
 		{
 			switch ( RANDOM_LONG( 0, 2 ) )
 			{
-				case 0: szSoundFile = "weapons/melee/crowbar/hitbod1.wav"; break;
-				case 1: szSoundFile = "weapons/melee/crowbar/hitbod2.wav"; break;
-				case 2: szSoundFile = "weapons/melee/crowbar/hitbod3.wav"; break;
+				case 0: szSoundFile = "weapons/melee/fireaxe/hitbod1.wav"; break;
+				case 1: szSoundFile = "weapons/melee/fireaxe/hitbod2.wav"; break;
+				case 2: szSoundFile = "weapons/melee/fireaxe/hitbod3.wav"; break;
 			}
 		}
 	}

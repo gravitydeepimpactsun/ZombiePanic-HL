@@ -15,7 +15,7 @@ float CWeaponSideArmPPK::DoHolsterAnimation()
 float CWeaponSideArmPPK::DoWeaponUnload()
 {
 	SendWeaponAnim( ANIM_PISTOL_UNLOAD );
-	AddWeaponSound( "weapons/ppk/clipout.wav", 1, ATTN_NORM, GetAnimationTime( 8, 32 ) );
+	AddWeaponSound( "weapons/ppk/clipout_unload.wav", 1, ATTN_NORM, GetAnimationTime( 8, 32 ) );
 	AddWeaponSound( "weapons/ppk/clipin.wav", 1, ATTN_NORM, GetAnimationTime( 33, 32 ) );
 	AddWeaponSound( "weapons/ppk/slideback.wav", 1, ATTN_NORM, GetAnimationTime( 54, 32 ) );
 	return GetAnimationTime( 87, 32 );
@@ -42,6 +42,7 @@ void CWeaponSideArmPPK::Precache(void)
 	PRECACHE_SOUND("weapons/ppk/fire.wav"); //handgun
 	PRECACHE_SOUND("weapons/ppk/clipin.wav"); //handgun
 	PRECACHE_SOUND("weapons/ppk/clipout.wav"); //handgun
+	PRECACHE_SOUND("weapons/ppk/clipout_unload.wav"); //handgun
 	PRECACHE_SOUND("weapons/ppk/slideforward.wav"); //handgun
 	PRECACHE_SOUND("weapons/ppk/slideback.wav"); //handgun
 

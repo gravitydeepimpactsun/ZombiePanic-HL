@@ -38,6 +38,7 @@
 #include "weapons.h"
 #include "weaponinfo.h"
 #include "usercmd.h"
+#include "convar.h"
 #include "netadr.h"
 #include "path.h"
 #include <ctype.h>
@@ -56,6 +57,8 @@ extern int gmsgSayText;
 extern int gmsgVGUIMenu;
 
 unsigned short m_usResetDecals;
+
+static ConVar sv_teamcollision( "sv_teamcollision", "0", FCVAR_CHEATS, "Whether teammates collide with each other." );
 
 void LinkUserMessages(void);
 
@@ -2105,5 +2108,17 @@ void CvarValue2(const edict_t *pEnt, int requestID, const char *cvarName, const 
 
 int ShouldCollide( edict_t *pEntity, edict_t *pOther )
 {
+	if ( sv_teamcollision.GetBool() || !g_pGameRules )
+		return 1;
+
+	CBaseEntity *pFirst = CBaseEntity::Instance( pEntity );
+	CBaseEntity *pSecond = CBaseEntity::Instance( pOther );
+
+	if ( !pFirst || !pSecond || !pFirst->IsPlayer() || !pSecond->IsPlayer() )
+		return 1;
+
+	if ( g_pGameRules->PlayerRelationship( pFirst, pSecond ) == GR_TEAMMATE )
+		return 0;
+
 	return 1;
 }

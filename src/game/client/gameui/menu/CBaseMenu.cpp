@@ -444,6 +444,11 @@ void CBaseMenu::InternalMousePressed(int code)
 	DoDialogHackFix();
 }
 
+void CBaseMenu::RestoreVisibleDialogs()
+{
+	DoDialogHackFix();
+}
+
 struct VPanelMoveData_t
 {
 	vgui2::VPANEL panel;

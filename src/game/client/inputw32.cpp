@@ -27,6 +27,8 @@
 #include "view.h"
 #include "Exports.h"
 
+#include "gameui/gameui_viewport.h"
+
 #include "sdl_rt.h"
 
 #ifdef PLATFORM_WINDOWS
@@ -349,6 +351,9 @@ void IN_RunFrame()
 void IN_SteamOverlayHidden()
 {
 	gHUD.CallOnNextFrame([]() {
+		if ( CGameUIViewport::Get() )
+			CGameUIViewport::Get()->RestoreDialogOrdering();
+
 		if (mouseactive && m_mode == MouseMode::RawInput && !g_pVGuiSurface->IsCursorVisible())
 		{
 			// Hiding Steam overlay in SDL2 input mode breaks the mouse.

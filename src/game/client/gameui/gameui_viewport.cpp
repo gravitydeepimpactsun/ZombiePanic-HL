@@ -24,6 +24,14 @@
 #include "nlohmann/json.hpp"
 #include "rp_manager.h"
 #include "zp/zp_apicallback.h"
+#include "sdl_rt.h"
+
+#ifdef _WIN32
+extern "C" __declspec( dllimport ) void *__stdcall GetActiveWindow();
+extern "C" __declspec( dllimport ) void *__stdcall GetForegroundWindow();
+extern "C" __declspec( dllimport ) void *__stdcall GetDesktopWindow();
+extern "C" __declspec( dllimport ) void *__stdcall GetShellWindow();
+#endif
 
 static ConVar cl_workshop_nocheck( "cl_workshop_nocheck", "0", 0, "Disables subscription checks for workshop items." );
 
@@ -31,6 +39,30 @@ ClientAPIData_t g_ClientAPIData = {};
 
 bool g_bIsConnected = false;
 std::vector<PublishedFileId_t> m_InstalledAddons;
+
+static bool GameWindowHasFocus()
+{
+	if ( GetSDL()->IsGood() )
+	{
+		if ( GetSDL()->GetKeyboardFocus && GetSDL()->GetKeyboardFocus() )
+			return true;
+
+		if ( GetSDL()->GetMouseFocus && GetSDL()->GetMouseFocus() )
+			return true;
+	}
+
+#ifdef _WIN32
+	void *hwndA = GetActiveWindow();
+	if ( !hwndA )
+		return false;
+
+	void *hwndF = GetForegroundWindow();
+	return hwndA == hwndF && hwndF != GetDesktopWindow() && hwndF != GetShellWindow();
+#else
+	return false;
+#endif
+}
+
 bool HasAlreadyDownloadedAddon( const PublishedFileId_t &nAddon )
 {
 	for ( size_t i = 0; i < m_InstalledAddons.size(); i++ )
@@ -65,6 +97,7 @@ CGameUIViewport::CGameUIViewport()
 	m_bNeedToReconnectAfterDownload = false;
 	m_bPrepareForQueryDownload = false;
 	m_hWorkshopInfoBox = nullptr;
+	m_bHadAppFocus = GameWindowHasFocus();
 
 	// Wait 3 seconds before we query for workshop items.
 	SetQueryWait( 3.0f );
@@ -188,6 +221,15 @@ CBaseMenu *CGameUIViewport::GetMenu()
 	return GetDialog(m_hMenu);
 }
 
+void CGameUIViewport::RestoreDialogOrdering()
+{
+	if ( !m_hMenu )
+		return;
+
+	m_hMenu->RestoreVisibleDialogs();
+	g_pVGuiSurface->CalculateMouseVisible();
+}
+
 vgui2::Panel *CGameUIViewport::GetDialog( GameUIDialogs nDialog )
 {
 	switch ( nDialog )
@@ -211,6 +253,11 @@ void CGameUIViewport::SetQueryWait( const float &flTime )
 void CGameUIViewport::OnThink()
 {
 	BaseClass::OnThink();
+
+	const bool bHasAppFocus = GameWindowHasFocus();
+	if ( bHasAppFocus && !m_bHadAppFocus )
+		RestoreDialogOrdering();
+	m_bHadAppFocus = bHasAppFocus;
 
 	if ( CMusicManager::GetInstance() )
 	{

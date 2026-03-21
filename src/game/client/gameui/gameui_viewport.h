@@ -59,6 +59,7 @@ public:
 	CWorkshopDialog *GetWorkshopDialog();
 	CServerBrowser *GetServerBrowser();
 	CBaseMenu *GetMenu();
+	void RestoreDialogOrdering();
 
 	vgui2::Panel *GetDialog( GameUIDialogs nDialog );
 
@@ -141,6 +142,7 @@ protected:
 private:
 	bool m_bPreventEscape = false;
 	int m_iDelayedPreventEscapeFrame = 0;
+	bool m_bHadAppFocus = true;
 	vgui2::DHANDLE<CGameUITestPanel> m_hTestPanel;
 	vgui2::DHANDLE<CAdvOptionsDialog> m_hOptionsDialog;
 	vgui2::DHANDLE<C_AchievementDialog> m_hAchDialog;

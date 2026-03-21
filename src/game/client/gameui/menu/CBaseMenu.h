@@ -22,6 +22,7 @@ public:
 	void Repopulate();
 	void SetNewBackgroundImage( const char *szImage );
 	void ToggleBackground( bool bVisible );
+	void RestoreVisibleDialogs();
 
 protected:
 	void ReadBackgroundFolder();

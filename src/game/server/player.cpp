@@ -242,6 +242,7 @@ int gmsgZombieLives = 0;
 int gmsgRoundState = 0;
 int gmsgTrain = 0;
 int gmsgLogo = 0;
+int gLogoState = 0;
 int gmsgWeaponList = 0;
 int gmsgAmmoX = 0;
 int gmsgHudText = 0;
@@ -335,6 +336,7 @@ void LinkUserMessages(void)
 	gmsgAmmoBankUpdate = REG_USER_MSG("AmmoBank", -1);
 	gmsgRoundState = REG_USER_MSG("RoundState", -1);
 	gmsgTrain = REG_USER_MSG("Train", 1);
+	gmsgLogo = REG_USER_MSG("Logo", 1);
 	gmsgHudText = REG_USER_MSG("HudText", -1);
 	gmsgSayText = REG_USER_MSG("SayText", -1);
 	gmsgSayConsole = REG_USER_MSG("SayCon", -1);
@@ -5589,27 +5591,14 @@ void CBasePlayer::ImpulseCommands()
 	{
 	case 99:
 	{
-
-		int iOn;
-
-		if (!gmsgLogo)
-		{
-			iOn = 1;
-			gmsgLogo = REG_USER_MSG("Logo", 1);
-		}
-		else
-		{
-			iOn = 0;
-		}
+		gLogoState = !gLogoState;
+		const int iOn = gLogoState;
 
 		ASSERT(gmsgLogo > 0);
 		// send "health" update message
 		MESSAGE_BEGIN(MSG_ONE, gmsgLogo, NULL, pev);
 		WRITE_BYTE(iOn);
 		MESSAGE_END();
-
-		if (!iOn)
-			gmsgLogo = 0;
 		break;
 	}
 	case 100:

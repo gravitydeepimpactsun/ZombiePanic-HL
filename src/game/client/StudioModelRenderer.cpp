@@ -834,6 +834,9 @@ void CStudioModelRenderer::StudioFxTransform(cl_entity_t *ent, float transform[3
 	}
 }
 
+
+static constexpr int PLAYER_CORPSE_ANIM_MARKER = 31337;
+
 /*
 ====================
 StudioEstimateFrame
@@ -871,7 +874,11 @@ float CStudioModelRenderer::StudioEstimateFrame(mstudioseqdesc_t *pseqdesc)
 
 	f += dfdt;
 
-	if (pseqdesc->flags & STUDIO_LOOPING)
+	const bool bClampDeadSequence =
+		(m_pCurrentEntity->player && m_pCurrentEntity->curstate.health <= 0) ||
+		(!m_pCurrentEntity->player && m_pCurrentEntity->curstate.playerclass == PLAYER_CORPSE_ANIM_MARKER);
+
+	if ((pseqdesc->flags & STUDIO_LOOPING) && !bClampDeadSequence)
 	{
 		if (pseqdesc->numframes > 1)
 		{

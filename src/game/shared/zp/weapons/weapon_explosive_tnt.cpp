@@ -75,7 +75,8 @@ float CWeaponExplosiveTNT::DoHolsterAnimation()
 	if ( m_flReleaseThrow > 0 && !m_iClip )
 	{
 #ifndef CLIENT_DLL
-		m_pPlayer->WeaponSlotSet( this, false );
+		DestroyAndSwitchToNextBestWeapon();
+		return 0.0f;
 #endif
 		DestroyItem();
 		return 0.0f;
@@ -95,7 +96,7 @@ void CWeaponExplosiveTNT::PrimaryAttack()
 		AddWeaponSound( "weapons/tnt/fuse.wav", 1, ATTN_NORM, GetAnimationTime( 24, 25 ) );
 		AddWeaponSound( "weapons/lighter02.wav", 1, ATTN_NORM, GetAnimationTime( 25, 25 ) );
 		SendWeaponAnim( ANIM_THROW_EXPLOSIVES_PINPULL );
-		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime( 34, 25 );
+		m_flTimeWeaponIdle = GetWeaponTimerBase() + GetAnimationTime( 34, 25 );
 		m_flCanHolster = gpGlobals->time + 2.0f;
 	}
 }
@@ -111,7 +112,7 @@ void CWeaponExplosiveTNT::SecondaryAttack()
 		AddWeaponSound( "weapons/tnt/fuse.wav", 1, ATTN_NORM, GetAnimationTime( 24, 25 ) );
 		AddWeaponSound( "weapons/lighter02.wav", 1, ATTN_NORM, GetAnimationTime( 24, 25 ) );
 		SendWeaponAnim( ANIM_THROW_EXPLOSIVES_PINPULL2 );
-		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime( 35, 25 );
+		m_flTimeWeaponIdle = GetWeaponTimerBase() + GetAnimationTime( 35, 25 );
 		m_flCanHolster = gpGlobals->time + 2.0f;
 		m_bDoSecondaryAttack = true;
 	}
@@ -122,7 +123,7 @@ void CWeaponExplosiveTNT::WeaponIdle(void)
 	if ( m_flReleaseThrow == 0 && m_flStartThrow )
 		m_flReleaseThrow = gpGlobals->time;
 
-	if ( m_flTimeWeaponIdle > UTIL_WeaponTimeBase() )
+	if ( m_flTimeWeaponIdle > GetWeaponTimerBase() )
 		return;
 
 	if (m_flStartThrow)
@@ -157,7 +158,7 @@ void CWeaponExplosiveTNT::WeaponIdle(void)
 		float flTime = m_bDoSecondaryAttack ? GetAnimationTime( 13, 30 ) : GetAnimationTime( 6, 10 );
 		m_flReleaseThrow = 1;
 		m_flStartThrow = 0;
-		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + flTime;
+		m_flTimeWeaponIdle = GetWeaponTimerBase() + flTime;
 		m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flTimeWeaponIdle + 0.1f;
 		m_bDoSecondaryAttack = false;
 
@@ -174,14 +175,14 @@ void CWeaponExplosiveTNT::WeaponIdle(void)
 		else
 		{
 #ifndef CLIENT_DLL
-			// Auto switch to next best weapon if we have no more grenades.
-			m_pPlayer->WeaponSlotSet( this, false );
+			DestroyAndSwitchToNextBestWeapon();
+			return;
 #endif
 			DestroyItem();
 			return;
 		}
 
-		m_flTimeWeaponIdle = m_flNextSecondaryAttack = m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + GetAnimationTime( 26, 30 );
+		m_flTimeWeaponIdle = m_flNextSecondaryAttack = m_flNextPrimaryAttack = GetWeaponTimerBase() + GetAnimationTime( 26, 30 );
 		m_flReleaseThrow = -1;
 		return;
 	}
@@ -193,12 +194,12 @@ void CWeaponExplosiveTNT::WeaponIdle(void)
 		if (flRand <= 0.75)
 		{
 			iAnim = ANIM_THROW_EXPLOSIVES_IDLE;
-			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime( 50, 6 );
+			m_flTimeWeaponIdle = GetWeaponTimerBase() + GetAnimationTime( 50, 6 );
 		}
 		else
 		{
 			iAnim = ANIM_THROW_EXPLOSIVES_FIDGET;
-			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime( 117, 16 );
+			m_flTimeWeaponIdle = GetWeaponTimerBase() + GetAnimationTime( 117, 16 );
 		}
 
 		SendWeaponAnim(iAnim);

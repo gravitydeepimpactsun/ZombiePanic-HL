@@ -45,9 +45,7 @@ void CWeaponSideArmRevolver::DoAudioFrame( void )
 				}
 				else
 				{
-#if !defined( CLIENT_DLL )
-					EMIT_SOUND( ENT(m_pPlayer->pev), CHAN_AUTO, soundData.File, soundData.Volume, soundData.Attenuation );
-#endif
+					EmitWeaponSound( soundData.File, CHAN_AUTO, soundData.Volume, soundData.Attenuation );
 				}
 			}
 			// Remove it from the list
@@ -114,7 +112,7 @@ void CWeaponSideArmRevolver::PrimaryAttack()
 	if (m_pPlayer->pev->waterlevel == 3)
 	{
 		PlayEmptySound();
-		m_flNextPrimaryAttack = 0.15;
+		m_flNextPrimaryAttack = GetWeaponTimerBase() + 0.15f;
 		return;
 	}
 
@@ -127,7 +125,7 @@ void CWeaponSideArmRevolver::PrimaryAttack()
 		else
 		{
 			PlayEmptySound();
-			m_flNextPrimaryAttack = 0.15;
+			m_flNextPrimaryAttack = GetWeaponTimerBase() + 0.15f;
 		}
 
 		return;
@@ -164,8 +162,8 @@ void CWeaponSideArmRevolver::PrimaryAttack()
 		// HEV suit - indicate out of ammo condition
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", FALSE, 0);
 
-	m_flNextPrimaryAttack = gpGlobals->time + PrimaryFireRate();
-	m_flTimeWeaponIdle = gpGlobals->time + GetAnimationTime( 18, 30 );
+	m_flNextPrimaryAttack = GetWeaponTimerBase() + PrimaryFireRate();
+	m_flTimeWeaponIdle = GetWeaponTimerBase() + GetAnimationTime( 18, 30 );
 }
 
 void CWeaponSideArmRevolver::Reload(void)
@@ -210,22 +208,22 @@ void CWeaponSideArmRevolver::WeaponIdle(void)
 	if (flRand <= 0.5)
 	{
 		iAnim = HasBeenUnloaded() ? ANIM_357_UNLOADED_IDLE1 : ANIM_357_IDLE1;
-		m_flTimeWeaponIdle = gpGlobals->time + GetAnimationTime( 41, 15 );
+		m_flTimeWeaponIdle = GetWeaponTimerBase() + GetAnimationTime( 41, 15 );
 	}
 	else if (flRand <= 0.7)
 	{
 		iAnim = HasBeenUnloaded() ? ANIM_357_UNLOADED_IDLE2 : ANIM_357_IDLE2;
-		m_flTimeWeaponIdle = gpGlobals->time + GetAnimationTime( 41, 5 );
+		m_flTimeWeaponIdle = GetWeaponTimerBase() + GetAnimationTime( 41, 5 );
 	}
 	else if (flRand <= 0.9)
 	{
 		iAnim = HasBeenUnloaded() ? ANIM_357_UNLOADED_IDLE3 : ANIM_357_IDLE3;
-		m_flTimeWeaponIdle = gpGlobals->time + GetAnimationTime( 41, 10 );
+		m_flTimeWeaponIdle = GetWeaponTimerBase() + GetAnimationTime( 41, 10 );
 	}
 	else
 	{
 		iAnim = HasBeenUnloaded() ? ANIM_357_UNLOADED_FIDGET : ANIM_357_FIDGET;
-		m_flTimeWeaponIdle = gpGlobals->time + GetAnimationTime( 100, 30 );
+		m_flTimeWeaponIdle = GetWeaponTimerBase() + GetAnimationTime( 100, 30 );
 	}
 
 	int bUseScope = FALSE;

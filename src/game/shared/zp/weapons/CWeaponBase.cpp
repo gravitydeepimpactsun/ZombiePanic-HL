@@ -32,8 +32,8 @@ bool CWeaponBase::DoDeploy( const char *szViewModel, const char *szWeaponModel, 
 #endif
 	SendWeaponAnim( iAnim, skiplocal, body );
 
-	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 0.5;
-	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.0;
+	m_pPlayer->m_flNextAttack = GetPlayerTimerBase() + 0.5f;
+	m_flTimeWeaponIdle = GetWeaponTimerBase() + 1.0f;
 	return true;
 }
 
@@ -49,7 +49,7 @@ int CWeaponBase::DefaultReload(int iAnim, float fDelay, int body)
 	if (j == 0)
 		return FALSE;
 
-	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + fDelay;
+	m_pPlayer->m_flNextAttack = GetPlayerTimerBase() + fDelay;
 
 	// Play our animation!
 	m_pPlayer->SetAnimation( IsEmpty() ? PLAYER_RELOAD_EMPTY : PLAYER_RELOAD );
@@ -62,7 +62,7 @@ int CWeaponBase::DefaultReload(int iAnim, float fDelay, int body)
 	m_pPlayer->m_iWeaponKillCount = 0;
 #endif
 
-	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + fDelay + 0.1;
+	m_flTimeWeaponIdle = GetWeaponTimerBase() + fDelay + 0.1f;
 	return TRUE;
 }
 
@@ -111,11 +111,95 @@ void CWeaponBase::BounceSound()
 	EMIT_SOUND_DYN( ENT(pev), CHAN_VOICE, "items/weapon_drop.wav", 1, ATTN_NORM, 0, pitch );
 }
 
+float CWeaponBase::GetWeaponTimerBase()
+{
+	return UseDecrement() ? UTIL_WeaponTimeBase() : gpGlobals->time;
+}
+
+float CWeaponBase::GetPlayerTimerBase()
+{
+#if defined(CLIENT_WEAPONS)
+	return UTIL_WeaponTimeBase();
+#else
+	return gpGlobals->time;
+#endif
+}
+
+void CWeaponBase::EmitWeaponSound( const char *szSoundFile, int channel, float volume, float attenuation, int flags, int pitch )
+{
+	if ( !m_pPlayer || !szSoundFile || !szSoundFile[0] )
+		return;
+
+#if defined( CLIENT_DLL )
+	if ( UseDecrement() )
+		return;
+#endif
+
+	EMIT_SOUND_DYN( ENT(m_pPlayer->pev), channel, szSoundFile, volume, attenuation, flags, pitch );
+}
+
+#if !defined( CLIENT_DLL )
+CBasePlayerWeapon *CWeaponBase::FindNextBestWeapon()
+{
+	if ( !m_pPlayer )
+		return nullptr;
+
+	CBasePlayerWeapon *pBest = nullptr;
+	int iBestWeight = -1;
+
+	for ( int i = 0; i < MAX_ITEM_TYPES; i++ )
+	{
+		for ( CBasePlayerItem *pCheck = m_pPlayer->m_rgpPlayerItems[i]; pCheck; pCheck = pCheck->m_pNext )
+		{
+			if ( pCheck == this )
+				continue;
+
+			if ( ( pCheck->iFlags() & ITEM_FLAG_NOAUTOSWITCHTO ) != 0 )
+				continue;
+
+			if ( !pCheck->CanDeploy() )
+				continue;
+
+			if ( pCheck->iWeight() > -1 && pCheck->iWeight() == iWeight() )
+				return static_cast<CBasePlayerWeapon *>( pCheck );
+
+			if ( pCheck->iWeight() > iBestWeight )
+			{
+				iBestWeight = pCheck->iWeight();
+				pBest = static_cast<CBasePlayerWeapon *>( pCheck );
+			}
+		}
+	}
+
+	return pBest;
+}
+
+void CWeaponBase::DestroyAndSwitchToNextBestWeapon()
+{
+	if ( !m_pPlayer )
+	{
+		DestroyItem();
+		return;
+	}
+
+	CBasePlayer *pPlayer = m_pPlayer;
+	CBasePlayerWeapon *pNextWeapon = FindNextBestWeapon();
+	pPlayer->WeaponSlotSet( this, false );
+	DestroyItem();
+
+	if ( pNextWeapon )
+		pPlayer->SelectNewActiveWeapon( pNextWeapon );
+}
+#endif
+
 void CWeaponBase::DoDeployAnimation()
 {
 	float flDeploy = Deploy();
+	float flWeaponTimerBase = GetWeaponTimerBase();
+	float flPlayerTimerBase = GetPlayerTimerBase();
 	m_flHolsterTime = -1;
-	m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flTimeWeaponIdle = m_pPlayer->m_flNextAttack = gpGlobals->time + flDeploy;
+	m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flTimeWeaponIdle = flWeaponTimerBase + flDeploy;
+	m_pPlayer->m_flNextAttack = flPlayerTimerBase + flDeploy;
 	m_pPlayer->SetAnimation( PLAYER_DRAW );
 }
 
@@ -126,7 +210,9 @@ void CWeaponBase::BeginHolster( CBasePlayerWeapon *pWeapon )
 	m_bIsHolstering = true;
 	m_fInReload = FALSE;
 	m_pPlayer->m_flNextAttack = 0;
-	m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flHolsterTime = m_flTimeWeaponIdle = gpGlobals->time + DoHolsterAnimation();
+	float flHolsterDelay = DoHolsterAnimation();
+	m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flTimeWeaponIdle = GetWeaponTimerBase() + flHolsterDelay;
+	m_flHolsterTime = gpGlobals->time + flHolsterDelay;
 	ClearWeaponSounds();
 }
 
@@ -260,14 +346,14 @@ void CWeaponBase::ItemPostFrame( void )
 		m_fFireOnEmpty = FALSE;
 
 		// Reload if empty and weapon has waited as long as it has to after firing
-		if ((pPlayer->pev->button & (IN_RELOAD)) && m_iClip == 0 && m_flNextPrimaryAttack - gpGlobals->time < 0.0f)
+		if ((pPlayer->pev->button & (IN_RELOAD)) && m_iClip == 0 && m_flNextPrimaryAttack - GetWeaponTimerBase() < 0.0f)
 		{
 			Reload();
 			return;
 		}
 
 		// Weapon unload
-		if ((pPlayer->pev->button & (IN_UNLOAD)) && m_iClip > 0 && m_flNextPrimaryAttack - gpGlobals->time < 0.0f)
+		if ((pPlayer->pev->button & (IN_UNLOAD)) && m_iClip > 0 && m_flNextPrimaryAttack - GetWeaponTimerBase() < 0.0f)
 		{
 			Unload();
 			return;
@@ -325,11 +411,8 @@ void CWeaponBase::DoAudioFrame( void )
 		WeaponSoundData &soundData = m_vecWeaponSoundData[x];
 		if ( soundData.Delay - gpGlobals->time <= 0 )
 		{
-#if !defined( CLIENT_DLL )
 			// Time to play the sound
-			if ( m_pPlayer )
-				EMIT_SOUND( ENT(m_pPlayer->pev), CHAN_AUTO, soundData.File, soundData.Volume, soundData.Attenuation );
-#endif
+			EmitWeaponSound( soundData.File, CHAN_AUTO, soundData.Volume, soundData.Attenuation );
 			// Remove it from the list
 			m_vecWeaponSoundData.erase( m_vecWeaponSoundData.begin() + x );
 			break; // Only play one sound per frame

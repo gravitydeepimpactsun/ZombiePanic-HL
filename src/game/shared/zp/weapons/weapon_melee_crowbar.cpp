@@ -42,12 +42,12 @@ void CWeaponMeleeCrowbar::DoWeaponSoundFromAttack( MeleeAttackType attackType, b
 			case 2: szSoundFile = "weapons/melee/crowbar/hitbod3.wav"; break;
 		}
 	}
-	EMIT_SOUND( ENT(m_pPlayer->pev), CHAN_ITEM, szSoundFile, 1, ATTN_NORM );
+	EmitWeaponSound( szSoundFile, CHAN_ITEM, 1, ATTN_NORM );
 }
 
 void CWeaponMeleeCrowbar::DoWeaponSoundFromMiss( MeleeAttackType attackType )
 {
-	EMIT_SOUND( ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/melee/crowbar/miss.wav", 1, ATTN_NORM );
+	EmitWeaponSound( "weapons/melee/crowbar/miss.wav", CHAN_ITEM, 1, ATTN_NORM );
 }
 
 float CWeaponMeleeCrowbar::Deploy()

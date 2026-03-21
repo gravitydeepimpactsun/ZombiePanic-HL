@@ -15,6 +15,7 @@ public:
 	bool AllowAmmoSteal() const override { return false; }
 	bool IsThrowable() override { return true; }
 	ZPWeaponID GetWeaponID() override { return WEAPON_SATCHEL; }
+	BOOL UseDecrement() override { return FALSE; }
 	void Spawn( void );
 	void Precache( void );
 	int AddToPlayer( CBasePlayer *pPlayer );

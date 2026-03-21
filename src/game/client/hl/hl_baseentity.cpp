@@ -27,8 +27,11 @@ This file contains "stubs" of class member implementations so that we can predic
 #include "player.h"
 #include "weapons.h"
 #include "nodes.h"
+#include "event_api.h"
 #include "soundent.h"
 #include "skill.h"
+
+#include "../com_weapons.h"
 
 // Globals used by game logic
 const Vector g_vecZero = Vector(0, 0, 0);
@@ -38,7 +41,22 @@ globalvars_t *gpGlobals;
 
 ItemInfo CBasePlayerItem::ItemInfoArray[MAX_WEAPONS];
 
-void EMIT_SOUND_DYN(edict_t *entity, int channel, const char *sample, float volume, float attenuation, int flags, int pitch) { }
+void EMIT_SOUND_DYN(edict_t *entity, int channel, const char *sample, float volume, float attenuation, int flags, int pitch)
+{
+	if ( !g_runfuncs || !sample || !sample[0] )
+		return;
+
+	Vector origin = g_vecZero;
+	int idx = 0;
+
+	if ( entity )
+	{
+		origin = entity->v.origin;
+		idx = ENTINDEX( entity );
+	}
+
+	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, channel, sample, volume, attenuation, flags, pitch );
+}
 
 // CBaseEntity Stubs
 int CBaseEntity::TakeHealth(float flHealth, int bitsDamageType) { return 1; }

@@ -21,6 +21,7 @@
 #include "com_weapons.h"
 
 #include "const.h"
+#include "event_flags.h"
 #include "entity_state.h"
 #include "r_efx.h"
 
@@ -134,6 +135,8 @@ void HUD_PlaybackEvent(int flags, const edict_t *pInvoker, unsigned short eventi
 
 	if (!g_runfuncs || !g_finalstate)
 		return;
+
+	flags &= ~FEV_NOTHOST;
 
 	// Weapon prediction events are assumed to occur at the player's origin
 	org = g_finalstate->playerstate.origin;

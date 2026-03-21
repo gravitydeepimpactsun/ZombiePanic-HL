@@ -71,7 +71,7 @@ void CWeaponMeleeLeadPipe::DoWeaponSoundFromAttack( MeleeAttackType attackType, 
 			}
 		}
 	}
-	EMIT_SOUND( ENT(m_pPlayer->pev), CHAN_ITEM, szSoundFile, 1, ATTN_NORM );
+	EmitWeaponSound( szSoundFile, CHAN_ITEM, 1, ATTN_NORM );
 }
 
 void CWeaponMeleeLeadPipe::DoWeaponSoundFromMiss( MeleeAttackType attackType )
@@ -82,7 +82,7 @@ void CWeaponMeleeLeadPipe::DoWeaponSoundFromMiss( MeleeAttackType attackType )
 		case 0: szSoundFile = "weapons/melee/leadpipe/miss1.wav"; break;
 		case 1: szSoundFile = "weapons/melee/leadpipe/miss2.wav"; break;
 	}
-	EMIT_SOUND( ENT(m_pPlayer->pev), CHAN_ITEM, szSoundFile, 1, ATTN_NORM );
+	EmitWeaponSound( szSoundFile, CHAN_ITEM, 1, ATTN_NORM );
 }
 
 float CWeaponMeleeLeadPipe::Deploy()

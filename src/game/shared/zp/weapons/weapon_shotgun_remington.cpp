@@ -65,7 +65,7 @@ float CWeaponShotgunRemington::DoWeaponUnload()
 	SendWeaponAnim( ANIM_SHOTGUN_UNLOAD );
 	// Pump it up!
 	m_pPlayer->SetAnimation( PLAYER_PUMP );
-	EMIT_SOUND_DYN( ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/shotgun/pump.wav", 1, ATTN_NORM, 0, 105 );
+	EmitWeaponSound( "weapons/shotgun/pump.wav", CHAN_ITEM, 1, ATTN_NORM, 0, 105 );
 	return GetAnimationTime( 14, 30 );
 }
 
@@ -93,7 +93,7 @@ void CWeaponShotgunRemington::OnRequestedAnimation( SingleActionAnimReq act )
 			// Pump it up!
 			m_pPlayer->SetAnimation( PLAYER_PUMP );
 			// play cocking sound
-			EMIT_SOUND_DYN( ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/shotgun/pump.wav", 1, ATTN_NORM, 0, 105 );
+			EmitWeaponSound( "weapons/shotgun/pump.wav", CHAN_ITEM, 1, ATTN_NORM, 0, 105 );
 			m_flTimeWeaponIdle = m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + GetAnimationTime( 16, 25 );
 		}
 		break;
@@ -107,9 +107,9 @@ void CWeaponShotgunRemington::OnRequestedAnimation( SingleActionAnimReq act )
 		case CWeaponBaseSingleAction::ANIM_RELOAD:
 		{
 		    if (RANDOM_LONG(0, 1))
-			    EMIT_SOUND_DYN( ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/shotgun/reload1.wav", 1, ATTN_NORM, 0, 85 + RANDOM_LONG(0, 0x1f) );
+			    EmitWeaponSound( "weapons/shotgun/reload1.wav", CHAN_ITEM, 1, ATTN_NORM, 0, 85 + RANDOM_LONG(0, 0x1f) );
 		    else
-			    EMIT_SOUND_DYN( ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/shotgun/reload2.wav", 1, ATTN_NORM, 0, 85 + RANDOM_LONG(0, 0x1f) );
+			    EmitWeaponSound( "weapons/shotgun/reload2.wav", CHAN_ITEM, 1, ATTN_NORM, 0, 85 + RANDOM_LONG(0, 0x1f) );
 
 		    SendWeaponAnim( ANIM_SHOTGUN_RELOAD );
 			m_pPlayer->SetAnimation( PLAYER_RELOAD );
@@ -127,7 +127,7 @@ void CWeaponShotgunRemington::OnRequestedAnimation( SingleActionAnimReq act )
 		{
 			SendWeaponAnim( ANIM_SHOTGUN_RELOAD_END );
 			m_pPlayer->SetAnimation( PLAYER_RELOAD_END );
-			EMIT_SOUND_DYN( ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/shotgun/pump.wav", 1, ATTN_NORM, 0, 105 );
+			EmitWeaponSound( "weapons/shotgun/pump.wav", CHAN_ITEM, 1, ATTN_NORM, 0, 105 );
 			float flAnimTime = GetAnimationTime( 18, 22 );
 		    m_flNextReload = UTIL_WeaponTimeBase() + flAnimTime;
 		    m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + flAnimTime;

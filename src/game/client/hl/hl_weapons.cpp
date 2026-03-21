@@ -33,6 +33,7 @@
 
 #include "zp/weapons/weapon_sidearm_sig.h"
 #include "zp/weapons/weapon_sidearm_fafo.h"
+#include "zp/weapons/weapon_sidearm_glock17.h"
 #include "zp/weapons/weapon_sidearm_ppk.h"
 #include "zp/weapons/weapon_sidearm_revolver.h"
 #include "zp/weapons/weapon_smg_mp5.h"
@@ -46,6 +47,7 @@
 #include "zp/weapons/weapon_explosive_tnt.h"
 #include "zp/weapons/weapon_explosive_ied.h"
 #include "zp/weapons/weapon_explosive_molotov.h"
+#include "zp/weapons/weapon_misc_nailgun.h"
 
 extern globalvars_t *gpGlobals;
 extern int g_iUser1;
@@ -60,15 +62,52 @@ static CBasePlayer player;
 // Local version of game .dll global variables ( time, etc. )
 static globalvars_t Globals;
 
-static CWeaponBase *g_pWpns[ LAST_WEAPON_ID ];
+static CWeaponMeleeCrowbar g_WeaponCrowbar;
+static CWeaponMeleeSwipe g_WeaponSwipe;
+static CWeaponSideArmSig g_WeaponSig;
+static CWeaponSideArmRevolver g_WeaponPython;
+static CWeaponSMGMP5 g_WeaponMP5;
+static CWeaponRifleM16 g_Weapon556AR;
+static CWeaponShotgunRemington g_WeaponShotgun;
+static CWeaponExplosiveTNT g_WeaponTNT;
+static CWeaponExplosiveIED g_WeaponIED;
+static CWeaponMeleeLeadPipe g_WeaponLeadPipe;
+static CWeaponMeleeFireaxe g_WeaponFireaxe;
+static CWeaponShotgunDoubleBarrel g_WeaponDoubleBarrel;
+static CWeaponSideArmPPK g_WeaponPPK;
+static CWeaponSideArmGlock17 g_WeaponGlock17;
+static CWeaponSideArmFafo g_WeaponFafo;
+static CWeaponExplosiveMolotov g_WeaponMolotov;
+static CWeaponNailGun g_WeaponNailgun;
+
+static CWeaponBase *g_pWpns[ LAST_WEAPON_ID ] = {
+	nullptr,
+	&g_WeaponCrowbar,
+	&g_WeaponSwipe,
+	&g_WeaponSig,
+	&g_WeaponPython,
+	&g_WeaponMP5,
+	&g_Weapon556AR,
+	&g_WeaponShotgun,
+	&g_WeaponTNT,
+	&g_WeaponIED,
+	&g_WeaponLeadPipe,
+	nullptr,
+	&g_WeaponFireaxe,
+	&g_WeaponDoubleBarrel,
+	&g_WeaponPPK,
+	&g_WeaponGlock17,
+	&g_WeaponFafo,
+	&g_WeaponMolotov,
+	&g_WeaponNailgun,
+	nullptr,
+	nullptr,
+};
 
 float g_flApplyVel = 0.0;
 int g_irunninggausspred = 0;
 
 Vector previousorigin;
-
-// Weapon entities.
-CWeaponBase g_Weapons[ LAST_WEAPON_ID ];
 
 /*
 ======================
@@ -121,6 +160,9 @@ void HUD_PrepEntity(CBaseEntity *pEntity)
 
 void HUD_PrepWeapon(CWeaponBase *pEntity, ZPWeaponID nID, CBasePlayer *pWeaponOwner)
 {
+	if ( !pEntity )
+		return;
+
 	memset(&ev[num_ents], 0, sizeof(entvars_t));
 	pEntity->pev = &ev[num_ents++];
 
@@ -636,8 +678,7 @@ void HUD_InitClientWeapons(void)
 	// Allocate slot(s) for each weapon that we are going to be predicting
 	for ( size_t i = 0; i < ZPWeaponID::LAST_WEAPON_ID; i++ )
 	{
-		// Prepare weapon entities
-		HUD_PrepWeapon( &g_Weapons[i], (ZPWeaponID)i, &player );
+		HUD_PrepWeapon( g_pWpns[i], (ZPWeaponID)i, &player );
 	}
 }
 
@@ -703,7 +744,7 @@ void HUD_WeaponsPostThink(local_state_s *from, local_state_s *to, usercmd_t *cmd
 	// Fill in data based on selected weapon
 	int nWeaponID = from->client.m_iId;
 	if ( nWeaponID > WEAPON_NONE && nWeaponID < LAST_WEAPON_ID )
-		pWeapon = &g_Weapons[ nWeaponID ];
+		pWeapon = g_pWpns[ nWeaponID ];
 
 	// Store pointer to our destination entity_state_t so we can get our origin, etc. from it
 	//  for setting up events on the client

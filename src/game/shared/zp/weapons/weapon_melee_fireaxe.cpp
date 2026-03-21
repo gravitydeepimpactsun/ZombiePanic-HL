@@ -71,7 +71,7 @@ void CWeaponMeleeFireaxe::DoWeaponSoundFromAttack( MeleeAttackType attackType, b
 			}
 		}
 	}
-	EMIT_SOUND( ENT(m_pPlayer->pev), CHAN_ITEM, szSoundFile, 1, ATTN_NORM );
+	EmitWeaponSound( szSoundFile, CHAN_ITEM, 1, ATTN_NORM );
 }
 
 void CWeaponMeleeFireaxe::DoWeaponSoundFromMiss( MeleeAttackType attackType )
@@ -82,7 +82,7 @@ void CWeaponMeleeFireaxe::DoWeaponSoundFromMiss( MeleeAttackType attackType )
 		case 0: szSoundFile = "weapons/melee/fireaxe/miss1.wav"; break;
 		case 1: szSoundFile = "weapons/melee/fireaxe/miss2.wav"; break;
 	}
-	EMIT_SOUND( ENT(m_pPlayer->pev), CHAN_ITEM, szSoundFile, 1, ATTN_NORM );
+	EmitWeaponSound( szSoundFile, CHAN_ITEM, 1, ATTN_NORM );
 }
 
 float CWeaponMeleeFireaxe::Deploy()

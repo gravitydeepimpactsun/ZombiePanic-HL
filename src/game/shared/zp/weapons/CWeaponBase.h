@@ -93,6 +93,14 @@ public:
 protected:
 	void DefaultSpawn();
 	bool CanAttack( float attack_time, float curtime, bool isPredicted );
+	float GetWeaponTimerBase();
+	float GetPlayerTimerBase();
+	void EmitWeaponSound( const char *szSoundFile, int channel = CHAN_AUTO, float volume = 1.0f, float attenuation = ATTN_NORM, int flags = 0, int pitch = PITCH_NORM );
+
+#if !defined( CLIENT_DLL )
+	CBasePlayerWeapon *FindNextBestWeapon();
+	void DestroyAndSwitchToNextBestWeapon();
+#endif
 
 	unsigned short m_nEventPrimary;
 	unsigned short m_nEventSecondary;

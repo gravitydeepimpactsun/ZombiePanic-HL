@@ -66,14 +66,14 @@ void CWeaponNailGun::PrimaryAttack()
 	if (m_pPlayer->pev->waterlevel == 3)
 	{
 		PlayEmptySound();
-		m_flNextPrimaryAttack = 0.15;
+		m_flNextPrimaryAttack = GetWeaponTimerBase() + 0.15f;
 		return;
 	}
 
 	if ( m_iClip <= 0 )
 	{
 		PlayEmptySound();
-		m_flNextPrimaryAttack = 0.15;
+		m_flNextPrimaryAttack = GetWeaponTimerBase() + 0.15f;
 		return;
 	}
 
@@ -113,12 +113,12 @@ void CWeaponNailGun::PrimaryAttack()
 		// HEV suit - indicate out of ammo condition
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", FALSE, 0);
 
-	m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + PrimaryFireRate();
+	m_flNextPrimaryAttack = GetWeaponTimerBase() + PrimaryFireRate();
 
-	if (m_flNextPrimaryAttack < UTIL_WeaponTimeBase())
-		m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + PrimaryFireRate();
+	if (m_flNextPrimaryAttack < GetWeaponTimerBase())
+		m_flNextPrimaryAttack = GetWeaponTimerBase() + PrimaryFireRate();
 
-	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime( 13, 30 );
+	m_flTimeWeaponIdle = GetWeaponTimerBase() + GetAnimationTime( 13, 30 );
 }
 
 
@@ -132,7 +132,7 @@ void CWeaponNailGun::WeaponIdle( void )
 {
 	ResetEmptySound();
 	m_pPlayer->GetAutoaimVector( AUTOAIM_5DEGREES );
-	if ( m_flTimeWeaponIdle > UTIL_WeaponTimeBase() )
+	if ( m_flTimeWeaponIdle > GetWeaponTimerBase() )
 		return;
 
 	float flTime;
@@ -157,5 +157,5 @@ void CWeaponNailGun::WeaponIdle( void )
 	}
 
 	SendWeaponAnim( iAnim );
-	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + flTime;
+	m_flTimeWeaponIdle = GetWeaponTimerBase() + flTime;
 }

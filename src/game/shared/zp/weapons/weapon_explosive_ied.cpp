@@ -75,7 +75,8 @@ float CWeaponExplosiveIED::DoHolsterAnimation()
 	if ( m_iIEDState == IED_STATE_DETONATED )
 	{
 #ifndef CLIENT_DLL
-		m_pPlayer->WeaponSlotSet( this, false );
+		DestroyAndSwitchToNextBestWeapon();
+		return 0.0f;
 #endif
 		DestroyItem();
 	}
@@ -106,7 +107,7 @@ void CWeaponExplosiveIED::PrimaryAttack( void )
 		}
 	}
 
-	m_flNextPrimaryAttack = m_flNextSecondaryAttack = m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime( 14, 30 );
+	m_flNextPrimaryAttack = m_flNextSecondaryAttack = m_flTimeWeaponIdle = GetWeaponTimerBase() + GetAnimationTime( 14, 30 );
 	m_iIEDState = IED_STATE_DETONATED;
 }
 
@@ -118,7 +119,9 @@ bool CWeaponExplosiveIED::HasSatchelCharge() const
 void CWeaponExplosiveIED::OnClipIncrease( int iAmount )
 {
 	BaseClass::OnClipIncrease( iAmount );
-	m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flTimeWeaponIdle = m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + DoHolsterAnimation();
+	float flHolsterDelay = DoHolsterAnimation();
+	m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flTimeWeaponIdle = GetWeaponTimerBase() + flHolsterDelay;
+	m_pPlayer->m_flNextAttack = GetPlayerTimerBase() + flHolsterDelay;
 	m_iPrevClip = m_iClip;
 	m_iIEDState = IED_STATE_TO_NORMAL;
 }
@@ -153,7 +156,7 @@ bool CWeaponExplosiveIED::PlantIED( void )
 			m_iClip = 0;
 			m_iPrevClip = 0;
 
-			m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime(20, 30);
+			m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flTimeWeaponIdle = GetWeaponTimerBase() + GetAnimationTime(20, 30);
 
 			m_iIEDState = IED_STATE_THROWING;
 			return true;
@@ -188,7 +191,7 @@ bool CWeaponExplosiveIED::BeginThrowOrPlant(void)
 		m_iClip = 0;
 		m_iPrevClip = 0;
 
-		m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + GetAnimationTime( 20, 30 );
+		m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flTimeWeaponIdle = GetWeaponTimerBase() + GetAnimationTime( 20, 30 );
 
 		m_iIEDState = IED_STATE_THROWING;
 		return true;
@@ -198,7 +201,7 @@ bool CWeaponExplosiveIED::BeginThrowOrPlant(void)
 
 void CWeaponExplosiveIED::WeaponIdle( void )
 {
-	if ( m_flTimeWeaponIdle > UTIL_WeaponTimeBase() ) return;
+	if ( m_flTimeWeaponIdle > GetWeaponTimerBase() ) return;
 
 	switch ( m_iIEDState )
 	{
@@ -224,7 +227,9 @@ void CWeaponExplosiveIED::WeaponIdle( void )
 		case IED_STATE_OBTAINED_PACKAGE:
 		{
 			m_iIEDState = IED_STATE_TO_NORMAL;
-		    m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flTimeWeaponIdle = m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + DoHolsterAnimation();
+			float flHolsterDelay = DoHolsterAnimation();
+			m_flNextSecondaryAttack = m_flNextPrimaryAttack = m_flTimeWeaponIdle = GetWeaponTimerBase() + flHolsterDelay;
+			m_pPlayer->m_flNextAttack = GetPlayerTimerBase() + flHolsterDelay;
 			return;
 		}
 		break;
@@ -263,5 +268,5 @@ void CWeaponExplosiveIED::WeaponIdle( void )
 	}
 
 	SendWeaponAnim( iAnimation );
-	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + flDelay;
+	m_flTimeWeaponIdle = GetWeaponTimerBase() + flDelay;
 }

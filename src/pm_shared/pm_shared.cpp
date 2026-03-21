@@ -22,6 +22,14 @@
 #include "pm_movevars.h"
 #include "pm_debug.h"
 #include "pm_materials.h"
+#include "cvardef.h"
+#ifdef CLIENT_DLL
+#include "wrect.h"
+#include "cl_dll.h"
+#else
+#include "extdll.h"
+#include "enginecallback.h"
+#endif
 #include <stdio.h> // NULL
 #include <math.h> // sqrt
 #include <string.h> // strcpy
@@ -38,6 +46,8 @@ float pm_vJumpAngles[3];
 #endif
 
 static int pm_shared_initialized = 0;
+static int g_iPMTraceIgnoreEnt = -1;
+static int g_iPMTraceLocalTeam = 0;
 
 #pragma warning(disable : 4305)
 
@@ -50,6 +60,93 @@ typedef enum
 } modtype_t;
 
 playermove_t *pmove = NULL;
+
+static bool PM_IsTeamCollisionEnabled()
+{
+#ifdef SERVER_DLL
+	cvar_t *pTeamCollision = CVAR_GET_POINTER( "sv_teamcollision" );
+#else
+	cvar_t *pTeamCollision = gEngfuncs.pfnGetCvarPointer( "sv_teamcollision" );
+#endif
+
+	return pTeamCollision && pTeamCollision->value >= 1.0f;
+}
+
+static int PM_GetLocalPlayerEntityIndex()
+{
+	return pmove->player_index + 1;
+}
+
+static int PM_GetLocalPlayerTeam()
+{
+	const int playerIndex = PM_GetLocalPlayerEntityIndex();
+
+#ifdef SERVER_DLL
+	edict_t *pPlayer = (*g_engfuncs.pfnPEntityOfEntIndex)( playerIndex );
+	if ( !pPlayer || pPlayer->free )
+		return 0;
+
+	return pPlayer->v.team;
+#else
+	cl_entity_t *pPlayer = gEngfuncs.GetEntityByIndex( playerIndex );
+	if ( !pPlayer )
+		return 0;
+
+	return pPlayer->curstate.team;
+#endif
+}
+
+static bool PM_ShouldIgnoreTeammates()
+{
+	if ( !pmove->multiplayer || PM_IsTeamCollisionEnabled() )
+		return false;
+
+	g_iPMTraceLocalTeam = PM_GetLocalPlayerTeam();
+	return g_iPMTraceLocalTeam > 0;
+}
+
+static int PM_ShouldIgnoreTracePhysent( physent_t *pe )
+{
+	if ( !pe )
+		return 0;
+
+	const int physentIndex = (int)( pe - pmove->physents );
+	if ( physentIndex == g_iPMTraceIgnoreEnt )
+		return 1;
+
+	if ( g_iPMTraceLocalTeam <= 0 || !pe->player || pe->team <= 0 )
+		return 0;
+
+	if ( pe->info == PM_GetLocalPlayerEntityIndex() )
+		return 1;
+
+	return pe->team == g_iPMTraceLocalTeam;
+}
+
+static pmtrace_t PM_PlayerTraceTeamCollision( float *start, float *end, int traceFlags, int ignore_pe )
+{
+	if ( !pmove->PM_PlayerTraceEx || !PM_ShouldIgnoreTeammates() )
+		return pmove->PM_PlayerTrace( start, end, traceFlags, ignore_pe );
+
+	g_iPMTraceIgnoreEnt = ignore_pe;
+	pmtrace_t trace = pmove->PM_PlayerTraceEx( start, end, traceFlags, PM_ShouldIgnoreTracePhysent );
+	g_iPMTraceIgnoreEnt = -1;
+	g_iPMTraceLocalTeam = 0;
+
+	return trace;
+}
+
+static int PM_TestPlayerPositionTeamCollision( float *pos, pmtrace_t *ptrace )
+{
+	if ( !pmove->PM_TestPlayerPositionEx || !PM_ShouldIgnoreTeammates() )
+		return pmove->PM_TestPlayerPosition( pos, ptrace );
+
+	const int hitent = pmove->PM_TestPlayerPositionEx( pos, ptrace, PM_ShouldIgnoreTracePhysent );
+	g_iPMTraceIgnoreEnt = -1;
+	g_iPMTraceLocalTeam = 0;
+
+	return hitent;
+}
 
 typedef struct
 {
@@ -1200,7 +1297,7 @@ int PM_FlyMove(void)
 			end[i] = pmove->origin[i] + time_left * pmove->velocity[i];
 
 		// See if we can make it from origin to end point.
-		trace = pmove->PM_PlayerTrace(pmove->origin, end, PM_NORMAL, -1);
+		trace = PM_PlayerTraceTeamCollision(pmove->origin, end, PM_NORMAL, -1);
 
 		// Check if we are stuck on the surface (HACKHACK: this solves precision error in the engine for small movements)
 		if (trace.fraction == 0.0)
@@ -1208,7 +1305,7 @@ int PM_FlyMove(void)
 			// Move end point to a thousandth fraction of the unit vector away from the wall and try to move again
 			for (i = 0; i < 3; i++)
 				end[i] += trace.plane.normal[i] * 0.001;
-			trace = pmove->PM_PlayerTrace(pmove->origin, end, PM_NORMAL, -1);
+			trace = PM_PlayerTraceTeamCollision(pmove->origin, end, PM_NORMAL, -1);
 		}
 
 		allFraction += trace.fraction;
@@ -1496,7 +1593,7 @@ void PM_WalkMove()
 
 	// first try moving directly to the next spot
 	VectorCopy(dest, start);
-	trace = pmove->PM_PlayerTrace(pmove->origin, dest, PM_NORMAL, -1);
+	trace = PM_PlayerTraceTeamCollision(pmove->origin, dest, PM_NORMAL, -1);
 	// If we made it all the way, then copy trace end
 	//  as new player position.
 	if (trace.fraction == 1)
@@ -1533,7 +1630,7 @@ void PM_WalkMove()
 	VectorCopy(pmove->origin, dest);
 	dest[2] += pmove->movevars->stepsize;
 
-	trace = pmove->PM_PlayerTrace(pmove->origin, dest, PM_NORMAL, -1);
+	trace = PM_PlayerTraceTeamCollision(pmove->origin, dest, PM_NORMAL, -1);
 	// If we started okay and made it part of the way at least,
 	//  copy the results to the movement start position and then
 	//  run another move try.
@@ -1550,7 +1647,7 @@ void PM_WalkMove()
 	VectorCopy(pmove->origin, dest);
 	dest[2] -= pmove->movevars->stepsize;
 
-	trace = pmove->PM_PlayerTrace(pmove->origin, dest, PM_NORMAL, -1);
+	trace = PM_PlayerTraceTeamCollision(pmove->origin, dest, PM_NORMAL, -1);
 
 	// If we are not on the ground any more then
 	//  use the original movement attempt
@@ -1625,7 +1722,7 @@ void PM_Friction(void)
 		start[2] = pmove->origin[2] + pmove->player_mins[pmove->usehull][2];
 		stop[2] = start[2] - 34;
 
-		trace = pmove->PM_PlayerTrace(start, stop, PM_NORMAL, -1);
+		trace = PM_PlayerTraceTeamCollision(start, stop, PM_NORMAL, -1);
 
 		if (trace.fraction == 1.0)
 			friction = pmove->movevars->friction * pmove->movevars->edgefriction;
@@ -1806,7 +1903,7 @@ void PM_WaterMove(void)
 	VectorMA(pmove->origin, pmove->frametime, pmove->velocity, dest);
 	VectorCopy(dest, start);
 	start[2] += pmove->movevars->stepsize + 1;
-	trace = pmove->PM_PlayerTrace(start, dest, PM_NORMAL, -1);
+	trace = PM_PlayerTraceTeamCollision(start, dest, PM_NORMAL, -1);
 	if (!trace.startsolid && !trace.allsolid) // FIXME: check steep slope?
 	{ // walked up the step, so just keep result and exit
 		VectorCopy(trace.endpos, pmove->origin);
@@ -1994,7 +2091,7 @@ void PM_CatagorizePosition(void)
 	else
 	{
 		// Try and move down.
-		tr = pmove->PM_PlayerTrace(pmove->origin, point, PM_NORMAL, -1);
+		tr = PM_PlayerTraceTeamCollision(pmove->origin, point, PM_NORMAL, -1);
 		// If we hit a steep plane, we are not on ground
 		if (tr.plane.normal[2] < 0.7)
 			pmove->onground = -1; // too steep
@@ -2070,7 +2167,7 @@ int PM_CheckStuck(void)
 	static float rgStuckCheckTime[MAX_CLIENTS][2]; // Last time we did a full
 
 	// If position is okay, exit
-	hitent = pmove->PM_TestPlayerPosition(pmove->origin, &traceresult);
+	hitent = PM_TestPlayerPositionTeamCollision(pmove->origin, &traceresult);
 	if (hitent == -1)
 	{
 		PM_ResetStuckOffsets(pmove->player_index, pmove->server);
@@ -2087,7 +2184,7 @@ int PM_CheckStuck(void)
 		do
 		{
 			VectorAdd(base, rgv3tStuckTable[i], test);
-			if (pmove->PM_TestPlayerPosition(test, &traceresult) == -1)
+			if (PM_TestPlayerPositionTeamCollision(test, &traceresult) == -1)
 			{
 				PM_ResetStuckOffsets(pmove->player_index, pmove->server);
 				VectorCopy(test, pmove->origin);
@@ -2098,7 +2195,7 @@ int PM_CheckStuck(void)
 	}
 
 	// Check if we are stuck in a satchel (commonly because spawned on it)
-	while ((hitent = pmove->PM_TestPlayerPosition(pmove->origin, NULL)) && hitent >= 0 && hitent < pmove->numphysent && !strcmp(pmove->physents[hitent].name, "models/w_satchel.mdl"))
+	while ((hitent = PM_TestPlayerPositionTeamCollision(pmove->origin, NULL)) && hitent >= 0 && hitent < pmove->numphysent && !strcmp(pmove->physents[hitent].name, "models/w_satchel.mdl"))
 	{
 		// Remove satchel in which we are stuck from current player move iteration
 		memset(&(pmove->physents[hitent]), 0, sizeof(physent_t));
@@ -2120,7 +2217,7 @@ int PM_CheckStuck(void)
 
 	i = PM_GetRandomStuckOffsets(pmove->player_index, pmove->server, offset);
 	VectorAdd(base, offset, test);
-	if ((hitent = pmove->PM_TestPlayerPosition(test, NULL)) == -1)
+	if ((hitent = PM_TestPlayerPositionTeamCollision(test, NULL)) == -1)
 	{
 		//Con_DPrintf("Nudged\n");
 		PM_ResetStuckOffsets(pmove->player_index, pmove->server);
@@ -2150,7 +2247,7 @@ int PM_CheckStuck(void)
 					test[1] += y;
 					test[2] += z;
 
-					if (pmove->PM_TestPlayerPosition(test, NULL) == -1)
+					if (PM_TestPlayerPositionTeamCollision(test, NULL) == -1)
 					{
 						VectorCopy(test, pmove->origin);
 						return 0;
@@ -2317,7 +2414,7 @@ void PM_FixPlayerCrouchStuck(int direction)
 	int i;
 	Vector test;
 
-	hitent = pmove->PM_TestPlayerPosition(pmove->origin, NULL);
+	hitent = PM_TestPlayerPositionTeamCollision(pmove->origin, NULL);
 	if (hitent == -1)
 		return;
 
@@ -2325,7 +2422,7 @@ void PM_FixPlayerCrouchStuck(int direction)
 	for (i = 0; i < 36; i++)
 	{
 		pmove->origin[2] += direction;
-		hitent = pmove->PM_TestPlayerPosition(pmove->origin, NULL);
+		hitent = PM_TestPlayerPositionTeamCollision(pmove->origin, NULL);
 		if (hitent == -1)
 			return;
 	}
@@ -2352,14 +2449,14 @@ void PM_UnDuck(void)
 		}
 	}
 
-	trace = pmove->PM_PlayerTrace(newOrigin, newOrigin, PM_NORMAL, -1);
+	trace = PM_PlayerTraceTeamCollision(newOrigin, newOrigin, PM_NORMAL, -1);
 
 	if (!trace.startsolid)
 	{
 		pmove->usehull = 0;
 
 		// Oh, no, changing hulls stuck us into something, try unsticking downward first.
-		trace = pmove->PM_PlayerTrace(newOrigin, newOrigin, PM_NORMAL, -1);
+		trace = PM_PlayerTraceTeamCollision(newOrigin, newOrigin, PM_NORMAL, -1);
 		if (trace.startsolid)
 		{
 			// See if we are stuck?  If so, stay ducked with the duck hull until we have a clear spot
@@ -2696,7 +2793,7 @@ pmtrace_t PM_PushEntity(const Vector &push)
 
 	VectorAdd(pmove->origin, push, end);
 
-	trace = pmove->PM_PlayerTrace(pmove->origin, end, PM_NORMAL, -1);
+	trace = PM_PlayerTraceTeamCollision(pmove->origin, end, PM_NORMAL, -1);
 
 	VectorCopy(trace.endpos, pmove->origin);
 
@@ -3077,14 +3174,14 @@ void PM_CheckWaterJump(void)
 	// Trace, this trace should use the point sized collision hull
 	savehull = pmove->usehull;
 	pmove->usehull = 2;
-	tr = pmove->PM_PlayerTrace(vecStart, vecEnd, PM_NORMAL, -1);
+	tr = PM_PlayerTraceTeamCollision(vecStart, vecEnd, PM_NORMAL, -1);
 	if (tr.fraction < 1.0 && fabs(tr.plane.normal[2]) < 0.1f) // Facing a near vertical wall?
 	{
 		vecStart[2] += pmove->player_maxs[savehull][2] - WJ_HEIGHT;
 		VectorMA(vecStart, 24, flatforward, vecEnd);
 		VectorMA(vec3_origin, -50, tr.plane.normal, pmove->movedir);
 
-		tr = pmove->PM_PlayerTrace(vecStart, vecEnd, PM_NORMAL, -1);
+		tr = PM_PlayerTraceTeamCollision(vecStart, vecEnd, PM_NORMAL, -1);
 		if (tr.fraction == 1.0)
 		{
 			pmove->waterjumptime = 2000;

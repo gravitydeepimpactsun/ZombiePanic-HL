@@ -38,6 +38,7 @@
 #include "weapons.h"
 #include "weaponinfo.h"
 #include "usercmd.h"
+#include "convar.h"
 #include "netadr.h"
 #include "path.h"
 #include <ctype.h>
@@ -56,6 +57,8 @@ extern int gmsgSayText;
 extern int gmsgVGUIMenu;
 
 unsigned short m_usResetDecals;
+
+static ConVar sv_teamcollision( "sv_teamcollision", "0", FCVAR_CHEATS, "Whether teammates collide with each other." );
 
 void LinkUserMessages(void);
 

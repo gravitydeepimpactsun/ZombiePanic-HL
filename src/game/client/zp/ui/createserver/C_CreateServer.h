@@ -13,6 +13,9 @@
 #include "vgui_controls/ComboBox.h"
 #include "vgui_controls/Slider.h"
 
+#include <string>
+#include <vector>
+
 class C_ConfigList;
 
 enum configType
@@ -58,14 +61,14 @@ class C_CreateServer : public vgui2::Frame
 	void AddMap( const char *strMap );
 	void SelectMap( int iMap );
 	void RunMap( int iMap );
-	void RunConfig( const char *strConfig, const char *strArg, configType cType, bool bRequireCheats = false );
+	void RunConfig( const char *strConfig, const char *strArg, configType cType, bool bRequireCheats = false, std::vector<std::string> *pCommands = nullptr );
 	void LoadConfig( const char *strConfig, const char *strArg, configType cType );
 	void SaveConfig( const char *strArg, const char *strValue, configType cType );
 
 	void SaveConfigFile();
-	const char *GetConfigFile( const char *strConfig, const char *strArg );
+	const char *GetConfigFile( const char *strConfig, const char *strArg, std::vector<std::string> *pCommands = nullptr );
 	void LoadConfigFile();
-	void RunConfigFile( bool bServerOnly );
+	void RunConfigFile( bool bServerOnly, std::vector<std::string> *pCommands = nullptr );
 
 	void ApplySchemeSettings( vgui2::IScheme *pScheme ) override;
 

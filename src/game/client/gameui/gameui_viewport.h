@@ -2,6 +2,8 @@
 #define GAMEUI_VIEWPORT_H
 #include <vgui_controls/EditablePanel.h>
 #include <vgui_controls/MessageBox.h>
+#include <string>
+#include <vector>
 #include "steam/steam_api.h"
 #include "zp/ui/workshop/WorkshopItemList.h"
 #include "filedialog/IFileDialogManager.h"
@@ -90,6 +92,7 @@ public:
 	bool IsVACBanned() const;
 
 	void DownloadWorkshopAddon( PublishedFileId_t nWorkshopID, const bool &bReconnect );
+	void QueueCreateServerCommandsAfterDisconnect( std::vector<std::string> commands );
 
 protected:
 	virtual void ApplySchemeSettings( vgui2::IScheme *pScheme );
@@ -138,6 +141,7 @@ protected:
 	void SetQueryWait( const float &flTime );
 	bool m_bPrepareForQueryDownload;
 	bool PrepareForQueryDownload();
+	std::vector<std::string> m_CreateServerCommandsAfterDisconnect;
 
 private:
 	bool m_bPreventEscape = false;

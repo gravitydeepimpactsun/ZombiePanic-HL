@@ -1,6 +1,7 @@
 //========= Copyright (c) 2022 Zombie Panic! Team, All rights reserved. ============//
 
 #include "C_CreateServer.h"
+#include "../../../gameui/gameui_viewport.h"
 #include "zp/ui/workshop/WorkshopItemList.h"
 #include "client_vgui.h"
 #include "FileSystem.h"
@@ -17,6 +18,29 @@ using namespace vgui2;
 #include <tier0/memdbgon.h>
 
 static std::vector<std::string> vMapList;
+
+namespace
+{
+void DispatchClientCommand( const std::string &command, std::vector<std::string> *pCommands )
+{
+	if ( command.empty() )
+		return;
+
+	if ( pCommands )
+	{
+		pCommands->push_back( command );
+		return;
+	}
+
+	gEngfuncs.pfnClientCmd( command.c_str() );
+}
+
+bool IsConnectedToGame()
+{
+	const char *levelName = gEngfuncs.pfnGetLevelName();
+	return levelName && levelName[0] != 0;
+}
+}
 
 CServerConfigData::CServerConfigData( Panel *parent, char const *panelName )
 : Panel( parent, panelName )
@@ -184,7 +208,7 @@ void C_CreateServer::SaveConfigFile()
 	file.close();
 }
 
-const char *C_CreateServer::GetConfigFile(const char *strConfig, const char *strArg)
+const char *C_CreateServer::GetConfigFile(const char *strConfig, const char *strArg, std::vector<std::string> *pCommands)
 {
 	for ( CServerConfigData *mp = m_pList; mp != NULL; mp = mp->next )
 	{
@@ -194,7 +218,7 @@ const char *C_CreateServer::GetConfigFile(const char *strConfig, const char *str
 			if ( mp->bIsCheat )
 			{
 				SaveConfig( "sv_cheats", "1", Conf_Bool );
-				gEngfuncs.pfnClientCmd( "sv_cheats 1" );
+				DispatchClientCommand( "sv_cheats 1\n", pCommands );
 			}
 
 			KeyValues *data = new KeyValues("GetText");
@@ -374,7 +398,7 @@ void C_CreateServer::LoadConfigFile()
 }
 
 
-void C_CreateServer::RunConfigFile( bool bServerOnly )
+void C_CreateServer::RunConfigFile( bool bServerOnly, std::vector<std::string> *pCommands )
 {
 	for ( CServerConfigData *mp = m_pList; mp != NULL; mp = mp->next )
 	{
@@ -388,6 +412,7 @@ void C_CreateServer::RunConfigFile( bool bServerOnly )
 			if ( FStrEq( mp->GetName(), "" ) ) continue;
 			KeyValues *data = new KeyValues("GetText");
 			static char buf[128];
+			buf[0] = 0;
 			if ( control->RequestInfo( data ) )
 			{
 				Q_strncpy( buf, data->GetString( "text", "" ), sizeof( buf ) - 1 );
@@ -395,16 +420,13 @@ void C_CreateServer::RunConfigFile( bool bServerOnly )
 				// ensure null termination of string
 				buf[sizeof(buf) - 1] = 0;
 
-				// free
-				data->deleteThis();
-
 				vgui2::CheckButton *pValue = dynamic_cast<vgui2::CheckButton *>(mp->pControl);
 				if ( pValue )
 				{
 					if ( mp->bIsCheat && pValue->IsSelected() )
 					{
 						SaveConfig( "sv_cheats", "1", Conf_Bool );
-						gEngfuncs.pfnClientCmd( "sv_cheats 1" );
+						DispatchClientCommand( "sv_cheats 1\n", pCommands );
 					}
 					Q_snprintf( buf, sizeof( buf ), "%i", pValue->IsSelected() );
 				}
@@ -413,10 +435,11 @@ void C_CreateServer::RunConfigFile( bool bServerOnly )
 					if ( mp->bIsCheat && !FStrEq( buf, "" ) )
 					{
 						SaveConfig( "sv_cheats", "1", Conf_Bool );
-						gEngfuncs.pfnClientCmd( "sv_cheats 1" );
+						DispatchClientCommand( "sv_cheats 1\n", pCommands );
 					}
 				}
 			}
+			data->deleteThis();
 
 			char command[ 1024 ];
 			Q_snprintf(
@@ -426,7 +449,7 @@ void C_CreateServer::RunConfigFile( bool bServerOnly )
 				mp->GetName(),
 				buf
 			);
-			gEngfuncs.pfnClientCmd( command );
+			DispatchClientCommand( command, pCommands );
 			SaveConfig( mp->GetName(), buf, mp->confType );
 		}
 	}
@@ -509,14 +532,13 @@ void C_CreateServer::SelectMap( int iMap )
 
 void C_CreateServer::RunMap( int iMap )
 {
-	// Disconnect first, so we can change maxplayers
-	gEngfuncs.pfnClientCmd( "disconnect\nwait\n" );
+	std::vector<std::string> commands;
 
 	// Setup the configs
-	RunConfig( "server_maxplayers", "maxplayers", Conf_ComboBox );
+	RunConfig( "server_maxplayers", "maxplayers", Conf_ComboBox, false, &commands );
 
 	// Load from our json file
-	RunConfigFile( false );
+	RunConfigFile( false, &commands );
 
 	// Grab the map
 	std::string strMap = iMap > 0 ? vMapList[iMap] : vMapList[ RandomInt(1, vMapList.size() - 1) ];
@@ -529,7 +551,7 @@ void C_CreateServer::RunMap( int iMap )
 		"wait;wait;map %s\n",
 		strMap.c_str()
 	);
-	gEngfuncs.pfnClientCmd( command );
+	DispatchClientCommand( command, &commands );
 
 	// We need this stupid amount of wait, because server commands needs to be executed when the dll finishes loading...
 	Q_snprintf(
@@ -537,14 +559,24 @@ void C_CreateServer::RunMap( int iMap )
 		sizeof( command ),
 		"wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;wait;\n"
 	);
-	gEngfuncs.pfnClientCmd( command );
+	DispatchClientCommand( command, &commands );
 
 	// Again, but this time for the server vars only. Since GoldSrc does not start the server binary right away unlike Source.
-	RunConfigFile( true );
+	RunConfigFile( true, &commands );
+
+	if ( IsConnectedToGame() )
+	{
+		CGameUIViewport::Get()->QueueCreateServerCommandsAfterDisconnect( commands );
+		gEngfuncs.pfnClientCmd( "disconnect\n" );
+		return;
+	}
+
+	for ( const std::string &queuedCommand : commands )
+		DispatchClientCommand( queuedCommand, nullptr );
 }
 
 
-void C_CreateServer::RunConfig( const char *strConfig, const char *strArg, configType cType, bool bRequireCheats )
+void C_CreateServer::RunConfig( const char *strConfig, const char *strArg, configType cType, bool bRequireCheats, std::vector<std::string> *pCommands )
 {
 	vgui2::Panel *pPanel = FindChildByName( strConfig, true );
 	std::string strValue = "";
@@ -560,7 +592,7 @@ void C_CreateServer::RunConfig( const char *strConfig, const char *strArg, confi
 				if ( bRequireCheats && pValue->IsSelected() )
 				{
 					SaveConfig( "sv_cheats", "1", cType );
-					gEngfuncs.pfnClientCmd( "sv_cheats 1" );
+					DispatchClientCommand( "sv_cheats 1\n", pCommands );
 				}
 				strValue = pValue->IsSelected() ? "1" : "0";
 			}
@@ -577,7 +609,7 @@ void C_CreateServer::RunConfig( const char *strConfig, const char *strArg, confi
 				if ( bRequireCheats && !FStrEq( szText, "" ) )
 				{
 					SaveConfig( "sv_cheats", "1", cType );
-					gEngfuncs.pfnClientCmd( "sv_cheats 1" );
+					DispatchClientCommand( "sv_cheats 1\n", pCommands );
 				}
 				strValue = szText;
 			}
@@ -595,7 +627,7 @@ void C_CreateServer::RunConfig( const char *strConfig, const char *strArg, confi
 				if ( bRequireCheats && pValue->GetValue() > 0 )
 				{
 					SaveConfig( "sv_cheats", "1", cType );
-					gEngfuncs.pfnClientCmd( "sv_cheats 1" );
+					DispatchClientCommand( "sv_cheats 1\n", pCommands );
 				}
 				strValue = strVal;
 			}
@@ -616,7 +648,7 @@ void C_CreateServer::RunConfig( const char *strConfig, const char *strArg, confi
 				if ( bRequireCheats && pValue->GetActiveItem() > 0 )
 				{
 					SaveConfig( "sv_cheats", "1", cType );
-					gEngfuncs.pfnClientCmd( "sv_cheats 1" );
+					DispatchClientCommand( "sv_cheats 1\n", pCommands );
 				}
 				strValue = strVal;
 			}
@@ -640,7 +672,7 @@ void C_CreateServer::RunConfig( const char *strConfig, const char *strArg, confi
 				if ( bRequireCheats && iValue > 0 )
 				{
 					SaveConfig( "sv_cheats", "1", cType );
-					gEngfuncs.pfnClientCmd( "sv_cheats 1" );
+					DispatchClientCommand( "sv_cheats 1\n", pCommands );
 				}
 				strValue = szCvar;
 			}
@@ -658,7 +690,7 @@ void C_CreateServer::RunConfig( const char *strConfig, const char *strArg, confi
 				if ( bRequireCheats && pValue->GetValue() > 0 )
 				{
 					SaveConfig( "sv_cheats", "1", cType );
-					gEngfuncs.pfnClientCmd( "sv_cheats 1" );
+					DispatchClientCommand( "sv_cheats 1\n", pCommands );
 				}
 				strValue = strVal;
 		    }
@@ -668,7 +700,7 @@ void C_CreateServer::RunConfig( const char *strConfig, const char *strArg, confi
 
 	// Try the config file
 	if ( FStrEq( strValue.c_str(), "" ) )
-		strValue = GetConfigFile( strValue.c_str(), strArg );
+		strValue = GetConfigFile( strConfig, strArg, pCommands );
 
 	// empty? then don't run it
 	if ( FStrEq( strValue.c_str(), "" ) ) return;
@@ -689,7 +721,7 @@ void C_CreateServer::RunConfig( const char *strConfig, const char *strArg, confi
 			strArg,
 			strValue.c_str()
 		);
-	gEngfuncs.pfnClientCmd( command );
+	DispatchClientCommand( command, pCommands );
 	SaveConfig( strArg, strValue.c_str(), cType );
 }
 

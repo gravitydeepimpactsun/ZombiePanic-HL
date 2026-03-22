@@ -221,6 +221,13 @@ CBaseMenu *CGameUIViewport::GetMenu()
 	return GetDialog(m_hMenu);
 }
 
+void CGameUIViewport::QueueCreateServerCommandsAfterDisconnect( std::vector<std::string> commands )
+{
+	m_CreateServerCommandsAfterDisconnect = std::move( commands );
+	if ( !m_CreateServerCommandsAfterDisconnect.empty() )
+		g_pBaseUI->ActivateGameUI();
+}
+
 void CGameUIViewport::RestoreDialogOrdering()
 {
 	if ( !m_hMenu )
@@ -271,7 +278,12 @@ void CGameUIViewport::OnThink()
 		{
 			g_bIsConnected = bConnected;
 			if ( !g_bIsConnected )
+			{
 				CMusicManager::GetInstance()->OnMapShutdown();
+				for ( const std::string &command : m_CreateServerCommandsAfterDisconnect )
+					gEngfuncs.pfnClientCmd( command.c_str() );
+				m_CreateServerCommandsAfterDisconnect.clear();
+			}
 			m_hMenu->Repopulate();
 			m_hMenu->ToggleBackground( !g_bIsConnected );
 		}

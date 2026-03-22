@@ -13,7 +13,10 @@
 #include <vgui/ISurface.h>
 #include <vgui/IInputInternal.h>
 #include <vgui/ISystem.h>
+#include <IBaseUI.h>
+#include <tier2/tier2.h>
 #include <KeyValues.h>
+#include "Exports.h"
 #include "hud.h"
 #include "cl_util.h"
 #include "client_vgui.h"
@@ -377,6 +380,11 @@ void CHudChatFilterPanel::SetVisible(bool state)
 	}
 
 	BaseClass::SetVisible( state );
+
+	if ( !state )
+	{
+		SetMouseInputEnabled( false );
+	}
 }
 
 void CHudChatFilterButton::DoClick( void )
@@ -512,7 +520,7 @@ CHudChatFilterPanel *CHudChat::GetChatFilterPanel( void )
 			vgui2::HScheme scheme = vgui2::scheme()->LoadSchemeFromFile(VGUI2_ROOT_DIR "resource/ChatScheme.res", "ChatScheme");
 			m_pFilterPanel->SetScheme( scheme );
 			m_pFilterPanel->InvalidateLayout( true, true );
-			m_pFilterPanel->SetMouseInputEnabled( true );
+			m_pFilterPanel->SetMouseInputEnabled( false );
 			m_pFilterPanel->SetPaintBackgroundType( 2 );
 			m_pFilterPanel->SetPaintBorderEnabled( true );
 			m_pFilterPanel->SetVisible( false );
@@ -873,6 +881,35 @@ void CHudChat::StopMessageMode(void)
 	m_flHistoryFadeTime = gEngfuncs.GetAbsoluteTime() + CHAT_HISTORY_FADE_TIME;
 
 	m_pFilterPanel->SetVisible( false );
+
+	const char *levelName = gEngfuncs.pfnGetLevelName();
+	if ( g_pBaseUI && levelName && levelName[0] )
+	{
+		g_pBaseUI->HideGameUI();
+		g_pViewport->ActivateClientUI();
+
+		gHUD.CallOnNextFrame([]() {
+			const char *nextLevelName = gEngfuncs.pfnGetLevelName();
+			if ( !nextLevelName || !nextLevelName[0] )
+			{
+				return;
+			}
+
+			g_pViewport->ActivateClientUI();
+			vgui2::input()->SetMouseCapture( NULL );
+			vgui2::input()->ReleaseAppModalSurface();
+			g_pVGuiSurface->CalculateMouseVisible();
+
+			IN_ClearStates();
+			IN_DeactivateMouse();
+			IN_ActivateMouse();
+			IN_ClearStates();
+
+			g_pVGuiSurface->CalculateMouseVisible();
+		});
+	}
+
+	vgui2::surface()->CalculateMouseVisible();
 
 	m_nMessageMode = MM_NONE;
 }

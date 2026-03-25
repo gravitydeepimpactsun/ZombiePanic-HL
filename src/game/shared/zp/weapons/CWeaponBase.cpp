@@ -107,7 +107,25 @@ void CWeaponBase::OnWeaponThink()
 
 void CWeaponBase::BounceSound()
 {
-	int pitch = 95 + RANDOM_LONG( 0, 29 );
+	const float flSpeed   = pev->velocity.Length();
+	const float flSpeed2D = pev->velocity.Length2D();
+	const float flAbsZ    = fabs( pev->velocity.z );
+
+	// Ignore tiny/jitter motion
+	if ( flSpeed < 40.0f )
+		return;
+
+	// On ground: only allow real bumps (not sliding/resting micro-contacts)
+	if ( (pev->flags & FL_ONGROUND) && flAbsZ < 30.0f && flSpeed2D < 80.0f )
+		return;
+
+	// Cooldown to prevent touch-callback spam
+	if ( gpGlobals->time < m_flNextBounceSound )
+		return;
+
+	m_flNextBounceSound = gpGlobals->time + 0.18f;
+
+	int pitch = 95 + RANDOM_LONG( 0, 10 );
 	EMIT_SOUND_DYN( ENT(pev), CHAN_VOICE, "items/weapon_drop.wav", 1, ATTN_NORM, 0, pitch );
 }
 
@@ -485,6 +503,11 @@ void CWeaponBase::DefaultSpawn()
 	pev->solid = SOLID_TRIGGER;
 	pev->movetype = MOVETYPE_BOUNCE;
 	pev->friction = 0.9;
+
+	// World-spawned items: suppress the first-landing sound so round-start
+	// spawns don't create a cacophony. Player drops skip this (they call
+	// FallInit directly, not DefaultSpawn).
+	m_flNextBounceSound = gpGlobals->time + 0.5f;
 
 	FallInit(); // get ready to fall down.
 

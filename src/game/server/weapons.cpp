@@ -1037,6 +1037,10 @@ void CBasePlayerAmmo::Spawn(void)
 	UTIL_SetSize(pev, Vector(0, 0, 0), Vector(0, 0, 0));
 	UTIL_SetOrigin(pev, pev->origin);
 
+	// Suppress the initial impact sound when spawning so the
+	// round-start floor-hit cacophony is avoided.
+	m_flNextBounceSound = gpGlobals->time + 0.5f;
+
 	SetTouch( &CBasePlayerAmmo::DefaultTouch );
 	SetThink( &CBasePlayerAmmo::DoAmmoThink );
 
@@ -1157,7 +1161,25 @@ void CBasePlayerAmmo::DoAmmoThink()
 
 void CBasePlayerAmmo::BounceSound( void )
 {
-	int pitch = 95 + RANDOM_LONG( 0, 29 );
+	const float flSpeed   = pev->velocity.Length();
+	const float flSpeed2D = pev->velocity.Length2D();
+	const float flAbsZ    = fabs( pev->velocity.z );
+
+	// Ignore tiny/jitter motion
+	if ( flSpeed < 35.0f )
+		return;
+
+	// On ground: only allow real bumps (not sliding/resting micro-contacts)
+	if ( (pev->flags & FL_ONGROUND) && flAbsZ < 25.0f && flSpeed2D < 70.0f )
+		return;
+
+	// Cooldown to prevent touch-callback spam
+	if ( gpGlobals->time < m_flNextBounceSound )
+		return;
+
+	m_flNextBounceSound = gpGlobals->time + 0.18f;
+
+	int pitch = 98 + RANDOM_LONG( 0, 6 );
 	EMIT_SOUND_DYN( ENT(pev), CHAN_VOICE, "items/ammo_drop.wav", 1, ATTN_NORM, 0, pitch );
 }
 

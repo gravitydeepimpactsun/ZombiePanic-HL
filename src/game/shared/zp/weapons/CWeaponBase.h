@@ -89,6 +89,7 @@ public:
 	int m_StuckChecks = 0; // How many times have we checked if we are stuck?
 	void CheckIfStuckInWorld();
 #endif
+	float m_flNextBounceSound = 0.0f; // Cooldown to prevent impact sound from spamming
 
 protected:
 	void DefaultSpawn();

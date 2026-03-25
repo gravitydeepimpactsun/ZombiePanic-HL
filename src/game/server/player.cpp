@@ -3388,6 +3388,7 @@ void CBasePlayer::DropWeapon( CBasePlayerWeapon *pWeapon, bool bAutoSwitch, bool
 	pNewWeapon->pev->angles.x = 0;
 	pNewWeapon->pev->angles.z = 0;
 	pNewWeapon->m_bHasDropped = true;
+	pNewWeapon->m_flNextBounceSound = 0.0f; // Allow impact sound on player drop
 	if ( pukevel )
 		pNewWeapon->pev->velocity = vecDir * 250 + RandomVector( -200, 200 );
 	else
@@ -7186,6 +7187,7 @@ bool CBasePlayer::DropAmmo( int ammoindex, int amount, Vector Dir, bool pukevel 
 	pAmmoItem->pev->impulse = 1;
 	pAmmoItem->SetSpawnedTroughRandomEntity( true );
 	pAmmoItem->m_bHasDropped = true;
+	pAmmoItem->m_flNextBounceSound = 0.0f; // Allow impact sound on player drop
 
 	// for gpGlobals->v_forward
 	UTIL_MakeVectors( pev->v_angle );

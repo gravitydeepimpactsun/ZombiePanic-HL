@@ -61,6 +61,7 @@ static FairBalance_s BalanceStruct[] = {
 	FairBalance_s( "weapon_sig", -1, 1.0, ZPAmmoTypes::AMMO_PISTOL, 14 ),
 	FairBalance_s( "weapon_ppk", -1, 1.0, ZPAmmoTypes::AMMO_LONGRIFLE, 40 ),
 	FairBalance_s( "weapon_556ar", 2, 0.45, ZPAmmoTypes::AMMO_RIFLE, 40 ),
+	FairBalance_s( "weapon_sks", 2, 0.15, ZPAmmoTypes::AMMO_RIFLE, 20 ),
 	FairBalance_s( "weapon_shotgun", 2, 0.25, ZPAmmoTypes::AMMO_SHOTGUN, 12 ),
 	FairBalance_s( "weapon_mp5", 3, 0.55, ZPAmmoTypes::AMMO_PISTOL, 60 )
 };

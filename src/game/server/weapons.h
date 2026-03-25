@@ -393,6 +393,7 @@ public:
 #endif
 
 	float m_flDisallowPickup = -1;
+	float m_flNextBounceSound = 0.0f; // Cooldown to prevent impact sound from spamming
 	int m_iAmountLeft = 0;
 	int m_iAmmoToGive = 0;
 	int m_iDroppedOverride = 0;

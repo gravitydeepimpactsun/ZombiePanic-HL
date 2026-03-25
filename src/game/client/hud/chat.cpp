@@ -71,7 +71,7 @@ void CHudChatLine::ApplySchemeSettings(vgui2::IScheme *pScheme)
 {
 	BaseClass::ApplySchemeSettings(pScheme);
 
-	m_hFont = pScheme->GetFont("Default");
+	m_hFont = pScheme->GetFont("ChatFont");
 
 #ifdef HL1_CLIENT_DLL
 	SetBgColor(Color(0, 0, 0, 0));
@@ -535,6 +535,7 @@ void CHudChat::ApplySchemeSettings(vgui2::IScheme *pScheme)
 	LoadControlSettings(VGUI2_ROOT_DIR "resource/Chat.res");
 
 	BaseClass::ApplySchemeSettings(pScheme);
+	m_hChatFont = pScheme->GetFont("ChatFont");
 
 	SetPaintBackgroundType(2);
 	SetPaintBorderEnabled(true);
@@ -697,7 +698,7 @@ void CHudChat::OnTick(void)
 
 	if (line)
 	{
-		vgui2::HFont font = line->GetFont();
+		vgui2::HFont font = m_hChatFont ? m_hChatFont : line->GetFont();
 		m_iFontHeight = vgui2::surface()->GetFontTall(font) + 2;
 
 		// Put input area at bottom

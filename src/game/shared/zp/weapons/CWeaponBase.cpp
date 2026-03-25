@@ -504,6 +504,11 @@ void CWeaponBase::DefaultSpawn()
 	pev->movetype = MOVETYPE_BOUNCE;
 	pev->friction = 0.9;
 
+	// World-spawned items: suppress the first-landing sound so round-start
+	// spawns don't create a cacophony. Player drops skip this (they call
+	// FallInit directly, not DefaultSpawn).
+	m_flNextBounceSound = gpGlobals->time + 0.5f;
+
 	FallInit(); // get ready to fall down.
 
 	WeaponData slot = GetWeaponSlotInfo( GetWeaponID() );

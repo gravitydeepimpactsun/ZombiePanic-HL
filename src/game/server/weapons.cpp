@@ -1037,6 +1037,10 @@ void CBasePlayerAmmo::Spawn(void)
 	UTIL_SetSize(pev, Vector(0, 0, 0), Vector(0, 0, 0));
 	UTIL_SetOrigin(pev, pev->origin);
 
+	// Suppress the initial impact sound when spawning so the
+	// round-start floor-hit cacophony is avoided.
+	m_flNextBounceSound = gpGlobals->time + 0.5f;
+
 	SetTouch( &CBasePlayerAmmo::DefaultTouch );
 	SetThink( &CBasePlayerAmmo::DoAmmoThink );
 

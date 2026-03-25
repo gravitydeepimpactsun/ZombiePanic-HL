@@ -18,16 +18,16 @@ add_sources(
 	weapon_shotgun_doublebarrel.h
 	weapon_rifle_m16.cpp
 	weapon_rifle_m16.h
-	weapon_rifle_sks.cpp
-	weapon_rifle_sks.h
+#	weapon_rifle_sks.cpp
+#	weapon_rifle_sks.h
 	weapon_smg_mp5.cpp
 	weapon_smg_mp5.h
 	weapon_misc_nailgun.cpp
 	weapon_misc_nailgun.h
 	weapon_sidearm_ppk.cpp
 	weapon_sidearm_ppk.h
-	weapon_sidearm_cz75.cpp
-	weapon_sidearm_cz75.h
+#	weapon_sidearm_cz75.cpp
+#	weapon_sidearm_cz75.h
 	weapon_sidearm_glock17.cpp
 	weapon_sidearm_glock17.h
 	weapon_sidearm_sig.cpp

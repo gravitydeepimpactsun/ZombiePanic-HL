@@ -35,11 +35,9 @@
 #include "zp/weapons/weapon_sidearm_fafo.h"
 #include "zp/weapons/weapon_sidearm_glock17.h"
 #include "zp/weapons/weapon_sidearm_ppk.h"
-#include "zp/weapons/weapon_sidearm_cz75.h"
 #include "zp/weapons/weapon_sidearm_revolver.h"
 #include "zp/weapons/weapon_smg_mp5.h"
 #include "zp/weapons/weapon_rifle_m16.h"
-#include "zp/weapons/weapon_rifle_sks.h"
 #include "zp/weapons/weapon_shotgun_remington.h"
 #include "zp/weapons/weapon_shotgun_doublebarrel.h"
 #include "zp/weapons/weapon_melee_swipe.h"
@@ -70,7 +68,6 @@ static CWeaponSideArmSig g_WeaponSig;
 static CWeaponSideArmRevolver g_WeaponPython;
 static CWeaponSMGMP5 g_WeaponMP5;
 static CWeaponRifleM16 g_Weapon556AR;
-static CWeaponRifleSKS g_WeaponSKS;
 static CWeaponShotgunRemington g_WeaponShotgun;
 static CWeaponExplosiveTNT g_WeaponTNT;
 static CWeaponExplosiveIED g_WeaponIED;
@@ -78,7 +75,6 @@ static CWeaponMeleeLeadPipe g_WeaponLeadPipe;
 static CWeaponMeleeFireaxe g_WeaponFireaxe;
 static CWeaponShotgunDoubleBarrel g_WeaponDoubleBarrel;
 static CWeaponSideArmPPK g_WeaponPPK;
-static CWeaponSideArmCZ75 g_WeaponCZ75;
 static CWeaponSideArmGlock17 g_WeaponGlock17;
 static CWeaponSideArmFafo g_WeaponFafo;
 static CWeaponExplosiveMolotov g_WeaponMolotov;
@@ -92,7 +88,6 @@ static CWeaponBase *g_pWpns[ LAST_WEAPON_ID ] = {
 	&g_WeaponPython,
 	&g_WeaponMP5,
 	&g_Weapon556AR,
-	&g_WeaponSKS,
 	&g_WeaponShotgun,
 	&g_WeaponTNT,
 	&g_WeaponIED,
@@ -101,7 +96,6 @@ static CWeaponBase *g_pWpns[ LAST_WEAPON_ID ] = {
 	&g_WeaponFireaxe,
 	&g_WeaponDoubleBarrel,
 	&g_WeaponPPK,
-	&g_WeaponCZ75,
 	&g_WeaponGlock17,
 	&g_WeaponFafo,
 	&g_WeaponMolotov,

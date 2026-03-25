@@ -237,7 +237,6 @@ void ZP::SetupDefaultSpawnList()
 		WEAPON_SIG,
 		WEAPON_357,
 		WEAPON_556AR,
-		WEAPON_SKS,
 		WEAPON_MP5,
 		WEAPON_SHOTGUN,
 		WEAPON_PPK,
@@ -274,7 +273,6 @@ void ZP::SetupDefaultSpawnList()
 		{ "weapon_sig", 0, ItemType::TypeWeapon },
 		{ "weapon_357", 0, ItemType::TypeWeapon },
 		{ "weapon_556ar", 0, ItemType::TypeWeapon },
-		{ "weapon_sks", 0, ItemType::TypeWeapon },
 		{ "weapon_mp5", 0, ItemType::TypeWeapon },
 		{ "weapon_shotgun", 0, ItemType::TypeWeapon },
 		{ "weapon_ppk", 0, ItemType::TypeWeapon },
@@ -302,7 +300,6 @@ void ZP::SetupDefaultSpawnList()
 		defaultSpawns[WEAPON_SIG].iLimit = 3;
 		defaultSpawns[WEAPON_357].iLimit = 3;
 		defaultSpawns[WEAPON_556AR].iLimit = 3;
-		defaultSpawns[WEAPON_SKS].iLimit = 3;
 		defaultSpawns[WEAPON_MP5].iLimit = 3;
 		defaultSpawns[WEAPON_SHOTGUN].iLimit = 3;
 		defaultSpawns[WEAPON_PPK].iLimit = 3;
@@ -329,7 +326,6 @@ void ZP::SetupDefaultSpawnList()
 		defaultSpawns[WEAPON_SIG].iLimit = 2;
 		defaultSpawns[WEAPON_357].iLimit = 2;
 		defaultSpawns[WEAPON_556AR].iLimit = 2;
-		defaultSpawns[WEAPON_SKS].iLimit = 2;
 		defaultSpawns[WEAPON_MP5].iLimit = 2;
 		defaultSpawns[WEAPON_SHOTGUN].iLimit = 2;
 		defaultSpawns[WEAPON_PPK].iLimit = 3;
@@ -356,7 +352,6 @@ void ZP::SetupDefaultSpawnList()
 		defaultSpawns[WEAPON_SIG].iLimit = 2;
 		defaultSpawns[WEAPON_357].iLimit = 2;
 		defaultSpawns[WEAPON_556AR].iLimit = 1;
-		defaultSpawns[WEAPON_SKS].iLimit = 1;
 		defaultSpawns[WEAPON_MP5].iLimit = 2;
 		defaultSpawns[WEAPON_SHOTGUN].iLimit = 2;
 		defaultSpawns[WEAPON_PPK].iLimit = 3;
@@ -382,7 +377,6 @@ void ZP::SetupDefaultSpawnList()
 		defaultSpawns[WEAPON_SIG].iLimit = 2;
 		defaultSpawns[WEAPON_357].iLimit = 2;
 		defaultSpawns[WEAPON_556AR].iLimit = 1;
-		defaultSpawns[WEAPON_SKS].iLimit = 1;
 		defaultSpawns[WEAPON_MP5].iLimit = 1;
 		defaultSpawns[WEAPON_SHOTGUN].iLimit = 1;
 		defaultSpawns[WEAPON_PPK].iLimit = 3;
@@ -407,7 +401,6 @@ void ZP::SetupDefaultSpawnList()
 		defaultSpawns[WEAPON_SIG].iLimit = 2;
 		defaultSpawns[WEAPON_357].iLimit = 1;
 		defaultSpawns[WEAPON_556AR].iLimit = 1;
-		defaultSpawns[WEAPON_SKS].iLimit = 1;
 		defaultSpawns[WEAPON_MP5].iLimit = 1;
 		defaultSpawns[WEAPON_SHOTGUN].iLimit = 1;
 		defaultSpawns[WEAPON_PPK].iLimit = 3;
@@ -432,7 +425,6 @@ void ZP::SetupDefaultSpawnList()
 		defaultSpawns[WEAPON_SIG].iLimit = 2;
 		defaultSpawns[WEAPON_357].iLimit = 1;
 		defaultSpawns[WEAPON_556AR].iLimit = 1;
-		defaultSpawns[WEAPON_SKS].iLimit = 1;
 		defaultSpawns[WEAPON_MP5].iLimit = 1;
 		defaultSpawns[WEAPON_SHOTGUN].iLimit = 1;
 		defaultSpawns[WEAPON_PPK].iLimit = 3;
@@ -457,7 +449,6 @@ void ZP::SetupDefaultSpawnList()
 		defaultSpawns[WEAPON_SIG].iLimit = 2;
 		defaultSpawns[WEAPON_357].iLimit = 1;
 		defaultSpawns[WEAPON_556AR].iLimit = 1;
-		defaultSpawns[WEAPON_SKS].iLimit = 1;
 		defaultSpawns[WEAPON_MP5].iLimit = 1;
 		defaultSpawns[WEAPON_SHOTGUN].iLimit = 1;
 		defaultSpawns[WEAPON_PPK].iLimit = 3;

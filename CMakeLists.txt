@@ -395,9 +395,7 @@ set( GAME_COMMON_SRCS
 
 set( GAME_COMMON_DEFINES
 	${COMMON_DEFINES}
-# We don't want to use client side prediction, as it fucks up a lot of things in Zombie Panic.
-# Plus it breaks FOV command.
-#	CLIENT_WEAPONS
+	CLIENT_WEAPONS
 )
 
 set( GAME_COMMON_INCLUDE_PATHS

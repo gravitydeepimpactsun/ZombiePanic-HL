@@ -36,7 +36,7 @@ void CWeaponMeleeSwipe::DoWeaponSoundFromAttack( MeleeAttackType attackType, boo
 		case 1: szSoundFile = "weapons/melee/zarm/strike2.wav"; break;
 		case 2: szSoundFile = "weapons/melee/zarm/strike3.wav"; break;
 	}
-	EMIT_SOUND( ENT(m_pPlayer->pev), CHAN_ITEM, szSoundFile, 1, ATTN_NORM );
+	EmitWeaponSound( szSoundFile, CHAN_ITEM, 1, ATTN_NORM );
 }
 
 void CWeaponMeleeSwipe::DoWeaponSoundFromMiss( MeleeAttackType attackType )
@@ -47,7 +47,7 @@ void CWeaponMeleeSwipe::DoWeaponSoundFromMiss( MeleeAttackType attackType )
 		case 0: szSoundFile = "weapons/melee/zarm/miss1.wav"; break;
 		case 1: szSoundFile = "weapons/melee/zarm/miss2.wav"; break;
 	}
-	EMIT_SOUND( ENT(m_pPlayer->pev), CHAN_ITEM, szSoundFile, 1, ATTN_NORM );
+	EmitWeaponSound( szSoundFile, CHAN_ITEM, 1, ATTN_NORM );
 }
 
 float CWeaponMeleeSwipe::Deploy()

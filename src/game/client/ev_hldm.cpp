@@ -76,7 +76,7 @@ extern "C"
 	void EV_FireFAFO(struct event_args_s *args);
 	void EV_FireSig(struct event_args_s *args);
 	void EV_FirePPK(struct event_args_s *args);
-//	void EV_FireGlock(struct event_args_s *args);
+	void EV_FireGlock(struct event_args_s *args);
 	void EV_FireDBarrel(struct event_args_s *args);
 	void EV_DBarrelReload(struct event_args_s *args);
 	void EV_ShotgunPump(struct event_args_s *args);

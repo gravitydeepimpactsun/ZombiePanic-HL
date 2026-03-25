@@ -81,10 +81,7 @@ void CWeaponShotgunDoubleBarrel::DoAudioFrame( void )
 			// Time to play the sound
 			if ( m_pPlayer )
 			{
-				// Don't play sounds in client DLL
-#if !defined( CLIENT_DLL )
-				EMIT_SOUND( ENT(m_pPlayer->pev), CHAN_AUTO, soundData.File, soundData.Volume, soundData.Attenuation );
-#endif
+				EmitWeaponSound( soundData.File, CHAN_AUTO, soundData.Volume, soundData.Attenuation );
 				// If this is the "out.wav" sound, play a shell ejection event. It's a shitty hack, but eh.
 				// At least the origin won't be fucked...
 				if ( FStrEq( soundData.File, "weapons/doublebarrel/out.wav" ) )
@@ -111,14 +108,14 @@ void CWeaponShotgunDoubleBarrel::PrimaryAttack()
 	if (m_pPlayer->pev->waterlevel == 3)
 	{
 		PlayEmptySound();
-		m_flNextPrimaryAttack = 0.15;
+		m_flNextPrimaryAttack = GetWeaponTimerBase() + 0.15f;
 		return;
 	}
 
 	if (m_iClip <= 0)
 	{
 		PlayEmptySound();
-		m_flNextPrimaryAttack = 0.15;
+		m_flNextPrimaryAttack = GetWeaponTimerBase() + 0.15f;
 		return;
 	}
 

@@ -301,6 +301,7 @@ static WeaponInfo sWeaponInfoList[] = {
 	{ "molotov", WEAPON_MOLOTOV, false, false },
 	{ "nailgun", WEAPON_NAILGUN, false, false },
 	{ "ied", WEAPON_SATCHEL, false, false },
+	{ "glock17", WEAPON_GLOCK17, false, false },
 	{ "fafo", WEAPON_FAFO_ERW, false, false },
 };
 

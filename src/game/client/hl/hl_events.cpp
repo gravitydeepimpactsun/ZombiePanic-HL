@@ -22,7 +22,7 @@ extern "C"
 	void EV_FireFAFO(struct event_args_s *args);
 	void EV_FireSig(struct event_args_s *args);
 	void EV_FirePPK(struct event_args_s *args);
-	//void EV_FireGlock(struct event_args_s *args);
+	void EV_FireGlock(struct event_args_s *args);
 	void EV_FireDBarrel(struct event_args_s *args);
 	void EV_DBarrelReload(struct event_args_s *args);
 	void EV_ShotgunPump(struct event_args_s *args);
@@ -67,7 +67,7 @@ void Game_HookEvents(void)
 	gEngfuncs.pfnHookEvent("events/fafo.sc", EV_FireFAFO);
 	gEngfuncs.pfnHookEvent("events/sig.sc", EV_FireSig);
 	gEngfuncs.pfnHookEvent("events/ppk.sc", EV_FirePPK);
-	//gEngfuncs.pfnHookEvent("events/glock.sc", EV_FireGlock);
+	gEngfuncs.pfnHookEvent("events/glock17.sc", EV_FireGlock);
 	gEngfuncs.pfnHookEvent("events/dbarrel.sc", EV_FireDBarrel);
 	gEngfuncs.pfnHookEvent("events/dbarrel_reload.sc", EV_DBarrelReload);
 	gEngfuncs.pfnHookEvent("events/shotgun_pump.sc", EV_ShotgunPump);

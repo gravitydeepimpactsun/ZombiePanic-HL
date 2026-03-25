@@ -57,12 +57,18 @@ extern DLL_GLOBAL BOOL g_fGameOver;
 extern DLL_GLOBAL BOOL g_fDrawLines;
 int gEvilImpulse101;
 extern DLL_GLOBAL int g_iSkillLevel, gDisplayTitle;
+extern ConVar mp_hidecorpses;
 
 BOOL gInitHUD = TRUE;
 
 extern void CopyToBodyQue(entvars_t *pev);
 extern Vector VecBModelOrigin(entvars_t *pevBModel);
 extern edict_t *EntSelectSpawnPoint(CBasePlayer *pPlayer);
+
+class CPlayerCorpse;
+static bool SpawnAnimatedPlayerCorpse(CBasePlayer *pPlayer);
+
+static constexpr int PLAYER_CORPSE_ANIM_MARKER = 31337;
 
 // the world node graph
 extern CGraph WorldGraph;
@@ -242,6 +248,7 @@ int gmsgZombieLives = 0;
 int gmsgRoundState = 0;
 int gmsgTrain = 0;
 int gmsgLogo = 0;
+int gLogoState = 0;
 int gmsgWeaponList = 0;
 int gmsgAmmoX = 0;
 int gmsgHudText = 0;
@@ -335,6 +342,7 @@ void LinkUserMessages(void)
 	gmsgAmmoBankUpdate = REG_USER_MSG("AmmoBank", -1);
 	gmsgRoundState = REG_USER_MSG("RoundState", -1);
 	gmsgTrain = REG_USER_MSG("Train", 1);
+	gmsgLogo = REG_USER_MSG("Logo", 1);
 	gmsgHudText = REG_USER_MSG("HudText", -1);
 	gmsgSayText = REG_USER_MSG("SayText", -1);
 	gmsgSayConsole = REG_USER_MSG("SayCon", -1);
@@ -1795,7 +1803,26 @@ void CBasePlayer::PlayerDeathThink(void)
 		// BHL behavior: wait for fixed time
 		// time given to animate corpse and don't allow to respawn till this time ends
 		if (gpGlobals->time < m_flDeathAnimationStartTime + mp_respawn_delay.GetFloat())
+		{
+			if (pev->deadflag == DEAD_DYING && m_fSequenceFinished)
+			{
+				pev->frame = 255;
+				StopAnimation();
+				pev->effects |= EF_NOINTERP;
+			}
+
 			return;
+		}
+	}
+
+	if (mp_respawn_fix.GetBool() && pev->deadflag == DEAD_DYING && !m_fSequenceFinished)
+	{
+		if (SpawnAnimatedPlayerCorpse(this))
+		{
+			pev->modelindex = 0;
+			StopAnimation();
+			pev->effects |= EF_NOINTERP;
+		}
 	}
 
 	// make sure players with high fps finish the animation
@@ -5589,27 +5616,14 @@ void CBasePlayer::ImpulseCommands()
 	{
 	case 99:
 	{
-
-		int iOn;
-
-		if (!gmsgLogo)
-		{
-			iOn = 1;
-			gmsgLogo = REG_USER_MSG("Logo", 1);
-		}
-		else
-		{
-			iOn = 0;
-		}
+		gLogoState = !gLogoState;
+		const int iOn = gLogoState;
 
 		ASSERT(gmsgLogo > 0);
 		// send "health" update message
 		MESSAGE_BEGIN(MSG_ONE, gmsgLogo, NULL, pev);
 		WRITE_BYTE(iOn);
 		MESSAGE_END();
-
-		if (!iOn)
-			gmsgLogo = 0;
 		break;
 	}
 	case 100:
@@ -7414,7 +7428,10 @@ BOOL CBasePlayer::HasPlayerItemFromID(int nID)
 class CPlayerCorpse : public CBaseMonster
 {
 public:
+	virtual int ObjectCaps(void) { return FCAP_DONT_SAVE; }
 	void Spawn(void);
+	bool InitFromPlayer(CBasePlayer *pPlayer);
+	void EXPORT AnimateCorpseThink(void);
 	int Classify(void) { return CLASS_HUMAN_MILITARY; }
 };
 
@@ -7435,6 +7452,108 @@ void CPlayerCorpse::Spawn(void)
 	pev->health = 8;
 
 	MonsterInitDead();
+}
+
+bool CPlayerCorpse::InitFromPlayer(CBasePlayer *pPlayer)
+{
+	if (!pPlayer || pPlayer->pev->modelindex == 0 || FBitSet(pPlayer->pev->effects, EF_NODRAW))
+		return false;
+
+	const char *pszModel = STRING(pPlayer->pev->model);
+	if (!pszModel || !pszModel[0])
+		return false;
+
+	SET_MODEL(ENT(pev), pszModel);
+
+	pev->origin = pPlayer->pev->origin;
+	pev->angles = pPlayer->pev->angles;
+	pev->sequence = pPlayer->pev->sequence;
+	pev->frame = pPlayer->pev->frame;
+	pev->animtime = pPlayer->pev->animtime;
+	pev->framerate = pPlayer->pev->framerate;
+	pev->body = pPlayer->pev->body;
+	pev->skin = pPlayer->pev->skin;
+	pev->colormap = pPlayer->pev->colormap;
+	pev->movetype = MOVETYPE_TOSS;
+	pev->solid = SOLID_NOT;
+	pev->velocity = pPlayer->pev->velocity;
+	pev->flags = 0;
+	pev->deadflag = DEAD_DEAD;
+	pev->takedamage = DAMAGE_NO;
+	pev->health = 8;
+	pev->effects = pPlayer->pev->effects & ~(EF_BRIGHTLIGHT | EF_DIMLIGHT | EF_NODRAW | EF_NOINTERP);
+	m_bloodColor = BLOOD_COLOR_RED;
+
+	InitBoneControllers();
+	ResetSequenceInfo();
+
+	for (int i = 0; i < ARRAYSIZE(pev->controller); ++i)
+		pev->controller[i] = pPlayer->pev->controller[i];
+
+	for (int i = 0; i < ARRAYSIZE(pev->blending); ++i)
+		pev->blending[i] = pPlayer->pev->blending[i];
+
+	pev->frame = pPlayer->pev->frame;
+	pev->animtime = pPlayer->pev->animtime;
+	pev->framerate = pPlayer->pev->framerate;
+	m_fSequenceFinished = FALSE;
+	pev->playerclass = PLAYER_CORPSE_ANIM_MARKER;
+
+	UTIL_SetOrigin(pev, pPlayer->pev->origin);
+	UTIL_SetSize(pev, pPlayer->pev->mins, pPlayer->pev->maxs);
+
+	SetThink(&CPlayerCorpse::AnimateCorpseThink);
+	pev->nextthink = gpGlobals->time + 0.1f;
+
+	return true;
+}
+
+void CPlayerCorpse::AnimateCorpseThink(void)
+{
+	if (!m_fSequenceFinished && pev->framerate > 0)
+	{
+		StudioFrameAdvance();
+
+		if (m_fSequenceFinished)
+		{
+			pev->frame = 255;
+			StopAnimation();
+			pev->effects |= EF_NOINTERP;
+		}
+	}
+
+	if (pev->movetype != MOVETYPE_NONE && FBitSet(pev->flags, FL_ONGROUND))
+	{
+		pev->movetype = MOVETYPE_NONE;
+		pev->velocity = g_vecZero;
+		UTIL_SetOrigin(pev, pev->origin);
+	}
+
+	if (m_fSequenceFinished && pev->movetype == MOVETYPE_NONE)
+	{
+		SetThink(NULL);
+		return;
+	}
+
+	pev->nextthink = gpGlobals->time + 0.1f;
+}
+
+static bool SpawnAnimatedPlayerCorpse(CBasePlayer *pPlayer)
+{
+	if (!pPlayer || mp_hidecorpses.GetBool())
+		return false;
+
+	CPlayerCorpse *pCorpse = GetClassPtr((CPlayerCorpse *)NULL);
+	if (!pCorpse)
+		return false;
+
+	if (!pCorpse->InitFromPlayer(pPlayer))
+	{
+		pCorpse->SUB_Remove();
+		return false;
+	}
+
+	return true;
 }
 
 class CStripWeapons : public CPointEntity

@@ -2105,5 +2105,18 @@ void CvarValue2(const edict_t *pEnt, int requestID, const char *cvarName, const 
 
 int ShouldCollide( edict_t *pEntity, edict_t *pOther )
 {
+	// ShouldCollide does not work with players, but let's try with brushes instead?
+
+	// Experimental stuff for new brushes.
+	if ( (pEntity->v.flags & FL_CLIENT) )
+	{
+		// A human player touched this object, block.
+		if ( FClassnameIs( pOther, "func_block_human" ) )
+			return ( pEntity->v.team == ZP::TEAM_SURVIVIOR ) ? 1 : 0;
+		// A zombie player touched this object, block.
+		if ( FClassnameIs( pOther, "func_block_zombie" ) )
+			return ( pEntity->v.team == ZP::TEAM_ZOMBIE ) ? 1 : 0;
+	}
+
 	return 1;
 }

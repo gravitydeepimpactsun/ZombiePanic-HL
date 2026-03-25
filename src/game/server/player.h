@@ -250,6 +250,8 @@ public:
 	virtual void Spawn(void);
 	void Pain(bool bDrown);
 
+	void SetPlayerHullSize();
+
 	//	virtual void Think( void );
 	virtual void Jump(void);
 	virtual void Duck(void);

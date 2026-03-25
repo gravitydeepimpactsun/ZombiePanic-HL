@@ -4659,6 +4659,24 @@ static SpawnPointValidity CheckSpawnPointValidity( CBaseEntity *pPlayer, CBaseEn
 		}
 	}
 
+	// Do another hull trace, but this is using UTIL_EntitiesInBox using our player hull size (well, double the hull size)
+	// We don't want to spawn inside a player that is standing on top of this spawn point,
+	// or if this spawn is in a vent, and the player is falling from the spawn point, etc.
+	CBaseEntity *pEntList[15];
+	Vector vecSpawnPointOrigin = spawnPoint->pev->origin;
+	Vector vecSpawnPointMins = vecSpawnPointOrigin + ( VEC_HULL_MIN + VEC_HULL_MIN );
+	Vector vecSpawnPointMaxs = vecSpawnPointOrigin + ( VEC_HULL_MAX + VEC_HULL_MAX );
+	int iEntsInBox = UTIL_EntitiesInBox( pEntList, 15, vecSpawnPointMins, vecSpawnPointMaxs, FL_CLIENT | FL_MONSTER );
+	for ( int i = 0; i < iEntsInBox; i++ )
+	{
+		CBaseEntity *pEnt = pEntList[i];
+		if ( pEnt && pEnt->IsPlayer() )
+		{
+			// OI THERE GOVNA, YOU CAN'T SPAWN HERE, SOMEONE'S IN THE WAY.
+			return SpawnPointValidity::NonValidOccupied;
+		}
+	}
+
 	// Disabled spawn point?
 	if ( !spawnPoint->IsEnabled() )
 		return SpawnPointValidity::NonValidDisabled;

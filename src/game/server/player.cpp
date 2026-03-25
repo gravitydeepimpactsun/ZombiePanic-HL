@@ -2714,6 +2714,7 @@ void CBasePlayer::UpdateFatigue()
 int CBasePlayer::GetMaxHealth()
 {
 	if ( pev->team == ZP::TEAM_ZOMBIE ) return ZP::MaxHealth[1];
+	if ( m_bPunishLateJoiner ) return 45;
 	return ZP::MaxHealth[0];
 }
 

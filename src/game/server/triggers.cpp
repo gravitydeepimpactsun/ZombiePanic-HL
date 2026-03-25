@@ -2267,7 +2267,25 @@ void CBaseTrigger ::TeleportTouch(CBaseEntity *pOther)
 	edict_t *pFind = FIND_ENTITY_BY_TARGETNAME( nullptr, STRING(pev->target) );
 	while ( !FNullEnt( pFind ) )
 	{
-		m_RandomList.push_back( pFind );
+		// Make sure we don't teleport into a player, or we'll have a bad time.
+		bool bSkip = false;
+		CBaseEntity *pEntList[15];
+		Vector vecSpawnPointOrigin = VARS(pFind)->origin;
+		Vector vecSpawnPointMins = vecSpawnPointOrigin + ( VEC_HULL_MIN + VEC_HULL_MIN );
+		Vector vecSpawnPointMaxs = vecSpawnPointOrigin + ( VEC_HULL_MAX + VEC_HULL_MAX );
+		int iEntsInBox = UTIL_EntitiesInBox( pEntList, 15, vecSpawnPointMins, vecSpawnPointMaxs, FL_CLIENT | FL_MONSTER );
+		for ( int i = 0; i < iEntsInBox; i++ )
+		{
+			CBaseEntity *pEnt = pEntList[i];
+			if ( pEnt && pEnt->IsPlayer() )
+			{
+				// occupied by a player, skip it.
+				bSkip = true;
+				break;
+			}
+		}
+		if ( !bSkip )
+			m_RandomList.push_back( pFind );
 		pFind = FIND_ENTITY_BY_TARGETNAME( pFind, STRING(pev->target) );
 	}
 

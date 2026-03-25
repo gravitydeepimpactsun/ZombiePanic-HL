@@ -60,8 +60,10 @@ extern cvar_t *cl_lw;
 static ConVar cl_shellejects_dbarrel1( "cl_shellejects_dbarrel1", "-20 -12 -4" );
 static ConVar cl_shellejects_dbarrel2( "cl_shellejects_dbarrel2", "-20 -12 4" );
 static ConVar cl_shellejects_m16( "cl_shellejects_m16", "13 -12 10" );
+static ConVar cl_shellejects_sks( "cl_shellejects_sks", "13 -12 10" );
 static ConVar cl_shellejects_sig( "cl_shellejects_sig", "20 -12 4" );
 static ConVar cl_shellejects_ppk( "cl_shellejects_ppk", "20 -12 4" );
+static ConVar cl_shellejects_cz75("cl_shellejects_cz75", "20 -12 4");
 static ConVar cl_shellejects_mp5( "cl_shellejects_mp5", "13 -12 10" );
 static ConVar cl_shellejects_revolver( "cl_shellejects_revolver", "20 -12 4" );
 static ConVar cl_shellejects_shotgun( "cl_shellejects_shotgun", "8 -12 8" );
@@ -76,12 +78,14 @@ extern "C"
 	void EV_FireFAFO(struct event_args_s *args);
 	void EV_FireSig(struct event_args_s *args);
 	void EV_FirePPK(struct event_args_s *args);
+	void EV_FireCZ75(struct event_args_s *args);
 	void EV_FireGlock(struct event_args_s *args);
 	void EV_FireDBarrel(struct event_args_s *args);
 	void EV_DBarrelReload(struct event_args_s *args);
 	void EV_ShotgunPump(struct event_args_s *args);
 	void EV_FireShotGunSingle(struct event_args_s *args);
 	void EV_FireShotGunDouble(struct event_args_s *args);
+	void EV_FireSKS(struct event_args_s *args);
 	void EV_FireM16(struct event_args_s *args);
 	void EV_FireMP5(struct event_args_s *args);
 	void EV_FireMP52(struct event_args_s *args);
@@ -580,6 +584,52 @@ void EV_FireFAFO(event_args_t *args)
 	EV_HLDM_FireBullets(idx, forward, right, up, 1, vecSrc, vecAiming, 8192, BULLET_PLAYER_FAFO, 0, NULL, args->fparam1, args->fparam2);
 }
 
+void EV_FireCZ75(event_args_t *args)
+{
+	int idx;
+	Vector origin;
+	Vector angles;
+	Vector velocity;
+	int empty;
+
+	Vector ShellVelocity;
+	Vector ShellOrigin;
+	int shell;
+	Vector vecSrc, vecAiming;
+	Vector up, right, forward;
+
+	idx = args->entindex;
+	VectorCopy(args->origin, origin);
+	VectorCopy(args->angles, angles);
+	VectorCopy(args->velocity, velocity);
+
+	empty = args->bparam1;
+	AngleVectors(angles, forward, right, up);
+
+	shell = gEngfuncs.pEventAPI->EV_FindModelIndex("models/shell.mdl"); // brass shell
+
+	if (EV_IsLocal(idx))
+	{
+		EV_MuzzleFlash();
+		gEngfuncs.pEventAPI->EV_WeaponAnimation(empty ? ANIM_PISTOL_SHOOT_EMPTY : ANIM_PISTOL_SHOOT, 2);
+
+		V_PunchAxis(0, -2.0);
+	}
+	
+	Vector shellOffset;
+	ParseVector( cl_shellejects_cz75.GetString(), shellOffset );
+	EV_GetDefaultShellInfo(args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, shellOffset.x, shellOffset.y, shellOffset.z);
+	EV_EjectBrass(ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHELL);
+
+	gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, "weapons/cz75/fire.wav", gEngfuncs.pfnRandomFloat(0.92, 1.0), ATTN_NORM, 0, 98 + gEngfuncs.pfnRandomLong(0, 3));
+
+	EV_GetGunPosition(args, vecSrc, origin);
+
+	VectorCopy(forward, vecAiming);
+
+	EV_HLDM_FireBullets(idx, forward, right, up, 1, vecSrc, vecAiming, 8192, BULLET_PLAYER_CZ75, 0, NULL, args->fparam1, args->fparam2);
+}
+
 void EV_FirePPK(event_args_t *args)
 {
 	int idx;
@@ -816,6 +866,56 @@ void EV_DBarrelReload(event_args_t *args)
 //======================
 //	   SHOTGUN END
 //======================
+
+//======================
+//	    SKS START
+//======================
+void EV_FireSKS(event_args_t *args)
+{
+	int idx;
+	Vector origin;
+	Vector angles;
+	Vector velocity;
+
+	Vector ShellVelocity;
+	Vector ShellOrigin;
+	int shell;
+	Vector vecSrc, vecAiming;
+	Vector up, right, forward;
+	float flSpread = 0.01;
+
+	idx = args->entindex;
+	VectorCopy(args->origin, origin);
+	VectorCopy(args->angles, angles);
+	VectorCopy(args->velocity, velocity);
+
+	AngleVectors(angles, forward, right, up);
+
+	shell = gEngfuncs.pEventAPI->EV_FindModelIndex("models/shell_rifle.mdl"); // brass shell
+
+	if (EV_IsLocal(idx))
+	{
+		// Add muzzle flash to current weapon model
+		EV_MuzzleFlash();
+		gEngfuncs.pEventAPI->EV_WeaponAnimation(ANIM_AR556_FIRE1 + gEngfuncs.pfnRandomLong(0, 2), 2);
+
+		V_PunchAxis(0, gEngfuncs.pfnRandomFloat(-2, 2));
+	}
+
+	Vector shellOffset;
+	ParseVector( cl_shellejects_sks.GetString(), shellOffset );
+	EV_GetDefaultShellInfo(args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, shellOffset.x, shellOffset.y, shellOffset.z);
+	EV_EjectBrass(ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHELL);
+
+	gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, "weapons/sks/fire.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong(0, 0xf));
+
+	EV_GetGunPosition(args, vecSrc, origin);
+	VectorCopy(forward, vecAiming);
+
+	// Array overflow fix: Use increased tracerCount array and wrap indexes in case if amount of entities is set very high, with hope that they will not overlap after wrap.
+	// If they do, well ... it will not hurt much.
+	EV_HLDM_FireBullets(idx, forward, right, up, 1, vecSrc, vecAiming, 8192, BULLET_PLAYER_SKS, 2, &tracerCount[idx % ARRAYSIZE(tracerCount) - 1], args->fparam1, args->fparam2);
+}
 
 //======================
 //	    M16 START

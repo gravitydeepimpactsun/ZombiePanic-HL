@@ -114,9 +114,14 @@ void CTriggerCapturePoint::OnScriptCallBack( KeyValues *pData )
 
 void CTriggerCapturePoint::Restart()
 {
+	m_CaptureBegun = false;
+	m_flCaptureDecreaseRate = 0.0f;
 	m_Enabled = m_EnableRem;
 	m_CheckZombies = true;
 	m_flNextCheck = gpGlobals->time + 2.0f;
+	CInfoBeacon *pFind = (CInfoBeacon *)UTIL_FindEntityByTargetname( nullptr, STRING( m_BeaconTargetName ) );
+	if ( pFind )
+		pFind->Use( this, this, m_Enabled ? USE_TYPE::USE_ON : USE_TYPE::USE_OFF, 0 );
 }
 
 void CTriggerCapturePoint::KeyValue( KeyValueData *pkvd )

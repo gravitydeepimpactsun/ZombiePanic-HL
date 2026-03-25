@@ -323,10 +323,7 @@ void CBaseGameMode::GiveWeapons( CBasePlayer *pPlayer )
 			}
 		}
 		else
-		{
-			pPlayer->GiveNamedItem( "weapon_crowbar" );
-			//pPlayer->GiveNamedItem( "weapon_cz75" );
-		}
+			pPlayer->GiveNamedItem( "weapon_walkstick" );
 		pPlayer->m_bPunishLateJoiner = false;
 	}
 }

@@ -74,6 +74,7 @@ enum ZPWeaponID
 
 	// Weapons from the prototype
 	WEAPON_CROWBAR,
+	WEAPON_WALKSTICK,
 	WEAPON_SWIPE,
 	WEAPON_SIG,
 	WEAPON_PYTHON,

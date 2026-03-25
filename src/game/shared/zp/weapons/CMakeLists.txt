@@ -38,6 +38,8 @@ add_sources(
 	weapon_sidearm_revolver.h
 	weapon_melee_crowbar.cpp
 	weapon_melee_crowbar.h
+	weapon_melee_walkstick.cpp
+	weapon_melee_walkstick.h
 	weapon_melee_leadpipe.cpp
 	weapon_melee_leadpipe.h
 	weapon_melee_fireaxe.cpp

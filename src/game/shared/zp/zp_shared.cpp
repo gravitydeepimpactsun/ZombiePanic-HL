@@ -287,6 +287,7 @@ static AmmoData sAmmoDataList[] = {
 static WeaponInfo sWeaponInfoList[] = {
 	// { const char *szWeapon, ZPWeaponID WeaponID, bool Hidden, bool Melee }
 	{ "crowbar", WEAPON_CROWBAR, false, true },
+	{ "walkstick", WEAPON_WALKSTICK, false, true },
 	{ "leadpipe", WEAPON_LEADPIPE, false, true },
 	{ "fireaxe", WEAPON_FIREAXE, false, true },
 	{ "swipe", WEAPON_SWIPE, true, false },

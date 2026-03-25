@@ -44,6 +44,7 @@
 #include "zp/weapons/weapon_melee_crowbar.h"
 #include "zp/weapons/weapon_melee_leadpipe.h"
 #include "zp/weapons/weapon_melee_fireaxe.h"
+#include "zp/weapons/weapon_melee_walkstick.h"
 #include "zp/weapons/weapon_explosive_tnt.h"
 #include "zp/weapons/weapon_explosive_ied.h"
 #include "zp/weapons/weapon_explosive_molotov.h"
@@ -64,6 +65,7 @@ static globalvars_t Globals;
 
 static CWeaponMeleeCrowbar g_WeaponCrowbar;
 static CWeaponMeleeSwipe g_WeaponSwipe;
+static CWeaponMeleeWalkStick g_WeaponWalkStick;
 static CWeaponSideArmSig g_WeaponSig;
 static CWeaponSideArmRevolver g_WeaponPython;
 static CWeaponSMGMP5 g_WeaponMP5;
@@ -83,6 +85,7 @@ static CWeaponNailGun g_WeaponNailgun;
 static CWeaponBase *g_pWpns[ LAST_WEAPON_ID ] = {
 	nullptr,
 	&g_WeaponCrowbar,
+	&g_WeaponWalkStick,
 	&g_WeaponSwipe,
 	&g_WeaponSig,
 	&g_WeaponPython,

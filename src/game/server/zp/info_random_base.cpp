@@ -235,6 +235,7 @@ void ZP::SetupDefaultSpawnList()
 		AMMO_22LRBOX,
 
 		WEAPON_SIG,
+		WEAPON_CZ75,
 		WEAPON_357,
 		WEAPON_556AR,
 		WEAPON_MP5,
@@ -271,6 +272,7 @@ void ZP::SetupDefaultSpawnList()
 		{ "ammo_22lrbox", 0, ItemType::TypeAmmo },
 
 		{ "weapon_sig", 0, ItemType::TypeWeapon },
+		{ "weapon_cz75", 0, ItemType::TypeWeapon },
 		{ "weapon_357", 0, ItemType::TypeWeapon },
 		{ "weapon_556ar", 0, ItemType::TypeWeapon },
 		{ "weapon_mp5", 0, ItemType::TypeWeapon },
@@ -298,6 +300,7 @@ void ZP::SetupDefaultSpawnList()
 		defaultSpawns[AMMO_22LRBOX].iLimit = 11;
 
 		defaultSpawns[WEAPON_SIG].iLimit = 3;
+		defaultSpawns[WEAPON_CZ75].iLimit = 3;
 		defaultSpawns[WEAPON_357].iLimit = 3;
 		defaultSpawns[WEAPON_556AR].iLimit = 3;
 		defaultSpawns[WEAPON_MP5].iLimit = 3;
@@ -324,6 +327,7 @@ void ZP::SetupDefaultSpawnList()
 		defaultSpawns[AMMO_22LRBOX].iLimit = 10;
 
 		defaultSpawns[WEAPON_SIG].iLimit = 2;
+		defaultSpawns[WEAPON_CZ75].iLimit = 2;
 		defaultSpawns[WEAPON_357].iLimit = 2;
 		defaultSpawns[WEAPON_556AR].iLimit = 2;
 		defaultSpawns[WEAPON_MP5].iLimit = 2;
@@ -350,6 +354,7 @@ void ZP::SetupDefaultSpawnList()
 		defaultSpawns[AMMO_22LRBOX].iLimit = 9;
 
 		defaultSpawns[WEAPON_SIG].iLimit = 2;
+		defaultSpawns[WEAPON_CZ75].iLimit = 2;
 		defaultSpawns[WEAPON_357].iLimit = 2;
 		defaultSpawns[WEAPON_556AR].iLimit = 1;
 		defaultSpawns[WEAPON_MP5].iLimit = 2;
@@ -375,6 +380,7 @@ void ZP::SetupDefaultSpawnList()
 		defaultSpawns[AMMO_22LRBOX].iLimit = 6;
 
 		defaultSpawns[WEAPON_SIG].iLimit = 2;
+		defaultSpawns[WEAPON_CZ75].iLimit = 2;
 		defaultSpawns[WEAPON_357].iLimit = 2;
 		defaultSpawns[WEAPON_556AR].iLimit = 1;
 		defaultSpawns[WEAPON_MP5].iLimit = 1;
@@ -399,6 +405,7 @@ void ZP::SetupDefaultSpawnList()
 		defaultSpawns[AMMO_22LRBOX].iLimit = 5;
 
 		defaultSpawns[WEAPON_SIG].iLimit = 2;
+		defaultSpawns[WEAPON_CZ75].iLimit = 2;
 		defaultSpawns[WEAPON_357].iLimit = 1;
 		defaultSpawns[WEAPON_556AR].iLimit = 1;
 		defaultSpawns[WEAPON_MP5].iLimit = 1;
@@ -423,6 +430,7 @@ void ZP::SetupDefaultSpawnList()
 		defaultSpawns[AMMO_22LRBOX].iLimit = 4;
 
 		defaultSpawns[WEAPON_SIG].iLimit = 2;
+		defaultSpawns[WEAPON_CZ75].iLimit = 2;
 		defaultSpawns[WEAPON_357].iLimit = 1;
 		defaultSpawns[WEAPON_556AR].iLimit = 1;
 		defaultSpawns[WEAPON_MP5].iLimit = 1;
@@ -447,6 +455,7 @@ void ZP::SetupDefaultSpawnList()
 		defaultSpawns[AMMO_22LRBOX].iLimit = 4;
 
 		defaultSpawns[WEAPON_SIG].iLimit = 2;
+		defaultSpawns[WEAPON_CZ75].iLimit = 2;
 		defaultSpawns[WEAPON_357].iLimit = 1;
 		defaultSpawns[WEAPON_556AR].iLimit = 1;
 		defaultSpawns[WEAPON_MP5].iLimit = 1;

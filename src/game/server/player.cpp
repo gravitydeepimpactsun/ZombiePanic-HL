@@ -430,6 +430,14 @@ void CBasePlayer ::Pain(bool bDrown)
 	m_flImHurtDelay = gpGlobals->time + 13.0f;
 }
 
+void CBasePlayer::SetPlayerHullSize()
+{
+	if ( FBitSet(pev->flags, FL_DUCKING) )
+		UTIL_SetSize(pev, VEC_DUCK_HULL_MIN, VEC_DUCK_HULL_MAX);
+	else
+		UTIL_SetSize(pev, VEC_HULL_MIN, VEC_HULL_MAX);
+}
+
 /* 
  *
  */
@@ -5035,10 +5043,7 @@ void CBasePlayer::Spawn(void)
 	g_ulModelIndexPlayer = pev->modelindex;
 	pev->sequence = LookupActivity(ACT_IDLE);
 
-	if (FBitSet(pev->flags, FL_DUCKING))
-		UTIL_SetSize(pev, VEC_DUCK_HULL_MIN, VEC_DUCK_HULL_MAX);
-	else
-		UTIL_SetSize(pev, VEC_HULL_MIN, VEC_HULL_MAX);
+	SetPlayerHullSize();
 
 	pev->view_ofs = VEC_VIEW;
 	Precache();
@@ -5199,17 +5204,7 @@ int CBasePlayer::Restore(CRestore &restore)
 
 	g_ulModelIndexPlayer = pev->modelindex;
 
-	if (FBitSet(pev->flags, FL_DUCKING))
-	{
-		// Use the crouch HACK
-		//FixPlayerCrouchStuck( edict() );
-		// Don't need to do this with new player prediction code.
-		UTIL_SetSize(pev, VEC_DUCK_HULL_MIN, VEC_DUCK_HULL_MAX);
-	}
-	else
-	{
-		UTIL_SetSize(pev, VEC_HULL_MIN, VEC_HULL_MAX);
-	}
+	SetPlayerHullSize();
 
 	if ( pev->team == ZP::TEAM_ZOMBIE )
 		pev->flags |= FL_ZOMBIE_PLAYER;

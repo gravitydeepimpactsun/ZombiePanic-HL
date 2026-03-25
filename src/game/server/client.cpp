@@ -697,10 +697,13 @@ void ServerDeactivate(void)
 
 	// Peform any shutdown operations here...
 	//
+	RESET_PRECACHE_CHECKS();
 }
 
 void ServerActivate(edict_t *pEdictList, int edictCount, int clientMax)
 {
+	RESET_PRECACHE_CHECKS();
+
 	int i;
 	CBaseEntity *pClass;
 
@@ -770,10 +773,12 @@ void PlayerPostThink(edict_t *pEntity)
 
 void ParmsNewLevel(void)
 {
+	RESET_PRECACHE_CHECKS();
 }
 
 void ParmsChangeLevel(void)
 {
+	RESET_PRECACHE_CHECKS();
 	// retrieve the pointer to the save data
 	SAVERESTOREDATA *pSaveData = (SAVERESTOREDATA *)gpGlobals->pSaveData;
 
@@ -845,6 +850,9 @@ DLL_EXPORT __declspec(naked) void BHL_Signature_g_pGameRules()
 
 void ClientPrecache(void)
 {
+	// Precache the error.mdl so we have it if something goes wrong during precaching.
+	PRECACHE_MODEL("models/error.mdl");
+
 	// setup precaches always needed
 	PRECACHE_SOUND("player/sprayer.wav"); // spray paint sound for PreAlpha
 
@@ -2119,4 +2127,78 @@ int ShouldCollide( edict_t *pEntity, edict_t *pOther )
 	}
 
 	return 1;
+}
+
+// ================================================================================================================================
+// ================================================================================================================================
+
+struct PrecachedItem
+{
+	char name[64];
+	int index;
+};
+
+extern enginefuncs_s g_engfuncs;
+static int const precache_check_max = 512;
+static std::vector<PrecachedItem> precache_check_list;
+
+void RESET_PRECACHE_CHECKS()
+{
+	precache_check_list.clear();
+}
+
+int PRECACHE_MODEL( char *szModel )
+{
+	// Already precached? Use it.
+	for ( const auto &item : precache_check_list )
+	{
+		if ( FStrEq( item.name, szModel ) )
+			return item.index;
+	}
+
+	int index = g_engfuncs.pfnPrecacheModel( szModel );
+	if ( index > 0 && precache_check_list.size() < precache_check_max )
+	{
+		PrecachedItem item;
+		item.index = index;
+		strncpy( item.name, szModel, sizeof( item.name ) );
+		precache_check_list.push_back( item );
+	}
+	return index;
+}
+
+int PRECACHE_SOUND( char *szSound )
+{
+	int index = g_engfuncs.pfnPrecacheSound( szSound );
+	return index;
+}
+
+int PRECACHE_GENERIC( char *szFile )
+{
+	int index = g_engfuncs.pfnPrecacheGeneric( szFile );
+	return index;
+}
+
+void SET_MODEL( edict_t *pEntity, const char *szModel )
+{
+	// If we start with *, we are a brush model.
+	if ( szModel[0] == '*' )
+	{
+		g_engfuncs.pfnSetModel( pEntity, szModel );
+		return;
+	}
+
+	// Make sure it's precached before setting it, otherwise the engine will crash
+	for ( const auto &item : precache_check_list )
+	{
+		if ( FStrEq( item.name, szModel ) )
+		{
+			g_engfuncs.pfnSetModel( pEntity, szModel );
+			return;
+		}
+	}
+
+	// It's not precached, just use "models/error.mdl" to avoid crashing and print a warning
+	g_engfuncs.pfnSetModel( pEntity, "models/error.mdl" );
+	Msg( "WARNING: Tried to set model \"%s\" without precaching it first! Using \"models/error.mdl\" instead.\n", szModel );
 }

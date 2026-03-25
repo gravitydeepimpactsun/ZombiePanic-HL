@@ -108,7 +108,7 @@ static DLL_FUNCTIONS gFunctionTable = {
 
 NEW_DLL_FUNCTIONS gNewDLLFunctions = {
 	nullptr,
-	nullptr,
+	RESET_PRECACHE_CHECKS,
 	ShouldCollide,
 	nullptr,
 	CvarValue2

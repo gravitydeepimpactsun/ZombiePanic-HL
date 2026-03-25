@@ -51,7 +51,7 @@ private:
 	std::vector<touchplayer_t> m_List;
 
 	bool m_CaptureBegun = false;
-	bool m_Enabled = true;
+	bool m_Enabled = false;
 	bool m_EnableRem = false;
 	bool m_CheckZombies = true;
 	float m_flNextCheck = 0.0f;

@@ -702,8 +702,6 @@ void ServerDeactivate(void)
 
 void ServerActivate(edict_t *pEdictList, int edictCount, int clientMax)
 {
-	RESET_PRECACHE_CHECKS();
-
 	int i;
 	CBaseEntity *pClass;
 

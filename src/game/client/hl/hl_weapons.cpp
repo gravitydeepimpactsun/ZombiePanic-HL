@@ -1078,6 +1078,8 @@ void CL_DLLEXPORT HUD_PostRunCmd(struct local_state_s *from, struct local_state_
 
 	g_runfuncs = runfuncs;
 
+	// Fucked, don't use cl_lw 1 (and now we no longer care about the value)
+#if 0
 #if defined(CLIENT_WEAPONS)
 	if (cl_lw && cl_lw->value)
 	{
@@ -1088,6 +1090,9 @@ void CL_DLLEXPORT HUD_PostRunCmd(struct local_state_s *from, struct local_state_
 	{
 		to->client.fov = g_lastFOV;
 	}
+#else
+	to->client.fov = g_lastFOV;
+#endif
 
 	if (g_irunninggausspred == 1)
 	{

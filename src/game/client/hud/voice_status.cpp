@@ -185,7 +185,7 @@ void CHudVoiceStatus::Paint()
 		if (pi->IsConnected() && pi->GetTeamNumber() != 0)
 		{
 			CPlayerInfo *pLocal = GetPlayerInfo( gEngfuncs.GetLocalPlayer()->index );
-			if ( pLocal->GetTeamNumber() == ZP::TEAM_SURVIVIOR )
+			if ( pLocal->GetTeamNumber() == ZP::TEAM_SURVIVIOR && !pLocal->IsSpectator() )
 				bgColor = g_pViewport->GetTeamColor( ZP::TEAM_SURVIVIOR );
 			else
 				bgColor = g_pViewport->GetTeamColor( pi->GetTeamNumber() );

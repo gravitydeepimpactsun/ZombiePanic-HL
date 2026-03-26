@@ -608,7 +608,7 @@ void CScorePanel::UpdateClientInfo(int client)
 
 	// If the local player is a survivor, we only show survivors and spectators on the scoreboard.
 	// Zombies (and spec) can see both however.
-	if ( GetLocalPlayer()->GetTeamNumber() == ZP::TEAM_SURVIVIOR )
+	if ( GetLocalPlayer()->GetTeamNumber() == ZP::TEAM_SURVIVIOR && !GetLocalPlayer()->IsSpectator() )
 		nTeamNum = ZP::TEAM_SURVIVIOR;
 
 	// If less than observer, always become observer.
@@ -693,7 +693,7 @@ void CScorePanel::UpdateClientInfo(int client)
 	{
 		// Create player's row
 		pd.nItemID = m_pPlayerList->AddItem( pd.nTeamID, playerKv );
-		if ( GetLocalPlayer()->GetTeamNumber() == ZP::TEAM_SURVIVIOR )
+		if ( GetLocalPlayer()->GetTeamNumber() == ZP::TEAM_SURVIVIOR && !GetLocalPlayer()->IsSpectator() )
 			m_pPlayerList->SetItemFgColor( pd.nItemID, g_pViewport->GetTeamColor(ZP::TEAM_SURVIVIOR) );
 		else
 			m_pPlayerList->SetItemFgColor( pd.nItemID, gHUD.GetClientColor( client, NoTeamColor::White ) );

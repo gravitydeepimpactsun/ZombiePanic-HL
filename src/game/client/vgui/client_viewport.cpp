@@ -744,7 +744,7 @@ void CClientViewport::MsgFunc_ScoreInfo(const char *pszName, int iSize, void *pb
 		info->m_ExtraInfo.frags = frags;
 		info->m_ExtraInfo.deaths = deaths;
 		info->m_ExtraInfo.playerclass = playerclass;
-		info->m_ExtraInfo.teamnumber = clamp(teamnumber, ZP::TEAM_SURVIVIOR, ZP::MAX_TEAM);
+		info->m_ExtraInfo.teamnumber = clamp(teamnumber, ZP::TEAM_OBSERVER, ZP::MAX_TEAM);
 
 		UpdateOnPlayerInfo(cl);
 	}

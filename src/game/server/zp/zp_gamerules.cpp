@@ -267,7 +267,7 @@ void CZombiePanicGameRules::ProcessDeferredBroadcasts()
 					WRITE_SHORT( pPlayer->pev->frags );
 					WRITE_SHORT( pPlayer->m_iDeaths );
 					WRITE_SHORT( 0 );
-					WRITE_SHORT( g_pGameRules->GetTeamIndex( pPlayer->TeamID() ) );
+					WRITE_SHORT( pPlayer->pev->team );
 					MESSAGE_END();
 				}
 				break;

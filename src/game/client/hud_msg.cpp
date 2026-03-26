@@ -43,21 +43,12 @@ extern weather_properties WeatherData;
 
 #define MAX_CLIENTS 32
 
-#if !defined(_TFC)
-extern BEAM *pBeam;
-extern BEAM *pBeam2;
-#endif
-
 #if defined(_TFC)
 void ClearEventList(void);
 #endif
 
 extern ConVar zoom_sensitivity_ratio;
 extern float g_lastFOV;
-
-#if defined(CLIENT_WEAPONS)
-cvar_t *cl_lw = nullptr;
-#endif
 
 ClientAPIData_t g_ClientAPIDataArray[ MAX_PLAYERS ] = {};
 ClientAPIData_t GetClientAPIData( int iClient )
@@ -87,11 +78,6 @@ int CHud::MsgFunc_InitHUD(const char *pszName, int iSize, void *pbuf)
 
 	if (g_pParticleMan)
 		g_pParticleMan->ResetParticles();
-
-#if !defined(_TFC)
-	//Probably not a good place to put this.
-	pBeam = pBeam2 = NULL;
-#endif
 
 	return 1;
 }

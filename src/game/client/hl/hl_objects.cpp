@@ -26,12 +26,11 @@
 #include "entity_types.h"
 #include "r_efx.h"
 
-extern BEAM *pBeam;
-extern BEAM *pBeam2;
 void HUD_GetLastOrg(float *org);
 
 void UpdateBeams(void)
 {
+#if 0
 	Vector forward, vecSrc, vecEnd, origin, angles, right, up;
 	Vector view_ofs;
 	pmtrace_t tr;
@@ -74,6 +73,7 @@ void UpdateBeams(void)
 		pBeam2->target = tr.endpos;
 		pBeam2->die = gEngfuncs.GetClientTime() + 0.1; // We keep it alive just a little bit forward in the future, just in case.
 	}
+#endif
 }
 
 /*
@@ -85,6 +85,8 @@ Add game specific, client-side objects here
 */
 void Game_AddObjects(void)
 {
+#if 0
 	if (pBeam && pBeam2)
 		UpdateBeams();
+#endif
 }

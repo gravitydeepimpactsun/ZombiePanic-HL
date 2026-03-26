@@ -48,10 +48,6 @@ static int tracerCount[32];
 void V_PunchAxis(int axis, float punch);
 void VectorAngles(const float *forward, float *angles);
 
-#if defined(CLIENT_WEAPONS)
-extern cvar_t *cl_lw;
-#endif
-
 // ------------------------------------------------------------------------
 // Shell ejection cvars cords
 // We can adjust the shell ejection position for each weapon
@@ -1658,158 +1654,12 @@ void EV_FireRpg(event_args_t *args)
 //======================
 //	    EGON START
 //======================
-enum egon_e
-{
-	EGON_IDLE1 = 0,
-	EGON_FIDGET1,
-	EGON_ALTFIREON,
-	EGON_ALTFIRECYCLE,
-	EGON_ALTFIREOFF,
-	EGON_FIRE1,
-	EGON_FIRE2,
-	EGON_FIRE3,
-	EGON_FIRE4,
-	EGON_DRAW,
-	EGON_HOLSTER
-};
-
-int g_fireAnims1[] = { EGON_FIRE1, EGON_FIRE2, EGON_FIRE3, EGON_FIRE4 };
-int g_fireAnims2[] = { EGON_ALTFIRECYCLE };
-
-enum EGON_FIRESTATE
-{
-	FIRE_OFF,
-	FIRE_CHARGE
-};
-enum EGON_FIREMODE
-{
-	FIRE_NARROW,
-	FIRE_WIDE
-};
-
-#define EGON_PRIMARY_VOLUME 450
-#define EGON_BEAM_SPRITE    "sprites/xbeam1.spr"
-#define EGON_FLARE_SPRITE   "sprites/XSpark1.spr"
-#define EGON_SOUND_OFF      "weapons/egon_off1.wav"
-#define EGON_SOUND_RUN      "weapons/egon_run3.wav"
-#define EGON_SOUND_STARTUP  "weapons/egon_windup2.wav"
-
-#define HLARRAYSIZE(p) (sizeof(p) / sizeof(p[0]))
-
-BEAM *pBeam;
-BEAM *pBeam2;
-
 void EV_EgonFire(event_args_t *args)
 {
-	int idx, iFireState, iFireMode;
-	Vector origin;
-
-	idx = args->entindex;
-	VectorCopy(args->origin, origin);
-	iFireState = args->iparam1;
-	iFireMode = args->iparam2;
-	int iStartup = args->bparam1;
-
-	if (iStartup)
-	{
-		if (iFireMode == FIRE_WIDE)
-			gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, EGON_SOUND_STARTUP, 0.98, ATTN_NORM, 0, 125);
-		else
-			gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, EGON_SOUND_STARTUP, 0.9, ATTN_NORM, 0, 100);
-	}
-	else
-	{
-		if (iFireMode == FIRE_WIDE)
-			gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_STATIC, EGON_SOUND_RUN, 0.98, ATTN_NORM, 0, 125);
-		else
-			gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_STATIC, EGON_SOUND_RUN, 0.9, ATTN_NORM, 0, 100);
-	}
-
-	//Only play the weapon anims if I shot it.
-	if (EV_IsLocal(idx))
-		gEngfuncs.pEventAPI->EV_WeaponAnimation(g_fireAnims1[gEngfuncs.pfnRandomLong(0, 3)], 1);
-
-#if defined(CLIENT_WEAPONS)
-	if (iStartup == 1 && EV_IsLocal(idx) && !IS_FIRSTPERSON_SPEC && !pBeam && !pBeam2 && cl_lw->value) //Adrian: Added the cl_lw check for those lital people that hate weapon prediction.
-	{
-		Vector vecSrc, vecEnd, origin, angles, forward, right, up;
-		pmtrace_t tr;
-
-		cl_entity_t *pl = gEngfuncs.GetEntityByIndex(idx);
-
-		if (pl)
-		{
-			VectorCopy(gHUD.m_vecAngles, angles);
-
-			AngleVectors(angles, forward, right, up);
-
-			EV_GetGunPosition(args, vecSrc, pl->origin);
-
-			VectorMA(vecSrc, 2048, forward, vecEnd);
-
-			gEngfuncs.pEventAPI->EV_SetUpPlayerPrediction(false, true);
-
-			// Store off the old count
-			gEngfuncs.pEventAPI->EV_PushPMStates();
-
-			// Now add in all of the players.
-			gEngfuncs.pEventAPI->EV_SetSolidPlayers(idx - 1);
-
-			gEngfuncs.pEventAPI->EV_SetTraceHull(2);
-			gEngfuncs.pEventAPI->EV_PlayerTrace(vecSrc, vecEnd, PM_NORMAL, -1, &tr);
-
-			gEngfuncs.pEventAPI->EV_PopPMStates();
-
-			int iBeamModelIndex = gEngfuncs.pEventAPI->EV_FindModelIndex(EGON_BEAM_SPRITE);
-
-			float r = 50.0f;
-			float g = 50.0f;
-			float b = 125.0f;
-
-			if (IEngineStudio.IsHardware())
-			{
-				r /= 100.0f;
-				g /= 100.0f;
-			}
-
-			pBeam = gEngfuncs.pEfxAPI->R_BeamEntPoint(idx | 0x1000, tr.endpos, iBeamModelIndex, 999999, 3.5, 0.2, 0.7, 55, 0, 0, r, g, b);
-
-			if (pBeam)
-				pBeam->flags |= (FBEAM_SINENOISE);
-
-			pBeam2 = gEngfuncs.pEfxAPI->R_BeamEntPoint(idx | 0x1000, tr.endpos, iBeamModelIndex, 999999, 5.0, 0.08, 0.7, 25, 0, 0, r, g, b);
-		}
-	}
-#endif
 }
 
 void EV_EgonStop(event_args_t *args)
 {
-	int idx;
-	Vector origin;
-
-	idx = args->entindex;
-	VectorCopy(args->origin, origin);
-
-	gEngfuncs.pEventAPI->EV_StopSound(idx, CHAN_STATIC, EGON_SOUND_RUN);
-
-	if (args->iparam1)
-		gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, EGON_SOUND_OFF, 0.98, ATTN_NORM, 0, 100);
-
-	if (EV_IsLocal(idx))
-	{
-		if (pBeam)
-		{
-			pBeam->die = 0.0;
-			pBeam = NULL;
-		}
-
-		if (pBeam2)
-		{
-			pBeam2->die = 0.0;
-			pBeam2 = NULL;
-		}
-	}
 }
 //======================
 //	    EGON END

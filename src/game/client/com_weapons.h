@@ -33,10 +33,6 @@ unsigned short stub_PrecacheEvent(int type, const char *s);
 const char *stub_NameForFunction(uint32 function);
 void stub_SetModel(struct edict_s *e, const char *m);
 
-#if defined(CLIENT_WEAPONS)
-extern cvar_t *cl_lw;
-#endif
-
 extern int g_runfuncs;
 extern Vector v_angles;
 extern float g_lastFOV;

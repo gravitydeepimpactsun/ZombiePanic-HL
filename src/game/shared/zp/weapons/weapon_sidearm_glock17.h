@@ -13,6 +13,7 @@ public:
 	ZPWeaponID GetWeaponID() override { return WEAPON_GLOCK17; }
 	bool IsAutomaticWeapon() const override { return false; }
 	const char *GetEmptySound() const override { return "weapons/glock/dryfire.wav"; }
+	float DoHolsterAnimation() override;
 	void Spawn( void );
 	void Precache( void );
 	int AddToPlayer( CBasePlayer *pPlayer );

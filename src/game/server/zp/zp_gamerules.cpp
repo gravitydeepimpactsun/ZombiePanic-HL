@@ -555,7 +555,7 @@ void CZombiePanicGameRules::PickRandomVolunteer()
 	if ( m_bHasPickedVolunteer ) return;
 	m_bHasPickedVolunteer = true;
 	// Punish players who join late
-	m_flRoundJustBegun = gpGlobals->time + 60;
+	m_flRoundJustBegun = gpGlobals->time + 20;
 	if ( m_pGameMode->IsTestModeActive() ) return;
 	int iMoreRequired = 0;
 	bool bFirstTry = false;

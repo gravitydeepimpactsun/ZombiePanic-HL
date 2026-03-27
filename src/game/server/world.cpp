@@ -242,7 +242,7 @@ void CDecal ::KeyValue(KeyValueData *pkvd)
 // Body queue class here.... It's really just CBaseEntity
 class CCorpse : public CBaseEntity
 {
-	virtual int ObjectCaps(void) { return FCAP_DONT_SAVE; }
+	virtual int ObjectCaps(void) { return FCAP_DONT_SAVE | FCAP_MUST_RELEASE; }
 
 public:
 	void CreateBloodPool();

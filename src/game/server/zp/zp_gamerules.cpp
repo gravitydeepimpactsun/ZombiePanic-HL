@@ -618,10 +618,17 @@ add_one_more_zombie:
 				iSurvivors++;
 		}
 
-		if ( iSurvivors > 15 )
-			iMoreRequired = 2;
-		else if ( iSurvivors >= 8 )
-			iMoreRequired = 1;
+		// Make sure we start with 0 if we have 6 or more.
+		// Since the current value is -1.
+		if ( iSurvivors >= 6 )
+			iMoreRequired = 0;
+
+		// Now check survivors, and only increase the iMoreRequired by 1 for every 6 survivors, to prevent too many zombies from spawning at once.
+		for ( int y = 1; y <= iSurvivors; y++ )
+		{
+			if ( y % 6 == 0 )
+				iMoreRequired++;
+		}
 	}
 
 	// If it's higher than 0, then add the next one.

@@ -11,7 +11,7 @@ public:
 
 protected:
 	virtual ZP::GameModeType_e GetGameModeType() { return ZP::GameModeType_e::GAMEMODE_NONE; }
-	virtual bool IsTestModeActive() const { return false; };
+	virtual bool IsTestModeActive() const { return true; };
 	virtual void OnHUDInit(CBasePlayer *pPlayer);
 	virtual void OnGameModeThink() {}
 	virtual void RestartRound() {}
